@@ -36,11 +36,7 @@ comprehensive science mapping analysis. *Journal of Informetrics*,
 
 ``` r
 corpus <- sm_example_corpus(n_works = 10, n_authors = 5)
-# \donttest{
-if (requireNamespace("bibliometrix", quietly = TRUE)) {
-  M <- sm_to_bibliometrix(corpus)
-  class(M)
-}
+M <- sm_to_bibliometrix(corpus)
+class(M)
 #> [1] "bibliometrixDB" "data.frame"    
-# }
 ```

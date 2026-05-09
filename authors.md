@@ -10,14 +10,14 @@
 Source:
 [`inst/CITATION`](https://github.com/CTTIR/scimapR/blob/main/inst/CITATION)
 
-Heller R (2025). *scimapR: Reproducible, Question-Driven,
+Heller R (2026). *scimapR: Reproducible, Question-Driven,
 Embedding-Aware Science Mapping*. R package version 0.1.0,
 <https://github.com/CTTIR/scimapR>.
 
     @Manual{,
       title = {scimapR: Reproducible, Question-Driven, Embedding-Aware Science Mapping},
       author = {Raban Heller},
-      year = {2025},
+      year = {2026},
       note = {R package version 0.1.0},
       url = {https://github.com/CTTIR/scimapR},
     }

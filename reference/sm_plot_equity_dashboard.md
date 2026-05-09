@@ -48,11 +48,6 @@ Other plots:
 ## Examples
 
 ``` r
-# \donttest{
-if (requireNamespace("patchwork", quietly = TRUE)) {
-  corpus <- sm_example_corpus()
-  sm_plot_equity_dashboard(corpus)
-}
-
-# }
+corpus <- sm_example_corpus()
+sm_plot_equity_dashboard(corpus)
 ```

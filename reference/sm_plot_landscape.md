@@ -66,15 +66,9 @@ Other plots:
 ## Examples
 
 ``` r
-# \donttest{
-if (requireNamespace("dbscan", quietly = TRUE) &&
-    requireNamespace("uwot", quietly = TRUE)) {
-  corpus <- sm_example_corpus()
-  corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
-  sm_plot_landscape(corpus)
-}
+corpus <- sm_example_corpus()
+corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
 #> ✔ HDBSCAN clustering complete.
 #> ℹ 5 clusters found, 0 noise points.
-
-# }
+sm_plot_landscape(corpus)
 ```

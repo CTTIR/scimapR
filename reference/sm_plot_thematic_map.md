@@ -52,16 +52,9 @@ Other plots:
 ## Examples
 
 ``` r
-# \donttest{
-if (requireNamespace("dbscan", quietly = TRUE) &&
-    requireNamespace("uwot", quietly = TRUE) &&
-    requireNamespace("ggrepel", quietly = TRUE)) {
-  corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
-  corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
-  sm_plot_thematic_map(corpus)
-}
+corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
+corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
 #> ✔ HDBSCAN clustering complete.
 #> ℹ 5 clusters found, 0 noise points.
-
-# }
+sm_plot_thematic_map(corpus)
 ```

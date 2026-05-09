@@ -79,19 +79,14 @@ Other reproducibility:
 ## Examples
 
 ``` r
-# \donttest{
-if (requireNamespace("yaml", quietly = TRUE)) {
-  corpus <- sm_example_corpus()
-  cert <- sm_certificate(corpus)
-  print(cert)
-  verification <- sm_verify_certificate(corpus, cert)
-  print(verification)
-}
+corpus <- sm_example_corpus()
+cert <- sm_certificate(corpus)
 #> ✔ Certificate created. Corpus hash: ea446b5f4465
+print(cert)
 #> 
 #> ── <sm_certificate> ────────────────────────────────────────────────────────────
 #> Version: 1.0
-#> Created: 2026-05-09 07:58:50
+#> Created: 2026-05-09 17:24:54
 #> scimapR: v0.1.0
 #> R: 4.6.0 (unix)
 #> 
@@ -100,6 +95,8 @@ if (requireNamespace("yaml", quietly = TRUE)) {
 #> Authors: 80
 #> References: 1869
 #> Queries: 1
+verification <- sm_verify_certificate(corpus, cert)
+print(verification)
 #> 
 #> ── <sm_cert_verification> ──────────────────────────────────────────────────────
 #> Result: PASS
@@ -109,5 +106,4 @@ if (requireNamespace("yaml", quietly = TRUE)) {
 #> n_authors: expected 80, got 80
 #> n_institutions: expected 0, got 0
 #> n_references: expected 1869, got 1869
-# }
 ```

@@ -78,6 +78,7 @@ Other clustering:
 ## Examples
 
 ``` r
+# \donttest{
 corpus <- sm_example_corpus(with_embeddings = TRUE)
 corpus <- sm_cluster_kmeans(corpus, k = 5)
 #> ✔ K-means clustering complete.
@@ -119,4 +120,5 @@ evo$transitions
 #>  9 2015-2017   2018-2020            4          1   0.848       28
 #> 10 2015-2017   2018-2020            4          2   0.710       22
 #> # ℹ 40 more rows
+# }
 ```

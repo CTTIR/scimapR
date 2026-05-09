@@ -62,10 +62,8 @@ Other export:
 
 ``` r
 # \donttest{
-if (requireNamespace("quarto", quietly = TRUE)) {
-  corpus <- sm_example_corpus()
-  sm_export_quarto_report(corpus, tempfile(fileext = ".html"))
-}
+corpus <- sm_example_corpus()
+sm_export_quarto_report(corpus, tempfile(fileext = ".html"))
 #> ℹ Quarto report rendering requires a Quarto installation.
 #> ℹ Template: standard
 # }

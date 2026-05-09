@@ -63,14 +63,12 @@ Other export:
 
 ``` r
 # \donttest{
-if (requireNamespace("yaml", quietly = TRUE)) {
-  corpus <- sm_example_corpus(n_works = 10)
-  path <- tempfile(fileext = ".zip")
-  sm_export_zip(corpus, path, include = c("rds", "certificate"))
-}
-#> ✔ Corpus saved to /tmp/RtmpYJYwGj/file21c23271ffde/corpus.rds
-#> ✔ Certificate written to /tmp/RtmpYJYwGj/file21c23271ffde/certificate.yaml.
+corpus <- sm_example_corpus(n_works = 10)
+path <- tempfile(fileext = ".zip")
+sm_export_zip(corpus, path, include = c("rds", "certificate"))
+#> ✔ Corpus saved to /tmp/RtmpbTCVFU/file21d2347513d7/corpus.rds
+#> ✔ Certificate written to /tmp/RtmpbTCVFU/file21d2347513d7/certificate.yaml.
 #> ✔ Certificate created. Corpus hash: 58b250d94efb
-#> ✔ Bundle saved to /tmp/RtmpYJYwGj/file21c21f8eabd3.zip
+#> ✔ Bundle saved to /tmp/RtmpbTCVFU/file21d276ca6955.zip
 # }
 ```

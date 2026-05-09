@@ -76,6 +76,7 @@ Other reproducibility:
 ## Examples
 
 ``` r
+# \donttest{
 c1 <- sm_example_corpus(seed = 1L)
 c2 <- sm_example_corpus(seed = 2L)
 d <- sm_diff_corpora(c1, c2)
@@ -94,4 +95,5 @@ print(d)
 #> 
 #> Hash (before): 8c148d1bfae1
 #> Hash (after): 5d1d1da46a2d
+# }
 ```

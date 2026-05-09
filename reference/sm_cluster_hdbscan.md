@@ -75,14 +75,11 @@ Other clustering:
 
 ``` r
 # \donttest{
-if (requireNamespace("dbscan", quietly = TRUE) &&
-    requireNamespace("uwot", quietly = TRUE)) {
-  corpus <- sm_example_corpus(with_embeddings = TRUE)
-  corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10L)
-  table(corpus$works$cluster_id)
-}
+corpus <- sm_example_corpus(with_embeddings = TRUE)
+corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10L)
 #> ✔ HDBSCAN clustering complete.
 #> ℹ 5 clusters found, 0 noise points.
+table(corpus$works$cluster_id)
 #> 
 #>  1  2  3  4  5 
 #> 40 45 27 39 49 

@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>scimapR - Reproducible Science Mapping • scimapR</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" sizes="any" href="favicon.ico">
+<link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/Inter-0.4.10/font.css" rel="stylesheet">
@@ -15,6 +20,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="scimapR - Reproducible Science Mapping">
 <meta name="description" content="A comprehensive toolkit for bibliometric and scientometric analysis, designed as a complement to the foundational bibliometrix package (Aria &amp; Cuccurullo, 2017, &lt;doi:10.1016/j.joi.2017.08.007&gt;). Provides unified ingestion from major bibliographic sources including OpenAlex, Crossref, Semantic Scholar, PubMed, arXiv, bioRxiv, ORCID, Overton, Unpaywall, Scopus, and Web of Science exports; classical science mapping (co-citation, bibliographic coupling, co-authorship, co-word networks); modern citation indicators (CD index, Relative Citation Ratio, field-normalized scores, Uzzi novelty); embedding-based research cluster discovery; structured research-question objects with optional LLM-grounded screening; author trajectory analysis; equity and representation auditing with explicit confidence and method reporting; reproducible-by-construction corpus certificates enabling exact re-derivation of a corpus; retrieval-grounded conversational corpus exploration; and a comprehensive shiny application with publication-ready figure and table export. Output is fully tidyverse-compatible with tibble-based corpora, viridis-themed ggplot2 visualizations, and tidygraph network objects.">
 <meta property="og:description" content="A comprehensive toolkit for bibliometric and scientometric analysis, designed as a complement to the foundational bibliometrix package (Aria &amp; Cuccurullo, 2017, &lt;doi:10.1016/j.joi.2017.08.007&gt;). Provides unified ingestion from major bibliographic sources including OpenAlex, Crossref, Semantic Scholar, PubMed, arXiv, bioRxiv, ORCID, Overton, Unpaywall, Scopus, and Web of Science exports; classical science mapping (co-citation, bibliographic coupling, co-authorship, co-word networks); modern citation indicators (CD index, Relative Citation Ratio, field-normalized scores, Uzzi novelty); embedding-based research cluster discovery; structured research-question objects with optional LLM-grounded screening; author trajectory analysis; equity and representation auditing with explicit confidence and method reporting; reproducible-by-construction corpus certificates enabling exact re-derivation of a corpus; retrieval-grounded conversational corpus exploration; and a comprehensive shiny application with publication-ready figure and table export. Output is fully tidyverse-compatible with tibble-based corpora, viridis-themed ggplot2 visualizations, and tidygraph network objects.">
+<meta property="og:image" content="https://cttir.github.io/scimapR/logo.svg">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -50,8 +56,204 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9">
-A comprehensive toolkit for bibliometric and scientometric analysis, designed as a complement to the foundational 'bibliometrix' package (Aria &amp; Cuccurullo, 2017, &lt;<a href="https://doi.org/10.1016/j.joi.2017.08.007" class="external-link">doi:10.1016/j.joi.2017.08.007</a>&gt;). Provides unified ingestion from major bibliographic sources including 'OpenAlex', 'Crossref', 'Semantic Scholar', 'PubMed', 'arXiv', 'bioRxiv', 'ORCID', 'Overton', 'Unpaywall', 'Scopus', and 'Web of Science' exports; classical science mapping (co-citation, bibliographic coupling, co-authorship, co-word networks); modern citation indicators (CD index, Relative Citation Ratio, field-normalized scores, Uzzi novelty); embedding-based research cluster discovery; structured research-question objects with optional LLM-grounded screening; author trajectory analysis; equity and representation auditing with explicit confidence and method reporting; reproducible-by-construction corpus certificates enabling exact re-derivation of a corpus; retrieval-grounded conversational corpus exploration; and a comprehensive 'shiny' application with publication-ready figure and table export. Output is fully 'tidyverse'-compatible with tibble-based corpora, 'viridis'-themed 'ggplot2' visualizations, and 'tidygraph' network objects.
+  <main id="main" class="col-md-9"><div class="section level1">
+<div class="page-header">
+<img src="logo.svg" class="logo" alt=""><h1 id="scimapr-">scimapR <a class="anchor" aria-label="anchor" href="#scimapr-"></a>
+</h1>
+</div>
+<!-- badges: start -->
+
+<p><strong>The reproducible, equity-aware, question-driven, AI-assisted bibliometric toolkit for working biomedical researchers.</strong></p>
+<p>scimapR is a comprehensive R package for bibliometric and scientometric analysis. It provides unified ingestion from 12+ bibliographic sources, classical and modern science-mapping analytics, embedding-based research cluster discovery, and a publication-ready Shiny application – all in one CRAN-compatible package with tibble-based outputs and viridis-themed visualisations.</p>
+<div class="section level2">
+<h2 id="what-makes-scimapr-distinctive">What makes scimapR distinctive<a class="anchor" aria-label="anchor" href="#what-makes-scimapr-distinctive"></a>
+</h2>
+<ul>
+<li>
+<strong>Live corpus refresh.</strong> Your corpus knows when it was last refreshed, what is stale, and how to update itself (<code><a href="reference/sm_refresh.html">sm_refresh()</a></code>, <code><a href="reference/sm_staleness.html">sm_staleness()</a></code>, <code><a href="reference/sm_lock.html">sm_lock()</a></code>).</li>
+<li>
+<strong>Research questions as first-class objects.</strong> Build structured PICO/PECO questions, auto-generate search queries, and screen with optional LLM grounding (<code><a href="reference/sm_question.html">sm_question()</a></code>, <code><a href="reference/sm_screen_against_question.html">sm_screen_against_question()</a></code>).</li>
+<li>
+<strong>Reproducible-by-construction corpus certificates.</strong> A YAML document that another researcher can use to re-derive your exact corpus (<code><a href="reference/sm_certificate.html">sm_certificate()</a></code>, <code><a href="reference/sm_certificate.html">sm_rebuild_from_cert()</a></code>).</li>
+<li>
+<strong>Author trajectory analysis.</strong> Track topic pivots, collaborator turnover, and productivity curves across a career (<code><a href="reference/sm_author_trajectory.html">sm_author_trajectory()</a></code>).</li>
+<li>
+<strong>Equity and representation auditing.</strong> Geographic, gender, funding, and OA audits with built-in confidence reporting and epistemic humility (<code><a href="reference/sm_audit_geographic.html">sm_audit_geographic()</a></code>, <code><a href="reference/sm_audit_gender.html">sm_audit_gender()</a></code>).</li>
+<li>
+<strong>LLM-grounded corpus chat.</strong> Ask questions about your corpus with every claim anchored to actual works – no hallucinated references (<code><a href="reference/sm_chat.html">sm_chat()</a></code>).</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="relationship-to-bibliometrix">Relationship to bibliometrix<a class="anchor" aria-label="anchor" href="#relationship-to-bibliometrix"></a>
+</h2>
+<p>scimapR is <strong>inspired by and designed as a complement to</strong> the excellent <a href="https://www.bibliometrix.org/" class="external-link">bibliometrix</a> package by Massimo Aria and Corrado Cuccurullo (2017, <em>Journal of Informetrics</em>, <a href="https://doi.org/10.1016/j.joi.2017.08.007" class="external-link">doi:10.1016/j.joi.2017.08.007</a>).</p>
+<p>bibliometrix is the foundational R package for science mapping. It pioneered many of the analyses that scimapR also provides. <strong>scimapR is not a fork, not a derivative, and contains no code copied or adapted from bibliometrix.</strong> For shared bibliographic formats, scimapR ships clean-room parsers written from public format specifications.</p>
+<p>First-class round-trip interop is provided:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sm_to_bibliometrix.html">sm_to_bibliometrix</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span>            <span class="co"># use with bibliometrix</span></span>
+<span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/as_sm_corpus.html">as_sm_corpus</a></span><span class="op">(</span><span class="va">M</span><span class="op">)</span>                  <span class="co"># come back to scimapR</span></span></code></pre></div>
+<p>See <code><a href="articles/relationship-to-bibliometrix.html">vignette("relationship-to-bibliometrix")</a></code> for details.</p>
+</div>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Install from GitHub (development version)</span></span>
+<span><span class="co"># install.packages("pak")</span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"CTTIR/scimapR"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="quick-example">Quick example<a class="anchor" aria-label="anchor" href="#quick-example"></a>
+</h2>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/CTTIR/scimapR" class="external-link">scimapR</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Generate a synthetic corpus</span></span>
+<span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sm_example_corpus.html">sm_example_corpus</a></span><span class="op">(</span>n_works <span class="op">=</span> <span class="fl">100</span>, seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; ── &lt;sm_corpus&gt; ─────────────────────────────────────────────────────────────────</span></span>
+<span><span class="co">#&gt; Works: 100 | Authors: 80 | Institutions: 0</span></span>
+<span><span class="co">#&gt; Years: 2015 - 2024</span></span>
+<span><span class="co">#&gt; Sources (journals): 10</span></span>
+<span><span class="co">#&gt; Embeddings: 100 x 64</span></span>
+<span><span class="co">#&gt; Provenance: synthetic (100)</span></span>
+<span><span class="co">#&gt; Status: Unlocked (last refreshed: 2026-05-09 19:13:44)</span></span>
+<span></span>
+<span><span class="co"># Visualise production</span></span>
+<span><span class="fu"><a href="reference/sm_plot_production.html">sm_plot_production</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-example-1.png" alt="" width="100%"></p>
+</div>
+<div class="section level2">
+<h2 id="feature-overview">Feature overview<a class="anchor" aria-label="anchor" href="#feature-overview"></a>
+</h2>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr>
+<th>Module</th>
+<th>Functions</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>File ingestion</td>
+<td>
+<code><a href="reference/sm_read_bib.html">sm_read_bib()</a></code>, <code><a href="reference/sm_read_ris.html">sm_read_ris()</a></code>, <code><a href="reference/sm_read_wos.html">sm_read_wos()</a></code>, <code><a href="reference/sm_read_scopus.html">sm_read_scopus()</a></code>, <code><a href="reference/sm_read_pubmed_xml.html">sm_read_pubmed_xml()</a></code>, …</td>
+</tr>
+<tr>
+<td>API ingestion</td>
+<td>
+<code><a href="reference/sm_fetch_openalex.html">sm_fetch_openalex()</a></code>, <code><a href="reference/sm_fetch_crossref.html">sm_fetch_crossref()</a></code>, <code><a href="reference/sm_fetch_pubmed.html">sm_fetch_pubmed()</a></code>, <code><a href="reference/sm_fetch_semantic_scholar.html">sm_fetch_semantic_scholar()</a></code>, …</td>
+</tr>
+<tr>
+<td>Enrichment</td>
+<td>
+<code><a href="reference/sm_enrich_unpaywall.html">sm_enrich_unpaywall()</a></code>, <code><a href="reference/sm_enrich_altmetric.html">sm_enrich_altmetric()</a></code>, <code><a href="reference/sm_enrich_concepts.html">sm_enrich_concepts()</a></code>, …</td>
+</tr>
+<tr>
+<td>Networks</td>
+<td>
+<code><a href="reference/sm_network_citation.html">sm_network_citation()</a></code>, <code><a href="reference/sm_network_cocitation.html">sm_network_cocitation()</a></code>, <code><a href="reference/sm_network_coupling.html">sm_network_coupling()</a></code>, <code><a href="reference/sm_network_collab.html">sm_network_collab()</a></code>, <code><a href="reference/sm_network_coword.html">sm_network_coword()</a></code>
+</td>
+</tr>
+<tr>
+<td>Embeddings</td>
+<td>
+<code><a href="reference/sm_embed_works.html">sm_embed_works()</a></code>, <code><a href="reference/sm_cluster_hdbscan.html">sm_cluster_hdbscan()</a></code>, <code><a href="reference/sm_cluster_leiden.html">sm_cluster_leiden()</a></code>, <code><a href="reference/sm_cluster_label.html">sm_cluster_label()</a></code>
+</td>
+</tr>
+<tr>
+<td>Indicators</td>
+<td>
+<code><a href="reference/sm_metric_h_index.html">sm_metric_h_index()</a></code>, <code><a href="reference/sm_metric_disruption.html">sm_metric_disruption()</a></code>, <code><a href="reference/sm_metric_rcr.html">sm_metric_rcr()</a></code>, <code><a href="reference/sm_metric_fnci.html">sm_metric_fnci()</a></code>, <code><a href="reference/sm_metric_novelty.html">sm_metric_novelty()</a></code>
+</td>
+</tr>
+<tr>
+<td>Visualisation</td>
+<td>
+<code><a href="reference/sm_plot_landscape.html">sm_plot_landscape()</a></code>, <code><a href="reference/sm_plot_thematic_map.html">sm_plot_thematic_map()</a></code>, <code><a href="reference/sm_plot_production.html">sm_plot_production()</a></code>, <code><a href="reference/sm_plot_equity_dashboard.html">sm_plot_equity_dashboard()</a></code>, …</td>
+</tr>
+<tr>
+<td>Export</td>
+<td>
+<code><a href="reference/sm_export_figure.html">sm_export_figure()</a></code>, <code><a href="reference/sm_export_table.html">sm_export_table()</a></code>, <code><a href="reference/sm_export_zip.html">sm_export_zip()</a></code>, <code><a href="reference/sm_export_gephi.html">sm_export_gephi()</a></code>
+</td>
+</tr>
+<tr>
+<td>Shiny app</td>
+<td><code><a href="reference/sm_run_app.html">sm_run_app()</a></code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<ul>
+<li>
+<code><a href="articles/scimapR.html">vignette("scimapR")</a></code> – Getting started</li>
+<li>
+<code><a href="articles/ingestion.html">vignette("ingestion")</a></code> – Building a corpus</li>
+<li>
+<code><a href="articles/embeddings-and-clusters.html">vignette("embeddings-and-clusters")</a></code> – Semantic landscape</li>
+<li>
+<code><a href="articles/modern-indicators.html">vignette("modern-indicators")</a></code> – CD/RCR/FNCI/novelty</li>
+<li>
+<code><a href="articles/question-driven-reviews.html">vignette("question-driven-reviews")</a></code> – Research questions + screening</li>
+<li>
+<code><a href="articles/reproducibility-and-certificates.html">vignette("reproducibility-and-certificates")</a></code> – Corpus certificates</li>
+<li>
+<code><a href="articles/equity-trajectory-and-chat.html">vignette("equity-trajectory-and-chat")</a></code> – Equity audit + trajectories</li>
+<li>
+<code><a href="articles/relationship-to-bibliometrix.html">vignette("relationship-to-bibliometrix")</a></code> – Interop and credit</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
+</h2>
+<p>scimapR stands on the shoulders of the bibliometrix project. We are deeply grateful to Massimo Aria and Corrado Cuccurullo for creating the foundational R package for science mapping, and for their landmark 2017 paper which defined the field of R-based bibliometrics.</p>
+<p>We also acknowledge the many data sources that make scimapR possible: <a href="https://openalex.org/" class="external-link">OpenAlex</a>, <a href="https://www.crossref.org/" class="external-link">Crossref</a>, <a href="https://pubmed.ncbi.nlm.nih.gov/" class="external-link">PubMed</a>, <a href="https://www.semanticscholar.org/" class="external-link">Semantic Scholar</a>, <a href="https://unpaywall.org/" class="external-link">Unpaywall</a>, and others.</p>
+</div>
+<div class="section level2">
+<h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
+</h2>
+<p>If you use scimapR in your research, please cite <strong>both</strong> scimapR and the foundational bibliometrix package:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/citation.html" class="external-link">citation</a></span><span class="op">(</span><span class="st">"scimapR"</span><span class="op">)</span></span></code></pre></div>
+<p><strong>BibTeX entries:</strong></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="va">@Manual</span>{<span class="ot">scimapR</span>,</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="dt">title</span> = {scimapR: Reproducible, Question-Driven, Embedding-Aware Science Mapping},</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="dt">author</span> = {Raban Heller},</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="dt">year</span> = {2026},</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="dt">note</span> = {R package version 0.1.0},</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="dt">url</span> = {https://github.com/CTTIR/scimapR},</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>}</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="va">@Article</span>{<span class="ot">bibliometrix</span>,</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  <span class="dt">title</span> = {bibliometrix: An R-tool for comprehensive science mapping analysis},</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="dt">author</span> = {Massimo Aria and Corrado Cuccurullo},</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="dt">journal</span> = {Journal of Informetrics},</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="dt">year</span> = {2017},</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  <span class="dt">volume</span> = {11},</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  <span class="dt">number</span> = {4},</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>  <span class="dt">pages</span> = {959--975},</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>  <span class="dt">doi</span> = {10.1016/j.joi.2017.08.007},</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>}</span></code></pre></div>
+<p>For a complete citation block including each data source used in your corpus, run <code>sm_cite_corpus(your_corpus)</code>.</p>
+</div>
+<div class="section level2">
+<h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
+</h2>
+<p>MIT</p>
+</div>
+<div class="section level2">
+<h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
+</h2>
+<p>Issues and pull requests are welcome at <a href="https://github.com/CTTIR/scimapR" class="external-link">github.com/CTTIR/scimapR</a>.</p>
+</div>
+</div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
@@ -83,7 +285,13 @@ A comprehensive toolkit for bibliometric and scientometric analysis, designed as
 </ul>
 </div>
 
-
+<div class="dev-status">
+<h2 data-toc-skip>Dev status</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
+</ul>
+</div>
 
   </aside>
 </div>

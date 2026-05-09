@@ -66,13 +66,11 @@ Other clustering:
 
 ``` r
 # \donttest{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  corpus <- sm_example_corpus(with_embeddings = TRUE)
-  corpus <- sm_cluster_leiden(corpus, resolution = 1.0)
-  table(corpus$works$cluster_id)
-}
+corpus <- sm_example_corpus(with_embeddings = TRUE)
+corpus <- sm_cluster_leiden(corpus, resolution = 1.0)
 #> ✔ Leiden clustering complete.
 #> ℹ 5 communities found.
+table(corpus$works$cluster_id)
 #> 
 #>  1  2  3  4  5 
 #> 49 39 45 40 27 

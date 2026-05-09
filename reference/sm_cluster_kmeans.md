@@ -65,6 +65,7 @@ Other clustering:
 ## Examples
 
 ``` r
+# \donttest{
 corpus <- sm_example_corpus(with_embeddings = TRUE)
 corpus <- sm_cluster_kmeans(corpus, k = 5)
 #> ✔ K-means clustering complete.
@@ -73,4 +74,5 @@ table(corpus$works$cluster_id)
 #> 
 #>  1  2  3  4  5 
 #> 40 27 39 45 49 
+# }
 ```

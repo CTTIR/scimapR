@@ -1,0 +1,266 @@
+<svg width="500" height="580" viewBox="0 0 500 580" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgscimap" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0%" stop-color="#3D1758"/>
+      <stop offset="100%" stop-color="#1F0B30"/>
+    </linearGradient>
+    <radialGradient id="focalGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#FDE725" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#FDE725" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="focalGlow2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#5DC863" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#5DC863" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="yearAxis" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%"   stop-color="#440154" stop-opacity="0.6"/>
+      <stop offset="25%"  stop-color="#3B528B" stop-opacity="0.7"/>
+      <stop offset="50%"  stop-color="#21908C" stop-opacity="0.8"/>
+      <stop offset="75%"  stop-color="#5DC863" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FDE725" stop-opacity="0.9"/>
+    </linearGradient>
+    <marker id="arrTeal" viewBox="0 0 10 10" refX="8" refY="5"
+      markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0,0 L 10,5 L 0,10 z" fill="#21908C" opacity="0.7"/>
+    </marker>
+    <marker id="arrGreen" viewBox="0 0 10 10" refX="8" refY="5"
+      markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0,0 L 10,5 L 0,10 z" fill="#5DC863" opacity="0.7"/>
+    </marker>
+    <marker id="arrYellow" viewBox="0 0 10 10" refX="8" refY="5"
+      markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0,0 L 10,5 L 0,10 z" fill="#FDE725" opacity="0.75"/>
+    </marker>
+    <clipPath id="hexscimap">
+      <polygon points="250,30 455,145 455,375 250,490 45,375 45,145"/>
+    </clipPath>
+  </defs>
+
+  <polygon points="250,30 455,145 455,375 250,490 45,375 45,145" fill="url(#bgscimap)"/>
+
+  <g clip-path="url(#hexscimap)">
+
+    <!-- LAYER 0 — Ghosted co-author network -->
+    <line x1="120" y1="170" x2="220" y2="240" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+    <line x1="220" y1="240" x2="340" y2="180" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+    <line x1="340" y1="180" x2="380" y2="270" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+    <line x1="220" y1="240" x2="180" y2="350" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+    <line x1="180" y1="350" x2="320" y2="370" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+    <line x1="320" y1="370" x2="380" y2="270" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+    <line x1="120" y1="170" x2="180" y2="350" stroke="#ffffff" stroke-width="0.3" opacity="0.04"/>
+    <line x1="120" y1="170" x2="380" y2="270" stroke="#ffffff" stroke-width="0.3" opacity="0.04"/>
+    <line x1="340" y1="180" x2="320" y2="370" stroke="#ffffff" stroke-width="0.3" opacity="0.04"/>
+    <line x1="220" y1="240" x2="380" y2="270" stroke="#ffffff" stroke-width="0.3" opacity="0.05"/>
+    <line x1="180" y1="350" x2="340" y2="180" stroke="#ffffff" stroke-width="0.3" opacity="0.04"/>
+    <line x1="120" y1="170" x2="320" y2="370" stroke="#ffffff" stroke-width="0.3" opacity="0.03"/>
+    <circle cx="120" cy="170" r="1.5" fill="#ffffff" opacity="0.12"/>
+    <circle cx="220" cy="240" r="1.5" fill="#ffffff" opacity="0.13"/>
+    <circle cx="340" cy="180" r="1.5" fill="#ffffff" opacity="0.12"/>
+    <circle cx="380" cy="270" r="1.5" fill="#ffffff" opacity="0.12"/>
+    <circle cx="180" cy="350" r="1.5" fill="#ffffff" opacity="0.12"/>
+    <circle cx="320" cy="370" r="1.5" fill="#ffffff" opacity="0.12"/>
+
+    <!-- Ghosted hex grid hint -->
+    <polygon points="120,200 145,213 145,239 120,252 95,239 95,213"
+      fill="none" stroke="#A78BFA" stroke-width="0.5" opacity="0.07"/>
+    <polygon points="395,360 420,373 420,399 395,412 370,399 370,373"
+      fill="none" stroke="#A78BFA" stroke-width="0.5" opacity="0.07"/>
+    <polygon points="380,200 405,213 405,239 380,252 355,239 355,213"
+      fill="none" stroke="#A78BFA" stroke-width="0.5" opacity="0.06"/>
+
+    <!-- Cluster 1 (purple) intra-links -->
+    <line x1="135" y1="195" x2="155" y2="180" stroke="#440154" stroke-width="0.5" opacity="0.35"/>
+    <line x1="155" y1="180" x2="170" y2="195" stroke="#440154" stroke-width="0.5" opacity="0.32"/>
+    <line x1="135" y1="195" x2="148" y2="208" stroke="#440154" stroke-width="0.5" opacity="0.3"/>
+    <line x1="148" y1="208" x2="170" y2="195" stroke="#440154" stroke-width="0.5" opacity="0.28"/>
+    <line x1="118" y1="178" x2="135" y2="195" stroke="#440154" stroke-width="0.5" opacity="0.25"/>
+
+    <!-- Cluster 2 (blue) intra-links -->
+    <line x1="320" y1="190" x2="340" y2="178" stroke="#3B528B" stroke-width="0.5" opacity="0.35"/>
+    <line x1="340" y1="178" x2="360" y2="195" stroke="#3B528B" stroke-width="0.5" opacity="0.32"/>
+    <line x1="320" y1="190" x2="335" y2="205" stroke="#3B528B" stroke-width="0.5" opacity="0.3"/>
+    <line x1="335" y1="205" x2="360" y2="195" stroke="#3B528B" stroke-width="0.5" opacity="0.28"/>
+    <line x1="305" y1="200" x2="320" y2="190" stroke="#3B528B" stroke-width="0.5" opacity="0.25"/>
+    <line x1="358" y1="180" x2="375" y2="190" stroke="#3B528B" stroke-width="0.5" opacity="0.22"/>
+
+    <!-- Cluster 3 (teal) intra-links -->
+    <line x1="225" y1="285" x2="245" y2="270" stroke="#21908C" stroke-width="0.6" opacity="0.4"/>
+    <line x1="245" y1="270" x2="270" y2="285" stroke="#21908C" stroke-width="0.6" opacity="0.4"/>
+    <line x1="225" y1="285" x2="250" y2="305" stroke="#21908C" stroke-width="0.6" opacity="0.4"/>
+    <line x1="250" y1="305" x2="270" y2="285" stroke="#21908C" stroke-width="0.6" opacity="0.4"/>
+    <line x1="245" y1="270" x2="265" y2="260" stroke="#21908C" stroke-width="0.5" opacity="0.35"/>
+    <line x1="270" y1="285" x2="290" y2="280" stroke="#21908C" stroke-width="0.5" opacity="0.32"/>
+    <line x1="225" y1="285" x2="208" y2="300" stroke="#21908C" stroke-width="0.5" opacity="0.3"/>
+    <line x1="250" y1="305" x2="232" y2="320" stroke="#21908C" stroke-width="0.5" opacity="0.3"/>
+    <line x1="245" y1="270" x2="225" y2="260" stroke="#21908C" stroke-width="0.5" opacity="0.28"/>
+    <line x1="290" y1="280" x2="298" y2="265" stroke="#21908C" stroke-width="0.5" opacity="0.28"/>
+    <line x1="278" y1="265" x2="298" y2="265" stroke="#21908C" stroke-width="0.5" opacity="0.25"/>
+
+    <!-- Cluster 4 (green) intra-links -->
+    <line x1="135" y1="365" x2="155" y2="350" stroke="#5DC863" stroke-width="0.5" opacity="0.35"/>
+    <line x1="155" y1="350" x2="172" y2="368" stroke="#5DC863" stroke-width="0.5" opacity="0.32"/>
+    <line x1="135" y1="365" x2="150" y2="385" stroke="#5DC863" stroke-width="0.5" opacity="0.3"/>
+    <line x1="150" y1="385" x2="172" y2="368" stroke="#5DC863" stroke-width="0.5" opacity="0.3"/>
+
+    <!-- Cluster 5 (yellow) intra-links -->
+    <line x1="320" y1="365" x2="340" y2="350" stroke="#FDE725" stroke-width="0.5" opacity="0.32"/>
+    <line x1="340" y1="350" x2="358" y2="368" stroke="#FDE725" stroke-width="0.5" opacity="0.3"/>
+    <line x1="320" y1="365" x2="335" y2="385" stroke="#FDE725" stroke-width="0.5" opacity="0.28"/>
+    <line x1="335" y1="385" x2="358" y2="368" stroke="#FDE725" stroke-width="0.5" opacity="0.28"/>
+    <line x1="358" y1="368" x2="375" y2="350" stroke="#FDE725" stroke-width="0.5" opacity="0.22"/>
+    <line x1="318" y1="345" x2="340" y2="350" stroke="#FDE725" stroke-width="0.5" opacity="0.22"/>
+
+    <!-- LAYER 3 — Citation arrows (cross-cluster) -->
+    <path d="M 175,205 Q 215,250 240,283"
+      fill="none" stroke="#3B528B" stroke-width="1" opacity="0.45"
+      marker-end="url(#arrTeal)"/>
+    <path d="M 305,210 Q 280,250 252,283"
+      fill="none" stroke="#3B528B" stroke-width="1" opacity="0.5"
+      marker-end="url(#arrTeal)"/>
+    <path d="M 256,290 Q 300,330 333,348"
+      fill="none" stroke="#5DC863" stroke-width="1.2" opacity="0.55"
+      marker-end="url(#arrYellow)"/>
+    <path d="M 240,295 Q 200,325 175,350"
+      fill="none" stroke="#21908C" stroke-width="0.9" opacity="0.45"
+      marker-end="url(#arrGreen)"/>
+    <path d="M 178,360 Q 250,378 318,365"
+      fill="none" stroke="#5DC863" stroke-width="0.9" opacity="0.4"
+      marker-end="url(#arrYellow)"/>
+    <path d="M 360,210 Q 390,290 348,348"
+      fill="none" stroke="#3B528B" stroke-width="0.8" opacity="0.4"
+      marker-end="url(#arrYellow)"/>
+
+    <!-- Cluster 1 dots — purple, small (10) -->
+    <circle cx="135" cy="195" r="3.2" fill="#440154" opacity="0.92"/>
+    <circle cx="155" cy="180" r="3.2" fill="#440154" opacity="0.92"/>
+    <circle cx="170" cy="195" r="3.2" fill="#472D7B" opacity="0.9"/>
+    <circle cx="148" cy="208" r="3"   fill="#440154" opacity="0.88"/>
+    <circle cx="118" cy="178" r="2.8" fill="#472D7B" opacity="0.85"/>
+    <circle cx="172" cy="172" r="2.6" fill="#440154" opacity="0.82"/>
+    <circle cx="125" cy="215" r="2.6" fill="#472D7B" opacity="0.8"/>
+    <circle cx="160" cy="220" r="2.4" fill="#440154" opacity="0.78"/>
+    <circle cx="105" cy="195" r="2.4" fill="#472D7B" opacity="0.75"/>
+    <circle cx="142" cy="170" r="2.2" fill="#472D7B" opacity="0.7"/>
+
+    <!-- Cluster 2 dots — blue, medium (14) -->
+    <circle cx="320" cy="190" r="3.2" fill="#3B528B" opacity="0.92"/>
+    <circle cx="340" cy="178" r="3.2" fill="#3B528B" opacity="0.92"/>
+    <circle cx="360" cy="195" r="3.2" fill="#2C728E" opacity="0.9"/>
+    <circle cx="335" cy="205" r="3"   fill="#3B528B" opacity="0.88"/>
+    <circle cx="305" cy="200" r="2.8" fill="#2C728E" opacity="0.85"/>
+    <circle cx="358" cy="180" r="2.6" fill="#3B528B" opacity="0.82"/>
+    <circle cx="375" cy="190" r="2.6" fill="#2C728E" opacity="0.8"/>
+    <circle cx="325" cy="172" r="2.6" fill="#3B528B" opacity="0.78"/>
+    <circle cx="350" cy="218" r="2.4" fill="#2C728E" opacity="0.75"/>
+    <circle cx="295" cy="185" r="2.4" fill="#3B528B" opacity="0.72"/>
+    <circle cx="385" cy="208" r="2.2" fill="#2C728E" opacity="0.7"/>
+    <circle cx="312" cy="218" r="2.2" fill="#3B528B" opacity="0.68"/>
+    <circle cx="370" cy="172" r="2"   fill="#2C728E" opacity="0.65"/>
+    <circle cx="298" cy="215" r="2"   fill="#3B528B" opacity="0.65"/>
+
+    <!-- Cluster 3 dots — teal, largest (18) + focal halo -->
+    <circle cx="247" cy="287" r="14" fill="url(#focalGlow2)" opacity="0.7"/>
+    <circle cx="225" cy="285" r="3.2" fill="#21908C" opacity="0.92"/>
+    <circle cx="245" cy="270" r="3.2" fill="#21908C" opacity="0.92"/>
+    <circle cx="270" cy="285" r="3.2" fill="#27AD81" opacity="0.92"/>
+    <circle cx="250" cy="305" r="3"   fill="#21908C" opacity="0.9"/>
+    <circle cx="265" cy="260" r="3"   fill="#27AD81" opacity="0.88"/>
+    <circle cx="290" cy="280" r="2.8" fill="#21908C" opacity="0.85"/>
+    <circle cx="208" cy="300" r="2.8" fill="#27AD81" opacity="0.85"/>
+    <circle cx="232" cy="320" r="2.6" fill="#21908C" opacity="0.82"/>
+    <circle cx="225" cy="260" r="2.6" fill="#27AD81" opacity="0.8"/>
+    <circle cx="280" cy="305" r="2.6" fill="#21908C" opacity="0.78"/>
+    <circle cx="200" cy="278" r="2.4" fill="#27AD81" opacity="0.75"/>
+    <circle cx="298" cy="265" r="2.4" fill="#21908C" opacity="0.72"/>
+    <circle cx="218" cy="265" r="2.4" fill="#27AD81" opacity="0.7"/>
+    <circle cx="278" cy="265" r="2.2" fill="#21908C" opacity="0.7"/>
+    <circle cx="258" cy="320" r="2.2" fill="#27AD81" opacity="0.68"/>
+    <circle cx="305" cy="295" r="2"   fill="#21908C" opacity="0.65"/>
+    <circle cx="195" cy="318" r="2"   fill="#27AD81" opacity="0.6"/>
+    <circle cx="215" cy="305" r="2"   fill="#21908C" opacity="0.6"/>
+
+    <!-- Focal paper glyph 1 — teal cluster (sits on top of focal dot) -->
+    <g transform="translate(243, 280)">
+      <rect x="0" y="0" width="9" height="12" rx="0.8" fill="#FDE725" opacity="0.98"/>
+      <polygon points="6,0 9,0 9,3" fill="#5DC863" opacity="0.95"/>
+      <line x1="1.5" y1="3" x2="7" y2="3" stroke="#3D1758" stroke-width="0.5" opacity="0.7"/>
+      <line x1="1.5" y1="5" x2="7" y2="5" stroke="#3D1758" stroke-width="0.5" opacity="0.7"/>
+      <line x1="1.5" y1="7" x2="6" y2="7" stroke="#3D1758" stroke-width="0.5" opacity="0.6"/>
+      <line x1="1.5" y1="9" x2="7" y2="9" stroke="#3D1758" stroke-width="0.5" opacity="0.55"/>
+    </g>
+
+    <!-- Cluster 4 dots — green, medium (12) -->
+    <circle cx="135" cy="365" r="3.2" fill="#5DC863" opacity="0.92"/>
+    <circle cx="155" cy="350" r="3.2" fill="#5DC863" opacity="0.92"/>
+    <circle cx="172" cy="368" r="3.2" fill="#7AD151" opacity="0.9"/>
+    <circle cx="150" cy="385" r="3"   fill="#5DC863" opacity="0.88"/>
+    <circle cx="118" cy="380" r="2.8" fill="#7AD151" opacity="0.85"/>
+    <circle cx="180" cy="345" r="2.6" fill="#5DC863" opacity="0.82"/>
+    <circle cx="125" cy="345" r="2.6" fill="#7AD151" opacity="0.8"/>
+    <circle cx="165" cy="395" r="2.4" fill="#5DC863" opacity="0.78"/>
+    <circle cx="100" cy="365" r="2.4" fill="#7AD151" opacity="0.72"/>
+    <circle cx="195" cy="358" r="2.2" fill="#5DC863" opacity="0.7"/>
+    <circle cx="138" cy="395" r="2.2" fill="#7AD151" opacity="0.68"/>
+    <circle cx="108" cy="395" r="2"   fill="#5DC863" opacity="0.65"/>
+
+    <!-- Cluster 5 dots — yellow, large (15) + focal halo -->
+    <circle cx="340" cy="350" r="14" fill="url(#focalGlow)" opacity="0.65"/>
+    <circle cx="320" cy="365" r="3.2" fill="#FDE725" opacity="0.95"/>
+    <circle cx="358" cy="368" r="3.2" fill="#FDE725" opacity="0.92"/>
+    <circle cx="335" cy="385" r="3"   fill="#AADC32" opacity="0.88"/>
+    <circle cx="375" cy="350" r="2.8" fill="#FDE725" opacity="0.82"/>
+    <circle cx="305" cy="380" r="2.6" fill="#AADC32" opacity="0.8"/>
+    <circle cx="385" cy="378" r="2.6" fill="#FDE725" opacity="0.78"/>
+    <circle cx="318" cy="345" r="2.4" fill="#AADC32" opacity="0.75"/>
+    <circle cx="365" cy="395" r="2.4" fill="#FDE725" opacity="0.72"/>
+    <circle cx="298" cy="358" r="2.2" fill="#AADC32" opacity="0.7"/>
+    <circle cx="395" cy="365" r="2.2" fill="#FDE725" opacity="0.68"/>
+    <circle cx="350" cy="335" r="2"   fill="#AADC32" opacity="0.65"/>
+    <circle cx="378" cy="395" r="2"   fill="#FDE725" opacity="0.6"/>
+    <circle cx="312" cy="395" r="2"   fill="#AADC32" opacity="0.6"/>
+    <circle cx="385" cy="340" r="2"   fill="#FDE725" opacity="0.62"/>
+
+    <!-- Focal paper glyph 2 — yellow cluster -->
+    <g transform="translate(336, 343)">
+      <rect x="0" y="0" width="9" height="12" rx="0.8" fill="#FFFFFF" opacity="0.98"/>
+      <polygon points="6,0 9,0 9,3" fill="#FDE725" opacity="0.95"/>
+      <line x1="1.5" y1="3" x2="7" y2="3" stroke="#3D1758" stroke-width="0.5" opacity="0.75"/>
+      <line x1="1.5" y1="5" x2="7" y2="5" stroke="#3D1758" stroke-width="0.5" opacity="0.75"/>
+      <line x1="1.5" y1="7" x2="6" y2="7" stroke="#3D1758" stroke-width="0.5" opacity="0.65"/>
+      <line x1="1.5" y1="9" x2="7" y2="9" stroke="#3D1758" stroke-width="0.5" opacity="0.6"/>
+    </g>
+
+    <!-- Inter-cluster bridge dots -->
+    <circle cx="210" cy="240" r="1.8" fill="#3B528B" opacity="0.5"/>
+    <circle cx="285" cy="240" r="1.8" fill="#2C728E" opacity="0.5"/>
+    <circle cx="200" cy="345" r="1.8" fill="#27AD81" opacity="0.5"/>
+    <circle cx="290" cy="345" r="1.8" fill="#5DC863" opacity="0.5"/>
+    <circle cx="248" cy="225" r="1.6" fill="#3B528B" opacity="0.45"/>
+    <circle cx="248" cy="355" r="1.6" fill="#27AD81" opacity="0.45"/>
+
+    <!-- LAYER 4 — Year axis -->
+    <text font-family="monospace" font-size="6" fill="#A78BFA" opacity="0.5"
+      text-anchor="middle" x="250" y="425" letter-spacing="0.5">publication year</text>
+    <rect x="92" y="430" width="316" height="3.5" rx="1.5" fill="url(#yearAxis)" opacity="0.85"/>
+    <line x1="92"  y1="434" x2="92"  y2="438" stroke="#A78BFA" stroke-width="0.7" opacity="0.6"/>
+    <line x1="171" y1="434" x2="171" y2="438" stroke="#A78BFA" stroke-width="0.7" opacity="0.55"/>
+    <line x1="250" y1="434" x2="250" y2="438" stroke="#A78BFA" stroke-width="0.7" opacity="0.55"/>
+    <line x1="329" y1="434" x2="329" y2="438" stroke="#A78BFA" stroke-width="0.7" opacity="0.55"/>
+    <line x1="408" y1="434" x2="408" y2="438" stroke="#A78BFA" stroke-width="0.7" opacity="0.6"/>
+    <text font-family="monospace" font-size="6.5" fill="#A78BFA" opacity="0.65" text-anchor="middle" x="92"  y="447">2000</text>
+    <text font-family="monospace" font-size="6.5" fill="#A78BFA" opacity="0.6"  text-anchor="middle" x="171" y="447">2008</text>
+    <text font-family="monospace" font-size="6.5" fill="#A78BFA" opacity="0.6"  text-anchor="middle" x="250" y="447">2015</text>
+    <text font-family="monospace" font-size="6.5" fill="#A78BFA" opacity="0.6"  text-anchor="middle" x="329" y="447">2020</text>
+    <text font-family="monospace" font-size="6.5" fill="#FDE725" opacity="0.7"  text-anchor="middle" x="408" y="447">2025</text>
+
+  </g>
+
+  <polygon points="250,30 455,145 455,375 250,490 45,375 45,145"
+    fill="none" stroke="#534AB7" stroke-width="11" stroke-linejoin="round"/>
+  <polygon points="250,44 441,153 441,367 250,476 59,367 59,153"
+    fill="none" stroke="#7C3AED" stroke-width="1.5" stroke-linejoin="round" opacity="0.55"/>
+
+  <text font-family="monospace" font-weight="700" font-size="28"
+    fill="#C4B5F7" text-anchor="middle" x="250" y="545" letter-spacing="1">scimapR</text>
+
+</svg>

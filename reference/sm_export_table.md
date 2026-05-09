@@ -67,12 +67,8 @@ Other export:
 ## Examples
 
 ``` r
-# \donttest{
-if (requireNamespace("openxlsx2", quietly = TRUE)) {
-  dat <- data.frame(Author = "Smith J", Works = 10L, Citations = 150L)
-  path <- tempfile(fileext = ".xlsx")
-  sm_export_table(dat, path)
-}
-#> ✔ Table saved to /tmp/RtmpYJYwGj/file21c22b806e6f.xlsx
-# }
+dat <- data.frame(Author = "Smith J", Works = 10L, Citations = 150L)
+path <- tempfile(fileext = ".xlsx")
+sm_export_table(dat, path)
+#> ✔ Table saved to /tmp/RtmpbTCVFU/file21d22bd646b6.xlsx
 ```

@@ -61,11 +61,6 @@ Other plots:
 ## Examples
 
 ``` r
-# \donttest{
-if (requireNamespace("ggraph", quietly = TRUE)) {
-  corpus <- sm_example_corpus()
-  sm_plot_collab(corpus, level = "country")
-}
-
-# }
+corpus <- sm_example_corpus()
+sm_plot_collab(corpus, level = "country")
 ```

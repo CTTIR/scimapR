@@ -51,11 +51,6 @@ Other plots:
 ## Examples
 
 ``` r
-# \donttest{
-if (requireNamespace("ggraph", quietly = TRUE)) {
-  corpus <- sm_example_corpus()
-  sm_plot_citation_network(corpus)
-}
-
-# }
+corpus <- sm_example_corpus()
+sm_plot_citation_network(corpus)
 ```
