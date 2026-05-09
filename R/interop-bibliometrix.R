@@ -17,14 +17,10 @@
 #'
 #' @family interop
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("bibliometrix", quietly = TRUE)
 #' corpus <- sm_example_corpus(n_works = 10, n_authors = 5)
-#' \donttest{
-#' if (requireNamespace("bibliometrix", quietly = TRUE)) {
-#'   M <- sm_to_bibliometrix(corpus)
-#'   class(M)
-#' }
-#' }
+#' M <- sm_to_bibliometrix(corpus)
+#' class(M)
 sm_to_bibliometrix <- function(corpus, ...) {
   .check_sm_corpus(corpus)
 

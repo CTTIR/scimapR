@@ -22,13 +22,10 @@ A \code{ggplot} object.
 Visualise the citation network of top-cited works.
 }
 \examples{
-\donttest{
-if (requireNamespace("ggraph", quietly = TRUE)) {
-  corpus <- sm_example_corpus()
-  sm_plot_citation_network(corpus)
-}
-}
-
+\dontshow{if (requireNamespace("ggraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+corpus <- sm_example_corpus()
+sm_plot_citation_network(corpus)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other plots: 

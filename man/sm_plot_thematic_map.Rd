@@ -23,16 +23,11 @@ Strategic diagram plotting clusters by centrality (external links) and
 density (internal links), following Callon et al.
 }
 \examples{
-\donttest{
-if (requireNamespace("dbscan", quietly = TRUE) &&
-    requireNamespace("uwot", quietly = TRUE) &&
-    requireNamespace("ggrepel", quietly = TRUE)) {
-  corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
-  corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
-  sm_plot_thematic_map(corpus)
-}
-}
-
+\dontshow{if (requireNamespace("dbscan", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE) && requireNamespace("ggrepel", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
+corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
+sm_plot_thematic_map(corpus)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other plots: 

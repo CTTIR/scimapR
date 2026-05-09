@@ -21,12 +21,10 @@ Four-panel visualization: geographic distribution, gender mix, funding
 sources, and OA evolution. Uses viridis throughout.
 }
 \examples{
-\donttest{
-if (requireNamespace("patchwork", quietly = TRUE)) {
-  corpus <- sm_example_corpus()
-  sm_plot_equity_dashboard(corpus)
-}
-}
+\dontshow{if (requireNamespace("patchwork", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+corpus <- sm_example_corpus()
+sm_plot_equity_dashboard(corpus)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other plots: 

@@ -50,11 +50,13 @@ across windows, based on shared terms from titles.
 }
 }
 \examples{
+\donttest{
 corpus <- sm_example_corpus(with_embeddings = TRUE)
 corpus <- sm_cluster_kmeans(corpus, k = 5)
 evo <- sm_cluster_evolution(corpus)
 evo$snapshots
 evo$transitions
+}
 }
 \seealso{
 Other clustering: 

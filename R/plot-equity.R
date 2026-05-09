@@ -12,13 +12,9 @@
 #'
 #' @family plots
 #' @export
-#' @examples
-#' \donttest{
-#' if (requireNamespace("patchwork", quietly = TRUE)) {
-#'   corpus <- sm_example_corpus()
-#'   sm_plot_equity_dashboard(corpus)
-#' }
-#' }
+#' @examplesIf requireNamespace("patchwork", quietly = TRUE)
+#' corpus <- sm_example_corpus()
+#' sm_plot_equity_dashboard(corpus)
 sm_plot_equity_dashboard <- function(corpus, dark = FALSE, ...) {
   .check_sm_corpus(corpus)
   rlang::check_installed("patchwork",

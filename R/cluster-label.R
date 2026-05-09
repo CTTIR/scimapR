@@ -34,14 +34,12 @@
 #'
 #' @family clustering
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("tidytext", quietly = TRUE)
 #' \donttest{
-#' if (requireNamespace("tidytext", quietly = TRUE)) {
-#'   corpus <- sm_example_corpus(with_embeddings = TRUE)
-#'   corpus <- sm_cluster_kmeans(corpus, k = 5)
-#'   corpus <- sm_cluster_label(corpus, method = "tfidf", n_terms = 3L)
-#'   head(corpus$works[, c("work_id", "cluster_id", "cluster_label")])
-#' }
+#' corpus <- sm_example_corpus(with_embeddings = TRUE)
+#' corpus <- sm_cluster_kmeans(corpus, k = 5)
+#' corpus <- sm_cluster_label(corpus, method = "tfidf", n_terms = 3L)
+#' head(corpus$works[, c("work_id", "cluster_id", "cluster_label")])
 #' }
 sm_cluster_label <- function(corpus,
                              method = c("tfidf", "yake", "llm"),

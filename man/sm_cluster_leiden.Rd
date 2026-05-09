@@ -41,13 +41,13 @@ When \code{network = NULL}, embeddings must be present in the corpus so that
 \code{\link[=sm_network_semantic]{sm_network_semantic()}} can build a k-NN graph.
 }
 \examples{
+\dontshow{if (requireNamespace("igraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 \donttest{
-if (requireNamespace("igraph", quietly = TRUE)) {
-  corpus <- sm_example_corpus(with_embeddings = TRUE)
-  corpus <- sm_cluster_leiden(corpus, resolution = 1.0)
-  table(corpus$works$cluster_id)
+corpus <- sm_example_corpus(with_embeddings = TRUE)
+corpus <- sm_cluster_leiden(corpus, resolution = 1.0)
+table(corpus$works$cluster_id)
 }
-}
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other clustering: 

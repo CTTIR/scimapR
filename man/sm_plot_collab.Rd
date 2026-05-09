@@ -30,13 +30,10 @@ A \code{ggplot} object.
 Visualise international or institutional collaboration patterns.
 }
 \examples{
-\donttest{
-if (requireNamespace("ggraph", quietly = TRUE)) {
-  corpus <- sm_example_corpus()
-  sm_plot_collab(corpus, level = "country")
-}
-}
-
+\dontshow{if (requireNamespace("ggraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+corpus <- sm_example_corpus()
+sm_plot_collab(corpus, level = "country")
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other plots: 

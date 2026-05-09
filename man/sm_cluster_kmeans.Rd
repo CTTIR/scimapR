@@ -41,9 +41,11 @@ K-means is deterministic given a fixed random seed. Consider setting a seed
 before calling this function for reproducibility.
 }
 \examples{
+\donttest{
 corpus <- sm_example_corpus(with_embeddings = TRUE)
 corpus <- sm_cluster_kmeans(corpus, k = 5)
 table(corpus$works$cluster_id)
+}
 }
 \seealso{
 Other clustering: 

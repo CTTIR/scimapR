@@ -38,13 +38,11 @@ XLSX output includes bold headers, frozen top row, autofilter,
 and optional title/caption/source note.
 }
 \examples{
-\donttest{
-if (requireNamespace("openxlsx2", quietly = TRUE)) {
-  dat <- data.frame(Author = "Smith J", Works = 10L, Citations = 150L)
-  path <- tempfile(fileext = ".xlsx")
-  sm_export_table(dat, path)
-}
-}
+\dontshow{if (requireNamespace("openxlsx2", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+dat <- data.frame(Author = "Smith J", Works = 10L, Citations = 150L)
+path <- tempfile(fileext = ".xlsx")
+sm_export_table(dat, path)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other export: 

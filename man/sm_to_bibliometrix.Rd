@@ -20,13 +20,11 @@ Converts an \code{sm_corpus} to the data frame format used by
 analysis functions on corpora built with scimapR.
 }
 \examples{
+\dontshow{if (requireNamespace("bibliometrix", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 corpus <- sm_example_corpus(n_works = 10, n_authors = 5)
-\donttest{
-if (requireNamespace("bibliometrix", quietly = TRUE)) {
-  M <- sm_to_bibliometrix(corpus)
-  class(M)
-}
-}
+M <- sm_to_bibliometrix(corpus)
+class(M)
+\dontshow{\}) # examplesIf}
 }
 \references{
 Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for

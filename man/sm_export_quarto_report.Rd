@@ -34,13 +34,12 @@ Generate a comprehensive bibliometric report from a corpus using a
 Quarto template.
 }
 \examples{
+\dontshow{if (requireNamespace("quarto", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 \donttest{
-if (requireNamespace("quarto", quietly = TRUE)) {
-  corpus <- sm_example_corpus()
-  sm_export_quarto_report(corpus, tempfile(fileext = ".html"))
+corpus <- sm_example_corpus()
+sm_export_quarto_report(corpus, tempfile(fileext = ".html"))
 }
-}
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other export: 

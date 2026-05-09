@@ -26,13 +26,11 @@
 #'
 #' @family clustering
 #' @export
-#' @examples
+#' @examplesIf requireNamespace("igraph", quietly = TRUE)
 #' \donttest{
-#' if (requireNamespace("igraph", quietly = TRUE)) {
-#'   corpus <- sm_example_corpus(with_embeddings = TRUE)
-#'   corpus <- sm_cluster_leiden(corpus, resolution = 1.0)
-#'   table(corpus$works$cluster_id)
-#' }
+#' corpus <- sm_example_corpus(with_embeddings = TRUE)
+#' corpus <- sm_cluster_leiden(corpus, resolution = 1.0)
+#' table(corpus$works$cluster_id)
 #' }
 sm_cluster_leiden <- function(corpus,
                               network = NULL,

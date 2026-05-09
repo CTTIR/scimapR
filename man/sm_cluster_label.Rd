@@ -51,14 +51,14 @@ a prompt asking for a concise topical label. Requires the \pkg{ellmer} package
 and a configured provider.
 }
 \examples{
+\dontshow{if (requireNamespace("tidytext", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 \donttest{
-if (requireNamespace("tidytext", quietly = TRUE)) {
-  corpus <- sm_example_corpus(with_embeddings = TRUE)
-  corpus <- sm_cluster_kmeans(corpus, k = 5)
-  corpus <- sm_cluster_label(corpus, method = "tfidf", n_terms = 3L)
-  head(corpus$works[, c("work_id", "cluster_id", "cluster_label")])
+corpus <- sm_example_corpus(with_embeddings = TRUE)
+corpus <- sm_cluster_kmeans(corpus, k = 5)
+corpus <- sm_cluster_label(corpus, method = "tfidf", n_terms = 3L)
+head(corpus$works[, c("work_id", "cluster_id", "cluster_label")])
 }
-}
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other clustering: 

@@ -35,13 +35,13 @@ tables, and an auto-generated README. This is the "send everything to
 a collaborator" workflow.
 }
 \examples{
+\dontshow{if (requireNamespace("yaml", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 \donttest{
-if (requireNamespace("yaml", quietly = TRUE)) {
-  corpus <- sm_example_corpus(n_works = 10)
-  path <- tempfile(fileext = ".zip")
-  sm_export_zip(corpus, path, include = c("rds", "certificate"))
+corpus <- sm_example_corpus(n_works = 10)
+path <- tempfile(fileext = ".zip")
+sm_export_zip(corpus, path, include = c("rds", "certificate"))
 }
-}
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other export: 

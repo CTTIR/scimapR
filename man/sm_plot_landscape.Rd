@@ -33,14 +33,11 @@ A \code{ggplot} object.
 UMAP/t-SNE/PCA scatter plot of work embeddings, coloured by cluster.
 }
 \examples{
-\donttest{
-if (requireNamespace("dbscan", quietly = TRUE) &&
-    requireNamespace("uwot", quietly = TRUE)) {
-  corpus <- sm_example_corpus()
-  corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
-  sm_plot_landscape(corpus)
-}
-}
+\dontshow{if (requireNamespace("dbscan", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+corpus <- sm_example_corpus()
+corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
+sm_plot_landscape(corpus)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other plots: 

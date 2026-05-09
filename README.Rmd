@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# scimapR <img src="man/figures/logo.png" align="right" height="139" alt="" />
+# scimapR <img src="man/figures/logo.svg" align="right" height="139" alt="scimapR logo" />
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml)
@@ -133,11 +133,38 @@ We also acknowledge the many data sources that make scimapR possible:
 
 ## Citation
 
+If you use scimapR in your research, please cite **both** scimapR and the
+foundational bibliometrix package:
+
 ```r
 citation("scimapR")
 ```
 
-Please cite **both** scimapR and bibliometrix when using this package.
+**BibTeX entries:**
+
+```bibtex
+@Manual{scimapR,
+  title = {scimapR: Reproducible, Question-Driven, Embedding-Aware Science Mapping},
+  author = {Raban Heller},
+  year = {2026},
+  note = {R package version 0.1.0},
+  url = {https://github.com/CTTIR/scimapR},
+}
+
+@Article{bibliometrix,
+  title = {bibliometrix: An R-tool for comprehensive science mapping analysis},
+  author = {Massimo Aria and Corrado Cuccurullo},
+  journal = {Journal of Informetrics},
+  year = {2017},
+  volume = {11},
+  number = {4},
+  pages = {959--975},
+  doi = {10.1016/j.joi.2017.08.007},
+}
+```
+
+For a complete citation block including each data source used in your corpus,
+run `sm_cite_corpus(your_corpus)`.
 
 ## License
 

@@ -9,14 +9,10 @@
 #'
 #' @return A `ggplot` object composed via patchwork.
 #'
-#' @examples
-#' \donttest{
-#' if (requireNamespace("patchwork", quietly = TRUE)) {
-#'   corpus <- sm_example_corpus()
-#'   traj <- sm_author_trajectory(corpus, author_id = corpus$authors$author_id[1])
-#'   sm_plot_trajectory(traj)
-#' }
-#' }
+#' @examplesIf requireNamespace("patchwork", quietly = TRUE)
+#' corpus <- sm_example_corpus()
+#' traj <- sm_author_trajectory(corpus, author_id = corpus$authors$author_id[1])
+#' sm_plot_trajectory(traj)
 #'
 #' @family trajectory
 #' @export

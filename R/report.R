@@ -13,12 +13,10 @@
 #'
 #' @return `path` invisibly.
 #'
-#' @examples
+#' @examplesIf requireNamespace("quarto", quietly = TRUE)
 #' \donttest{
-#' if (requireNamespace("quarto", quietly = TRUE)) {
-#'   corpus <- sm_example_corpus()
-#'   sm_export_quarto_report(corpus, tempfile(fileext = ".html"))
-#' }
+#' corpus <- sm_example_corpus()
+#' sm_export_quarto_report(corpus, tempfile(fileext = ".html"))
 #' }
 #'
 #' @family export

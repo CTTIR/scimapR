@@ -25,9 +25,11 @@
 #' @family clustering
 #' @export
 #' @examples
+#' \donttest{
 #' corpus <- sm_example_corpus(with_embeddings = TRUE)
 #' corpus <- sm_cluster_kmeans(corpus, k = 5)
 #' table(corpus$works$cluster_id)
+#' }
 sm_cluster_kmeans <- function(corpus,
                               k,
                               reducer = c("umap", "pca", "none"),

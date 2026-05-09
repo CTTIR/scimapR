@@ -11,13 +11,9 @@
 #'
 #' @return A `ggplot` object.
 #'
-#' @examples
-#' \donttest{
-#' if (requireNamespace("ggraph", quietly = TRUE)) {
-#'   corpus <- sm_example_corpus()
-#'   sm_plot_collab(corpus, level = "country")
-#' }
-#' }
+#' @examplesIf requireNamespace("ggraph", quietly = TRUE)
+#' corpus <- sm_example_corpus()
+#' sm_plot_collab(corpus, level = "country")
 #'
 #' @family plots
 #' @export

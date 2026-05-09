@@ -22,15 +22,13 @@ A \code{ggplot} object.
 Visualise how research topics/clusters evolve across time periods.
 }
 \examples{
+\dontshow{if (requireNamespace("dbscan", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 \donttest{
-if (requireNamespace("dbscan", quietly = TRUE) &&
-    requireNamespace("uwot", quietly = TRUE)) {
-  corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
-  corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
-  sm_plot_evolution(corpus)
+corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
+corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
+sm_plot_evolution(corpus)
 }
-}
-
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other plots: 

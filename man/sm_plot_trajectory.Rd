@@ -20,14 +20,11 @@ A \code{ggplot} object composed via patchwork.
 Multi-panel visualization of an author's career trajectory.
 }
 \examples{
-\donttest{
-if (requireNamespace("patchwork", quietly = TRUE)) {
-  corpus <- sm_example_corpus()
-  traj <- sm_author_trajectory(corpus, author_id = corpus$authors$author_id[1])
-  sm_plot_trajectory(traj)
-}
-}
-
+\dontshow{if (requireNamespace("patchwork", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+corpus <- sm_example_corpus()
+traj <- sm_author_trajectory(corpus, author_id = corpus$authors$author_id[1])
+sm_plot_trajectory(traj)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other trajectory: 

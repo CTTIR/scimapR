@@ -26,16 +26,12 @@
 #'
 #' @family reproducibility
 #' @export
-#' @examples
-#' \donttest{
-#' if (requireNamespace("yaml", quietly = TRUE)) {
-#'   corpus <- sm_example_corpus()
-#'   cert <- sm_certificate(corpus)
-#'   print(cert)
-#'   verification <- sm_verify_certificate(corpus, cert)
-#'   print(verification)
-#' }
-#' }
+#' @examplesIf requireNamespace("yaml", quietly = TRUE)
+#' corpus <- sm_example_corpus()
+#' cert <- sm_certificate(corpus)
+#' print(cert)
+#' verification <- sm_verify_certificate(corpus, cert)
+#' print(verification)
 sm_certificate <- function(corpus,
                            path = NULL,
                            call = rlang::caller_env()) {

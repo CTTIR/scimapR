@@ -38,10 +38,12 @@ differences; and screening changes. This is useful for auditing how a
 corpus evolved between snapshots or after a refresh.
 }
 \examples{
+\donttest{
 c1 <- sm_example_corpus(seed = 1L)
 c2 <- sm_example_corpus(seed = 2L)
 d <- sm_diff_corpora(c1, c2)
 print(d)
+}
 }
 \seealso{
 Other reproducibility: 

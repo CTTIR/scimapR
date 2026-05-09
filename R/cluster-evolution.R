@@ -34,11 +34,13 @@
 #' @family clustering
 #' @export
 #' @examples
+#' \donttest{
 #' corpus <- sm_example_corpus(with_embeddings = TRUE)
 #' corpus <- sm_cluster_kmeans(corpus, k = 5)
 #' evo <- sm_cluster_evolution(corpus)
 #' evo$snapshots
 #' evo$transitions
+#' }
 sm_cluster_evolution <- function(corpus,
                                  time_windows = NULL,
                                  link_threshold = 0.3,

@@ -23,10 +23,12 @@
 #' @family reproducibility
 #' @export
 #' @examples
+#' \donttest{
 #' c1 <- sm_example_corpus(seed = 1L)
 #' c2 <- sm_example_corpus(seed = 2L)
 #' d <- sm_diff_corpora(c1, c2)
 #' print(d)
+#' }
 sm_diff_corpora <- function(corpus1,
                             corpus2,
                             call = rlang::caller_env()) {

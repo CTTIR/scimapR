@@ -14,15 +14,10 @@
 #'
 #' @family plots
 #' @export
-#' @examples
-#' \donttest{
-#' if (requireNamespace("dbscan", quietly = TRUE) &&
-#'     requireNamespace("uwot", quietly = TRUE)) {
-#'   corpus <- sm_example_corpus()
-#'   corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
-#'   sm_plot_landscape(corpus)
-#' }
-#' }
+#' @examplesIf requireNamespace("dbscan", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE)
+#' corpus <- sm_example_corpus()
+#' corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
+#' sm_plot_landscape(corpus)
 sm_plot_landscape <- function(corpus,
                               color_by = "cluster_id",
                               reducer = c("umap", "tsne", "pca"),

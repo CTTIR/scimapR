@@ -10,13 +10,9 @@
 #'
 #' @return A `ggplot` object.
 #'
-#' @examples
-#' \donttest{
-#' if (requireNamespace("ggraph", quietly = TRUE)) {
-#'   corpus <- sm_example_corpus()
-#'   sm_plot_citation_network(corpus)
-#' }
-#' }
+#' @examplesIf requireNamespace("ggraph", quietly = TRUE)
+#' corpus <- sm_example_corpus()
+#' sm_plot_citation_network(corpus)
 #'
 #' @family plots
 #' @export
