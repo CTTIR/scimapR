@@ -1,0 +1,34 @@
+citHeader(
+  "To cite scimapR in publications, please cite both scimapR and the",
+  "foundational bibliometrix package:"
+)
+
+bibentry(
+  bibtype  = "Manual",
+  title    = "scimapR: Reproducible, Question-Driven, Embedding-Aware Science Mapping",
+  author   = person("Raban", "Heller"),
+  year     = "2025",
+  note     = "R package version 0.1.0",
+  url      = "https://github.com/r-heller/scimapR"
+)
+
+bibentry(
+  bibtype  = "Article",
+  title    = "bibliometrix: An R-tool for comprehensive science mapping analysis",
+  author   = c(
+    person("Massimo", "Aria"),
+    person("Corrado", "Cuccurullo")
+  ),
+  journal  = "Journal of Informetrics",
+  year     = "2017",
+  volume   = "11",
+  number   = "4",
+  pages    = "959--975",
+  doi      = "10.1016/j.joi.2017.08.007"
+)
+
+citFooter(
+  "If your corpus was built from specific sources, consider also running",
+  "sm_cite_corpus(your_corpus) to generate a full citation block including",
+  "each data source."
+)

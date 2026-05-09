@@ -1,0 +1,77 @@
+---
+title: "Embeddings and Cluster Discovery"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Embeddings and Cluster Discovery}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+has_cluster_deps <- requireNamespace("dbscan", quietly = TRUE) &&
+  requireNamespace("uwot", quietly = TRUE) &&
+  requireNamespace("tidytext", quietly = TRUE) &&
+  requireNamespace("ggrepel", quietly = TRUE)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  eval = has_cluster_deps
+)
+```
+
+## Semantic research landscape
+
+scimapR uses text embeddings to discover research clusters and visualise
+the intellectual structure of a field.
+
+```{r setup}
+library(scimapR)
+
+# Example corpus comes with pre-computed embeddings
+corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
+```
+
+## Clustering
+
+### HDBSCAN
+
+```{r hdbscan}
+corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
+table(corpus$works$cluster_id)
+```
+
+### Visualise the landscape
+
+```{r landscape, fig.cap = "Research landscape coloured by cluster"}
+sm_plot_landscape(corpus, color_by = "cluster_id", reducer = "umap")
+```
+
+### Cluster labels (TF-IDF)
+
+```{r labels}
+labels <- sm_cluster_label(corpus, method = "tfidf", n_terms = 5)
+head(labels)
+```
+
+## Thematic map
+
+```{r thematic, fig.cap = "Strategic diagram"}
+sm_plot_thematic_map(corpus)
+```
+
+## Advanced: Python-based embeddings
+
+For production use, compute embeddings with SPECTER2:
+
+```r
+# Requires Python + sentence-transformers
+corpus <- sm_embed_works(corpus, model = "specter2")
+```
+
+Alternatively, fetch pre-computed SPECTER embeddings from Semantic Scholar:
+
+```r
+corpus <- sm_enrich_specter(corpus)
+```

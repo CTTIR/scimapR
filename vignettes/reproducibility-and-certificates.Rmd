@@ -1,0 +1,86 @@
+---
+title: "Reproducibility and Corpus Certificates"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Reproducibility and Corpus Certificates}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Why certificates?
+
+Every bibliometric analysis starts with a corpus, but most analyses don't
+document *how* the corpus was built. scimapR's corpus certificates solve
+this: they are structured YAML documents that another researcher can use
+to re-derive the exact same corpus.
+
+```{r setup}
+library(scimapR)
+corpus <- sm_example_corpus(seed = 42)
+```
+
+## Provenance tracking
+
+Every record in a scimapR corpus knows where it came from:
+
+```{r provenance}
+head(sm_provenance(corpus))
+```
+
+## Corpus hashing
+
+```{r hash}
+sm_hash_corpus(corpus)
+```
+
+## Creating a certificate
+
+```{r certificate}
+cert <- sm_certificate(corpus)
+str(cert, max.level = 1)
+```
+
+## Verifying a certificate
+
+```{r verify}
+result <- sm_verify_certificate(corpus, cert)
+result$matches
+```
+
+## Saving and loading
+
+```{r save-load}
+tmp <- tempfile(fileext = ".rds")
+sm_save_corpus(corpus, tmp)
+loaded <- sm_load_corpus(tmp)
+nrow(loaded$works)
+```
+
+## Snapshot and diff
+
+```{r snapshot}
+snap_path <- tempfile(fileext = ".rds")
+sm_snapshot(corpus, snap_path)
+```
+
+## Citation
+
+```{r cite}
+sm_cite_corpus(corpus)
+```
+
+## Locking a corpus
+
+```{r lock}
+locked <- sm_lock(corpus, reason = "Final version for publication")
+locked$metadata$is_locked
+
+# sm_refresh(locked)  # This would error -- corpus is locked
+```

@@ -1,0 +1,93 @@
+---
+title: "Question-Driven Reviews"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Question-Driven Reviews}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Research questions as objects
+
+scimapR treats research questions as structured objects, not just query
+strings.
+
+```{r setup}
+library(scimapR)
+```
+
+```{r question}
+rq <- sm_question(
+ text = "Does spatial transcriptomics improve outcome prediction in colorectal cancer?",
+ framework = "PICO",
+ population = "colorectal cancer patients",
+ intervention = "spatial transcriptomics",
+ outcome = "survival or recurrence"
+)
+print(rq)
+```
+
+## Building a corpus from a question
+
+```r
+# In production, this hits APIs:
+corpus <- sm_corpus_for_question(rq, sources = c("pubmed", "openalex"))
+```
+
+For this vignette, we use the synthetic example corpus:
+
+```{r synthetic}
+corpus <- sm_example_corpus(with_screening = TRUE, seed = 42)
+```
+
+## Screening
+
+### Regex-based (deterministic)
+
+```{r regex}
+screened <- sm_screen_regex(
+ corpus,
+ include_terms = c("transcriptom", "spatial"),
+ exclude_terms = c("mouse", "drosophila")
+)
+nrow(screened$works)
+```
+
+### LLM-grounded screening
+
+```r
+# Requires ellmer package and an API key
+screened <- sm_screen_against_question(
+ corpus, rq,
+ llm = ellmer::chat_anthropic(),
+ stages = "title-abstract"
+)
+```
+
+### Screening summary
+
+```{r summary}
+sm_screen_summary(corpus)
+```
+
+## PRISMA flow
+
+```{r prisma, fig.width = 6, fig.height = 4}
+prisma <- sm_screen_prisma(corpus)
+prisma$counts
+prisma$plot
+```
+
+## Export for Rayyan/Covidence
+
+```r
+sm_export_rayyan(corpus, "my_corpus.ris")
+sm_export_covidence(corpus, "my_corpus_covidence.ris")
+```

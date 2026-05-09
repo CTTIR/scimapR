@@ -1,0 +1,45 @@
+FN Clarivate Analytics Web of Science
+VR 1.0
+PT J
+AU Chen, W
+   Smith, S
+   Tanaka, Y
+TI Spatial transcriptomics reveals tumor microenvironment heterogeneity in colorectal cancer
+SO NATURE MEDICINE
+AB Spatial transcriptomics enables the mapping of gene expression within intact tissue sections. We applied spatial transcriptomics to 45 colorectal cancer specimens and identified distinct tumor microenvironment niches associated with patient outcomes.
+DI 10.1038/s41591-023-02345-6
+DT Article
+PY 2023
+TC 42
+UT WOS:000912345600001
+ER
+
+PT J
+AU Patel, P
+   Mueller, A
+   Garcia, M
+TI Machine learning approaches for biomarker discovery in spatially resolved transcriptomic data
+SO BIOINFORMATICS
+AB We developed a graph neural network framework for identifying spatially variable genes and biomarkers from spatial transcriptomics data. Applied to colorectal cancer tissue microarrays, our method identified 23 novel biomarker candidates.
+DI 10.1145/3535508.3545539
+DT Article
+PY 2022
+TC 18
+UT WOS:000912345600002
+ER
+
+PT J
+AU Zhang, W
+   Johnson, J
+   Andersson, L
+TI Comprehensive spatial multi-omics atlas of colorectal cancer
+SO GENOME BIOLOGY
+AB This study presents a comprehensive spatial multi-omics atlas integrating spatial transcriptomics, proteomics, and metabolomics data from 120 colorectal cancer patients, revealing novel therapeutic targets.
+DI 10.1186/s13059-024-03210-4
+DT Review
+PY 2024
+TC 7
+UT WOS:000912345600003
+ER
+
+EF

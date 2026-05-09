@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE PubmedArticleSet PUBLIC "-//NLM//DTD PubMedArticle, 1st January 2024//EN" "https://dtd.nlm.nih.gov/ncbi/pubmed/out/pubmed_240101.dtd">
+<PubmedArticleSet>
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE" Owner="NLM">
+      <PMID Version="1">37654321</PMID>
+      <Article PubModel="Print-Electronic">
+        <Journal>
+          <Title>Nature Medicine</Title>
+          <ISOAbbreviation>Nat Med</ISOAbbreviation>
+          <JournalIssue CitedMedium="Internet">
+            <Volume>29</Volume>
+            <Issue>4</Issue>
+            <PubDate>
+              <Year>2023</Year>
+            </PubDate>
+          </JournalIssue>
+        </Journal>
+        <ArticleTitle>Spatial transcriptomics reveals tumor microenvironment heterogeneity in colorectal cancer</ArticleTitle>
+        <Abstract>
+          <AbstractText>Spatial transcriptomics enables the mapping of gene expression within intact tissue sections. We applied spatial transcriptomics to 45 colorectal cancer specimens and identified distinct tumor microenvironment niches associated with patient outcomes.</AbstractText>
+        </Abstract>
+        <AuthorList CompleteYN="Y">
+          <Author ValidYN="Y">
+            <LastName>Chen</LastName>
+            <ForeName>Wei</ForeName>
+            <Initials>W</Initials>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Smith</LastName>
+            <ForeName>Sarah</ForeName>
+            <Initials>S</Initials>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Tanaka</LastName>
+            <ForeName>Yuki</ForeName>
+            <Initials>Y</Initials>
+          </Author>
+        </AuthorList>
+        <ArticleIdList>
+          <ArticleId IdType="doi">10.1038/s41591-023-02345-6</ArticleId>
+          <ArticleId IdType="pubmed">37654321</ArticleId>
+        </ArticleIdList>
+      </Article>
+    </MedlineCitation>
+  </PubmedArticle>
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE" Owner="NLM">
+      <PMID Version="1">36543210</PMID>
+      <Article PubModel="Print">
+        <Journal>
+          <Title>Bioinformatics</Title>
+          <ISOAbbreviation>Bioinformatics</ISOAbbreviation>
+          <JournalIssue CitedMedium="Internet">
+            <Volume>38</Volume>
+            <Issue>12</Issue>
+            <PubDate>
+              <Year>2022</Year>
+            </PubDate>
+          </JournalIssue>
+        </Journal>
+        <ArticleTitle>Machine learning approaches for biomarker discovery in spatially resolved transcriptomic data</ArticleTitle>
+        <Abstract>
+          <AbstractText>We developed a graph neural network framework for identifying spatially variable genes and biomarkers from spatial transcriptomics data applied to colorectal cancer tissue microarrays.</AbstractText>
+        </Abstract>
+        <AuthorList CompleteYN="Y">
+          <Author ValidYN="Y">
+            <LastName>Patel</LastName>
+            <ForeName>Priya</ForeName>
+            <Initials>P</Initials>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Mueller</LastName>
+            <ForeName>Anna</ForeName>
+            <Initials>A</Initials>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Garcia</LastName>
+            <ForeName>Maria</ForeName>
+            <Initials>M</Initials>
+          </Author>
+        </AuthorList>
+        <ArticleIdList>
+          <ArticleId IdType="doi">10.1145/3535508.3545539</ArticleId>
+          <ArticleId IdType="pubmed">36543210</ArticleId>
+        </ArticleIdList>
+      </Article>
+    </MedlineCitation>
+  </PubmedArticle>
+  <PubmedArticle>
+    <MedlineCitation Status="MEDLINE" Owner="NLM">
+      <PMID Version="1">38765432</PMID>
+      <Article PubModel="Electronic">
+        <Journal>
+          <Title>Genome Biology</Title>
+          <ISOAbbreviation>Genome Biol</ISOAbbreviation>
+          <JournalIssue CitedMedium="Internet">
+            <Volume>25</Volume>
+            <Issue>1</Issue>
+            <PubDate>
+              <Year>2024</Year>
+            </PubDate>
+          </JournalIssue>
+        </Journal>
+        <ArticleTitle>Comprehensive spatial multi-omics atlas of colorectal cancer</ArticleTitle>
+        <Abstract>
+          <AbstractText>This study presents a comprehensive spatial multi-omics atlas integrating spatial transcriptomics, proteomics, and metabolomics data from 120 colorectal cancer patients, revealing novel therapeutic targets.</AbstractText>
+        </Abstract>
+        <AuthorList CompleteYN="Y">
+          <Author ValidYN="Y">
+            <LastName>Zhang</LastName>
+            <ForeName>Wei</ForeName>
+            <Initials>W</Initials>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Johnson</LastName>
+            <ForeName>James</ForeName>
+            <Initials>J</Initials>
+          </Author>
+          <Author ValidYN="Y">
+            <LastName>Andersson</LastName>
+            <ForeName>Lars</ForeName>
+            <Initials>L</Initials>
+          </Author>
+        </AuthorList>
+        <ArticleIdList>
+          <ArticleId IdType="doi">10.1186/s13059-024-03210-4</ArticleId>
+          <ArticleId IdType="pubmed">38765432</ArticleId>
+        </ArticleIdList>
+      </Article>
+    </MedlineCitation>
+  </PubmedArticle>
+</PubmedArticleSet>

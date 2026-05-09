@@ -1,0 +1,295 @@
+[
+  {
+    "id": "https://openalex.org/W4312345678",
+    "doi": "https://doi.org/10.1038/s41591-023-02345-6",
+    "title": "Spatial transcriptomics reveals tumor microenvironment heterogeneity in colorectal cancer",
+    "publication_year": 2023,
+    "type": "journal-article",
+    "cited_by_count": 42,
+    "is_retracted": false,
+    "language": "en",
+    "authorships": [
+      {
+        "author_position": "first",
+        "author": {
+          "id": "https://openalex.org/A5012345678",
+          "display_name": "Wei Chen",
+          "orcid": "https://orcid.org/0000-0001-2345-6789"
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I27837315",
+            "display_name": "Charite - Universitaetsmedizin Berlin",
+            "country_code": "DE"
+          }
+        ],
+        "is_corresponding": true
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5023456789",
+          "display_name": "Sarah Smith",
+          "orcid": null
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I136199984",
+            "display_name": "Harvard University",
+            "country_code": "US"
+          }
+        ],
+        "is_corresponding": false
+      },
+      {
+        "author_position": "last",
+        "author": {
+          "id": "https://openalex.org/A5034567890",
+          "display_name": "Yuki Tanaka",
+          "orcid": "https://orcid.org/0000-0002-3456-7890"
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I69618088",
+            "display_name": "University of Tokyo",
+            "country_code": "JP"
+          }
+        ],
+        "is_corresponding": false
+      }
+    ],
+    "primary_location": {
+      "source": {
+        "id": "https://openalex.org/S49861241",
+        "display_name": "Nature Medicine",
+        "issn_l": "1078-8956",
+        "type": "journal"
+      }
+    },
+    "concepts": [
+      {
+        "id": "https://openalex.org/C54355233",
+        "display_name": "Spatial transcriptomics",
+        "level": 3,
+        "score": 0.95
+      },
+      {
+        "id": "https://openalex.org/C71924100",
+        "display_name": "Tumor microenvironment",
+        "level": 2,
+        "score": 0.89
+      },
+      {
+        "id": "https://openalex.org/C126838900",
+        "display_name": "Colorectal cancer",
+        "level": 3,
+        "score": 0.87
+      }
+    ],
+    "abstract_inverted_index": {
+      "Spatial": [0],
+      "transcriptomics": [1],
+      "enables": [2],
+      "the": [3, 8],
+      "mapping": [4],
+      "of": [5],
+      "gene": [6],
+      "expression": [7]
+    }
+  },
+  {
+    "id": "https://openalex.org/W4323456789",
+    "doi": "https://doi.org/10.1145/3535508.3545539",
+    "title": "Machine learning approaches for biomarker discovery in spatially resolved transcriptomic data",
+    "publication_year": 2022,
+    "type": "journal-article",
+    "cited_by_count": 18,
+    "is_retracted": false,
+    "language": "en",
+    "authorships": [
+      {
+        "author_position": "first",
+        "author": {
+          "id": "https://openalex.org/A5045678901",
+          "display_name": "Priya Patel",
+          "orcid": "https://orcid.org/0000-0003-4567-8901"
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I205783295",
+            "display_name": "Indian Institute of Technology Bombay",
+            "country_code": "IN"
+          }
+        ],
+        "is_corresponding": true
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5056789012",
+          "display_name": "Anna Mueller",
+          "orcid": null
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I114395168",
+            "display_name": "Ludwig Maximilian University of Munich",
+            "country_code": "DE"
+          }
+        ],
+        "is_corresponding": false
+      },
+      {
+        "author_position": "last",
+        "author": {
+          "id": "https://openalex.org/A5067890123",
+          "display_name": "Maria Garcia",
+          "orcid": null
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I120665556",
+            "display_name": "University of Barcelona",
+            "country_code": "ES"
+          }
+        ],
+        "is_corresponding": false
+      }
+    ],
+    "primary_location": {
+      "source": {
+        "id": "https://openalex.org/S62491907",
+        "display_name": "Bioinformatics",
+        "issn_l": "1367-4803",
+        "type": "journal"
+      }
+    },
+    "concepts": [
+      {
+        "id": "https://openalex.org/C119857082",
+        "display_name": "Machine learning",
+        "level": 1,
+        "score": 0.92
+      },
+      {
+        "id": "https://openalex.org/C55493867",
+        "display_name": "Biomarker discovery",
+        "level": 3,
+        "score": 0.88
+      },
+      {
+        "id": "https://openalex.org/C54355233",
+        "display_name": "Spatial transcriptomics",
+        "level": 3,
+        "score": 0.82
+      }
+    ],
+    "abstract_inverted_index": {
+      "We": [0],
+      "developed": [1],
+      "a": [2],
+      "graph": [3],
+      "neural": [4],
+      "network": [5],
+      "framework": [6]
+    }
+  },
+  {
+    "id": "https://openalex.org/W4334567890",
+    "doi": "https://doi.org/10.1186/s13059-024-03210-4",
+    "title": "Comprehensive spatial multi-omics atlas of colorectal cancer",
+    "publication_year": 2024,
+    "type": "review",
+    "cited_by_count": 7,
+    "is_retracted": false,
+    "language": "en",
+    "authorships": [
+      {
+        "author_position": "first",
+        "author": {
+          "id": "https://openalex.org/A5078901234",
+          "display_name": "Wei Zhang",
+          "orcid": "https://orcid.org/0000-0001-8901-2345"
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I4210141977",
+            "display_name": "Peking University",
+            "country_code": "CN"
+          }
+        ],
+        "is_corresponding": true
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5089012345",
+          "display_name": "James Johnson",
+          "orcid": null
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I27837315",
+            "display_name": "Johns Hopkins University",
+            "country_code": "US"
+          }
+        ],
+        "is_corresponding": false
+      },
+      {
+        "author_position": "last",
+        "author": {
+          "id": "https://openalex.org/A5090123456",
+          "display_name": "Lars Andersson",
+          "orcid": "https://orcid.org/0000-0002-9012-3456"
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I149507859",
+            "display_name": "Karolinska Institute",
+            "country_code": "SE"
+          }
+        ],
+        "is_corresponding": false
+      }
+    ],
+    "primary_location": {
+      "source": {
+        "id": "https://openalex.org/S2764828",
+        "display_name": "Genome Biology",
+        "issn_l": "1474-760X",
+        "type": "journal"
+      }
+    },
+    "concepts": [
+      {
+        "id": "https://openalex.org/C126838900",
+        "display_name": "Colorectal cancer",
+        "level": 3,
+        "score": 0.94
+      },
+      {
+        "id": "https://openalex.org/C2776119280",
+        "display_name": "Multi-omics",
+        "level": 2,
+        "score": 0.91
+      },
+      {
+        "id": "https://openalex.org/C54355233",
+        "display_name": "Spatial transcriptomics",
+        "level": 3,
+        "score": 0.85
+      }
+    ],
+    "abstract_inverted_index": {
+      "This": [0],
+      "study": [1],
+      "presents": [2],
+      "a": [3],
+      "comprehensive": [4],
+      "spatial": [5],
+      "multi-omics": [6],
+      "atlas": [7]
+    }
+  }
+]

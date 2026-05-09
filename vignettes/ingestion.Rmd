@@ -1,0 +1,84 @@
+---
+title: "Building a Corpus from Files and APIs"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Building a Corpus from Files and APIs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## File ingestion
+
+scimapR reads 12 bibliographic formats with native clean-room parsers.
+
+```{r setup}
+library(scimapR)
+
+# List available example files
+sm_example_files()
+```
+
+```{r read-bib}
+# Read a BibTeX file
+bib_path <- sm_example_files("example.bib")
+corpus_bib <- sm_read_bib(bib_path)
+print(corpus_bib)
+```
+
+```{r read-ris}
+# Read an RIS file
+ris_path <- sm_example_files("example.ris")
+corpus_ris <- sm_read_ris(ris_path)
+nrow(corpus_ris$works)
+```
+
+## Combining multiple sources
+
+```{r combine}
+combined <- sm_build_corpus(corpus_bib, corpus_ris, dedupe = TRUE)
+nrow(combined$works)
+```
+
+## Auto-detection
+
+```{r auto}
+corpus_auto <- sm_read_auto(bib_path)
+nrow(corpus_auto$works)
+```
+
+## API fetching
+
+For API-based ingestion, set your email for polite pool access:
+
+```r
+Sys.setenv(SCIMAPR_MAILTO = "your.email@example.com")
+
+# Fetch from OpenAlex
+corpus <- sm_fetch_openalex(
+ query = "spatial transcriptomics colorectal cancer",
+ n_max = 100
+)
+```
+
+All API fetchers populate the provenance table for reproducibility tracking.
+
+## Deduplication
+
+```{r dedupe}
+corpus <- sm_example_corpus()
+deduped <- sm_dedupe(corpus)
+```
+
+## Validation
+
+```{r validate}
+issues <- sm_validate(corpus)
+nrow(issues)
+```

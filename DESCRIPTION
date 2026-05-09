@@ -1,0 +1,105 @@
+Package: scimapR
+Type: Package
+Title: Reproducible, Question-Driven, Embedding-Aware Science Mapping
+Version: 0.1.0
+Authors@R:
+    person("Raban", "Heller", email = "raban.heller@charite.de",
+           role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-8006-9742"))
+Description: A comprehensive toolkit for bibliometric and scientometric
+    analysis, designed as a complement to the foundational 'bibliometrix'
+    package (Aria & Cuccurullo, 2017, <doi:10.1016/j.joi.2017.08.007>).
+    Provides unified ingestion from major bibliographic sources including
+    'OpenAlex', 'Crossref', 'Semantic Scholar', 'PubMed', 'arXiv', 'bioRxiv',
+    'ORCID', 'Overton', 'Unpaywall', 'Scopus', and 'Web of Science' exports;
+    classical science mapping (co-citation, bibliographic coupling,
+    co-authorship, co-word networks); modern citation indicators (CD index,
+    Relative Citation Ratio, field-normalized scores, Uzzi novelty);
+    embedding-based research cluster discovery; structured research-question
+    objects with optional LLM-grounded screening; author trajectory analysis;
+    equity and representation auditing with explicit confidence and
+    method reporting; reproducible-by-construction corpus certificates
+    enabling exact re-derivation of a corpus; retrieval-grounded
+    conversational corpus exploration; and a comprehensive 'shiny'
+    application with publication-ready figure and table export.
+    Output is fully 'tidyverse'-compatible with tibble-based corpora,
+    'viridis'-themed 'ggplot2' visualizations, and 'tidygraph' network objects.
+License: MIT + file LICENSE
+URL: https://github.com/r-heller/scimapR,
+    https://r-heller.github.io/scimapR/
+BugReports: https://github.com/r-heller/scimapR/issues
+Encoding: UTF-8
+Language: en-US
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.1.0)
+Imports:
+    cli,
+    rlang (>= 1.1.0),
+    tibble,
+    dplyr,
+    tidyr,
+    purrr,
+    stringr,
+    readr,
+    xml2,
+    jsonlite,
+    yaml,
+    httr2,
+    igraph,
+    tidygraph,
+    ggplot2 (>= 3.4.0),
+    viridisLite,
+    fs,
+    digest,
+    lifecycle,
+    stats,
+    utils,
+    tools
+Suggests:
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown,
+    withr,
+    httptest2,
+    covr,
+    pkgdown,
+    bibliometrix,
+    bibtex,
+    openalexR,
+    rcrossref,
+    rentrez,
+    reticulate,
+    arrow,
+    qs2,
+    Rtsne,
+    ragg,
+    plotly,
+    visNetwork,
+    shiny (>= 1.8.0),
+    bslib,
+    DT,
+    shinyWidgets,
+    shinycssloaders,
+    shinyjs,
+    shinytest2,
+    fontawesome,
+    htmltools,
+    ellmer,
+    quarto,
+    stringdist,
+    memoise,
+    cachem,
+    Matrix,
+    scales,
+    patchwork,
+    ggraph,
+    ggrepel,
+    tidytext,
+    uwot,
+    dbscan,
+    openxlsx2
+Config/testthat/edition: 3
+VignetteBuilder: knitr
+LazyData: true

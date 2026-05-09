@@ -1,0 +1,140 @@
+url: https://r-heller.github.io/scimapR/
+template:
+  bootstrap: 5
+  bslib:
+    primary: "#5E2C8E"
+    base_font: {google: "Inter"}
+    heading_font: {google: "Inter"}
+    code_font: {google: "JetBrains Mono"}
+
+home:
+  title: "scimapR - Reproducible Science Mapping"
+
+reference:
+  - title: "Corpus class"
+    contents:
+      - sm_corpus
+      - validate_sm_corpus
+      - sm_validate
+      - is_sm_corpus
+      - as_sm_corpus
+      - sm_save_corpus
+      - sm_filter_works
+  - title: "File ingestion"
+    contents:
+      - starts_with("sm_read_")
+  - title: "API ingestion"
+    contents:
+      - starts_with("sm_fetch_")
+  - title: "Live refresh"
+    contents:
+      - sm_refresh
+      - sm_staleness
+      - sm_lock
+      - sm_unlock
+  - title: "Corpus enrichment"
+    contents:
+      - starts_with("sm_enrich_")
+  - title: "bibliometrix interop"
+    contents:
+      - sm_to_bibliometrix
+  - title: "Corpus assembly"
+    contents:
+      - sm_build_corpus
+      - sm_bind_corpora
+      - sm_dedupe
+  - title: "Research questions and screening"
+    contents:
+      - sm_question
+      - is_sm_question
+      - sm_query
+      - sm_corpus_for_question
+      - sm_screen_against_question
+      - sm_screen_regex
+      - sm_screen_summary
+      - sm_merge_screening_decisions
+  - title: "Networks"
+    contents:
+      - starts_with("sm_network_")
+  - title: "Embeddings and clustering"
+    contents:
+      - sm_embed_works
+      - sm_embed_save
+      - sm_embed_load
+      - starts_with("sm_cluster_")
+  - title: "Indicators"
+    contents:
+      - starts_with("sm_metric_")
+      - starts_with("sm_summary_")
+  - title: "Author trajectory"
+    contents:
+      - sm_author_trajectory
+      - sm_trajectory
+      - is_sm_trajectory
+      - sm_plot_trajectory
+      - sm_plot_topic_pivots
+      - sm_plot_collab_turnover
+  - title: "Equity and representation audit"
+    contents:
+      - starts_with("sm_audit_")
+      - sm_plot_equity_dashboard
+  - title: "Conversational exploration"
+    contents:
+      - sm_chat
+      - sm_chat_render
+  - title: "Reproducibility and certificates"
+    contents:
+      - sm_certificate
+      - sm_rebuild_from_cert
+      - sm_verify_certificate
+      - sm_provenance
+      - sm_hash_corpus
+      - sm_cite_corpus
+      - sm_snapshot
+      - sm_diff_corpora
+  - title: "Visualization"
+    contents:
+      - sm_theme
+      - sm_scale_color
+      - sm_scale_fill
+      - sm_palette_qualitative
+      - autoplot.sm_corpus
+      - starts_with("sm_plot_")
+  - title: "Export"
+    contents:
+      - starts_with("sm_export_")
+  - title: "Systematic review bridge"
+    contents:
+      - sm_screen_prisma
+      - sm_import_rayyan
+  - title: "Field-specific helpers"
+    contents:
+      - starts_with("sm_field_")
+  - title: "Researcher profile"
+    contents:
+      - sm_researcher_profile
+  - title: "Shiny app"
+    contents:
+      - sm_run_app
+  - title: "Example data"
+    contents:
+      - sm_example_corpus
+      - sm_example_files
+      - sm_example_db
+
+articles:
+  - title: "Get Started"
+    contents: scimapR
+  - title: "Workflow"
+    contents:
+      - ingestion
+      - embeddings-and-clusters
+      - modern-indicators
+  - title: "Distinctive Features"
+    contents:
+      - question-driven-reviews
+      - reproducibility-and-certificates
+      - equity-trajectory-and-chat
+  - title: "Ecosystem"
+    contents:
+      - relationship-to-bibliometrix

@@ -1,0 +1,38 @@
+TY  - JOUR
+AU  - Chen, Wei
+AU  - Smith, Sarah
+AU  - Tanaka, Yuki
+TI  - Spatial transcriptomics reveals tumor microenvironment heterogeneity in colorectal cancer
+JO  - Nature Medicine
+PY  - 2023
+VL  - 29
+IS  - 4
+SP  - 812
+EP  - 825
+DO  - 10.1038/s41591-023-02345-6
+AB  - Spatial transcriptomics enables the mapping of gene expression within intact tissue sections. We applied spatial transcriptomics to 45 colorectal cancer specimens and identified distinct tumor microenvironment niches associated with patient outcomes. Our analysis revealed spatially restricted immune cell populations and their interactions with cancer cells.
+ER  -
+
+TY  - CONF
+AU  - Patel, Priya
+AU  - Mueller, Anna
+AU  - Garcia, Maria
+TI  - Machine learning approaches for biomarker discovery in spatially resolved transcriptomic data
+JO  - Proceedings of the International Conference on Bioinformatics
+PY  - 2022
+SP  - 134
+EP  - 142
+DO  - 10.1145/3535508.3545539
+AB  - We developed a graph neural network framework for identifying spatially variable genes and biomarkers from spatial transcriptomics data. Applied to colorectal cancer tissue microarrays, our method identified 23 novel biomarker candidates with improved predictive accuracy compared to conventional differential expression analysis.
+ER  -
+
+TY  - BOOK
+AU  - Zhang, Wei
+AU  - Johnson, James
+AU  - Andersson, Lars
+TI  - Atlas of Spatial Omics in Colorectal Cancer
+PB  - Springer Nature
+PY  - 2024
+DO  - 10.1007/978-3-031-45678-9
+AB  - This comprehensive atlas provides a detailed reference for spatial omics technologies applied to colorectal cancer research. Covering spatial transcriptomics, spatial proteomics, and spatial metabolomics, the book presents standardized protocols, computational pipelines, and clinical applications for understanding tumor heterogeneity.
+ER  -

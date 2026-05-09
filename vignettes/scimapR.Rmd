@@ -1,0 +1,78 @@
+---
+title: "Getting Started with scimapR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with scimapR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+## What is scimapR?
+
+scimapR is a comprehensive toolkit for bibliometric and scientometric
+analysis in R. It is designed as a complement to the foundational
+[bibliometrix](https://www.bibliometrix.org/) package, adding:
+
+- **Live corpus refresh** with staleness tracking and locking
+- **Research questions as first-class objects** with LLM-grounded screening
+- **Reproducible-by-construction corpus certificates** for exact re-derivation
+- **Author trajectory analysis** with topic pivots and collaborator turnover
+- **Equity and representation auditing** with built-in epistemic humility
+- **LLM-grounded corpus chat** with retrieval-constrained citations
+
+## Quick start
+
+```{r setup}
+library(scimapR)
+
+# Generate a synthetic example corpus
+corpus <- sm_example_corpus(n_works = 100, seed = 42)
+print(corpus)
+```
+
+## Exploring the corpus
+
+```{r works}
+# View works
+head(corpus$works[, c("work_id", "title", "year", "cited_by_count")])
+```
+
+```{r authors}
+# View authors
+head(corpus$authors[, c("author_id", "display_name")])
+```
+
+## Visualisation
+
+All plots use viridis colour palettes by default.
+
+```{r production, fig.cap = "Annual production"}
+sm_plot_production(corpus)
+```
+
+```{r top-authors, fig.cap = "Top authors"}
+sm_plot_top(corpus, level = "authors", n = 10)
+```
+
+## Filtering
+
+```{r filter}
+recent <- sm_filter_works(corpus, year_range = c(2020, 2024))
+nrow(recent$works)
+```
+
+## Next steps
+
+- See `vignette("ingestion")` for building corpora from real data
+- See `vignette("relationship-to-bibliometrix")` for interop with bibliometrix
+- See `vignette("embeddings-and-clusters")` for semantic analysis
+- Run `sm_run_app()` for the interactive Shiny explorer

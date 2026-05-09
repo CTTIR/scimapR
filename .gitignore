@@ -1,0 +1,13 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.DS_Store
+docs/
+inst/doc/
+_build.R
+.claude/
+CLAUDE.md
+DROPHERE/
+*.Rcheck/
+scimapR_*.tar.gz

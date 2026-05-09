@@ -1,0 +1,212 @@
+/* scimapR Shiny application styles
+   Restrained design with purple accent (#5E2C8E)
+   Matches r-heller.github.io aesthetic */
+
+/* -- CSS custom properties ------------------------------------------------- */
+:root {
+  --sm-bg: #ffffff;
+  --sm-fg: #1a1a1a;
+  --sm-accent: #5E2C8E;
+  --sm-accent-light: #7B4BA8;
+  --sm-nav-bg: #fafafa;
+  --sm-border: #e5e5e5;
+  --sm-card-bg: #ffffff;
+  --sm-muted: #6c757d;
+  --sm-surface: #f8f9fa;
+}
+
+[data-bs-theme="dark"] {
+  --sm-bg: #0e0e0e;
+  --sm-fg: #e8e8e8;
+  --sm-accent: #b08bd8;
+  --sm-accent-light: #c4a8e0;
+  --sm-nav-bg: #161616;
+  --sm-border: #2a2a2a;
+  --sm-card-bg: #1a1a1a;
+  --sm-muted: #999999;
+  --sm-surface: #1e1e1e;
+}
+
+/* -- Global ---------------------------------------------------------------- */
+body {
+  background-color: var(--sm-bg);
+  color: var(--sm-fg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* -- Navbar ---------------------------------------------------------------- */
+.navbar {
+  border-bottom: 1px solid var(--sm-border);
+  letter-spacing: 0.01em;
+}
+
+.navbar-brand {
+  font-weight: 600;
+  font-size: 1.15rem;
+}
+
+.navbar .nav-link {
+  font-size: 0.875rem;
+  font-weight: 450;
+  padding: 0.5rem 0.75rem;
+  transition: color 0.15s ease;
+}
+
+.navbar .nav-link:hover {
+  color: var(--sm-accent) !important;
+}
+
+.navbar .nav-link.active {
+  font-weight: 600;
+}
+
+/* -- Cards ----------------------------------------------------------------- */
+.card {
+  border: 1px solid var(--sm-border);
+  border-radius: 0.5rem;
+  background-color: var(--sm-card-bg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.card-header {
+  background-color: transparent;
+  border-bottom: 1px solid var(--sm-border);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+  padding: 0.75rem 1rem;
+}
+
+/* -- Value boxes ----------------------------------------------------------- */
+.bslib-value-box .value-box-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.bslib-value-box .value-box-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+/* -- Sidebar --------------------------------------------------------------- */
+.bslib-sidebar-layout > .sidebar {
+  background-color: var(--sm-surface);
+  border-right: 1px solid var(--sm-border);
+}
+
+/* -- Buttons --------------------------------------------------------------- */
+.btn-primary {
+  background-color: var(--sm-accent);
+  border-color: var(--sm-accent);
+}
+
+.btn-primary:hover {
+  background-color: var(--sm-accent-light);
+  border-color: var(--sm-accent-light);
+}
+
+.btn-outline-primary {
+  color: var(--sm-accent);
+  border-color: var(--sm-accent);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--sm-accent);
+  border-color: var(--sm-accent);
+  color: #ffffff;
+}
+
+/* -- Form controls --------------------------------------------------------- */
+.form-control,
+.form-select {
+  font-size: 0.875rem;
+  border-color: var(--sm-border);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--sm-accent);
+  box-shadow: 0 0 0 0.2rem rgba(94, 44, 142, 0.15);
+}
+
+/* -- Tables (DT) ----------------------------------------------------------- */
+.dataTables_wrapper {
+  font-size: 0.85rem;
+}
+
+table.dataTable thead th {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 2px solid var(--sm-border) !important;
+}
+
+table.dataTable tbody td {
+  padding: 0.5rem 0.75rem;
+  vertical-align: middle;
+}
+
+table.dataTable tbody tr:hover {
+  background-color: rgba(94, 44, 142, 0.04) !important;
+}
+
+/* -- Help text ------------------------------------------------------------- */
+.help-block,
+.form-text {
+  color: var(--sm-muted);
+  font-size: 0.8rem;
+}
+
+/* -- Chat area ------------------------------------------------------------- */
+#chat_response_area {
+  font-family: var(--bs-font-monospace);
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* -- Download buttons consistency ------------------------------------------ */
+.btn i.fa,
+.btn svg.svg-inline--fa {
+  margin-right: 0.35rem;
+}
+
+/* -- Plot containers ------------------------------------------------------- */
+.shiny-plot-output {
+  border-radius: 0.375rem;
+}
+
+/* -- Scrollbar styling for dark mode --------------------------------------- */
+[data-bs-theme="dark"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-bs-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--sm-bg);
+}
+
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: #444444;
+  border-radius: 4px;
+}
+
+/* -- Spacing adjustments --------------------------------------------------- */
+.bslib-page-fill > .tab-content > .tab-pane {
+  padding: 1rem;
+}
+
+/* -- Verbatim output (certificate) ----------------------------------------- */
+pre.shiny-text-output {
+  background-color: var(--sm-surface);
+  border: 1px solid var(--sm-border);
+  border-radius: 0.375rem;
+  padding: 1rem;
+  font-size: 0.8rem;
+  max-height: 500px;
+  overflow-y: auto;
+}

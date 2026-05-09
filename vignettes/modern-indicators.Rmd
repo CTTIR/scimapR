@@ -1,0 +1,87 @@
+---
+title: "Modern Citation Indicators"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Modern Citation Indicators}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Beyond the h-index
+
+scimapR implements several modern citation indicators that go beyond
+simple counts.
+
+```{r setup}
+library(scimapR)
+corpus <- sm_example_corpus(seed = 42)
+```
+
+## Classical indices
+
+```{r h-index}
+h <- sm_metric_h_index(corpus, level = "author")
+head(h, 10)
+```
+
+## CD index (disruption)
+
+The CD index (Funk & Owen-Smith, 2017) measures whether a work
+consolidates or disrupts its field.
+
+```{r disruption}
+cd <- sm_metric_disruption(corpus)
+head(cd)
+```
+
+## Relative Citation Ratio
+
+The RCR (Hutchins et al., 2016) normalises citations relative to the
+co-citation network.
+
+```{r rcr}
+rcr <- sm_metric_rcr(corpus)
+head(rcr)
+```
+
+## Field-Normalized Citation Impact
+
+FNCI (Waltman et al., 2011) normalises by field and year.
+
+```{r fnci}
+fnci <- sm_metric_fnci(corpus)
+head(fnci)
+```
+
+## Uzzi novelty
+
+Measures atypical journal combinations in reference lists (Uzzi et al., 2013).
+
+```{r novelty}
+nov <- sm_metric_novelty(corpus)
+head(nov)
+```
+
+## Summary tables
+
+```{r summary}
+sm_summary_authors(corpus) |> head(5)
+```
+
+## References
+
+- Funk, R. J. & Owen-Smith, J. (2017). A Dynamic Network Measure of
+  Technological Change. *Management Science*, 63(3), 791--817.
+- Hutchins, B. I. et al. (2016). Relative Citation Ratio (RCR).
+  *PLOS Biology*, 14(9), e1002541.
+- Waltman, L. et al. (2011). Towards a new crown indicator.
+  *Scientometrics*, 87(3), 467--481.
+- Uzzi, B. et al. (2013). Atypical Combinations and Scientific Impact.
+  *Science*, 342(6157), 468--472.
