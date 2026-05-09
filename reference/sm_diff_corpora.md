@@ -67,11 +67,11 @@ An `sm_corpus_diff` S3 object (a list) with components:
 ## See also
 
 Other reproducibility:
-[`sm_certificate()`](https://r-heller.github.io/scimapR/reference/sm_certificate.md),
-[`sm_cite_corpus()`](https://r-heller.github.io/scimapR/reference/sm_cite_corpus.md),
-[`sm_hash_corpus()`](https://r-heller.github.io/scimapR/reference/sm_hash_corpus.md),
-[`sm_provenance()`](https://r-heller.github.io/scimapR/reference/sm_provenance.md),
-[`sm_snapshot()`](https://r-heller.github.io/scimapR/reference/sm_snapshot.md)
+[`sm_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md),
+[`sm_cite_corpus()`](https://cttir.github.io/scimapR/reference/sm_cite_corpus.md),
+[`sm_hash_corpus()`](https://cttir.github.io/scimapR/reference/sm_hash_corpus.md),
+[`sm_provenance()`](https://cttir.github.io/scimapR/reference/sm_provenance.md),
+[`sm_snapshot()`](https://cttir.github.io/scimapR/reference/sm_snapshot.md)
 
 ## Examples
 

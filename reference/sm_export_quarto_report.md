@@ -49,11 +49,24 @@ sm_export_quarto_report(
 ## See also
 
 Other export:
-[`sm_export_csv()`](https://r-heller.github.io/scimapR/reference/sm_export_csv.md),
-[`sm_export_cytoscape()`](https://r-heller.github.io/scimapR/reference/sm_export_cytoscape.md),
-[`sm_export_figure()`](https://r-heller.github.io/scimapR/reference/sm_export_figure.md),
-[`sm_export_gephi()`](https://r-heller.github.io/scimapR/reference/sm_export_gephi.md),
-[`sm_export_rds()`](https://r-heller.github.io/scimapR/reference/sm_export_rds.md),
-[`sm_export_table()`](https://r-heller.github.io/scimapR/reference/sm_export_table.md),
-[`sm_export_vosviewer()`](https://r-heller.github.io/scimapR/reference/sm_export_vosviewer.md),
-[`sm_export_zip()`](https://r-heller.github.io/scimapR/reference/sm_export_zip.md)
+[`sm_export_csv()`](https://cttir.github.io/scimapR/reference/sm_export_csv.md),
+[`sm_export_cytoscape()`](https://cttir.github.io/scimapR/reference/sm_export_cytoscape.md),
+[`sm_export_figure()`](https://cttir.github.io/scimapR/reference/sm_export_figure.md),
+[`sm_export_gephi()`](https://cttir.github.io/scimapR/reference/sm_export_gephi.md),
+[`sm_export_rds()`](https://cttir.github.io/scimapR/reference/sm_export_rds.md),
+[`sm_export_table()`](https://cttir.github.io/scimapR/reference/sm_export_table.md),
+[`sm_export_vosviewer()`](https://cttir.github.io/scimapR/reference/sm_export_vosviewer.md),
+[`sm_export_zip()`](https://cttir.github.io/scimapR/reference/sm_export_zip.md)
+
+## Examples
+
+``` r
+# \donttest{
+if (requireNamespace("quarto", quietly = TRUE)) {
+  corpus <- sm_example_corpus()
+  sm_export_quarto_report(corpus, tempfile(fileext = ".html"))
+}
+#> ℹ Quarto report rendering requires a Quarto installation.
+#> ℹ Template: standard
+# }
+```

@@ -120,7 +120,7 @@ An `sm_chat_response` S3 object with fields:
 ## See also
 
 Other chat:
-[`sm_chat_render()`](https://r-heller.github.io/scimapR/reference/sm_chat_render.md)
+[`sm_chat_render()`](https://cttir.github.io/scimapR/reference/sm_chat_render.md)
 
 ## Examples
 

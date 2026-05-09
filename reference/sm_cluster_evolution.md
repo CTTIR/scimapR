@@ -20,8 +20,7 @@ sm_cluster_evolution(
 
 - corpus:
 
-  An
-  [sm_corpus](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
+  An [sm_corpus](https://cttir.github.io/scimapR/reference/sm_corpus.md)
   object with a `cluster_id` column in `corpus$works` and a `year`
   column.
 
@@ -71,10 +70,10 @@ The function:
 ## See also
 
 Other clustering:
-[`sm_cluster_hdbscan()`](https://r-heller.github.io/scimapR/reference/sm_cluster_hdbscan.md),
-[`sm_cluster_kmeans()`](https://r-heller.github.io/scimapR/reference/sm_cluster_kmeans.md),
-[`sm_cluster_label()`](https://r-heller.github.io/scimapR/reference/sm_cluster_label.md),
-[`sm_cluster_leiden()`](https://r-heller.github.io/scimapR/reference/sm_cluster_leiden.md)
+[`sm_cluster_hdbscan()`](https://cttir.github.io/scimapR/reference/sm_cluster_hdbscan.md),
+[`sm_cluster_kmeans()`](https://cttir.github.io/scimapR/reference/sm_cluster_kmeans.md),
+[`sm_cluster_label()`](https://cttir.github.io/scimapR/reference/sm_cluster_label.md),
+[`sm_cluster_leiden()`](https://cttir.github.io/scimapR/reference/sm_cluster_leiden.md)
 
 ## Examples
 

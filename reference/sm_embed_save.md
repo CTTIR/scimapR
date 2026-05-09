@@ -3,7 +3,7 @@
 Saves the embeddings matrix from an `sm_corpus` to an RDS file on disk.
 This allows caching expensive embedding computations for later reuse
 with
-[`sm_embed_load()`](https://r-heller.github.io/scimapR/reference/sm_embed_load.md).
+[`sm_embed_load()`](https://cttir.github.io/scimapR/reference/sm_embed_load.md).
 
 ## Usage
 
@@ -15,8 +15,7 @@ sm_embed_save(corpus, path, call = rlang::caller_env())
 
 - corpus:
 
-  An
-  [sm_corpus](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
+  An [sm_corpus](https://cttir.github.io/scimapR/reference/sm_corpus.md)
   object with a non-`NULL` `embeddings` matrix.
 
 - path:
@@ -34,8 +33,8 @@ The input `corpus` (invisibly).
 ## See also
 
 Other embedding:
-[`sm_embed_load()`](https://r-heller.github.io/scimapR/reference/sm_embed_load.md),
-[`sm_embed_works()`](https://r-heller.github.io/scimapR/reference/sm_embed_works.md)
+[`sm_embed_load()`](https://cttir.github.io/scimapR/reference/sm_embed_load.md),
+[`sm_embed_works()`](https://cttir.github.io/scimapR/reference/sm_embed_works.md)
 
 ## Examples
 

@@ -25,8 +25,8 @@ A tibble with `mesh_term`, `count`, and `proportion`.
 ## See also
 
 Other field-helpers:
-[`sm_field_clinical_trials()`](https://r-heller.github.io/scimapR/reference/sm_field_clinical_trials.md),
-[`sm_field_funder()`](https://r-heller.github.io/scimapR/reference/sm_field_funder.md)
+[`sm_field_clinical_trials()`](https://cttir.github.io/scimapR/reference/sm_field_clinical_trials.md),
+[`sm_field_funder()`](https://cttir.github.io/scimapR/reference/sm_field_funder.md)
 
 ## Examples
 

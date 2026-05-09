@@ -21,8 +21,7 @@ sm_network_coword(
 
 - corpus:
 
-  An
-  [sm_corpus](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
+  An [sm_corpus](https://cttir.github.io/scimapR/reference/sm_corpus.md)
   object.
 
 - field:
@@ -75,11 +74,11 @@ Empty input returns an empty undirected `tbl_graph`.
 ## See also
 
 Other networks:
-[`sm_network_citation()`](https://r-heller.github.io/scimapR/reference/sm_network_citation.md),
-[`sm_network_cocitation()`](https://r-heller.github.io/scimapR/reference/sm_network_cocitation.md),
-[`sm_network_collab()`](https://r-heller.github.io/scimapR/reference/sm_network_collab.md),
-[`sm_network_coupling()`](https://r-heller.github.io/scimapR/reference/sm_network_coupling.md),
-[`sm_network_semantic()`](https://r-heller.github.io/scimapR/reference/sm_network_semantic.md)
+[`sm_network_citation()`](https://cttir.github.io/scimapR/reference/sm_network_citation.md),
+[`sm_network_cocitation()`](https://cttir.github.io/scimapR/reference/sm_network_cocitation.md),
+[`sm_network_collab()`](https://cttir.github.io/scimapR/reference/sm_network_collab.md),
+[`sm_network_coupling()`](https://cttir.github.io/scimapR/reference/sm_network_coupling.md),
+[`sm_network_semantic()`](https://cttir.github.io/scimapR/reference/sm_network_semantic.md)
 
 ## Examples
 

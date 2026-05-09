@@ -14,8 +14,7 @@ sm_network_coupling(corpus, min_shared = 1L, call = rlang::caller_env())
 
 - corpus:
 
-  An
-  [sm_corpus](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
+  An [sm_corpus](https://cttir.github.io/scimapR/reference/sm_corpus.md)
   object with a populated `references` table.
 
 - min_shared:
@@ -47,11 +46,11 @@ threshold) returns an empty undirected `tbl_graph`.
 ## See also
 
 Other networks:
-[`sm_network_citation()`](https://r-heller.github.io/scimapR/reference/sm_network_citation.md),
-[`sm_network_cocitation()`](https://r-heller.github.io/scimapR/reference/sm_network_cocitation.md),
-[`sm_network_collab()`](https://r-heller.github.io/scimapR/reference/sm_network_collab.md),
-[`sm_network_coword()`](https://r-heller.github.io/scimapR/reference/sm_network_coword.md),
-[`sm_network_semantic()`](https://r-heller.github.io/scimapR/reference/sm_network_semantic.md)
+[`sm_network_citation()`](https://cttir.github.io/scimapR/reference/sm_network_citation.md),
+[`sm_network_cocitation()`](https://cttir.github.io/scimapR/reference/sm_network_cocitation.md),
+[`sm_network_collab()`](https://cttir.github.io/scimapR/reference/sm_network_collab.md),
+[`sm_network_coword()`](https://cttir.github.io/scimapR/reference/sm_network_coword.md),
+[`sm_network_semantic()`](https://cttir.github.io/scimapR/reference/sm_network_semantic.md)
 
 ## Examples
 

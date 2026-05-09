@@ -10,7 +10,7 @@ articles:
   relationship-to-bibliometrix: relationship-to-bibliometrix.html
   reproducibility-and-certificates: reproducibility-and-certificates.html
   scimapR: scimapR.html
-last_built: 2026-05-09T07:22Z
+last_built: 2026-05-09T07:58Z
 urls:
-  reference: https://r-heller.github.io/scimapR/reference
-  article: https://r-heller.github.io/scimapR/articles
+  reference: https://cttir.github.io/scimapR/reference
+  article: https://cttir.github.io/scimapR/articles

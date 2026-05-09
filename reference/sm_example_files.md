@@ -23,7 +23,7 @@ A character string path, or a character vector of available files.
 ## See also
 
 Other example:
-[`sm_example_corpus()`](https://r-heller.github.io/scimapR/reference/sm_example_corpus.md)
+[`sm_example_corpus()`](https://cttir.github.io/scimapR/reference/sm_example_corpus.md)
 
 ## Examples
 

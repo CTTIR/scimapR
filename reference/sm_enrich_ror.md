@@ -39,13 +39,13 @@ tables, plus new provenance rows.
 ## See also
 
 Other enrichers:
-[`sm_enrich_altmetric()`](https://r-heller.github.io/scimapR/reference/sm_enrich_altmetric.md),
-[`sm_enrich_concepts()`](https://r-heller.github.io/scimapR/reference/sm_enrich_concepts.md),
-[`sm_enrich_opencitations()`](https://r-heller.github.io/scimapR/reference/sm_enrich_opencitations.md),
-[`sm_enrich_orcid()`](https://r-heller.github.io/scimapR/reference/sm_enrich_orcid.md),
-[`sm_enrich_retraction()`](https://r-heller.github.io/scimapR/reference/sm_enrich_retraction.md),
-[`sm_enrich_specter()`](https://r-heller.github.io/scimapR/reference/sm_enrich_specter.md),
-[`sm_enrich_unpaywall()`](https://r-heller.github.io/scimapR/reference/sm_enrich_unpaywall.md)
+[`sm_enrich_altmetric()`](https://cttir.github.io/scimapR/reference/sm_enrich_altmetric.md),
+[`sm_enrich_concepts()`](https://cttir.github.io/scimapR/reference/sm_enrich_concepts.md),
+[`sm_enrich_opencitations()`](https://cttir.github.io/scimapR/reference/sm_enrich_opencitations.md),
+[`sm_enrich_orcid()`](https://cttir.github.io/scimapR/reference/sm_enrich_orcid.md),
+[`sm_enrich_retraction()`](https://cttir.github.io/scimapR/reference/sm_enrich_retraction.md),
+[`sm_enrich_specter()`](https://cttir.github.io/scimapR/reference/sm_enrich_specter.md),
+[`sm_enrich_unpaywall()`](https://cttir.github.io/scimapR/reference/sm_enrich_unpaywall.md)
 
 ## Examples
 

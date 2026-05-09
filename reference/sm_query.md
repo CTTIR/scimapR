@@ -33,7 +33,7 @@ An `sm_corpus` with matching works.
 ## See also
 
 Other filters:
-[`sm_filter_works()`](https://r-heller.github.io/scimapR/reference/sm_filter_works.md)
+[`sm_filter_works()`](https://cttir.github.io/scimapR/reference/sm_filter_works.md)
 
 ## Examples
 

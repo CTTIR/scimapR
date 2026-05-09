@@ -19,7 +19,7 @@ sm_chat_render(
 - response:
 
   An `sm_chat_response` object from
-  [`sm_chat()`](https://r-heller.github.io/scimapR/reference/sm_chat.md).
+  [`sm_chat()`](https://cttir.github.io/scimapR/reference/sm_chat.md).
 
 - format:
 
@@ -37,7 +37,7 @@ console and returned invisibly.
 ## See also
 
 Other chat:
-[`sm_chat()`](https://r-heller.github.io/scimapR/reference/sm_chat.md)
+[`sm_chat()`](https://cttir.github.io/scimapR/reference/sm_chat.md)
 
 ## Examples
 

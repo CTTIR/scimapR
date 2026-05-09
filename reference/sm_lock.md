@@ -1,10 +1,10 @@
 # Lock or unlock a corpus
 
 Locking a corpus prevents mutation by
-[`sm_refresh()`](https://r-heller.github.io/scimapR/reference/sm_refresh.md)
+[`sm_refresh()`](https://cttir.github.io/scimapR/reference/sm_refresh.md)
 and other modifying operations. This is useful for archival or when you
 want to guarantee reproducibility after generating a
-[`sm_certificate()`](https://r-heller.github.io/scimapR/reference/sm_certificate.md).
+[`sm_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md).
 
 `sm_lock()` sets `metadata$is_locked = TRUE` with an optional reason.
 `sm_unlock()` reverses the lock but requires explicit confirmation to
@@ -45,8 +45,8 @@ A modified `sm_corpus` with updated lock status.
 ## See also
 
 Other refresh:
-[`sm_refresh()`](https://r-heller.github.io/scimapR/reference/sm_refresh.md),
-[`sm_staleness()`](https://r-heller.github.io/scimapR/reference/sm_staleness.md)
+[`sm_refresh()`](https://cttir.github.io/scimapR/reference/sm_refresh.md),
+[`sm_staleness()`](https://cttir.github.io/scimapR/reference/sm_staleness.md)
 
 ## Examples
 

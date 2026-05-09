@@ -8,18 +8,18 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/r-heller/scimapR/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/CTTIR/scimapR/blob/main/inst/CITATION)
 
 Heller R (2025). *scimapR: Reproducible, Question-Driven,
 Embedding-Aware Science Mapping*. R package version 0.1.0,
-<https://github.com/r-heller/scimapR>.
+<https://github.com/CTTIR/scimapR>.
 
     @Manual{,
       title = {scimapR: Reproducible, Question-Driven, Embedding-Aware Science Mapping},
       author = {Raban Heller},
       year = {2025},
       note = {R package version 0.1.0},
-      url = {https://github.com/r-heller/scimapR},
+      url = {https://github.com/CTTIR/scimapR},
     }
 
 Aria M, Cuccurullo C (2017). “bibliometrix: An R-tool for comprehensive

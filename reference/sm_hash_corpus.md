@@ -28,11 +28,11 @@ A single character string containing the hex-encoded SHA-256 hash.
 ## See also
 
 Other reproducibility:
-[`sm_certificate()`](https://r-heller.github.io/scimapR/reference/sm_certificate.md),
-[`sm_cite_corpus()`](https://r-heller.github.io/scimapR/reference/sm_cite_corpus.md),
-[`sm_diff_corpora()`](https://r-heller.github.io/scimapR/reference/sm_diff_corpora.md),
-[`sm_provenance()`](https://r-heller.github.io/scimapR/reference/sm_provenance.md),
-[`sm_snapshot()`](https://r-heller.github.io/scimapR/reference/sm_snapshot.md)
+[`sm_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md),
+[`sm_cite_corpus()`](https://cttir.github.io/scimapR/reference/sm_cite_corpus.md),
+[`sm_diff_corpora()`](https://cttir.github.io/scimapR/reference/sm_diff_corpora.md),
+[`sm_provenance()`](https://cttir.github.io/scimapR/reference/sm_provenance.md),
+[`sm_snapshot()`](https://cttir.github.io/scimapR/reference/sm_snapshot.md)
 
 ## Examples
 

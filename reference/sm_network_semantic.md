@@ -15,10 +15,9 @@ sm_network_semantic(corpus, k = 10L, call = rlang::caller_env())
 
 - corpus:
 
-  An
-  [sm_corpus](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
+  An [sm_corpus](https://cttir.github.io/scimapR/reference/sm_corpus.md)
   object. Must contain an `embeddings` matrix (see
-  [`sm_embed_works()`](https://r-heller.github.io/scimapR/reference/sm_embed_works.md)).
+  [`sm_embed_works()`](https://cttir.github.io/scimapR/reference/sm_embed_works.md)).
 
 - k:
 
@@ -40,7 +39,7 @@ between 0 and 1).
 
 Embeddings must be present in `corpus$embeddings` (a numeric matrix with
 row names matching `work_id`). Use
-[`sm_embed_works()`](https://r-heller.github.io/scimapR/reference/sm_embed_works.md)
+[`sm_embed_works()`](https://cttir.github.io/scimapR/reference/sm_embed_works.md)
 to compute them.
 
 The function computes cosine similarity via matrix multiplication on
@@ -52,11 +51,11 @@ Empty input or missing embeddings returns an empty undirected
 ## See also
 
 Other networks:
-[`sm_network_citation()`](https://r-heller.github.io/scimapR/reference/sm_network_citation.md),
-[`sm_network_cocitation()`](https://r-heller.github.io/scimapR/reference/sm_network_cocitation.md),
-[`sm_network_collab()`](https://r-heller.github.io/scimapR/reference/sm_network_collab.md),
-[`sm_network_coupling()`](https://r-heller.github.io/scimapR/reference/sm_network_coupling.md),
-[`sm_network_coword()`](https://r-heller.github.io/scimapR/reference/sm_network_coword.md)
+[`sm_network_citation()`](https://cttir.github.io/scimapR/reference/sm_network_citation.md),
+[`sm_network_cocitation()`](https://cttir.github.io/scimapR/reference/sm_network_cocitation.md),
+[`sm_network_collab()`](https://cttir.github.io/scimapR/reference/sm_network_collab.md),
+[`sm_network_coupling()`](https://cttir.github.io/scimapR/reference/sm_network_coupling.md),
+[`sm_network_coword()`](https://cttir.github.io/scimapR/reference/sm_network_coword.md)
 
 ## Examples
 

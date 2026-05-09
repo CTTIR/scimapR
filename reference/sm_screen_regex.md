@@ -44,8 +44,8 @@ A modified `sm_corpus` with updated `screening` table.
 ## See also
 
 Other question:
-[`is_sm_question()`](https://r-heller.github.io/scimapR/reference/is_sm_question.md),
-[`sm_corpus_for_question()`](https://r-heller.github.io/scimapR/reference/sm_corpus_for_question.md),
-[`sm_question()`](https://r-heller.github.io/scimapR/reference/sm_question.md),
-[`sm_screen_against_question()`](https://r-heller.github.io/scimapR/reference/sm_screen_against_question.md),
-[`sm_screen_summary()`](https://r-heller.github.io/scimapR/reference/sm_screen_summary.md)
+[`is_sm_question()`](https://cttir.github.io/scimapR/reference/is_sm_question.md),
+[`sm_corpus_for_question()`](https://cttir.github.io/scimapR/reference/sm_corpus_for_question.md),
+[`sm_question()`](https://cttir.github.io/scimapR/reference/sm_question.md),
+[`sm_screen_against_question()`](https://cttir.github.io/scimapR/reference/sm_screen_against_question.md),
+[`sm_screen_summary()`](https://cttir.github.io/scimapR/reference/sm_screen_summary.md)

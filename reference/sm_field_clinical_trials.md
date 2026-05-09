@@ -30,5 +30,15 @@ A tibble with `work_id` and trial-related information.
 ## See also
 
 Other field-helpers:
-[`sm_field_funder()`](https://r-heller.github.io/scimapR/reference/sm_field_funder.md),
-[`sm_field_pubmed_mesh()`](https://r-heller.github.io/scimapR/reference/sm_field_pubmed_mesh.md)
+[`sm_field_funder()`](https://cttir.github.io/scimapR/reference/sm_field_funder.md),
+[`sm_field_pubmed_mesh()`](https://cttir.github.io/scimapR/reference/sm_field_pubmed_mesh.md)
+
+## Examples
+
+``` r
+corpus <- sm_example_corpus()
+sm_field_clinical_trials(corpus)
+#> ℹ No clinical trials identified in corpus.
+#> # A tibble: 0 × 5
+#> # ℹ 5 variables: work_id <chr>, doi <chr>, title <chr>, year <int>, pmid <chr>
+```

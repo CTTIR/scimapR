@@ -29,9 +29,22 @@ A `ggplot` object composed via patchwork.
 ## See also
 
 Other trajectory:
-[`is_sm_trajectory()`](https://r-heller.github.io/scimapR/reference/is_sm_trajectory.md),
-[`sm_author_trajectory()`](https://r-heller.github.io/scimapR/reference/sm_author_trajectory.md),
-[`sm_plot_collab_turnover()`](https://r-heller.github.io/scimapR/reference/sm_plot_collab_turnover.md),
-[`sm_plot_topic_pivots()`](https://r-heller.github.io/scimapR/reference/sm_plot_topic_pivots.md),
-[`sm_researcher_profile()`](https://r-heller.github.io/scimapR/reference/sm_researcher_profile.md),
-[`sm_trajectory`](https://r-heller.github.io/scimapR/reference/sm_trajectory.md)
+[`is_sm_trajectory()`](https://cttir.github.io/scimapR/reference/is_sm_trajectory.md),
+[`sm_author_trajectory()`](https://cttir.github.io/scimapR/reference/sm_author_trajectory.md),
+[`sm_plot_collab_turnover()`](https://cttir.github.io/scimapR/reference/sm_plot_collab_turnover.md),
+[`sm_plot_topic_pivots()`](https://cttir.github.io/scimapR/reference/sm_plot_topic_pivots.md),
+[`sm_researcher_profile()`](https://cttir.github.io/scimapR/reference/sm_researcher_profile.md),
+[`sm_trajectory`](https://cttir.github.io/scimapR/reference/sm_trajectory.md)
+
+## Examples
+
+``` r
+# \donttest{
+if (requireNamespace("patchwork", quietly = TRUE)) {
+  corpus <- sm_example_corpus()
+  traj <- sm_author_trajectory(corpus, author_id = corpus$authors$author_id[1])
+  sm_plot_trajectory(traj)
+}
+
+# }
+```

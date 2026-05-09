@@ -20,8 +20,7 @@ sm_cluster_kmeans(
 
 - corpus:
 
-  An
-  [sm_corpus](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
+  An [sm_corpus](https://cttir.github.io/scimapR/reference/sm_corpus.md)
   object with embeddings.
 
 - k:
@@ -48,9 +47,9 @@ The input `corpus` with a `cluster_id` column added to `corpus$works`.
 ## Details
 
 Requires embeddings in `corpus$embeddings`. Compute them first with
-[`sm_embed_works()`](https://r-heller.github.io/scimapR/reference/sm_embed_works.md)
+[`sm_embed_works()`](https://cttir.github.io/scimapR/reference/sm_embed_works.md)
 or load from cache with
-[`sm_embed_load()`](https://r-heller.github.io/scimapR/reference/sm_embed_load.md).
+[`sm_embed_load()`](https://cttir.github.io/scimapR/reference/sm_embed_load.md).
 
 K-means is deterministic given a fixed random seed. Consider setting a
 seed before calling this function for reproducibility.
@@ -58,10 +57,10 @@ seed before calling this function for reproducibility.
 ## See also
 
 Other clustering:
-[`sm_cluster_evolution()`](https://r-heller.github.io/scimapR/reference/sm_cluster_evolution.md),
-[`sm_cluster_hdbscan()`](https://r-heller.github.io/scimapR/reference/sm_cluster_hdbscan.md),
-[`sm_cluster_label()`](https://r-heller.github.io/scimapR/reference/sm_cluster_label.md),
-[`sm_cluster_leiden()`](https://r-heller.github.io/scimapR/reference/sm_cluster_leiden.md)
+[`sm_cluster_evolution()`](https://cttir.github.io/scimapR/reference/sm_cluster_evolution.md),
+[`sm_cluster_hdbscan()`](https://cttir.github.io/scimapR/reference/sm_cluster_hdbscan.md),
+[`sm_cluster_label()`](https://cttir.github.io/scimapR/reference/sm_cluster_label.md),
+[`sm_cluster_leiden()`](https://cttir.github.io/scimapR/reference/sm_cluster_leiden.md)
 
 ## Examples
 

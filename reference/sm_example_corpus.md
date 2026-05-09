@@ -60,7 +60,7 @@ An `sm_corpus` object.
 ## See also
 
 Other example:
-[`sm_example_files()`](https://r-heller.github.io/scimapR/reference/sm_example_files.md)
+[`sm_example_files()`](https://cttir.github.io/scimapR/reference/sm_example_files.md)
 
 ## Examples
 
@@ -74,5 +74,5 @@ print(corpus)
 #> Sources (journals): 10
 #> Embeddings: 200 x 64
 #> Provenance: synthetic (200)
-#> Status: Unlocked (last refreshed: 2026-05-09 07:23:35)
+#> Status: Unlocked (last refreshed: 2026-05-09 07:59:07)
 ```

@@ -49,11 +49,11 @@ For `sm_snapshot()`: the file path (invisibly). For
 ## See also
 
 Other reproducibility:
-[`sm_certificate()`](https://r-heller.github.io/scimapR/reference/sm_certificate.md),
-[`sm_cite_corpus()`](https://r-heller.github.io/scimapR/reference/sm_cite_corpus.md),
-[`sm_diff_corpora()`](https://r-heller.github.io/scimapR/reference/sm_diff_corpora.md),
-[`sm_hash_corpus()`](https://r-heller.github.io/scimapR/reference/sm_hash_corpus.md),
-[`sm_provenance()`](https://r-heller.github.io/scimapR/reference/sm_provenance.md)
+[`sm_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md),
+[`sm_cite_corpus()`](https://cttir.github.io/scimapR/reference/sm_cite_corpus.md),
+[`sm_diff_corpora()`](https://cttir.github.io/scimapR/reference/sm_diff_corpora.md),
+[`sm_hash_corpus()`](https://cttir.github.io/scimapR/reference/sm_hash_corpus.md),
+[`sm_provenance()`](https://cttir.github.io/scimapR/reference/sm_provenance.md)
 
 ## Examples
 
@@ -61,11 +61,11 @@ Other reproducibility:
 corpus <- sm_example_corpus()
 path <- tempfile(fileext = ".rds")
 sm_snapshot(corpus, path = path)
-#> ✔ Corpus snapshot saved to /tmp/Rtmp7Xki0Y/file238556935876.rds.
+#> ✔ Corpus snapshot saved to /tmp/RtmpYJYwGj/file21c211d8d21e.rds.
 #> ℹ Size: 122K | Hash: ea446b5f4465
 
 loaded <- sm_snapshot_load(path)
-#> ✔ Loaded corpus from /tmp/Rtmp7Xki0Y/file238556935876.rds.
+#> ✔ Loaded corpus from /tmp/RtmpYJYwGj/file21c211d8d21e.rds.
 #> ℹ 200 works, 80 authors.
 identical(nrow(corpus$works), nrow(loaded$works))
 #> [1] TRUE

@@ -18,8 +18,7 @@ sm_metric_fnci(
 
 - corpus:
 
-  An
-  [sm_corpus](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
+  An [sm_corpus](https://cttir.github.io/scimapR/reference/sm_corpus.md)
   object.
 
 - classification:
@@ -64,17 +63,17 @@ Considerations. *Journal of Informetrics*, 5(1), 37–47.
 ## See also
 
 Other metrics:
-[`sm_metric_collab_index()`](https://r-heller.github.io/scimapR/reference/sm_metric_collab_index.md),
-[`sm_metric_disruption()`](https://r-heller.github.io/scimapR/reference/sm_metric_disruption.md),
-[`sm_metric_g_index()`](https://r-heller.github.io/scimapR/reference/sm_metric_g_index.md),
-[`sm_metric_h_index()`](https://r-heller.github.io/scimapR/reference/sm_metric_h_index.md),
-[`sm_metric_m_index()`](https://r-heller.github.io/scimapR/reference/sm_metric_m_index.md),
-[`sm_metric_novelty()`](https://r-heller.github.io/scimapR/reference/sm_metric_novelty.md),
-[`sm_metric_rcr()`](https://r-heller.github.io/scimapR/reference/sm_metric_rcr.md),
-[`sm_summary_authors()`](https://r-heller.github.io/scimapR/reference/sm_summary_authors.md),
-[`sm_summary_period()`](https://r-heller.github.io/scimapR/reference/sm_summary_period.md),
-[`sm_summary_sources()`](https://r-heller.github.io/scimapR/reference/sm_summary_sources.md),
-[`sm_summary_works()`](https://r-heller.github.io/scimapR/reference/sm_summary_works.md)
+[`sm_metric_collab_index()`](https://cttir.github.io/scimapR/reference/sm_metric_collab_index.md),
+[`sm_metric_disruption()`](https://cttir.github.io/scimapR/reference/sm_metric_disruption.md),
+[`sm_metric_g_index()`](https://cttir.github.io/scimapR/reference/sm_metric_g_index.md),
+[`sm_metric_h_index()`](https://cttir.github.io/scimapR/reference/sm_metric_h_index.md),
+[`sm_metric_m_index()`](https://cttir.github.io/scimapR/reference/sm_metric_m_index.md),
+[`sm_metric_novelty()`](https://cttir.github.io/scimapR/reference/sm_metric_novelty.md),
+[`sm_metric_rcr()`](https://cttir.github.io/scimapR/reference/sm_metric_rcr.md),
+[`sm_summary_authors()`](https://cttir.github.io/scimapR/reference/sm_summary_authors.md),
+[`sm_summary_period()`](https://cttir.github.io/scimapR/reference/sm_summary_period.md),
+[`sm_summary_sources()`](https://cttir.github.io/scimapR/reference/sm_summary_sources.md),
+[`sm_summary_works()`](https://cttir.github.io/scimapR/reference/sm_summary_works.md)
 
 ## Examples
 

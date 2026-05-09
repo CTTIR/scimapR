@@ -41,11 +41,34 @@ An `sm_corpus` object.
 ## See also
 
 Other corpus:
-[`is_sm_corpus()`](https://r-heller.github.io/scimapR/reference/is_sm_corpus.md),
-[`sm_bind_corpora()`](https://r-heller.github.io/scimapR/reference/sm_bind_corpora.md),
-[`sm_build_corpus()`](https://r-heller.github.io/scimapR/reference/sm_build_corpus.md),
-[`sm_corpus()`](https://r-heller.github.io/scimapR/reference/sm_corpus.md),
-[`sm_dedupe()`](https://r-heller.github.io/scimapR/reference/sm_dedupe.md),
-[`sm_save_corpus()`](https://r-heller.github.io/scimapR/reference/sm_save_corpus.md),
-[`sm_validate()`](https://r-heller.github.io/scimapR/reference/sm_validate.md),
-[`validate_sm_corpus()`](https://r-heller.github.io/scimapR/reference/validate_sm_corpus.md)
+[`is_sm_corpus()`](https://cttir.github.io/scimapR/reference/is_sm_corpus.md),
+[`sm_bind_corpora()`](https://cttir.github.io/scimapR/reference/sm_bind_corpora.md),
+[`sm_build_corpus()`](https://cttir.github.io/scimapR/reference/sm_build_corpus.md),
+[`sm_corpus()`](https://cttir.github.io/scimapR/reference/sm_corpus.md),
+[`sm_dedupe()`](https://cttir.github.io/scimapR/reference/sm_dedupe.md),
+[`sm_save_corpus()`](https://cttir.github.io/scimapR/reference/sm_save_corpus.md),
+[`sm_validate()`](https://cttir.github.io/scimapR/reference/sm_validate.md),
+[`validate_sm_corpus()`](https://cttir.github.io/scimapR/reference/validate_sm_corpus.md)
+
+## Examples
+
+``` r
+corpus <- sm_example_corpus()
+as_sm_corpus(corpus)
+#> 
+#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
+#> Works: 200 | Authors: 80 | Institutions: 0
+#> Years: 2015 - 2024
+#> Sources (journals): 10
+#> Embeddings: 200 x 64
+#> Provenance: synthetic (200)
+#> Status: Unlocked (last refreshed: 2026-05-09 07:58:23)
+as_sm_corpus(corpus$works)
+#> 
+#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
+#> Works: 200 | Authors: 0 | Institutions: 0
+#> Years: 2015 - 2024
+#> Sources (journals): 0
+#> Embeddings: none
+#> Status: Unlocked (last refreshed: never)
+```

@@ -33,5 +33,16 @@ A tibble of funders with counts.
 ## See also
 
 Other field-helpers:
-[`sm_field_clinical_trials()`](https://r-heller.github.io/scimapR/reference/sm_field_clinical_trials.md),
-[`sm_field_pubmed_mesh()`](https://r-heller.github.io/scimapR/reference/sm_field_pubmed_mesh.md)
+[`sm_field_clinical_trials()`](https://cttir.github.io/scimapR/reference/sm_field_clinical_trials.md),
+[`sm_field_pubmed_mesh()`](https://cttir.github.io/scimapR/reference/sm_field_pubmed_mesh.md)
+
+## Examples
+
+``` r
+corpus <- sm_example_corpus()
+sm_field_funder(corpus)
+#> ℹ Funding data requires enrichment. Use `sm_enrich_concepts()` or fetch from
+#>   crossref.
+#> # A tibble: 0 × 4
+#> # ℹ 4 variables: funder <chr>, doi_prefix <chr>, country <chr>, n_works <int>
+```

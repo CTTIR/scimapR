@@ -158,11 +158,11 @@ An `sm_question` S3 object with fields:
 ## See also
 
 Other question:
-[`is_sm_question()`](https://r-heller.github.io/scimapR/reference/is_sm_question.md),
-[`sm_corpus_for_question()`](https://r-heller.github.io/scimapR/reference/sm_corpus_for_question.md),
-[`sm_screen_against_question()`](https://r-heller.github.io/scimapR/reference/sm_screen_against_question.md),
-[`sm_screen_regex()`](https://r-heller.github.io/scimapR/reference/sm_screen_regex.md),
-[`sm_screen_summary()`](https://r-heller.github.io/scimapR/reference/sm_screen_summary.md)
+[`is_sm_question()`](https://cttir.github.io/scimapR/reference/is_sm_question.md),
+[`sm_corpus_for_question()`](https://cttir.github.io/scimapR/reference/sm_corpus_for_question.md),
+[`sm_screen_against_question()`](https://cttir.github.io/scimapR/reference/sm_screen_against_question.md),
+[`sm_screen_regex()`](https://cttir.github.io/scimapR/reference/sm_screen_regex.md),
+[`sm_screen_summary()`](https://cttir.github.io/scimapR/reference/sm_screen_summary.md)
 
 ## Examples
 
@@ -180,7 +180,7 @@ print(q)
 #> ── <sm_question> ───────────────────────────────────────────────────────────────
 #> ID: Q-c4c29fe2ebe4f3d3
 #> Framework: PICO
-#> Created: 2026-05-09 07:24:11
+#> Created: 2026-05-09 07:59:56
 #> 
 #> Question:
 #> Does immunotherapy improve survival in metastatic melanoma?

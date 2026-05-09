@@ -33,7 +33,7 @@ print(corpus)
 #> Sources (journals): 10
 #> Embeddings: 100 x 64
 #> Provenance: synthetic (100)
-#> Status: Unlocked (last refreshed: 2026-05-09 07:25:00)
+#> Status: Unlocked (last refreshed: 2026-05-09 08:00:44)
 ```
 
 ## Exploring the corpus
@@ -102,14 +102,14 @@ nrow(recent$works)
 ## Next steps
 
 - See
-  [`vignette("ingestion")`](https://r-heller.github.io/scimapR/articles/ingestion.md)
+  [`vignette("ingestion")`](https://cttir.github.io/scimapR/articles/ingestion.md)
   for building corpora from real data
 - See
-  [`vignette("relationship-to-bibliometrix")`](https://r-heller.github.io/scimapR/articles/relationship-to-bibliometrix.md)
+  [`vignette("relationship-to-bibliometrix")`](https://cttir.github.io/scimapR/articles/relationship-to-bibliometrix.md)
   for interop with bibliometrix
 - See
-  [`vignette("embeddings-and-clusters")`](https://r-heller.github.io/scimapR/articles/embeddings-and-clusters.md)
+  [`vignette("embeddings-and-clusters")`](https://cttir.github.io/scimapR/articles/embeddings-and-clusters.md)
   for semantic analysis
 - Run
-  [`sm_run_app()`](https://r-heller.github.io/scimapR/reference/sm_run_app.md)
+  [`sm_run_app()`](https://cttir.github.io/scimapR/reference/sm_run_app.md)
   for the interactive Shiny explorer

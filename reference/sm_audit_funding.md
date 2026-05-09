@@ -70,10 +70,10 @@ An `sm_audit_funding` S3 object containing:
 ## See also
 
 Other audit:
-[`print.sm_audit_summary()`](https://r-heller.github.io/scimapR/reference/sm_audit_summary.md),
-[`sm_audit_gender()`](https://r-heller.github.io/scimapR/reference/sm_audit_gender.md),
-[`sm_audit_geographic()`](https://r-heller.github.io/scimapR/reference/sm_audit_geographic.md),
-[`sm_audit_oa()`](https://r-heller.github.io/scimapR/reference/sm_audit_oa.md)
+[`print.sm_audit_summary()`](https://cttir.github.io/scimapR/reference/sm_audit_summary.md),
+[`sm_audit_gender()`](https://cttir.github.io/scimapR/reference/sm_audit_gender.md),
+[`sm_audit_geographic()`](https://cttir.github.io/scimapR/reference/sm_audit_geographic.md),
+[`sm_audit_oa()`](https://cttir.github.io/scimapR/reference/sm_audit_oa.md)
 
 ## Examples
 
@@ -93,29 +93,29 @@ funding <- sm_audit_funding(corpus, source = "crossref")
 #> Warning: 404 (client error): /works/10.1234/example.10 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.11 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.12 - Resource not found.
-#> Warning: 429 (client error): /works/10.1234/example.13 - 
+#> Warning: 404 (client error): /works/10.1234/example.13 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.14 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.15 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.16 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.15 - 
+#> Warning: 429 (client error): /works/10.1234/example.16 - 
 #> Warning: 404 (client error): /works/10.1234/example.17 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.18 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.19 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.20 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.21 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.22 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.23 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.24 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.18 - 
+#> Warning: 429 (client error): /works/10.1234/example.19 - 
+#> Warning: 429 (client error): /works/10.1234/example.20 - 
+#> Warning: 429 (client error): /works/10.1234/example.21 - 
+#> Warning: 429 (client error): /works/10.1234/example.22 - 
+#> Warning: 429 (client error): /works/10.1234/example.23 - 
+#> Warning: 429 (client error): /works/10.1234/example.24 - 
 #> Warning: 429 (client error): /works/10.1234/example.25 - 
-#> Warning: 404 (client error): /works/10.1234/example.26 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.27 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.26 - 
+#> Warning: 429 (client error): /works/10.1234/example.27 - 
 #> Warning: 429 (client error): /works/10.1234/example.28 - 
-#> Warning: 404 (client error): /works/10.1234/example.29 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.29 - 
 #> Warning: 429 (client error): /works/10.1234/example.30 - 
 #> Warning: 429 (client error): /works/10.1234/example.31 - 
-#> Warning: 404 (client error): /works/10.1234/example.32 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.32 - 
 #> Warning: 429 (client error): /works/10.1234/example.33 - 
 #> Warning: 429 (client error): /works/10.1234/example.34 - 
-#> Warning: 404 (client error): /works/10.1234/example.35 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.35 - 
 #> Warning: 429 (client error): /works/10.1234/example.36 - 
 #> Warning: 429 (client error): /works/10.1234/example.37 - 
 #> Warning: 429 (client error): /works/10.1234/example.38 - 

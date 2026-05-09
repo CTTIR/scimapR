@@ -44,8 +44,7 @@ sm_read_auto(
 
 ## Value
 
-An
-[sm_corpus](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
+An [sm_corpus](https://cttir.github.io/scimapR/reference/sm_corpus.md)
 object.
 
 ## Implementation
@@ -87,17 +86,17 @@ comprehensive science mapping analysis. *Journal of Informetrics*,
 ## See also
 
 Other readers:
-[`sm_read_bib()`](https://r-heller.github.io/scimapR/reference/sm_read_bib.md),
-[`sm_read_cochrane()`](https://r-heller.github.io/scimapR/reference/sm_read_cochrane.md),
-[`sm_read_dimensions()`](https://r-heller.github.io/scimapR/reference/sm_read_dimensions.md),
-[`sm_read_endnote()`](https://r-heller.github.io/scimapR/reference/sm_read_endnote.md),
-[`sm_read_lens()`](https://r-heller.github.io/scimapR/reference/sm_read_lens.md),
-[`sm_read_openalex_json()`](https://r-heller.github.io/scimapR/reference/sm_read_openalex_json.md),
-[`sm_read_pubmed_xml()`](https://r-heller.github.io/scimapR/reference/sm_read_pubmed_xml.md),
-[`sm_read_ris()`](https://r-heller.github.io/scimapR/reference/sm_read_ris.md),
-[`sm_read_scopus()`](https://r-heller.github.io/scimapR/reference/sm_read_scopus.md),
-[`sm_read_wos()`](https://r-heller.github.io/scimapR/reference/sm_read_wos.md),
-[`sm_read_zotero()`](https://r-heller.github.io/scimapR/reference/sm_read_zotero.md)
+[`sm_read_bib()`](https://cttir.github.io/scimapR/reference/sm_read_bib.md),
+[`sm_read_cochrane()`](https://cttir.github.io/scimapR/reference/sm_read_cochrane.md),
+[`sm_read_dimensions()`](https://cttir.github.io/scimapR/reference/sm_read_dimensions.md),
+[`sm_read_endnote()`](https://cttir.github.io/scimapR/reference/sm_read_endnote.md),
+[`sm_read_lens()`](https://cttir.github.io/scimapR/reference/sm_read_lens.md),
+[`sm_read_openalex_json()`](https://cttir.github.io/scimapR/reference/sm_read_openalex_json.md),
+[`sm_read_pubmed_xml()`](https://cttir.github.io/scimapR/reference/sm_read_pubmed_xml.md),
+[`sm_read_ris()`](https://cttir.github.io/scimapR/reference/sm_read_ris.md),
+[`sm_read_scopus()`](https://cttir.github.io/scimapR/reference/sm_read_scopus.md),
+[`sm_read_wos()`](https://cttir.github.io/scimapR/reference/sm_read_wos.md),
+[`sm_read_zotero()`](https://cttir.github.io/scimapR/reference/sm_read_zotero.md)
 
 ## Examples
 

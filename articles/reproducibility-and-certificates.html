@@ -40,7 +40,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/r-heller/scimapR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/CTTIR/scimapR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -57,7 +57,7 @@
       <h1>Reproducibility and Corpus Certificates</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/r-heller/scimapR/blob/main/vignettes/reproducibility-and-certificates.Rmd" class="external-link"><code>vignettes/reproducibility-and-certificates.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/CTTIR/scimapR/blob/main/vignettes/reproducibility-and-certificates.Rmd" class="external-link"><code>vignettes/reproducibility-and-certificates.Rmd</code></a></small>
       <div class="d-none name"><code>reproducibility-and-certificates.Rmd</code></div>
     </div>
 
@@ -71,7 +71,7 @@ don’t document <em>how</em> the corpus was built. scimapR’s corpus
 certificates solve this: they are structured YAML documents that another
 researcher can use to re-derive the exact same corpus.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/r-heller/scimapR" class="external-link">scimapR</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/CTTIR/scimapR" class="external-link">scimapR</a></span><span class="op">)</span></span>
 <span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_example_corpus.html">sm_example_corpus</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -83,12 +83,12 @@ researcher can use to re-derive the exact same corpus.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 8</span></span></span>
 <span><span class="co">#&gt;   work_id    source    source_id_external fetch_date          query       engine</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> W000000001 synthetic <span style="color: #BB0000;">NA</span>                 2026-05-09 <span style="color: #949494;">07:24:56</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> W000000002 synthetic <span style="color: #BB0000;">NA</span>                 2026-05-09 <span style="color: #949494;">07:24:56</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> W000000003 synthetic <span style="color: #BB0000;">NA</span>                 2026-05-09 <span style="color: #949494;">07:24:56</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> W000000004 synthetic <span style="color: #BB0000;">NA</span>                 2026-05-09 <span style="color: #949494;">07:24:56</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> W000000005 synthetic <span style="color: #BB0000;">NA</span>                 2026-05-09 <span style="color: #949494;">07:24:56</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> W000000006 synthetic <span style="color: #BB0000;">NA</span>                 2026-05-09 <span style="color: #949494;">07:24:56</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> W000000001 synthetic <span style="color: #BB0000;">NA</span>                 2026-05-09 <span style="color: #949494;">08:00:41</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> W000000002 synthetic <span style="color: #BB0000;">NA</span>                 2026-05-09 <span style="color: #949494;">08:00:41</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> W000000003 synthetic <span style="color: #BB0000;">NA</span>                 2026-05-09 <span style="color: #949494;">08:00:41</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> W000000004 synthetic <span style="color: #BB0000;">NA</span>                 2026-05-09 <span style="color: #949494;">08:00:41</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> W000000005 synthetic <span style="color: #BB0000;">NA</span>                 2026-05-09 <span style="color: #949494;">08:00:41</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> W000000006 synthetic <span style="color: #BB0000;">NA</span>                 2026-05-09 <span style="color: #949494;">08:00:41</span> sm_example… native</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: scimapR_version &lt;chr&gt;, prompt_hash &lt;chr&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -107,7 +107,7 @@ researcher can use to re-derive the exact same corpus.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">cert</span>, max.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 18</span></span>
 <span><span class="co">#&gt;  $ certificate_version: chr "1.0"</span></span>
-<span><span class="co">#&gt;  $ created            : POSIXct[1:1], format: "2026-05-09 07:24:56"</span></span>
+<span><span class="co">#&gt;  $ created            : POSIXct[1:1], format: "2026-05-09 08:00:41"</span></span>
 <span><span class="co">#&gt;  $ scimapR_version    : chr "0.1.0"</span></span>
 <span><span class="co">#&gt;  $ r_version          : chr "4.6.0"</span></span>
 <span><span class="co">#&gt;  $ platform           : chr "unix"</span></span>
@@ -140,7 +140,7 @@ researcher can use to re-derive the exact same corpus.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/sm_save_corpus.html">sm_save_corpus</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">tmp</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus saved to <span style="color: #0000BB;">/tmp/RtmpypqLHu/file2e607a6523d0.rds</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus saved to <span style="color: #0000BB;">/tmp/Rtmp5d0d0S/file2c9e3f77c557.rds</span></span></span>
 <span><span class="va">loaded</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_save_corpus.html">sm_load_corpus</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">loaded</span><span class="op">$</span><span class="va">works</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 200</span></span></code></pre></div>
@@ -151,7 +151,7 @@ researcher can use to re-derive the exact same corpus.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">snap_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/sm_snapshot.html">sm_snapshot</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">snap_path</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus snapshot saved to <span style="color: #0000BB;">/tmp/RtmpypqLHu/file2e604c66141.rds</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus snapshot saved to <span style="color: #0000BB;">/tmp/Rtmp5d0d0S/file2c9e73890a14.rds</span>.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Size: 122K | Hash: ea446b5f4465</span></span></code></pre></div>
 </div>
 <div class="section level2">

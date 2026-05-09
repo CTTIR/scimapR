@@ -13,30 +13,30 @@ Cuccurullo, 2017) with first-class round-trip interop.
 #### Distinctive features
 
 - **Live corpus refresh.**
-  [`sm_refresh()`](https://r-heller.github.io/scimapR/reference/sm_refresh.md),
-  [`sm_staleness()`](https://r-heller.github.io/scimapR/reference/sm_staleness.md),
-  [`sm_lock()`](https://r-heller.github.io/scimapR/reference/sm_lock.md).
+  [`sm_refresh()`](https://cttir.github.io/scimapR/reference/sm_refresh.md),
+  [`sm_staleness()`](https://cttir.github.io/scimapR/reference/sm_staleness.md),
+  [`sm_lock()`](https://cttir.github.io/scimapR/reference/sm_lock.md).
 - **Research questions as objects.**
-  [`sm_question()`](https://r-heller.github.io/scimapR/reference/sm_question.md),
-  [`sm_corpus_for_question()`](https://r-heller.github.io/scimapR/reference/sm_corpus_for_question.md),
-  [`sm_screen_against_question()`](https://r-heller.github.io/scimapR/reference/sm_screen_against_question.md)
+  [`sm_question()`](https://cttir.github.io/scimapR/reference/sm_question.md),
+  [`sm_corpus_for_question()`](https://cttir.github.io/scimapR/reference/sm_corpus_for_question.md),
+  [`sm_screen_against_question()`](https://cttir.github.io/scimapR/reference/sm_screen_against_question.md)
   with optional LLM grounding.
 - **Reproducible-by-construction corpus certificates.**
-  [`sm_certificate()`](https://r-heller.github.io/scimapR/reference/sm_certificate.md),
-  [`sm_rebuild_from_cert()`](https://r-heller.github.io/scimapR/reference/sm_certificate.md),
-  [`sm_verify_certificate()`](https://r-heller.github.io/scimapR/reference/sm_certificate.md).
+  [`sm_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md),
+  [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/reference/sm_certificate.md),
+  [`sm_verify_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md).
 - **Author trajectory analysis.**
-  [`sm_author_trajectory()`](https://r-heller.github.io/scimapR/reference/sm_author_trajectory.md)
+  [`sm_author_trajectory()`](https://cttir.github.io/scimapR/reference/sm_author_trajectory.md)
   with topic pivots, collaborator turnover, emerging-collaborator
   detection.
 - **Equity and representation audit.**
-  [`sm_audit_geographic()`](https://r-heller.github.io/scimapR/reference/sm_audit_geographic.md),
-  [`sm_audit_gender()`](https://r-heller.github.io/scimapR/reference/sm_audit_gender.md),
-  [`sm_audit_funding()`](https://r-heller.github.io/scimapR/reference/sm_audit_funding.md),
-  [`sm_audit_oa()`](https://r-heller.github.io/scimapR/reference/sm_audit_oa.md)
+  [`sm_audit_geographic()`](https://cttir.github.io/scimapR/reference/sm_audit_geographic.md),
+  [`sm_audit_gender()`](https://cttir.github.io/scimapR/reference/sm_audit_gender.md),
+  [`sm_audit_funding()`](https://cttir.github.io/scimapR/reference/sm_audit_funding.md),
+  [`sm_audit_oa()`](https://cttir.github.io/scimapR/reference/sm_audit_oa.md)
   with built-in confidence reporting and limitation caveats.
 - **LLM-grounded corpus chat.**
-  [`sm_chat()`](https://r-heller.github.io/scimapR/reference/sm_chat.md)
+  [`sm_chat()`](https://cttir.github.io/scimapR/reference/sm_chat.md)
   with retrieval-constrained citations.
 
 #### Core modules

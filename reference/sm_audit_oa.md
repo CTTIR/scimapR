@@ -58,10 +58,10 @@ An `sm_audit_oa` S3 object containing:
 ## See also
 
 Other audit:
-[`print.sm_audit_summary()`](https://r-heller.github.io/scimapR/reference/sm_audit_summary.md),
-[`sm_audit_funding()`](https://r-heller.github.io/scimapR/reference/sm_audit_funding.md),
-[`sm_audit_gender()`](https://r-heller.github.io/scimapR/reference/sm_audit_gender.md),
-[`sm_audit_geographic()`](https://r-heller.github.io/scimapR/reference/sm_audit_geographic.md)
+[`print.sm_audit_summary()`](https://cttir.github.io/scimapR/reference/sm_audit_summary.md),
+[`sm_audit_funding()`](https://cttir.github.io/scimapR/reference/sm_audit_funding.md),
+[`sm_audit_gender()`](https://cttir.github.io/scimapR/reference/sm_audit_gender.md),
+[`sm_audit_geographic()`](https://cttir.github.io/scimapR/reference/sm_audit_geographic.md)
 
 ## Examples
 

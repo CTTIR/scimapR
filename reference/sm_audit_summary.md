@@ -61,10 +61,10 @@ An `sm_audit_summary` S3 object containing:
 ## See also
 
 Other audit:
-[`sm_audit_funding()`](https://r-heller.github.io/scimapR/reference/sm_audit_funding.md),
-[`sm_audit_gender()`](https://r-heller.github.io/scimapR/reference/sm_audit_gender.md),
-[`sm_audit_geographic()`](https://r-heller.github.io/scimapR/reference/sm_audit_geographic.md),
-[`sm_audit_oa()`](https://r-heller.github.io/scimapR/reference/sm_audit_oa.md)
+[`sm_audit_funding()`](https://cttir.github.io/scimapR/reference/sm_audit_funding.md),
+[`sm_audit_gender()`](https://cttir.github.io/scimapR/reference/sm_audit_gender.md),
+[`sm_audit_geographic()`](https://cttir.github.io/scimapR/reference/sm_audit_geographic.md),
+[`sm_audit_oa()`](https://cttir.github.io/scimapR/reference/sm_audit_oa.md)
 
 ## Examples
 
@@ -83,7 +83,7 @@ summary_audit <- sm_audit_summary(corpus)
 #> Warning: 404 (client error): /works/10.1234/example.9 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.10 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.11 - Resource not found.
-#> Warning: 429 (client error): /works/10.1234/example.12 - 
+#> Warning: 404 (client error): /works/10.1234/example.12 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.13 - Resource not found.
 #> Warning: 429 (client error): /works/10.1234/example.14 - 
 #> Warning: 404 (client error): /works/10.1234/example.15 - Resource not found.
@@ -93,7 +93,7 @@ summary_audit <- sm_audit_summary(corpus)
 #> Warning: 429 (client error): /works/10.1234/example.19 - 
 #> Warning: 429 (client error): /works/10.1234/example.20 - 
 #> Warning: 429 (client error): /works/10.1234/example.21 - 
-#> Warning: 404 (client error): /works/10.1234/example.22 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.22 - 
 #> Warning: 429 (client error): /works/10.1234/example.23 - 
 #> Warning: 429 (client error): /works/10.1234/example.24 - 
 #> Warning: 429 (client error): /works/10.1234/example.25 - 

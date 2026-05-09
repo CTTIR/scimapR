@@ -70,23 +70,28 @@ pass/fail and details.
 ## See also
 
 Other reproducibility:
-[`sm_cite_corpus()`](https://r-heller.github.io/scimapR/reference/sm_cite_corpus.md),
-[`sm_diff_corpora()`](https://r-heller.github.io/scimapR/reference/sm_diff_corpora.md),
-[`sm_hash_corpus()`](https://r-heller.github.io/scimapR/reference/sm_hash_corpus.md),
-[`sm_provenance()`](https://r-heller.github.io/scimapR/reference/sm_provenance.md),
-[`sm_snapshot()`](https://r-heller.github.io/scimapR/reference/sm_snapshot.md)
+[`sm_cite_corpus()`](https://cttir.github.io/scimapR/reference/sm_cite_corpus.md),
+[`sm_diff_corpora()`](https://cttir.github.io/scimapR/reference/sm_diff_corpora.md),
+[`sm_hash_corpus()`](https://cttir.github.io/scimapR/reference/sm_hash_corpus.md),
+[`sm_provenance()`](https://cttir.github.io/scimapR/reference/sm_provenance.md),
+[`sm_snapshot()`](https://cttir.github.io/scimapR/reference/sm_snapshot.md)
 
 ## Examples
 
 ``` r
-corpus <- sm_example_corpus()
-cert <- sm_certificate(corpus)
+# \donttest{
+if (requireNamespace("yaml", quietly = TRUE)) {
+  corpus <- sm_example_corpus()
+  cert <- sm_certificate(corpus)
+  print(cert)
+  verification <- sm_verify_certificate(corpus, cert)
+  print(verification)
+}
 #> ✔ Certificate created. Corpus hash: ea446b5f4465
-print(cert)
 #> 
 #> ── <sm_certificate> ────────────────────────────────────────────────────────────
 #> Version: 1.0
-#> Created: 2026-05-09 07:23:17
+#> Created: 2026-05-09 07:58:50
 #> scimapR: v0.1.0
 #> R: 4.6.0 (unix)
 #> 
@@ -95,8 +100,6 @@ print(cert)
 #> Authors: 80
 #> References: 1869
 #> Queries: 1
-verification <- sm_verify_certificate(corpus, cert)
-print(verification)
 #> 
 #> ── <sm_cert_verification> ──────────────────────────────────────────────────────
 #> Result: PASS
@@ -106,4 +109,5 @@ print(verification)
 #> n_authors: expected 80, got 80
 #> n_institutions: expected 0, got 0
 #> n_references: expected 1869, got 1869
+# }
 ```

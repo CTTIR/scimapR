@@ -20,8 +20,7 @@ sm_cluster_label(
 
 - corpus:
 
-  An
-  [sm_corpus](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
+  An [sm_corpus](https://cttir.github.io/scimapR/reference/sm_corpus.md)
   object with a `cluster_id` column in `corpus$works`.
 
 - method:
@@ -66,22 +65,24 @@ package and a configured provider.
 ## See also
 
 Other clustering:
-[`sm_cluster_evolution()`](https://r-heller.github.io/scimapR/reference/sm_cluster_evolution.md),
-[`sm_cluster_hdbscan()`](https://r-heller.github.io/scimapR/reference/sm_cluster_hdbscan.md),
-[`sm_cluster_kmeans()`](https://r-heller.github.io/scimapR/reference/sm_cluster_kmeans.md),
-[`sm_cluster_leiden()`](https://r-heller.github.io/scimapR/reference/sm_cluster_leiden.md)
+[`sm_cluster_evolution()`](https://cttir.github.io/scimapR/reference/sm_cluster_evolution.md),
+[`sm_cluster_hdbscan()`](https://cttir.github.io/scimapR/reference/sm_cluster_hdbscan.md),
+[`sm_cluster_kmeans()`](https://cttir.github.io/scimapR/reference/sm_cluster_kmeans.md),
+[`sm_cluster_leiden()`](https://cttir.github.io/scimapR/reference/sm_cluster_leiden.md)
 
 ## Examples
 
 ``` r
 # \donttest{
-corpus <- sm_example_corpus(with_embeddings = TRUE)
-corpus <- sm_cluster_kmeans(corpus, k = 5)
+if (requireNamespace("tidytext", quietly = TRUE)) {
+  corpus <- sm_example_corpus(with_embeddings = TRUE)
+  corpus <- sm_cluster_kmeans(corpus, k = 5)
+  corpus <- sm_cluster_label(corpus, method = "tfidf", n_terms = 3L)
+  head(corpus$works[, c("work_id", "cluster_id", "cluster_label")])
+}
 #> ✔ K-means clustering complete.
 #> ℹ 5 clusters, sizes range from 27 to 49.
-corpus <- sm_cluster_label(corpus, method = "tfidf", n_terms = 3L)
 #> ✔ 5 clusters labelled using "tfidf" method.
-head(corpus$works[, c("work_id", "cluster_id", "cluster_label")])
 #> # A tibble: 6 × 3
 #>   work_id    cluster_id cluster_label                 
 #>   <chr>           <int> <chr>                         

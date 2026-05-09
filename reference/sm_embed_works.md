@@ -25,8 +25,7 @@ sm_embed_works(
 
 - corpus:
 
-  An
-  [sm_corpus](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
+  An [sm_corpus](https://cttir.github.io/scimapR/reference/sm_corpus.md)
   object.
 
 - model:
@@ -93,8 +92,8 @@ If unavailable, the function aborts with an informative message.
 ## See also
 
 Other embedding:
-[`sm_embed_load()`](https://r-heller.github.io/scimapR/reference/sm_embed_load.md),
-[`sm_embed_save()`](https://r-heller.github.io/scimapR/reference/sm_embed_save.md)
+[`sm_embed_load()`](https://cttir.github.io/scimapR/reference/sm_embed_load.md),
+[`sm_embed_save()`](https://cttir.github.io/scimapR/reference/sm_embed_save.md)
 
 ## Examples
 

@@ -14,15 +14,14 @@ sm_embed_load(corpus, path, call = rlang::caller_env())
 
 - corpus:
 
-  An
-  [sm_corpus](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
+  An [sm_corpus](https://cttir.github.io/scimapR/reference/sm_corpus.md)
   object.
 
 - path:
 
   Character; file path to read embeddings from (an `.rds` file created
   by
-  [`sm_embed_save()`](https://r-heller.github.io/scimapR/reference/sm_embed_save.md)).
+  [`sm_embed_save()`](https://cttir.github.io/scimapR/reference/sm_embed_save.md)).
 
 - call:
 
@@ -35,8 +34,8 @@ The input `corpus` with `corpus$embeddings` updated.
 ## See also
 
 Other embedding:
-[`sm_embed_save()`](https://r-heller.github.io/scimapR/reference/sm_embed_save.md),
-[`sm_embed_works()`](https://r-heller.github.io/scimapR/reference/sm_embed_works.md)
+[`sm_embed_save()`](https://cttir.github.io/scimapR/reference/sm_embed_save.md),
+[`sm_embed_works()`](https://cttir.github.io/scimapR/reference/sm_embed_works.md)
 
 ## Examples
 

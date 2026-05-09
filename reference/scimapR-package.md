@@ -25,11 +25,11 @@ network objects.
 
 Useful links:
 
-- <https://github.com/r-heller/scimapR>
+- <https://github.com/CTTIR/scimapR>
 
-- <https://r-heller.github.io/scimapR/>
+- <https://cttir.github.io/scimapR/>
 
-- Report bugs at <https://github.com/r-heller/scimapR/issues>
+- Report bugs at <https://github.com/CTTIR/scimapR/issues>
 
 ## Author
 

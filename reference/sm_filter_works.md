@@ -40,7 +40,7 @@ An `sm_corpus` with the filtered subset.
 ## See also
 
 Other filters:
-[`sm_query()`](https://r-heller.github.io/scimapR/reference/sm_query.md)
+[`sm_query()`](https://cttir.github.io/scimapR/reference/sm_query.md)
 
 ## Examples
 

@@ -30,14 +30,14 @@ sm_export_csv(corpus, dir, ...)
 ## See also
 
 Other export:
-[`sm_export_cytoscape()`](https://r-heller.github.io/scimapR/reference/sm_export_cytoscape.md),
-[`sm_export_figure()`](https://r-heller.github.io/scimapR/reference/sm_export_figure.md),
-[`sm_export_gephi()`](https://r-heller.github.io/scimapR/reference/sm_export_gephi.md),
-[`sm_export_quarto_report()`](https://r-heller.github.io/scimapR/reference/sm_export_quarto_report.md),
-[`sm_export_rds()`](https://r-heller.github.io/scimapR/reference/sm_export_rds.md),
-[`sm_export_table()`](https://r-heller.github.io/scimapR/reference/sm_export_table.md),
-[`sm_export_vosviewer()`](https://r-heller.github.io/scimapR/reference/sm_export_vosviewer.md),
-[`sm_export_zip()`](https://r-heller.github.io/scimapR/reference/sm_export_zip.md)
+[`sm_export_cytoscape()`](https://cttir.github.io/scimapR/reference/sm_export_cytoscape.md),
+[`sm_export_figure()`](https://cttir.github.io/scimapR/reference/sm_export_figure.md),
+[`sm_export_gephi()`](https://cttir.github.io/scimapR/reference/sm_export_gephi.md),
+[`sm_export_quarto_report()`](https://cttir.github.io/scimapR/reference/sm_export_quarto_report.md),
+[`sm_export_rds()`](https://cttir.github.io/scimapR/reference/sm_export_rds.md),
+[`sm_export_table()`](https://cttir.github.io/scimapR/reference/sm_export_table.md),
+[`sm_export_vosviewer()`](https://cttir.github.io/scimapR/reference/sm_export_vosviewer.md),
+[`sm_export_zip()`](https://cttir.github.io/scimapR/reference/sm_export_zip.md)
 
 ## Examples
 
@@ -45,5 +45,5 @@ Other export:
 corpus <- sm_example_corpus(n_works = 10)
 dir <- tempdir()
 sm_export_csv(corpus, dir)
-#> ✔ Corpus tables saved to /tmp/Rtmp7Xki0Y
+#> ✔ Corpus tables saved to /tmp/RtmpYJYwGj
 ```

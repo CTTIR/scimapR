@@ -55,22 +55,24 @@ sm_export_table(
 ## See also
 
 Other export:
-[`sm_export_csv()`](https://r-heller.github.io/scimapR/reference/sm_export_csv.md),
-[`sm_export_cytoscape()`](https://r-heller.github.io/scimapR/reference/sm_export_cytoscape.md),
-[`sm_export_figure()`](https://r-heller.github.io/scimapR/reference/sm_export_figure.md),
-[`sm_export_gephi()`](https://r-heller.github.io/scimapR/reference/sm_export_gephi.md),
-[`sm_export_quarto_report()`](https://r-heller.github.io/scimapR/reference/sm_export_quarto_report.md),
-[`sm_export_rds()`](https://r-heller.github.io/scimapR/reference/sm_export_rds.md),
-[`sm_export_vosviewer()`](https://r-heller.github.io/scimapR/reference/sm_export_vosviewer.md),
-[`sm_export_zip()`](https://r-heller.github.io/scimapR/reference/sm_export_zip.md)
+[`sm_export_csv()`](https://cttir.github.io/scimapR/reference/sm_export_csv.md),
+[`sm_export_cytoscape()`](https://cttir.github.io/scimapR/reference/sm_export_cytoscape.md),
+[`sm_export_figure()`](https://cttir.github.io/scimapR/reference/sm_export_figure.md),
+[`sm_export_gephi()`](https://cttir.github.io/scimapR/reference/sm_export_gephi.md),
+[`sm_export_quarto_report()`](https://cttir.github.io/scimapR/reference/sm_export_quarto_report.md),
+[`sm_export_rds()`](https://cttir.github.io/scimapR/reference/sm_export_rds.md),
+[`sm_export_vosviewer()`](https://cttir.github.io/scimapR/reference/sm_export_vosviewer.md),
+[`sm_export_zip()`](https://cttir.github.io/scimapR/reference/sm_export_zip.md)
 
 ## Examples
 
 ``` r
 # \donttest{
-dat <- data.frame(Author = "Smith J", Works = 10L, Citations = 150L)
-path <- tempfile(fileext = ".xlsx")
-sm_export_table(dat, path)
-#> ✔ Table saved to /tmp/Rtmp7Xki0Y/file238519511df4.xlsx
+if (requireNamespace("openxlsx2", quietly = TRUE)) {
+  dat <- data.frame(Author = "Smith J", Works = 10L, Citations = 150L)
+  path <- tempfile(fileext = ".xlsx")
+  sm_export_table(dat, path)
+}
+#> ✔ Table saved to /tmp/RtmpYJYwGj/file21c22b806e6f.xlsx
 # }
 ```

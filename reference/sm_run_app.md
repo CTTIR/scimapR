@@ -15,7 +15,7 @@ sm_run_app(corpus = NULL, launch.browser = TRUE, ...)
 - corpus:
 
   An `sm_corpus` to load on startup. If `NULL`, loads
-  [`sm_example_corpus()`](https://r-heller.github.io/scimapR/reference/sm_example_corpus.md)
+  [`sm_example_corpus()`](https://cttir.github.io/scimapR/reference/sm_example_corpus.md)
   so users can explore without their own data.
 
 - launch.browser:

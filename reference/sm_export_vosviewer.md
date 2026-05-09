@@ -25,11 +25,24 @@ sm_export_vosviewer(network, path)
 ## See also
 
 Other export:
-[`sm_export_csv()`](https://r-heller.github.io/scimapR/reference/sm_export_csv.md),
-[`sm_export_cytoscape()`](https://r-heller.github.io/scimapR/reference/sm_export_cytoscape.md),
-[`sm_export_figure()`](https://r-heller.github.io/scimapR/reference/sm_export_figure.md),
-[`sm_export_gephi()`](https://r-heller.github.io/scimapR/reference/sm_export_gephi.md),
-[`sm_export_quarto_report()`](https://r-heller.github.io/scimapR/reference/sm_export_quarto_report.md),
-[`sm_export_rds()`](https://r-heller.github.io/scimapR/reference/sm_export_rds.md),
-[`sm_export_table()`](https://r-heller.github.io/scimapR/reference/sm_export_table.md),
-[`sm_export_zip()`](https://r-heller.github.io/scimapR/reference/sm_export_zip.md)
+[`sm_export_csv()`](https://cttir.github.io/scimapR/reference/sm_export_csv.md),
+[`sm_export_cytoscape()`](https://cttir.github.io/scimapR/reference/sm_export_cytoscape.md),
+[`sm_export_figure()`](https://cttir.github.io/scimapR/reference/sm_export_figure.md),
+[`sm_export_gephi()`](https://cttir.github.io/scimapR/reference/sm_export_gephi.md),
+[`sm_export_quarto_report()`](https://cttir.github.io/scimapR/reference/sm_export_quarto_report.md),
+[`sm_export_rds()`](https://cttir.github.io/scimapR/reference/sm_export_rds.md),
+[`sm_export_table()`](https://cttir.github.io/scimapR/reference/sm_export_table.md),
+[`sm_export_zip()`](https://cttir.github.io/scimapR/reference/sm_export_zip.md)
+
+## Examples
+
+``` r
+# \donttest{
+corpus <- sm_example_corpus()
+net <- sm_network_cocitation(corpus)
+sm_export_vosviewer(net, tempfile(fileext = ".tsv"))
+#> Warning: Unknown or uninitialised column: `from`.
+#> Warning: Unknown or uninitialised column: `to`.
+#> ✔ Network exported for VOSviewer to /tmp/RtmpYJYwGj/file21c261733c1a.tsv
+# }
+```

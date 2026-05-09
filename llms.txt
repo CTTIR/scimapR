@@ -23,366 +23,366 @@ network objects.
 
 ## Corpus class
 
-- [`sm_corpus()`](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
-  [`` `[`( ``*`<sm_corpus>`*`)`](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
-  [`length(`*`<sm_corpus>`*`)`](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
-  [`dim(`*`<sm_corpus>`*`)`](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
-  [`as_tibble(`*`<sm_corpus>`*`)`](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
-  [`as.data.frame(`*`<sm_corpus>`*`)`](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
-  [`print(`*`<sm_corpus>`*`)`](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
-  [`format(`*`<sm_corpus>`*`)`](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
-  [`summary(`*`<sm_corpus>`*`)`](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
-  [`str(`*`<sm_corpus>`*`)`](https://r-heller.github.io/scimapR/reference/sm_corpus.md)
+- [`sm_corpus()`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  [`` `[`( ``*`<sm_corpus>`*`)`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  [`length(`*`<sm_corpus>`*`)`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  [`dim(`*`<sm_corpus>`*`)`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  [`as_tibble(`*`<sm_corpus>`*`)`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  [`as.data.frame(`*`<sm_corpus>`*`)`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  [`print(`*`<sm_corpus>`*`)`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  [`format(`*`<sm_corpus>`*`)`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  [`summary(`*`<sm_corpus>`*`)`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  [`str(`*`<sm_corpus>`*`)`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
   : Create an sm_corpus object
-- [`validate_sm_corpus()`](https://r-heller.github.io/scimapR/reference/validate_sm_corpus.md)
+- [`validate_sm_corpus()`](https://cttir.github.io/scimapR/reference/validate_sm_corpus.md)
   : Validate an sm_corpus object
-- [`sm_validate()`](https://r-heller.github.io/scimapR/reference/sm_validate.md)
+- [`sm_validate()`](https://cttir.github.io/scimapR/reference/sm_validate.md)
   : Validate corpus integrity
-- [`is_sm_corpus()`](https://r-heller.github.io/scimapR/reference/is_sm_corpus.md)
+- [`is_sm_corpus()`](https://cttir.github.io/scimapR/reference/is_sm_corpus.md)
   : Test if an object is an sm_corpus
-- [`as_sm_corpus()`](https://r-heller.github.io/scimapR/reference/as_sm_corpus.md)
+- [`as_sm_corpus()`](https://cttir.github.io/scimapR/reference/as_sm_corpus.md)
   : Coerce objects to sm_corpus
-- [`sm_save_corpus()`](https://r-heller.github.io/scimapR/reference/sm_save_corpus.md)
-  [`sm_load_corpus()`](https://r-heller.github.io/scimapR/reference/sm_save_corpus.md)
+- [`sm_save_corpus()`](https://cttir.github.io/scimapR/reference/sm_save_corpus.md)
+  [`sm_load_corpus()`](https://cttir.github.io/scimapR/reference/sm_save_corpus.md)
   : Save and load an sm_corpus
-- [`sm_filter_works()`](https://r-heller.github.io/scimapR/reference/sm_filter_works.md)
+- [`sm_filter_works()`](https://cttir.github.io/scimapR/reference/sm_filter_works.md)
   : Filter works in a corpus
 
 ## File ingestion
 
-- [`sm_read_auto()`](https://r-heller.github.io/scimapR/reference/sm_read_auto.md)
+- [`sm_read_auto()`](https://cttir.github.io/scimapR/reference/sm_read_auto.md)
   : Auto-detect bibliographic file format and read
-- [`sm_read_bib()`](https://r-heller.github.io/scimapR/reference/sm_read_bib.md)
+- [`sm_read_bib()`](https://cttir.github.io/scimapR/reference/sm_read_bib.md)
   : Read BibTeX files
-- [`sm_read_cochrane()`](https://r-heller.github.io/scimapR/reference/sm_read_cochrane.md)
+- [`sm_read_cochrane()`](https://cttir.github.io/scimapR/reference/sm_read_cochrane.md)
   : Read Cochrane Library export files
-- [`sm_read_dimensions()`](https://r-heller.github.io/scimapR/reference/sm_read_dimensions.md)
+- [`sm_read_dimensions()`](https://cttir.github.io/scimapR/reference/sm_read_dimensions.md)
   : Read Dimensions CSV files
-- [`sm_read_endnote()`](https://r-heller.github.io/scimapR/reference/sm_read_endnote.md)
+- [`sm_read_endnote()`](https://cttir.github.io/scimapR/reference/sm_read_endnote.md)
   : Read EndNote XML export files
-- [`sm_read_lens()`](https://r-heller.github.io/scimapR/reference/sm_read_lens.md)
+- [`sm_read_lens()`](https://cttir.github.io/scimapR/reference/sm_read_lens.md)
   : Read Lens.org CSV files
-- [`sm_read_openalex_json()`](https://r-heller.github.io/scimapR/reference/sm_read_openalex_json.md)
+- [`sm_read_openalex_json()`](https://cttir.github.io/scimapR/reference/sm_read_openalex_json.md)
   : Read OpenAlex JSON files
-- [`sm_read_pubmed_xml()`](https://r-heller.github.io/scimapR/reference/sm_read_pubmed_xml.md)
+- [`sm_read_pubmed_xml()`](https://cttir.github.io/scimapR/reference/sm_read_pubmed_xml.md)
   : Read PubMed XML files
-- [`sm_read_ris()`](https://r-heller.github.io/scimapR/reference/sm_read_ris.md)
+- [`sm_read_ris()`](https://cttir.github.io/scimapR/reference/sm_read_ris.md)
   : Read RIS files
-- [`sm_read_scopus()`](https://r-heller.github.io/scimapR/reference/sm_read_scopus.md)
+- [`sm_read_scopus()`](https://cttir.github.io/scimapR/reference/sm_read_scopus.md)
   : Read Scopus CSV files
-- [`sm_read_wos()`](https://r-heller.github.io/scimapR/reference/sm_read_wos.md)
+- [`sm_read_wos()`](https://cttir.github.io/scimapR/reference/sm_read_wos.md)
   : Read Web of Science plaintext files
-- [`sm_read_zotero()`](https://r-heller.github.io/scimapR/reference/sm_read_zotero.md)
+- [`sm_read_zotero()`](https://cttir.github.io/scimapR/reference/sm_read_zotero.md)
   : Read Zotero CSV export files
 
 ## API ingestion
 
-- [`sm_fetch_arxiv()`](https://r-heller.github.io/scimapR/reference/sm_fetch_arxiv.md)
+- [`sm_fetch_arxiv()`](https://cttir.github.io/scimapR/reference/sm_fetch_arxiv.md)
   : Fetch works from arXiv
-- [`sm_fetch_biorxiv()`](https://r-heller.github.io/scimapR/reference/sm_fetch_biorxiv.md)
+- [`sm_fetch_biorxiv()`](https://cttir.github.io/scimapR/reference/sm_fetch_biorxiv.md)
   : Fetch works from bioRxiv/medRxiv
-- [`sm_fetch_crossref()`](https://r-heller.github.io/scimapR/reference/sm_fetch_crossref.md)
+- [`sm_fetch_crossref()`](https://cttir.github.io/scimapR/reference/sm_fetch_crossref.md)
   : Fetch works from Crossref
-- [`sm_fetch_openalex()`](https://r-heller.github.io/scimapR/reference/sm_fetch_openalex.md)
+- [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/reference/sm_fetch_openalex.md)
   : Fetch works from OpenAlex
-- [`sm_fetch_orcid()`](https://r-heller.github.io/scimapR/reference/sm_fetch_orcid.md)
+- [`sm_fetch_orcid()`](https://cttir.github.io/scimapR/reference/sm_fetch_orcid.md)
   : Fetch works from ORCID
-- [`sm_fetch_overton()`](https://r-heller.github.io/scimapR/reference/sm_fetch_overton.md)
+- [`sm_fetch_overton()`](https://cttir.github.io/scimapR/reference/sm_fetch_overton.md)
   : Fetch policy citations from Overton
-- [`sm_fetch_pubmed()`](https://r-heller.github.io/scimapR/reference/sm_fetch_pubmed.md)
+- [`sm_fetch_pubmed()`](https://cttir.github.io/scimapR/reference/sm_fetch_pubmed.md)
   : Fetch works from PubMed
-- [`sm_fetch_semantic_scholar()`](https://r-heller.github.io/scimapR/reference/sm_fetch_semantic_scholar.md)
+- [`sm_fetch_semantic_scholar()`](https://cttir.github.io/scimapR/reference/sm_fetch_semantic_scholar.md)
   : Fetch works from Semantic Scholar
 
 ## Live refresh
 
-- [`sm_refresh()`](https://r-heller.github.io/scimapR/reference/sm_refresh.md)
+- [`sm_refresh()`](https://cttir.github.io/scimapR/reference/sm_refresh.md)
   : Refresh stale corpus data
-- [`sm_staleness()`](https://r-heller.github.io/scimapR/reference/sm_staleness.md)
+- [`sm_staleness()`](https://cttir.github.io/scimapR/reference/sm_staleness.md)
   : Check corpus staleness
-- [`sm_lock()`](https://r-heller.github.io/scimapR/reference/sm_lock.md)
-  [`sm_unlock()`](https://r-heller.github.io/scimapR/reference/sm_lock.md)
+- [`sm_lock()`](https://cttir.github.io/scimapR/reference/sm_lock.md)
+  [`sm_unlock()`](https://cttir.github.io/scimapR/reference/sm_lock.md)
   : Lock or unlock a corpus
 
 ## Corpus enrichment
 
-- [`sm_enrich_altmetric()`](https://r-heller.github.io/scimapR/reference/sm_enrich_altmetric.md)
+- [`sm_enrich_altmetric()`](https://cttir.github.io/scimapR/reference/sm_enrich_altmetric.md)
   : Enrich corpus with Altmetric attention data
-- [`sm_enrich_concepts()`](https://r-heller.github.io/scimapR/reference/sm_enrich_concepts.md)
+- [`sm_enrich_concepts()`](https://cttir.github.io/scimapR/reference/sm_enrich_concepts.md)
   : Enrich corpus with concepts from OpenAlex or MeSH
-- [`sm_enrich_opencitations()`](https://r-heller.github.io/scimapR/reference/sm_enrich_opencitations.md)
+- [`sm_enrich_opencitations()`](https://cttir.github.io/scimapR/reference/sm_enrich_opencitations.md)
   : Enrich corpus with OpenCitations citation data
-- [`sm_enrich_orcid()`](https://r-heller.github.io/scimapR/reference/sm_enrich_orcid.md)
+- [`sm_enrich_orcid()`](https://cttir.github.io/scimapR/reference/sm_enrich_orcid.md)
   : Enrich corpus authors with ORCID data
-- [`sm_enrich_retraction()`](https://r-heller.github.io/scimapR/reference/sm_enrich_retraction.md)
+- [`sm_enrich_retraction()`](https://cttir.github.io/scimapR/reference/sm_enrich_retraction.md)
   : Enrich corpus with retraction data
-- [`sm_enrich_ror()`](https://r-heller.github.io/scimapR/reference/sm_enrich_ror.md)
+- [`sm_enrich_ror()`](https://cttir.github.io/scimapR/reference/sm_enrich_ror.md)
   : Enrich corpus institutions with ROR data
-- [`sm_enrich_specter()`](https://r-heller.github.io/scimapR/reference/sm_enrich_specter.md)
+- [`sm_enrich_specter()`](https://cttir.github.io/scimapR/reference/sm_enrich_specter.md)
   : Enrich corpus with SPECTER embeddings
-- [`sm_enrich_unpaywall()`](https://r-heller.github.io/scimapR/reference/sm_enrich_unpaywall.md)
+- [`sm_enrich_unpaywall()`](https://cttir.github.io/scimapR/reference/sm_enrich_unpaywall.md)
   : Enrich corpus with Unpaywall open-access data
 
 ## bibliometrix interop
 
-- [`sm_to_bibliometrix()`](https://r-heller.github.io/scimapR/reference/sm_to_bibliometrix.md)
+- [`sm_to_bibliometrix()`](https://cttir.github.io/scimapR/reference/sm_to_bibliometrix.md)
   : Convert sm_corpus to bibliometrix format
 
 ## Corpus assembly
 
-- [`sm_build_corpus()`](https://r-heller.github.io/scimapR/reference/sm_build_corpus.md)
+- [`sm_build_corpus()`](https://cttir.github.io/scimapR/reference/sm_build_corpus.md)
   : Build a corpus from multiple sources
-- [`sm_bind_corpora()`](https://r-heller.github.io/scimapR/reference/sm_bind_corpora.md)
+- [`sm_bind_corpora()`](https://cttir.github.io/scimapR/reference/sm_bind_corpora.md)
   : Bind two corpora together
-- [`sm_dedupe()`](https://r-heller.github.io/scimapR/reference/sm_dedupe.md)
+- [`sm_dedupe()`](https://cttir.github.io/scimapR/reference/sm_dedupe.md)
   : Deduplicate corpus works by DOI
 
 ## Research questions and screening
 
-- [`sm_question()`](https://r-heller.github.io/scimapR/reference/sm_question.md)
-  [`print(`*`<sm_question>`*`)`](https://r-heller.github.io/scimapR/reference/sm_question.md)
-  [`format(`*`<sm_question>`*`)`](https://r-heller.github.io/scimapR/reference/sm_question.md)
+- [`sm_question()`](https://cttir.github.io/scimapR/reference/sm_question.md)
+  [`print(`*`<sm_question>`*`)`](https://cttir.github.io/scimapR/reference/sm_question.md)
+  [`format(`*`<sm_question>`*`)`](https://cttir.github.io/scimapR/reference/sm_question.md)
   : Create a structured research question
-- [`is_sm_question()`](https://r-heller.github.io/scimapR/reference/is_sm_question.md)
+- [`is_sm_question()`](https://cttir.github.io/scimapR/reference/is_sm_question.md)
   : Test if an object is an sm_question
-- [`sm_query()`](https://r-heller.github.io/scimapR/reference/sm_query.md)
+- [`sm_query()`](https://cttir.github.io/scimapR/reference/sm_query.md)
   : Search works by text query
-- [`sm_corpus_for_question()`](https://r-heller.github.io/scimapR/reference/sm_corpus_for_question.md)
+- [`sm_corpus_for_question()`](https://cttir.github.io/scimapR/reference/sm_corpus_for_question.md)
   : Build a corpus from a research question
-- [`sm_screen_against_question()`](https://r-heller.github.io/scimapR/reference/sm_screen_against_question.md)
+- [`sm_screen_against_question()`](https://cttir.github.io/scimapR/reference/sm_screen_against_question.md)
   : Screen corpus against a research question
-- [`sm_screen_regex()`](https://r-heller.github.io/scimapR/reference/sm_screen_regex.md)
+- [`sm_screen_regex()`](https://cttir.github.io/scimapR/reference/sm_screen_regex.md)
   : Screen corpus using regex matching
-- [`sm_screen_summary()`](https://r-heller.github.io/scimapR/reference/sm_screen_summary.md)
+- [`sm_screen_summary()`](https://cttir.github.io/scimapR/reference/sm_screen_summary.md)
   : Summarise screening decisions
-- [`sm_merge_screening_decisions()`](https://r-heller.github.io/scimapR/reference/sm_merge_screening_decisions.md)
+- [`sm_merge_screening_decisions()`](https://cttir.github.io/scimapR/reference/sm_merge_screening_decisions.md)
   : Merge external screening decisions into corpus
 
 ## Networks
 
-- [`sm_network_citation()`](https://r-heller.github.io/scimapR/reference/sm_network_citation.md)
+- [`sm_network_citation()`](https://cttir.github.io/scimapR/reference/sm_network_citation.md)
   : Build a direct citation network
-- [`sm_network_cocitation()`](https://r-heller.github.io/scimapR/reference/sm_network_cocitation.md)
+- [`sm_network_cocitation()`](https://cttir.github.io/scimapR/reference/sm_network_cocitation.md)
   : Build a co-citation network
-- [`sm_network_collab()`](https://r-heller.github.io/scimapR/reference/sm_network_collab.md)
+- [`sm_network_collab()`](https://cttir.github.io/scimapR/reference/sm_network_collab.md)
   : Build a collaboration network
-- [`sm_network_coupling()`](https://r-heller.github.io/scimapR/reference/sm_network_coupling.md)
+- [`sm_network_coupling()`](https://cttir.github.io/scimapR/reference/sm_network_coupling.md)
   : Build a bibliographic coupling network
-- [`sm_network_coword()`](https://r-heller.github.io/scimapR/reference/sm_network_coword.md)
+- [`sm_network_coword()`](https://cttir.github.io/scimapR/reference/sm_network_coword.md)
   : Build a co-word (co-occurrence) network
-- [`sm_network_semantic()`](https://r-heller.github.io/scimapR/reference/sm_network_semantic.md)
+- [`sm_network_semantic()`](https://cttir.github.io/scimapR/reference/sm_network_semantic.md)
   : Build a semantic similarity network
 
 ## Embeddings and clustering
 
-- [`sm_embed_works()`](https://r-heller.github.io/scimapR/reference/sm_embed_works.md)
+- [`sm_embed_works()`](https://cttir.github.io/scimapR/reference/sm_embed_works.md)
   : Compute work embeddings using transformer models
-- [`sm_embed_save()`](https://r-heller.github.io/scimapR/reference/sm_embed_save.md)
+- [`sm_embed_save()`](https://cttir.github.io/scimapR/reference/sm_embed_save.md)
   : Save embeddings to disk
-- [`sm_embed_load()`](https://r-heller.github.io/scimapR/reference/sm_embed_load.md)
+- [`sm_embed_load()`](https://cttir.github.io/scimapR/reference/sm_embed_load.md)
   : Load embeddings from disk
-- [`sm_cluster_evolution()`](https://r-heller.github.io/scimapR/reference/sm_cluster_evolution.md)
+- [`sm_cluster_evolution()`](https://cttir.github.io/scimapR/reference/sm_cluster_evolution.md)
   : Track cluster evolution over time
-- [`sm_cluster_hdbscan()`](https://r-heller.github.io/scimapR/reference/sm_cluster_hdbscan.md)
+- [`sm_cluster_hdbscan()`](https://cttir.github.io/scimapR/reference/sm_cluster_hdbscan.md)
   : HDBSCAN clustering of works
-- [`sm_cluster_kmeans()`](https://r-heller.github.io/scimapR/reference/sm_cluster_kmeans.md)
+- [`sm_cluster_kmeans()`](https://cttir.github.io/scimapR/reference/sm_cluster_kmeans.md)
   : K-means clustering of works
-- [`sm_cluster_label()`](https://r-heller.github.io/scimapR/reference/sm_cluster_label.md)
+- [`sm_cluster_label()`](https://cttir.github.io/scimapR/reference/sm_cluster_label.md)
   : Label clusters with representative terms
-- [`sm_cluster_leiden()`](https://r-heller.github.io/scimapR/reference/sm_cluster_leiden.md)
+- [`sm_cluster_leiden()`](https://cttir.github.io/scimapR/reference/sm_cluster_leiden.md)
   : Leiden community detection
 
 ## Indicators
 
-- [`sm_metric_collab_index()`](https://r-heller.github.io/scimapR/reference/sm_metric_collab_index.md)
+- [`sm_metric_collab_index()`](https://cttir.github.io/scimapR/reference/sm_metric_collab_index.md)
   : Calculate collaboration index
-- [`sm_metric_disruption()`](https://r-heller.github.io/scimapR/reference/sm_metric_disruption.md)
+- [`sm_metric_disruption()`](https://cttir.github.io/scimapR/reference/sm_metric_disruption.md)
   : Calculate the CD (disruption) index
-- [`sm_metric_fnci()`](https://r-heller.github.io/scimapR/reference/sm_metric_fnci.md)
+- [`sm_metric_fnci()`](https://cttir.github.io/scimapR/reference/sm_metric_fnci.md)
   : Calculate Field-Normalized Citation Impact
-- [`sm_metric_g_index()`](https://r-heller.github.io/scimapR/reference/sm_metric_g_index.md)
+- [`sm_metric_g_index()`](https://cttir.github.io/scimapR/reference/sm_metric_g_index.md)
   : Calculate g-index
-- [`sm_metric_h_index()`](https://r-heller.github.io/scimapR/reference/sm_metric_h_index.md)
+- [`sm_metric_h_index()`](https://cttir.github.io/scimapR/reference/sm_metric_h_index.md)
   : Calculate h-index
-- [`sm_metric_m_index()`](https://r-heller.github.io/scimapR/reference/sm_metric_m_index.md)
+- [`sm_metric_m_index()`](https://cttir.github.io/scimapR/reference/sm_metric_m_index.md)
   : Calculate m-index (m-quotient)
-- [`sm_metric_novelty()`](https://r-heller.github.io/scimapR/reference/sm_metric_novelty.md)
+- [`sm_metric_novelty()`](https://cttir.github.io/scimapR/reference/sm_metric_novelty.md)
   : Calculate Uzzi novelty score
-- [`sm_metric_rcr()`](https://r-heller.github.io/scimapR/reference/sm_metric_rcr.md)
+- [`sm_metric_rcr()`](https://cttir.github.io/scimapR/reference/sm_metric_rcr.md)
   : Calculate Relative Citation Ratio
-- [`sm_summary_authors()`](https://r-heller.github.io/scimapR/reference/sm_summary_authors.md)
+- [`sm_summary_authors()`](https://cttir.github.io/scimapR/reference/sm_summary_authors.md)
   : Summary statistics for authors
-- [`sm_summary_period()`](https://r-heller.github.io/scimapR/reference/sm_summary_period.md)
+- [`sm_summary_period()`](https://cttir.github.io/scimapR/reference/sm_summary_period.md)
   : Summary statistics by publication period
-- [`sm_summary_sources()`](https://r-heller.github.io/scimapR/reference/sm_summary_sources.md)
+- [`sm_summary_sources()`](https://cttir.github.io/scimapR/reference/sm_summary_sources.md)
   : Summary statistics for sources (journals)
-- [`sm_summary_works()`](https://r-heller.github.io/scimapR/reference/sm_summary_works.md)
+- [`sm_summary_works()`](https://cttir.github.io/scimapR/reference/sm_summary_works.md)
   : Summary statistics for works
 
 ## Author trajectory
 
-- [`sm_author_trajectory()`](https://r-heller.github.io/scimapR/reference/sm_author_trajectory.md)
-  [`print(`*`<sm_trajectory>`*`)`](https://r-heller.github.io/scimapR/reference/sm_author_trajectory.md)
-  [`format(`*`<sm_trajectory>`*`)`](https://r-heller.github.io/scimapR/reference/sm_author_trajectory.md)
+- [`sm_author_trajectory()`](https://cttir.github.io/scimapR/reference/sm_author_trajectory.md)
+  [`print(`*`<sm_trajectory>`*`)`](https://cttir.github.io/scimapR/reference/sm_author_trajectory.md)
+  [`format(`*`<sm_trajectory>`*`)`](https://cttir.github.io/scimapR/reference/sm_author_trajectory.md)
   : Build an author trajectory analysis
-- [`sm_trajectory`](https://r-heller.github.io/scimapR/reference/sm_trajectory.md)
+- [`sm_trajectory`](https://cttir.github.io/scimapR/reference/sm_trajectory.md)
   : sm_trajectory S3 class
-- [`is_sm_trajectory()`](https://r-heller.github.io/scimapR/reference/is_sm_trajectory.md)
+- [`is_sm_trajectory()`](https://cttir.github.io/scimapR/reference/is_sm_trajectory.md)
   : Test if an object is an sm_trajectory
-- [`sm_plot_trajectory()`](https://r-heller.github.io/scimapR/reference/sm_plot_trajectory.md)
+- [`sm_plot_trajectory()`](https://cttir.github.io/scimapR/reference/sm_plot_trajectory.md)
   : Plot author trajectory
-- [`sm_plot_topic_pivots()`](https://r-heller.github.io/scimapR/reference/sm_plot_topic_pivots.md)
+- [`sm_plot_topic_pivots()`](https://cttir.github.io/scimapR/reference/sm_plot_topic_pivots.md)
   : Plot topic pivots
-- [`sm_plot_collab_turnover()`](https://r-heller.github.io/scimapR/reference/sm_plot_collab_turnover.md)
+- [`sm_plot_collab_turnover()`](https://cttir.github.io/scimapR/reference/sm_plot_collab_turnover.md)
   : Plot collaborator turnover
 
 ## Equity and representation audit
 
-- [`sm_audit_funding()`](https://r-heller.github.io/scimapR/reference/sm_audit_funding.md)
-  [`print(`*`<sm_audit_funding>`*`)`](https://r-heller.github.io/scimapR/reference/sm_audit_funding.md)
+- [`sm_audit_funding()`](https://cttir.github.io/scimapR/reference/sm_audit_funding.md)
+  [`print(`*`<sm_audit_funding>`*`)`](https://cttir.github.io/scimapR/reference/sm_audit_funding.md)
   : Funding source audit
-- [`sm_audit_gender()`](https://r-heller.github.io/scimapR/reference/sm_audit_gender.md)
-  [`print(`*`<sm_audit_gender>`*`)`](https://r-heller.github.io/scimapR/reference/sm_audit_gender.md)
+- [`sm_audit_gender()`](https://cttir.github.io/scimapR/reference/sm_audit_gender.md)
+  [`print(`*`<sm_audit_gender>`*`)`](https://cttir.github.io/scimapR/reference/sm_audit_gender.md)
   : Gender representation audit
-- [`sm_audit_geographic()`](https://r-heller.github.io/scimapR/reference/sm_audit_geographic.md)
-  [`print(`*`<sm_audit_geographic>`*`)`](https://r-heller.github.io/scimapR/reference/sm_audit_geographic.md)
+- [`sm_audit_geographic()`](https://cttir.github.io/scimapR/reference/sm_audit_geographic.md)
+  [`print(`*`<sm_audit_geographic>`*`)`](https://cttir.github.io/scimapR/reference/sm_audit_geographic.md)
   : Geographic representation audit
-- [`sm_audit_oa()`](https://r-heller.github.io/scimapR/reference/sm_audit_oa.md)
-  [`print(`*`<sm_audit_oa>`*`)`](https://r-heller.github.io/scimapR/reference/sm_audit_oa.md)
+- [`sm_audit_oa()`](https://cttir.github.io/scimapR/reference/sm_audit_oa.md)
+  [`print(`*`<sm_audit_oa>`*`)`](https://cttir.github.io/scimapR/reference/sm_audit_oa.md)
   : Open access status audit
-- [`print(`*`<sm_audit_summary>`*`)`](https://r-heller.github.io/scimapR/reference/sm_audit_summary.md)
-  [`sm_audit_summary()`](https://r-heller.github.io/scimapR/reference/sm_audit_summary.md)
+- [`print(`*`<sm_audit_summary>`*`)`](https://cttir.github.io/scimapR/reference/sm_audit_summary.md)
+  [`sm_audit_summary()`](https://cttir.github.io/scimapR/reference/sm_audit_summary.md)
   : Combined equity audit summary
-- [`sm_plot_equity_dashboard()`](https://r-heller.github.io/scimapR/reference/sm_plot_equity_dashboard.md)
+- [`sm_plot_equity_dashboard()`](https://cttir.github.io/scimapR/reference/sm_plot_equity_dashboard.md)
   : Plot equity dashboard
 
 ## Conversational exploration
 
-- [`sm_chat()`](https://r-heller.github.io/scimapR/reference/sm_chat.md)
-  [`print(`*`<sm_chat_response>`*`)`](https://r-heller.github.io/scimapR/reference/sm_chat.md)
+- [`sm_chat()`](https://cttir.github.io/scimapR/reference/sm_chat.md)
+  [`print(`*`<sm_chat_response>`*`)`](https://cttir.github.io/scimapR/reference/sm_chat.md)
   : Retrieval-grounded corpus chat
-- [`sm_chat_render()`](https://r-heller.github.io/scimapR/reference/sm_chat_render.md)
+- [`sm_chat_render()`](https://cttir.github.io/scimapR/reference/sm_chat_render.md)
   : Render a chat response
 
 ## Reproducibility and certificates
 
-- [`sm_certificate()`](https://r-heller.github.io/scimapR/reference/sm_certificate.md)
-  [`sm_rebuild_from_cert()`](https://r-heller.github.io/scimapR/reference/sm_certificate.md)
-  [`sm_verify_certificate()`](https://r-heller.github.io/scimapR/reference/sm_certificate.md)
-  [`print(`*`<sm_certificate>`*`)`](https://r-heller.github.io/scimapR/reference/sm_certificate.md)
-  [`print(`*`<sm_cert_verification>`*`)`](https://r-heller.github.io/scimapR/reference/sm_certificate.md)
+- [`sm_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md)
+  [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/reference/sm_certificate.md)
+  [`sm_verify_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md)
+  [`print(`*`<sm_certificate>`*`)`](https://cttir.github.io/scimapR/reference/sm_certificate.md)
+  [`print(`*`<sm_cert_verification>`*`)`](https://cttir.github.io/scimapR/reference/sm_certificate.md)
   : Create, rebuild from, and verify corpus certificates
-- [`sm_provenance()`](https://r-heller.github.io/scimapR/reference/sm_provenance.md)
+- [`sm_provenance()`](https://cttir.github.io/scimapR/reference/sm_provenance.md)
   : Get corpus provenance
-- [`sm_hash_corpus()`](https://r-heller.github.io/scimapR/reference/sm_hash_corpus.md)
+- [`sm_hash_corpus()`](https://cttir.github.io/scimapR/reference/sm_hash_corpus.md)
   : Hash a corpus for reproducibility
-- [`sm_cite_corpus()`](https://r-heller.github.io/scimapR/reference/sm_cite_corpus.md)
+- [`sm_cite_corpus()`](https://cttir.github.io/scimapR/reference/sm_cite_corpus.md)
   : Generate citation block for a corpus
-- [`sm_snapshot()`](https://r-heller.github.io/scimapR/reference/sm_snapshot.md)
-  [`sm_snapshot_load()`](https://r-heller.github.io/scimapR/reference/sm_snapshot.md)
+- [`sm_snapshot()`](https://cttir.github.io/scimapR/reference/sm_snapshot.md)
+  [`sm_snapshot_load()`](https://cttir.github.io/scimapR/reference/sm_snapshot.md)
   : Save and load corpus snapshots
-- [`sm_diff_corpora()`](https://r-heller.github.io/scimapR/reference/sm_diff_corpora.md)
-  [`print(`*`<sm_corpus_diff>`*`)`](https://r-heller.github.io/scimapR/reference/sm_diff_corpora.md)
+- [`sm_diff_corpora()`](https://cttir.github.io/scimapR/reference/sm_diff_corpora.md)
+  [`print(`*`<sm_corpus_diff>`*`)`](https://cttir.github.io/scimapR/reference/sm_diff_corpora.md)
   : Compare two corpora
 
 ## Visualization
 
-- [`sm_theme()`](https://r-heller.github.io/scimapR/reference/sm_theme.md)
+- [`sm_theme()`](https://cttir.github.io/scimapR/reference/sm_theme.md)
   : scimapR plot theme
-- [`sm_scale_color()`](https://r-heller.github.io/scimapR/reference/sm_scale_color.md)
-  [`sm_scale_fill()`](https://r-heller.github.io/scimapR/reference/sm_scale_color.md)
+- [`sm_scale_color()`](https://cttir.github.io/scimapR/reference/sm_scale_color.md)
+  [`sm_scale_fill()`](https://cttir.github.io/scimapR/reference/sm_scale_color.md)
   : Viridis colour scale for scimapR
-- [`sm_palette_qualitative()`](https://r-heller.github.io/scimapR/reference/sm_palette_qualitative.md)
+- [`sm_palette_qualitative()`](https://cttir.github.io/scimapR/reference/sm_palette_qualitative.md)
   : Qualitative viridis palette
-- [`autoplot(`*`<sm_corpus>`*`)`](https://r-heller.github.io/scimapR/reference/autoplot.sm_corpus.md)
+- [`autoplot(`*`<sm_corpus>`*`)`](https://cttir.github.io/scimapR/reference/autoplot.sm_corpus.md)
   : Autoplot for sm_corpus
-- [`sm_plot_bradford()`](https://r-heller.github.io/scimapR/reference/sm_plot_bradford.md)
+- [`sm_plot_bradford()`](https://cttir.github.io/scimapR/reference/sm_plot_bradford.md)
   : Plot Bradford's law
-- [`sm_plot_citation_network()`](https://r-heller.github.io/scimapR/reference/sm_plot_citation_network.md)
+- [`sm_plot_citation_network()`](https://cttir.github.io/scimapR/reference/sm_plot_citation_network.md)
   : Plot citation network
-- [`sm_plot_collab()`](https://r-heller.github.io/scimapR/reference/sm_plot_collab.md)
+- [`sm_plot_collab()`](https://cttir.github.io/scimapR/reference/sm_plot_collab.md)
   : Plot collaboration map
-- [`sm_plot_collab_turnover()`](https://r-heller.github.io/scimapR/reference/sm_plot_collab_turnover.md)
+- [`sm_plot_collab_turnover()`](https://cttir.github.io/scimapR/reference/sm_plot_collab_turnover.md)
   : Plot collaborator turnover
-- [`sm_plot_equity_dashboard()`](https://r-heller.github.io/scimapR/reference/sm_plot_equity_dashboard.md)
+- [`sm_plot_equity_dashboard()`](https://cttir.github.io/scimapR/reference/sm_plot_equity_dashboard.md)
   : Plot equity dashboard
-- [`sm_plot_evolution()`](https://r-heller.github.io/scimapR/reference/sm_plot_evolution.md)
+- [`sm_plot_evolution()`](https://cttir.github.io/scimapR/reference/sm_plot_evolution.md)
   : Plot topic evolution over time
-- [`sm_plot_heaps()`](https://r-heller.github.io/scimapR/reference/sm_plot_heaps.md)
+- [`sm_plot_heaps()`](https://cttir.github.io/scimapR/reference/sm_plot_heaps.md)
   : Plot Heaps' law
-- [`sm_plot_landscape()`](https://r-heller.github.io/scimapR/reference/sm_plot_landscape.md)
+- [`sm_plot_landscape()`](https://cttir.github.io/scimapR/reference/sm_plot_landscape.md)
   : Plot research landscape
-- [`sm_plot_lotka()`](https://r-heller.github.io/scimapR/reference/sm_plot_lotka.md)
+- [`sm_plot_lotka()`](https://cttir.github.io/scimapR/reference/sm_plot_lotka.md)
   : Plot Lotka's law
-- [`sm_plot_production()`](https://r-heller.github.io/scimapR/reference/sm_plot_production.md)
+- [`sm_plot_production()`](https://cttir.github.io/scimapR/reference/sm_plot_production.md)
   : Plot annual scientific production
-- [`sm_plot_thematic_map()`](https://r-heller.github.io/scimapR/reference/sm_plot_thematic_map.md)
+- [`sm_plot_thematic_map()`](https://cttir.github.io/scimapR/reference/sm_plot_thematic_map.md)
   : Plot thematic map (Callon centrality-density)
-- [`sm_plot_top()`](https://r-heller.github.io/scimapR/reference/sm_plot_top.md)
+- [`sm_plot_top()`](https://cttir.github.io/scimapR/reference/sm_plot_top.md)
   : Plot top entities
-- [`sm_plot_topic_pivots()`](https://r-heller.github.io/scimapR/reference/sm_plot_topic_pivots.md)
+- [`sm_plot_topic_pivots()`](https://cttir.github.io/scimapR/reference/sm_plot_topic_pivots.md)
   : Plot topic pivots
-- [`sm_plot_trajectory()`](https://r-heller.github.io/scimapR/reference/sm_plot_trajectory.md)
+- [`sm_plot_trajectory()`](https://cttir.github.io/scimapR/reference/sm_plot_trajectory.md)
   : Plot author trajectory
 
 ## Export
 
-- [`sm_export_covidence()`](https://r-heller.github.io/scimapR/reference/sm_export_covidence.md)
+- [`sm_export_covidence()`](https://cttir.github.io/scimapR/reference/sm_export_covidence.md)
   : Export corpus for Covidence
-- [`sm_export_csv()`](https://r-heller.github.io/scimapR/reference/sm_export_csv.md)
+- [`sm_export_csv()`](https://cttir.github.io/scimapR/reference/sm_export_csv.md)
   : Export corpus tables as CSV files
-- [`sm_export_cytoscape()`](https://r-heller.github.io/scimapR/reference/sm_export_cytoscape.md)
+- [`sm_export_cytoscape()`](https://cttir.github.io/scimapR/reference/sm_export_cytoscape.md)
   : Export network for Cytoscape (JSON)
-- [`sm_export_figure()`](https://r-heller.github.io/scimapR/reference/sm_export_figure.md)
+- [`sm_export_figure()`](https://cttir.github.io/scimapR/reference/sm_export_figure.md)
   : Export a plot as a publication-ready figure
-- [`sm_export_gephi()`](https://r-heller.github.io/scimapR/reference/sm_export_gephi.md)
+- [`sm_export_gephi()`](https://cttir.github.io/scimapR/reference/sm_export_gephi.md)
   : Export network for Gephi (GEXF format)
-- [`sm_export_quarto_report()`](https://r-heller.github.io/scimapR/reference/sm_export_quarto_report.md)
+- [`sm_export_quarto_report()`](https://cttir.github.io/scimapR/reference/sm_export_quarto_report.md)
   : Export a Quarto report
-- [`sm_export_rayyan()`](https://r-heller.github.io/scimapR/reference/sm_export_rayyan.md)
+- [`sm_export_rayyan()`](https://cttir.github.io/scimapR/reference/sm_export_rayyan.md)
   : Export corpus for Rayyan
-- [`sm_export_rds()`](https://r-heller.github.io/scimapR/reference/sm_export_rds.md)
+- [`sm_export_rds()`](https://cttir.github.io/scimapR/reference/sm_export_rds.md)
   : Export corpus as RDS
-- [`sm_export_table()`](https://r-heller.github.io/scimapR/reference/sm_export_table.md)
+- [`sm_export_table()`](https://cttir.github.io/scimapR/reference/sm_export_table.md)
   : Export a table as formatted XLSX or CSV
-- [`sm_export_vosviewer()`](https://r-heller.github.io/scimapR/reference/sm_export_vosviewer.md)
+- [`sm_export_vosviewer()`](https://cttir.github.io/scimapR/reference/sm_export_vosviewer.md)
   : Export network for VOSviewer
-- [`sm_export_zip()`](https://r-heller.github.io/scimapR/reference/sm_export_zip.md)
+- [`sm_export_zip()`](https://cttir.github.io/scimapR/reference/sm_export_zip.md)
   : Export corpus as self-contained ZIP bundle
 
 ## Systematic review bridge
 
-- [`sm_screen_prisma()`](https://r-heller.github.io/scimapR/reference/sm_screen_prisma.md)
+- [`sm_screen_prisma()`](https://cttir.github.io/scimapR/reference/sm_screen_prisma.md)
   : Generate PRISMA flow diagram
-- [`sm_import_rayyan()`](https://r-heller.github.io/scimapR/reference/sm_import_rayyan.md)
+- [`sm_import_rayyan()`](https://cttir.github.io/scimapR/reference/sm_import_rayyan.md)
   : Import screening decisions from Rayyan
 
 ## Field-specific helpers
 
-- [`sm_field_clinical_trials()`](https://r-heller.github.io/scimapR/reference/sm_field_clinical_trials.md)
+- [`sm_field_clinical_trials()`](https://cttir.github.io/scimapR/reference/sm_field_clinical_trials.md)
   : Link corpus works to clinical trials
-- [`sm_field_funder()`](https://r-heller.github.io/scimapR/reference/sm_field_funder.md)
+- [`sm_field_funder()`](https://cttir.github.io/scimapR/reference/sm_field_funder.md)
   : Extract funding information
-- [`sm_field_pubmed_mesh()`](https://r-heller.github.io/scimapR/reference/sm_field_pubmed_mesh.md)
+- [`sm_field_pubmed_mesh()`](https://cttir.github.io/scimapR/reference/sm_field_pubmed_mesh.md)
   : Extract MeSH terms from corpus
 
 ## Researcher profile
 
-- [`sm_researcher_profile()`](https://r-heller.github.io/scimapR/reference/sm_researcher_profile.md)
+- [`sm_researcher_profile()`](https://cttir.github.io/scimapR/reference/sm_researcher_profile.md)
   : Build a researcher profile
 
 ## Shiny app
 
-- [`sm_run_app()`](https://r-heller.github.io/scimapR/reference/sm_run_app.md)
+- [`sm_run_app()`](https://cttir.github.io/scimapR/reference/sm_run_app.md)
   : Launch the scimapR Shiny application
 
 ## Example data
 
-- [`sm_example_corpus()`](https://r-heller.github.io/scimapR/reference/sm_example_corpus.md)
+- [`sm_example_corpus()`](https://cttir.github.io/scimapR/reference/sm_example_corpus.md)
   : Generate a synthetic example corpus
-- [`sm_example_files()`](https://r-heller.github.io/scimapR/reference/sm_example_files.md)
+- [`sm_example_files()`](https://cttir.github.io/scimapR/reference/sm_example_files.md)
   : Get paths to example data files
-- [`sm_example_db`](https://r-heller.github.io/scimapR/reference/sm_example_db.md)
+- [`sm_example_db`](https://cttir.github.io/scimapR/reference/sm_example_db.md)
   : Bundled example corpus
 
 # Articles
@@ -390,27 +390,27 @@ network objects.
 ### Get Started
 
 - [Getting Started with
-  scimapR](https://r-heller.github.io/scimapR/articles/scimapR.md):
+  scimapR](https://cttir.github.io/scimapR/articles/scimapR.md):
 
 ### Workflow
 
 - [Building a Corpus from Files and
-  APIs](https://r-heller.github.io/scimapR/articles/ingestion.md):
+  APIs](https://cttir.github.io/scimapR/articles/ingestion.md):
 - [Embeddings and Cluster
-  Discovery](https://r-heller.github.io/scimapR/articles/embeddings-and-clusters.md):
+  Discovery](https://cttir.github.io/scimapR/articles/embeddings-and-clusters.md):
 - [Modern Citation
-  Indicators](https://r-heller.github.io/scimapR/articles/modern-indicators.md):
+  Indicators](https://cttir.github.io/scimapR/articles/modern-indicators.md):
 
 ### Distinctive Features
 
 - [Question-Driven
-  Reviews](https://r-heller.github.io/scimapR/articles/question-driven-reviews.md):
+  Reviews](https://cttir.github.io/scimapR/articles/question-driven-reviews.md):
 - [Reproducibility and Corpus
-  Certificates](https://r-heller.github.io/scimapR/articles/reproducibility-and-certificates.md):
+  Certificates](https://cttir.github.io/scimapR/articles/reproducibility-and-certificates.md):
 - [Equity Audit, Trajectory Analysis, and Corpus
-  Chat](https://r-heller.github.io/scimapR/articles/equity-trajectory-and-chat.md):
+  Chat](https://cttir.github.io/scimapR/articles/equity-trajectory-and-chat.md):
 
 ### Ecosystem
 
 - [Relationship to
-  bibliometrix](https://r-heller.github.io/scimapR/articles/relationship-to-bibliometrix.md):
+  bibliometrix](https://cttir.github.io/scimapR/articles/relationship-to-bibliometrix.md):

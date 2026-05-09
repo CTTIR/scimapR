@@ -1,7 +1,7 @@
 # Build a corpus from a research question
 
 Takes a structured
-[`sm_question()`](https://r-heller.github.io/scimapR/reference/sm_question.md)
+[`sm_question()`](https://cttir.github.io/scimapR/reference/sm_question.md)
 object, translates its fields into database-specific query strings,
 fetches results from the requested bibliographic sources, deduplicates
 on DOI, and returns an `sm_corpus` with `metadata$question_id` linked to
@@ -28,7 +28,7 @@ sm_corpus_for_question(
 - question:
 
   An `sm_question` object created with
-  [`sm_question()`](https://r-heller.github.io/scimapR/reference/sm_question.md).
+  [`sm_question()`](https://cttir.github.io/scimapR/reference/sm_question.md).
 
 - sources:
 
@@ -56,11 +56,11 @@ content-hash ID.
 ## See also
 
 Other question:
-[`is_sm_question()`](https://r-heller.github.io/scimapR/reference/is_sm_question.md),
-[`sm_question()`](https://r-heller.github.io/scimapR/reference/sm_question.md),
-[`sm_screen_against_question()`](https://r-heller.github.io/scimapR/reference/sm_screen_against_question.md),
-[`sm_screen_regex()`](https://r-heller.github.io/scimapR/reference/sm_screen_regex.md),
-[`sm_screen_summary()`](https://r-heller.github.io/scimapR/reference/sm_screen_summary.md)
+[`is_sm_question()`](https://cttir.github.io/scimapR/reference/is_sm_question.md),
+[`sm_question()`](https://cttir.github.io/scimapR/reference/sm_question.md),
+[`sm_screen_against_question()`](https://cttir.github.io/scimapR/reference/sm_screen_against_question.md),
+[`sm_screen_regex()`](https://cttir.github.io/scimapR/reference/sm_screen_regex.md),
+[`sm_screen_summary()`](https://cttir.github.io/scimapR/reference/sm_screen_summary.md)
 
 ## Examples
 

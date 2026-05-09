@@ -6,11 +6,11 @@ the LLM is asked to classify the title/abstract as `"include"`,
 `"exclude"`, or `"uncertain"`, with a confidence score and brief reason.
 Results are written to the corpus's `screening` table.
 
-[`sm_screen_regex()`](https://r-heller.github.io/scimapR/reference/sm_screen_regex.md)
+[`sm_screen_regex()`](https://cttir.github.io/scimapR/reference/sm_screen_regex.md)
 provides a deterministic, LLM-free fallback using regular-expression
 matching on titles and abstracts.
 
-[`sm_screen_summary()`](https://r-heller.github.io/scimapR/reference/sm_screen_summary.md)
+[`sm_screen_summary()`](https://cttir.github.io/scimapR/reference/sm_screen_summary.md)
 returns a count summary of screening decisions by stage.
 
 ## Usage
@@ -73,11 +73,11 @@ A modified `sm_corpus` with updated `screening` table.
 ## See also
 
 Other question:
-[`is_sm_question()`](https://r-heller.github.io/scimapR/reference/is_sm_question.md),
-[`sm_corpus_for_question()`](https://r-heller.github.io/scimapR/reference/sm_corpus_for_question.md),
-[`sm_question()`](https://r-heller.github.io/scimapR/reference/sm_question.md),
-[`sm_screen_regex()`](https://r-heller.github.io/scimapR/reference/sm_screen_regex.md),
-[`sm_screen_summary()`](https://r-heller.github.io/scimapR/reference/sm_screen_summary.md)
+[`is_sm_question()`](https://cttir.github.io/scimapR/reference/is_sm_question.md),
+[`sm_corpus_for_question()`](https://cttir.github.io/scimapR/reference/sm_corpus_for_question.md),
+[`sm_question()`](https://cttir.github.io/scimapR/reference/sm_question.md),
+[`sm_screen_regex()`](https://cttir.github.io/scimapR/reference/sm_screen_regex.md),
+[`sm_screen_summary()`](https://cttir.github.io/scimapR/reference/sm_screen_summary.md)
 
 ## Examples
 

@@ -10,7 +10,7 @@ fully auditable.
 The operation is **idempotent**: running it twice in succession will not
 re-fetch works that were just refreshed. The function **refuses to
 operate on a locked corpus**; use
-[`sm_unlock()`](https://r-heller.github.io/scimapR/reference/sm_lock.md)
+[`sm_unlock()`](https://cttir.github.io/scimapR/reference/sm_lock.md)
 first.
 
 ## Usage
@@ -64,8 +64,8 @@ rows.
 ## See also
 
 Other refresh:
-[`sm_lock()`](https://r-heller.github.io/scimapR/reference/sm_lock.md),
-[`sm_staleness()`](https://r-heller.github.io/scimapR/reference/sm_staleness.md)
+[`sm_lock()`](https://cttir.github.io/scimapR/reference/sm_lock.md),
+[`sm_staleness()`](https://cttir.github.io/scimapR/reference/sm_staleness.md)
 
 ## Examples
 
