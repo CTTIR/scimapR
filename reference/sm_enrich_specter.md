@@ -1,0 +1,68 @@
+# Enrich corpus with SPECTER embeddings
+
+Fetch pre-computed SPECTER embeddings from the [Semantic
+Scholar](https://www.semanticscholar.org/) API for works in the corpus
+and attach them as the `embeddings` matrix.
+
+SPECTER embeddings are 768-dimensional vectors useful for computing
+document similarity, clustering, and visualisation. No Python
+installation is required – this function retrieves pre-computed vectors
+from the API.
+
+This enricher is idempotent: works that already have embeddings are
+skipped.
+
+## Usage
+
+``` r
+sm_enrich_specter(
+  corpus,
+  api_key = Sys.getenv("SEMANTIC_SCHOLAR_API_KEY"),
+  verbose = TRUE,
+  call = rlang::caller_env()
+)
+```
+
+## Arguments
+
+- corpus:
+
+  An `sm_corpus` object.
+
+- api_key:
+
+  Semantic Scholar API key. Read from `SEMANTIC_SCHOLAR_API_KEY` env var
+  by default.
+
+- verbose:
+
+  Print progress messages?
+
+- call:
+
+  Caller environment for error reporting.
+
+## Value
+
+An `sm_corpus` object with an `embeddings` matrix, plus new provenance
+rows.
+
+## See also
+
+Other enrichers:
+[`sm_enrich_altmetric()`](https://r-heller.github.io/scimapR/reference/sm_enrich_altmetric.md),
+[`sm_enrich_concepts()`](https://r-heller.github.io/scimapR/reference/sm_enrich_concepts.md),
+[`sm_enrich_opencitations()`](https://r-heller.github.io/scimapR/reference/sm_enrich_opencitations.md),
+[`sm_enrich_orcid()`](https://r-heller.github.io/scimapR/reference/sm_enrich_orcid.md),
+[`sm_enrich_retraction()`](https://r-heller.github.io/scimapR/reference/sm_enrich_retraction.md),
+[`sm_enrich_ror()`](https://r-heller.github.io/scimapR/reference/sm_enrich_ror.md),
+[`sm_enrich_unpaywall()`](https://r-heller.github.io/scimapR/reference/sm_enrich_unpaywall.md)
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+corpus <- sm_example_corpus()
+corpus <- sm_enrich_specter(corpus)
+} # }
+```
