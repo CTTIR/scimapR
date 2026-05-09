@@ -67,7 +67,7 @@ sm_cite_corpus <- function(corpus,
       yr_range, "},\n",
       "  howpublished = {Assembled with scimapR v", pkg_version, "},\n",
       "  year = {", format(Sys.Date(), "%Y"), "},\n",
-      "  url = {https://github.com/r-heller/scimapR},\n",
+      "  url = {https://github.com/CTTIR/scimapR},\n",
       "  note = {hash: ", corpus_hash, "}\n",
       "}"
     )

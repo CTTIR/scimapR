@@ -8,6 +8,11 @@
 #'
 #' @return An `sm_corpus` object.
 #'
+#' @examples
+#' corpus <- sm_example_corpus()
+#' as_sm_corpus(corpus)
+#' as_sm_corpus(corpus$works)
+#'
 #' @family corpus
 #' @export
 as_sm_corpus <- function(x, ...) {

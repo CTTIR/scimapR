@@ -17,6 +17,14 @@ sm_export_cytoscape(network, path)
 \description{
 Write network to Cytoscape JSON format.
 }
+\examples{
+\donttest{
+corpus <- sm_example_corpus()
+net <- sm_network_cocitation(corpus)
+sm_export_cytoscape(net, tempfile(fileext = ".json"))
+}
+
+}
 \seealso{
 Other export: 
 \code{\link{sm_export_csv}()},

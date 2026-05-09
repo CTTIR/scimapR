@@ -10,6 +10,10 @@
 #'
 #' @return A tibble with `work_id` and trial-related information.
 #'
+#' @examples
+#' corpus <- sm_example_corpus()
+#' sm_field_clinical_trials(corpus)
+#'
 #' @family field-helpers
 #' @export
 sm_field_clinical_trials <- function(corpus, ...,

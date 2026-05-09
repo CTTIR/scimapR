@@ -27,14 +27,19 @@
 #' @family clustering
 #' @export
 #' @examples
-#' corpus <- sm_example_corpus(with_embeddings = TRUE)
-#' corpus <- sm_cluster_leiden(corpus, resolution = 1.0)
-#' table(corpus$works$cluster_id)
+#' \donttest{
+#' if (requireNamespace("igraph", quietly = TRUE)) {
+#'   corpus <- sm_example_corpus(with_embeddings = TRUE)
+#'   corpus <- sm_cluster_leiden(corpus, resolution = 1.0)
+#'   table(corpus$works$cluster_id)
+#' }
+#' }
 sm_cluster_leiden <- function(corpus,
                               network = NULL,
                               resolution = 1.0,
                               call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  rlang::check_installed("igraph", reason = "for Leiden community detection.")
 
   if (!is.numeric(resolution) || length(resolution) != 1L || resolution <= 0) {
     cli::cli_abort(

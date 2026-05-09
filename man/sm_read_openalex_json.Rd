@@ -33,7 +33,7 @@ concepts, open access status, and referenced works.
 \section{Implementation}{
 
 The parser reads the OpenAlex works JSON schema as documented at
-\url{https://docs.openalex.org/api-entities/works/work-object}.
+\url{https://developers.openalex.org/api-entities/works/work-object}.
 Both standard JSON arrays and newline-delimited JSON (one work per line)
 are supported. No bibliometrix engine is available since OpenAlex is not
 a shared bibliometric export format.

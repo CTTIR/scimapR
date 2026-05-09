@@ -11,9 +11,9 @@ A comprehensive toolkit for bibliometric and scientometric analysis, designed as
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/r-heller/scimapR}
-  \item \url{https://r-heller.github.io/scimapR/}
-  \item Report bugs at \url{https://github.com/r-heller/scimapR/issues}
+  \item \url{https://github.com/CTTIR/scimapR}
+  \item \url{https://cttir.github.io/scimapR/}
+  \item Report bugs at \url{https://github.com/CTTIR/scimapR/issues}
 }
 
 }

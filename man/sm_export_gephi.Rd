@@ -17,6 +17,14 @@ sm_export_gephi(network, path)
 \description{
 Write a tidygraph network to GEXF XML format for use with Gephi.
 }
+\examples{
+\donttest{
+corpus <- sm_example_corpus()
+net <- sm_network_cocitation(corpus)
+sm_export_gephi(net, tempfile(fileext = ".gexf"))
+}
+
+}
 \seealso{
 Other export: 
 \code{\link{sm_export_csv}()},

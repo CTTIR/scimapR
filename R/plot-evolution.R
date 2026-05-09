@@ -10,6 +10,16 @@
 #'
 #' @return A `ggplot` object.
 #'
+#' @examples
+#' \donttest{
+#' if (requireNamespace("dbscan", quietly = TRUE) &&
+#'     requireNamespace("uwot", quietly = TRUE)) {
+#'   corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
+#'   corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
+#'   sm_plot_evolution(corpus)
+#' }
+#' }
+#'
 #' @family plots
 #' @export
 sm_plot_evolution <- function(corpus, time_var = "year",

@@ -289,7 +289,7 @@ print.sm_chat_response <- function(x, ...) {
 
   scores <- vapply(texts_lower, function(txt) {
     tf <- vapply(question_words, function(w) {
-      stringr::str_count(txt, stringr::fixed(w))
+      lengths(regmatches(txt, gregexpr(w, txt, fixed = TRUE)))
     }, double(1))
     sum(tf * idf)
   }, double(1), USE.NAMES = FALSE)

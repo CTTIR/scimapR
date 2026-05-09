@@ -9,6 +9,15 @@
 #'
 #' @return A `ggplot` object composed via patchwork.
 #'
+#' @examples
+#' \donttest{
+#' if (requireNamespace("patchwork", quietly = TRUE)) {
+#'   corpus <- sm_example_corpus()
+#'   traj <- sm_author_trajectory(corpus, author_id = corpus$authors$author_id[1])
+#'   sm_plot_trajectory(traj)
+#' }
+#' }
+#'
 #' @family trajectory
 #' @export
 sm_plot_trajectory <- function(traj, dark = FALSE, ...) {
@@ -68,6 +77,13 @@ sm_plot_trajectory <- function(traj, dark = FALSE, ...) {
 #'
 #' @return A `ggplot` object.
 #'
+#' @examples
+#' \donttest{
+#' corpus <- sm_example_corpus()
+#' traj <- sm_author_trajectory(corpus, author_id = corpus$authors$author_id[1])
+#' sm_plot_topic_pivots(traj)
+#' }
+#'
 #' @family trajectory
 #' @export
 sm_plot_topic_pivots <- function(traj, dark = FALSE, ...) {
@@ -108,6 +124,13 @@ sm_plot_topic_pivots <- function(traj, dark = FALSE, ...) {
 #'
 #' @return A `ggplot` object.
 #'
+#' @examples
+#' \donttest{
+#' corpus <- sm_example_corpus()
+#' traj <- sm_author_trajectory(corpus, author_id = corpus$authors$author_id[1])
+#' sm_plot_collab_turnover(traj)
+#' }
+#'
 #' @family trajectory
 #' @export
 sm_plot_collab_turnover <- function(traj, dark = FALSE, ...) {
@@ -121,10 +144,16 @@ sm_plot_collab_turnover <- function(traj, dark = FALSE, ...) {
              ggplot2::labs(title = "No collaborator data"))
   }
 
-  long <- tidyr::pivot_longer(dat,
-    cols = c("n_new", "n_kept", "n_lost"),
-    names_to = "type", values_to = "count"
+  long <- stats::reshape(
+    as.data.frame(dat),
+    direction = "long",
+    varying = c("n_new", "n_kept", "n_lost"),
+    v.names = "count",
+    timevar = "type",
+    times = c("n_new", "n_kept", "n_lost"),
+    idvar = "period"
   )
+  long <- tibble::as_tibble(long)
 
   ggplot2::ggplot(long, ggplot2::aes(
     x = .data$period, y = .data$count, fill = .data$type

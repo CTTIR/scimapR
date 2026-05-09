@@ -22,8 +22,10 @@ sources, and OA evolution. Uses viridis throughout.
 }
 \examples{
 \donttest{
-corpus <- sm_example_corpus()
-sm_plot_equity_dashboard(corpus)
+if (requireNamespace("patchwork", quietly = TRUE)) {
+  corpus <- sm_example_corpus()
+  sm_plot_equity_dashboard(corpus)
+}
 }
 }
 \seealso{

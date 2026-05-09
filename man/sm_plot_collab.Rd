@@ -29,6 +29,15 @@ A \code{ggplot} object.
 \description{
 Visualise international or institutional collaboration patterns.
 }
+\examples{
+\donttest{
+if (requireNamespace("ggraph", quietly = TRUE)) {
+  corpus <- sm_example_corpus()
+  sm_plot_collab(corpus, level = "country")
+}
+}
+
+}
 \seealso{
 Other plots: 
 \code{\link{autoplot.sm_corpus}()},

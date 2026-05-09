@@ -14,8 +14,10 @@
 #' @export
 #' @examples
 #' \donttest{
-#' corpus <- sm_example_corpus()
-#' sm_plot_equity_dashboard(corpus)
+#' if (requireNamespace("patchwork", quietly = TRUE)) {
+#'   corpus <- sm_example_corpus()
+#'   sm_plot_equity_dashboard(corpus)
+#' }
 #' }
 sm_plot_equity_dashboard <- function(corpus, dark = FALSE, ...) {
   .check_sm_corpus(corpus)

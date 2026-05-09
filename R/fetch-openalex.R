@@ -137,7 +137,7 @@ sm_fetch_openalex <- function(query = NULL,
   paste0("scimapR/",
          tryCatch(as.character(utils::packageVersion("scimapR")),
                   error = function(e) "0.1.0"),
-         " (https://github.com/r-heller/scimapR)")
+         " (https://github.com/CTTIR/scimapR)")
 }
 
 #' @noRd

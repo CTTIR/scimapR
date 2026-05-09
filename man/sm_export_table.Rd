@@ -39,9 +39,11 @@ and optional title/caption/source note.
 }
 \examples{
 \donttest{
-dat <- data.frame(Author = "Smith J", Works = 10L, Citations = 150L)
-path <- tempfile(fileext = ".xlsx")
-sm_export_table(dat, path)
+if (requireNamespace("openxlsx2", quietly = TRUE)) {
+  dat <- data.frame(Author = "Smith J", Works = 10L, Citations = 150L)
+  path <- tempfile(fileext = ".xlsx")
+  sm_export_table(dat, path)
+}
 }
 }
 \seealso{

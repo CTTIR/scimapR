@@ -15,6 +15,9 @@ Logical.
 \description{
 Test if an object is an sm_trajectory
 }
+\examples{
+is_sm_trajectory(1)
+}
 \seealso{
 Other trajectory: 
 \code{\link{sm_author_trajectory}()},

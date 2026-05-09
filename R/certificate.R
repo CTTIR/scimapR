@@ -27,16 +27,21 @@
 #' @family reproducibility
 #' @export
 #' @examples
-#' corpus <- sm_example_corpus()
-#' cert <- sm_certificate(corpus)
-#' print(cert)
-#' verification <- sm_verify_certificate(corpus, cert)
-#' print(verification)
+#' \donttest{
+#' if (requireNamespace("yaml", quietly = TRUE)) {
+#'   corpus <- sm_example_corpus()
+#'   cert <- sm_certificate(corpus)
+#'   print(cert)
+#'   verification <- sm_verify_certificate(corpus, cert)
+#'   print(verification)
+#' }
+#' }
 sm_certificate <- function(corpus,
                            path = NULL,
                            call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   .check_string(path, allow_null = TRUE, call = call)
+  rlang::check_installed("yaml", reason = "to create corpus certificates.")
 
   corpus_hash <- sm_hash_corpus(corpus)
   now <- Sys.time()
@@ -161,6 +166,7 @@ sm_rebuild_from_cert <- function(cert,
                                  call = rlang::caller_env()) {
   # Load certificate if path
   if (is.character(cert)) {
+    rlang::check_installed("yaml", reason = "to read YAML certificates.")
     .check_file_exists(cert, call = call)
     cert_data <- yaml::read_yaml(cert)
     cert <- .list_to_cert(cert_data)
@@ -295,6 +301,7 @@ sm_verify_certificate <- function(corpus,
 
   # Load certificate if path
   if (is.character(cert)) {
+    rlang::check_installed("yaml", reason = "to read YAML certificates.")
     .check_file_exists(cert, call = call)
     cert_data <- yaml::read_yaml(cert)
     cert <- .list_to_cert(cert_data)

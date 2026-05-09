@@ -19,6 +19,14 @@ A \code{ggplot} object.
 \description{
 Vertical timeline showing when an author's research focus shifted.
 }
+\examples{
+\donttest{
+corpus <- sm_example_corpus()
+traj <- sm_author_trajectory(corpus, author_id = corpus$authors$author_id[1])
+sm_plot_topic_pivots(traj)
+}
+
+}
 \seealso{
 Other trajectory: 
 \code{\link{is_sm_trajectory}()},

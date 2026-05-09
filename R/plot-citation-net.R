@@ -10,6 +10,14 @@
 #'
 #' @return A `ggplot` object.
 #'
+#' @examples
+#' \donttest{
+#' if (requireNamespace("ggraph", quietly = TRUE)) {
+#'   corpus <- sm_example_corpus()
+#'   sm_plot_citation_network(corpus)
+#' }
+#' }
+#'
 #' @family plots
 #' @export
 sm_plot_citation_network <- function(corpus, top_n = 50L,
@@ -67,7 +75,8 @@ sm_plot_citation_network <- function(corpus, top_n = 50L,
       ggplot2::aes(size = .data$cited_by_count),
       colour = viridisLite::viridis(1)
     ) +
+    ggraph::theme_graph(base_family = "",
+                        background = if (dark) "#0e0e0e" else "white") +
     sm_theme(dark = dark) +
-    ggplot2::labs(title = "Citation Network", size = "Citations") +
-    ggraph::theme_graph(background = if (dark) "#0e0e0e" else "white")
+    ggplot2::labs(title = "Citation Network", size = "Citations")
 }

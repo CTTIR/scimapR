@@ -17,6 +17,14 @@ sm_export_vosviewer(network, path)
 \description{
 Write network to VOSviewer-compatible format.
 }
+\examples{
+\donttest{
+corpus <- sm_example_corpus()
+net <- sm_network_cocitation(corpus)
+sm_export_vosviewer(net, tempfile(fileext = ".tsv"))
+}
+
+}
 \seealso{
 Other export: 
 \code{\link{sm_export_csv}()},

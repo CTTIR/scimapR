@@ -36,9 +36,11 @@ a collaborator" workflow.
 }
 \examples{
 \donttest{
-corpus <- sm_example_corpus(n_works = 10)
-path <- tempfile(fileext = ".zip")
-sm_export_zip(corpus, path, include = c("rds", "certificate"))
+if (requireNamespace("yaml", quietly = TRUE)) {
+  corpus <- sm_example_corpus(n_works = 10)
+  path <- tempfile(fileext = ".zip")
+  sm_export_zip(corpus, path, include = c("rds", "certificate"))
+}
 }
 }
 \seealso{

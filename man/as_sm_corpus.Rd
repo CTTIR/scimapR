@@ -31,6 +31,12 @@ An \code{sm_corpus} object.
 \description{
 Generic function to convert various data types to an \code{sm_corpus} object.
 }
+\examples{
+corpus <- sm_example_corpus()
+as_sm_corpus(corpus)
+as_sm_corpus(corpus$works)
+
+}
 \seealso{
 Other corpus: 
 \code{\link{is_sm_corpus}()},

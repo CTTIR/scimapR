@@ -55,11 +55,15 @@ the corpus. \code{sm_verify_certificate()} compares a live corpus against
 a certificate to detect divergence.
 }
 \examples{
-corpus <- sm_example_corpus()
-cert <- sm_certificate(corpus)
-print(cert)
-verification <- sm_verify_certificate(corpus, cert)
-print(verification)
+\donttest{
+if (requireNamespace("yaml", quietly = TRUE)) {
+  corpus <- sm_example_corpus()
+  cert <- sm_certificate(corpus)
+  print(cert)
+  verification <- sm_verify_certificate(corpus, cert)
+  print(verification)
+}
+}
 }
 \seealso{
 Other reproducibility: 

@@ -8,6 +8,13 @@
 #'
 #' @return `path` invisibly.
 #'
+#' @examples
+#' \donttest{
+#' corpus <- sm_example_corpus()
+#' net <- sm_network_cocitation(corpus)
+#' sm_export_gephi(net, tempfile(fileext = ".gexf"))
+#' }
+#'
 #' @family export
 #' @export
 sm_export_gephi <- function(network, path) {
@@ -60,6 +67,13 @@ sm_export_gephi <- function(network, path) {
 #'
 #' @return `path` invisibly.
 #'
+#' @examples
+#' \donttest{
+#' corpus <- sm_example_corpus()
+#' net <- sm_network_cocitation(corpus)
+#' sm_export_vosviewer(net, tempfile(fileext = ".tsv"))
+#' }
+#'
 #' @family export
 #' @export
 sm_export_vosviewer <- function(network, path) {
@@ -92,6 +106,13 @@ sm_export_vosviewer <- function(network, path) {
 #' @param path Output file path.
 #'
 #' @return `path` invisibly.
+#'
+#' @examples
+#' \donttest{
+#' corpus <- sm_example_corpus()
+#' net <- sm_network_cocitation(corpus)
+#' sm_export_cytoscape(net, tempfile(fileext = ".json"))
+#' }
 #'
 #' @family export
 #' @export

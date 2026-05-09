@@ -25,9 +25,9 @@ Description: A comprehensive toolkit for bibliometric and scientometric
     Output is fully 'tidyverse'-compatible with tibble-based corpora,
     'viridis'-themed 'ggplot2' visualizations, and 'tidygraph' network objects.
 License: MIT + file LICENSE
-URL: https://github.com/r-heller/scimapR,
-    https://r-heller.github.io/scimapR/
-BugReports: https://github.com/r-heller/scimapR/issues
+URL: https://github.com/CTTIR/scimapR,
+    https://cttir.github.io/scimapR/
+BugReports: https://github.com/CTTIR/scimapR/issues
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
@@ -39,15 +39,11 @@ Imports:
     rlang (>= 1.1.0),
     tibble,
     dplyr,
-    tidyr,
     purrr,
-    stringr,
     readr,
     xml2,
     jsonlite,
-    yaml,
     httr2,
-    igraph,
     tidygraph,
     ggplot2 (>= 3.4.0),
     viridisLite,
@@ -94,6 +90,10 @@ Suggests:
     Matrix,
     scales,
     patchwork,
+    igraph,
+    stringr,
+    tidyr,
+    yaml,
     ggraph,
     ggrepel,
     tidytext,

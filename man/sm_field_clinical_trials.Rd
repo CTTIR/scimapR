@@ -20,6 +20,11 @@ A tibble with \code{work_id} and trial-related information.
 Identify works in the corpus that are linked to clinical trials
 based on PMIDs or DOIs.
 }
+\examples{
+corpus <- sm_example_corpus()
+sm_field_clinical_trials(corpus)
+
+}
 \seealso{
 Other field-helpers: 
 \code{\link{sm_field_funder}()},

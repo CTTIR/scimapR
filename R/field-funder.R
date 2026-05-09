@@ -9,6 +9,10 @@
 #'
 #' @return A tibble of funders with counts.
 #'
+#' @examples
+#' corpus <- sm_example_corpus()
+#' sm_field_funder(corpus)
+#'
 #' @family field-helpers
 #' @export
 sm_field_funder <- function(corpus,

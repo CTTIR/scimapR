@@ -21,6 +21,17 @@ A \code{ggplot} object.
 \description{
 Visualise how research topics/clusters evolve across time periods.
 }
+\examples{
+\donttest{
+if (requireNamespace("dbscan", quietly = TRUE) &&
+    requireNamespace("uwot", quietly = TRUE)) {
+  corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
+  corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
+  sm_plot_evolution(corpus)
+}
+}
+
+}
 \seealso{
 Other plots: 
 \code{\link{autoplot.sm_corpus}()},

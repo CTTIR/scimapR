@@ -11,6 +11,14 @@
 #'
 #' @return A `ggplot` object.
 #'
+#' @examples
+#' \donttest{
+#' if (requireNamespace("ggraph", quietly = TRUE)) {
+#'   corpus <- sm_example_corpus()
+#'   sm_plot_collab(corpus, level = "country")
+#' }
+#' }
+#'
 #' @family plots
 #' @export
 sm_plot_collab <- function(corpus,
@@ -65,7 +73,8 @@ sm_plot_collab <- function(corpus,
                               repel = TRUE, size = 3) +
       sm_theme(dark = dark) +
       ggplot2::labs(title = "Collaboration Network") +
-      ggraph::theme_graph(background = if (dark) "#0e0e0e" else "white")
+      ggraph::theme_graph(base_family = "",
+                          background = if (dark) "#0e0e0e" else "white")
   } else if (level == "institution") {
     collab <- corpus$authorships %>%
       dplyr::filter(!is.na(.data$institution_id)) %>%
@@ -123,7 +132,8 @@ sm_plot_collab <- function(corpus,
                               repel = TRUE, size = 3) +
       sm_theme(dark = dark) +
       ggplot2::labs(title = "Institutional Collaboration Network") +
-      ggraph::theme_graph(background = if (dark) "#0e0e0e" else "white")
+      ggraph::theme_graph(base_family = "",
+                          background = if (dark) "#0e0e0e" else "white")
 
   } else {
     collab <- corpus$authorships %>%
@@ -182,6 +192,7 @@ sm_plot_collab <- function(corpus,
                               repel = TRUE, size = 3) +
       sm_theme(dark = dark) +
       ggplot2::labs(title = "Author Collaboration Network") +
-      ggraph::theme_graph(background = if (dark) "#0e0e0e" else "white")
+      ggraph::theme_graph(base_family = "",
+                          background = if (dark) "#0e0e0e" else "white")
   }
 }

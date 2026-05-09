@@ -19,6 +19,14 @@ A \code{ggplot} object.
 \description{
 Visualise collaborator retention and turnover across career periods.
 }
+\examples{
+\donttest{
+corpus <- sm_example_corpus()
+traj <- sm_author_trajectory(corpus, author_id = corpus$authors$author_id[1])
+sm_plot_collab_turnover(traj)
+}
+
+}
 \seealso{
 Other trajectory: 
 \code{\link{is_sm_trajectory}()},

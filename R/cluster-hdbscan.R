@@ -32,9 +32,12 @@
 #' @export
 #' @examples
 #' \donttest{
-#' corpus <- sm_example_corpus(with_embeddings = TRUE)
-#' corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10L)
-#' table(corpus$works$cluster_id)
+#' if (requireNamespace("dbscan", quietly = TRUE) &&
+#'     requireNamespace("uwot", quietly = TRUE)) {
+#'   corpus <- sm_example_corpus(with_embeddings = TRUE)
+#'   corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10L)
+#'   table(corpus$works$cluster_id)
+#' }
 #' }
 sm_cluster_hdbscan <- function(corpus,
                                min_cluster_size = 15L,

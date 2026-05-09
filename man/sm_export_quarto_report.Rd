@@ -33,6 +33,15 @@ sm_export_quarto_report(
 Generate a comprehensive bibliometric report from a corpus using a
 Quarto template.
 }
+\examples{
+\donttest{
+if (requireNamespace("quarto", quietly = TRUE)) {
+  corpus <- sm_example_corpus()
+  sm_export_quarto_report(corpus, tempfile(fileext = ".html"))
+}
+}
+
+}
 \seealso{
 Other export: 
 \code{\link{sm_export_csv}()},

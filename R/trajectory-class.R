@@ -47,6 +47,8 @@ new_sm_trajectory <- function(author_id,
 #' Test if an object is an sm_trajectory
 #' @param x An object to test.
 #' @return Logical.
+#' @examples
+#' is_sm_trajectory(1)
 #' @family trajectory
 #' @export
 is_sm_trajectory <- function(x) {

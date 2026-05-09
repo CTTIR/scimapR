@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 # scimapR <img src="man/figures/logo.png" align="right" height="139" alt="" />
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/r-heller/scimapR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/r-heller/scimapR/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml)
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
@@ -77,7 +77,7 @@ See `vignette("relationship-to-bibliometrix")` for details.
 ```r
 # Install from GitHub (development version)
 # install.packages("pak")
-pak::pak("r-heller/scimapR")
+pak::pak("CTTIR/scimapR")
 ```
 
 ## Quick example
@@ -146,4 +146,4 @@ MIT
 ## Contributing
 
 Issues and pull requests are welcome at
-[github.com/r-heller/scimapR](https://github.com/r-heller/scimapR).
+[github.com/CTTIR/scimapR](https://github.com/CTTIR/scimapR).

@@ -21,6 +21,15 @@ A \code{ggplot} object.
 \description{
 Visualise the citation network of top-cited works.
 }
+\examples{
+\donttest{
+if (requireNamespace("ggraph", quietly = TRUE)) {
+  corpus <- sm_example_corpus()
+  sm_plot_citation_network(corpus)
+}
+}
+
+}
 \seealso{
 Other plots: 
 \code{\link{autoplot.sm_corpus}()},

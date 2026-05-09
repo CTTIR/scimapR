@@ -23,6 +23,11 @@ A tibble of funders with counts.
 \description{
 Summarise funding sources from corpus metadata.
 }
+\examples{
+corpus <- sm_example_corpus()
+sm_field_funder(corpus)
+
+}
 \seealso{
 Other field-helpers: 
 \code{\link{sm_field_clinical_trials}()},
