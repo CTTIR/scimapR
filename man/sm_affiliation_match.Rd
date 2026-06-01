@@ -83,6 +83,8 @@ matched$authorships$institution_match[1]
 \code{\link[=sm_attribute_institution]{sm_attribute_institution()}}, \link{sm_affiliation_dict}
 
 Other affiliation:
+\code{\link[=sm_affiliation_methods]{sm_affiliation_methods()}},
+\code{\link[=sm_affiliation_signals]{sm_affiliation_signals()}},
 \code{\link[=sm_affiliation_summary]{sm_affiliation_summary()}},
 \code{\link[=sm_attribute_institution]{sm_attribute_institution()}}
 }

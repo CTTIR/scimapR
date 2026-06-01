@@ -108,7 +108,8 @@ sm_coverage_audit <- function(corpus,
   matches <- tibble::tibble(
     corpus_id = matches$corpus_id,
     reference_id = matches$reference_id,
-    match_type = matches$match_type,
+    # B1: controlled vocabulary as a factor with stable levels
+    match_type = factor(matches$match_type, levels = .match_type_levels()),
     match_score = matches$match_score
   )
 
@@ -120,12 +121,18 @@ sm_coverage_audit <- function(corpus,
 
   # ---- breakdowns: nested list (legacy) + flat tibble (preferred) ----
   matched_ref_ids <- pairs$b_id
+  matched_corpus_ids <- pairs$a_id
   breakdowns_nested <- list()
   for (dim in by) {
     breakdowns_nested[[dim]] <- .coverage_breakdown(reference, ref_frame,
                                                     matched_ref_ids, dim)
   }
   breakdowns <- .flatten_breakdowns(breakdowns_nested)
+  # stable long contract (A1): adds per-slice corpus counts, precision, f1
+  breakdowns_tidy <- .coverage_breakdowns_tidy(
+    corpus, corpus_frame, reference, ref_frame,
+    matched_ref_ids, matched_corpus_ids, by
+  )
 
   # ---- C1: journal indexability (only when an index table is supplied) ----
   indexability <- NULL
@@ -152,10 +159,79 @@ sm_coverage_audit <- function(corpus,
       reference_only = reference_only,
       breakdowns = breakdowns,
       breakdowns_nested = breakdowns_nested,
+      breakdowns_tidy = breakdowns_tidy,
       indexability = indexability
     ),
     class = "sm_coverage"
   )
+}
+
+#' Tidy per-slice coverage breakdowns with recall, precision, and F1 (A1)
+#'
+#' Reference-side slices drive recall; corpus-side slices drive precision; the
+#' two are joined on `(dimension, level)`. This is the stable long contract
+#' returned by [sm_coverage_breakdowns()] with `tidy = TRUE`.
+#' @noRd
+.coverage_breakdowns_tidy <- function(corpus, corpus_frame, reference,
+                                      ref_frame, matched_ref_ids,
+                                      matched_corpus_ids, by) {
+  empty <- tibble::tibble(
+    dimension = character(), level = character(),
+    n_reference = integer(), n_matched = integer(), recall = double(),
+    n_corpus = integer(), precision = double(), f1 = double()
+  )
+  if (length(by) == 0L) return(empty)
+
+  out <- list()
+  for (dim in by) {
+    ref_slice <- .coverage_dim_values(reference, ref_frame, dim)
+    cor_slice <- .coverage_dim_values(corpus, corpus_frame, dim)
+
+    rec <- if (is.null(ref_slice)) {
+      tibble::tibble(level = character(), n_reference = integer(),
+                     n_matched = integer(), recall = double())
+    } else {
+      tibble::tibble(level = as.character(ref_slice),
+                     matched = ref_frame$id %in% matched_ref_ids) %>%
+        dplyr::filter(!is.na(.data$level)) %>%
+        dplyr::group_by(.data$level) %>%
+        dplyr::summarise(n_reference = dplyr::n(),
+                         n_matched = sum(.data$matched), .groups = "drop") %>%
+        dplyr::mutate(recall = round(.data$n_matched / .data$n_reference, 4))
+    }
+
+    pre <- if (is.null(cor_slice)) {
+      tibble::tibble(level = character(), n_corpus = integer(),
+                     precision = double())
+    } else {
+      tibble::tibble(level = as.character(cor_slice),
+                     matched = corpus_frame$id %in% matched_corpus_ids) %>%
+        dplyr::filter(!is.na(.data$level)) %>%
+        dplyr::group_by(.data$level) %>%
+        dplyr::summarise(n_corpus = dplyr::n(),
+                         .nmc = sum(.data$matched), .groups = "drop") %>%
+        dplyr::mutate(precision = round(.data$.nmc / .data$n_corpus, 4)) %>%
+        dplyr::select("level", "n_corpus", "precision")
+    }
+
+    if (nrow(rec) == 0L && nrow(pre) == 0L) next
+    merged <- dplyr::full_join(rec, pre, by = "level") %>%
+      dplyr::mutate(
+        dimension = dim,
+        f1 = dplyr::if_else(
+          !is.na(.data$recall) & !is.na(.data$precision) &
+            (.data$recall + .data$precision) > 0,
+          round(2 * .data$recall * .data$precision /
+                  (.data$recall + .data$precision), 4),
+          NA_real_)
+      ) %>%
+      dplyr::select("dimension", "level", "n_reference", "n_matched",
+                    "recall", "n_corpus", "precision", "f1") %>%
+      dplyr::arrange(.data$level)
+    out[[dim]] <- merged
+  }
+  if (length(out) == 0L) return(empty)
+  dplyr::bind_rows(out)
 }
 
 #' Flatten the per-dimension breakdown list into one tibble
@@ -221,28 +297,60 @@ sm_coverage_audit <- function(corpus,
 #'
 #' @description
 #' Accessor returning the per-dimension coverage breakdowns of an
-#' [sm_coverage_audit()] result as a single flat tibble (`dimension`, `level`,
-#' `n_reference`, `n_matched`, `recall`), optionally filtered to one dimension.
+#' [sm_coverage_audit()] result as a single flat (long) tibble, optionally
+#' filtered to one dimension.
+#'
+#' @details
+#' This accessor honours the package's accessor return-type stability contract
+#' (see [scimapR-stability]): with `tidy = TRUE` the column set is guaranteed
+#' and will only change via a `lifecycle` deprecation.
 #'
 #' @param x An `sm_coverage` object.
 #' @param dimension Optional dimension name (e.g. `"year"`) to filter to.
+#' @param tidy Logical (default `TRUE`). The stable long contract: returns
+#'   columns `dimension`, `level`, `n_reference`, `n_matched`, `recall`,
+#'   `n_corpus`, `precision`, `f1`. With `tidy = FALSE`, the legacy recall-only
+#'   shape (`dimension`, `level`, `n_reference`, `n_matched`, `recall`) is
+#'   returned for backward compatibility.
 #'
-#' @return A tibble. Type-stable: returns a 0-row tibble with the documented
-#'   columns when there are no breakdowns.
+#' @return A tibble (see `tidy`). Type-stable: a 0-row tibble with the
+#'   documented columns when there are no breakdowns. Slices present on only one
+#'   side (corpus vs reference) carry `NA` in the other side's counts/metric.
 #'
 #' @family coverage
-#' @seealso [sm_coverage_audit()]
+#' @seealso [sm_coverage_audit()], [scimapR-stability]
 #' @export
 #' @examplesIf rlang::is_installed("stringdist")
 #' corpus <- sm_example_corpus(n_works = 30, seed = 1)
 #' ref <- corpus$works[1:25, c("work_id", "doi", "title", "year")]
 #' cov <- sm_coverage_audit(corpus, ref, by = "year")
 #' sm_coverage_breakdowns(cov, dimension = "year")
-sm_coverage_breakdowns <- function(x, dimension = NULL) {
+sm_coverage_breakdowns <- function(x, dimension = NULL, tidy = TRUE) {
   if (!inherits(x, "sm_coverage")) {
     cli::cli_abort("{.arg x} must be an {.cls sm_coverage} object.")
   }
-  bd <- x$breakdowns
+  .check_flag(tidy)
+
+  if (tidy) {
+    bd <- x$breakdowns_tidy
+    if (is.null(bd)) {
+      # older sm_coverage objects: derive the stable shape from the recall-only
+      # flat tibble, with precision/f1 unavailable (NA).
+      legacy <- x$breakdowns %||% tibble::tibble(
+        dimension = character(), level = character(),
+        n_reference = integer(), n_matched = integer(), recall = double())
+      bd <- tibble::tibble(
+        dimension = legacy$dimension, level = legacy$level,
+        n_reference = legacy$n_reference, n_matched = legacy$n_matched,
+        recall = legacy$recall, n_corpus = NA_integer_,
+        precision = NA_real_, f1 = NA_real_)
+    }
+  } else {
+    bd <- x$breakdowns %||% tibble::tibble(
+      dimension = character(), level = character(),
+      n_reference = integer(), n_matched = integer(), recall = double())
+  }
+
   if (!is.null(dimension)) {
     bd <- dplyr::filter(bd, .data$dimension %in% .env$dimension)
   }

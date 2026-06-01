@@ -80,6 +80,7 @@ rec
 Other coverage:
 \code{\link[=sm_coverage_audit]{sm_coverage_audit()}},
 \code{\link[=sm_coverage_breakdowns]{sm_coverage_breakdowns()}},
-\code{\link[=sm_journal_in_index]{sm_journal_in_index()}}
+\code{\link[=sm_journal_in_index]{sm_journal_in_index()}},
+\code{\link[=sm_match_types]{sm_match_types()}}
 }
 \concept{coverage}

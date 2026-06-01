@@ -100,5 +100,12 @@ utils::globalVariables(c(
   # v0.3.0 additions (coverage breakdowns, affiliation evidence, networks)
   "dimension", "level", "indexable", "indexed_title",
   "match_signal", "match_evidence", "n_works", "n_records",
-  ".sig", ".sm_deg", "xend", "yend"
+  ".sig", ".sm_deg", "xend", "yend",
+
+  # v0.4.0 additions (self-citation, materializer, breakdowns precision)
+  "n_corpus", "precision", "f1", "n_matched", "recall",
+  "citing_work_id", "shared_author_id", "shared_institution_id",
+  "entity_citing", "entity_cited", "n_self", "n_citations_received",
+  "n_self_citations", "self_citation_share", "entity_id", "cited_work_id",
+  ".nmc"
 ))

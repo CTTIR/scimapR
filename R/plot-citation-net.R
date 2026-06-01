@@ -12,9 +12,9 @@
 #'   embedding the plot in an RMarkdown/knitr/`callr`/workflowr document: the
 #'   heavy layout runs once here rather than in the (often memory-limited)
 #'   render subprocess, where large `ggraph` objects can crash the harness.
-#' @param max_nodes Integer node cap (default `200`). Larger graphs are
-#'   downsampled to the highest-degree nodes with a `cli` message; raise it to
-#'   keep more nodes (slower to lay out and render).
+#' @param max_nodes Optional integer node cap. `NULL` (default) keeps all nodes
+#'   so existing renders are unchanged; set it to downsample large graphs to the
+#'   highest-degree nodes (opt-in, with a `cli` message).
 #' @param ... Additional arguments.
 #'
 #' @return A `ggplot` object (a `ggraph` plot when `precompute = FALSE`, a plain
@@ -35,7 +35,7 @@
 sm_plot_citation_network <- function(corpus, top_n = 50L,
                                      dark = FALSE,
                                      precompute = FALSE,
-                                     max_nodes = 200L, ...) {
+                                     max_nodes = NULL, ...) {
   .check_sm_corpus(corpus)
   rlang::check_installed("ggraph",
     reason = "to plot citation networks.")

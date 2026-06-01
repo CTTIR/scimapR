@@ -113,15 +113,32 @@ corpus$authorships$raw_affiliation[1:3] <- c(
   "Walter Reed Army Institute of Research"
 )
 corpus <- sm_affiliation_match(corpus)
-head(subset(corpus$authorships, !is.na(institution_match),
-            select = c(work_id, institution_match, match_method)), 3)
-
 ror <- utils::read.csv(
   system.file("extdata", "example_ror.csv", package = "scimapR"),
   stringsAsFactors = FALSE
 )
 corpus <- sm_attribute_institution(corpus, vocabulary = "ror", ror_table = ror)
 ```
+
+`match_signal` is a factor with an exported, stable level set
+(`sm_affiliation_signals()`), so you can filter reliably --- for example to
+keep only name-token matches and inspect the evidence that triggered them:
+
+```{r affiliation-vocab}
+sm_affiliation_signals()
+summary_tbl <- sm_affiliation_summary(corpus)
+subset(summary_tbl, match_signal == "name_token",
+       select = c(institution, match_signal, n_works, example_evidence))
+```
+
+The `example_evidence` column (and the per-authorship `match_evidence` column)
+give an audit trail: which signal matched, on what string.
+
+> **Stability.** Accessors like `sm_affiliation_summary()` and
+> `sm_coverage_breakdowns(tidy = TRUE)` follow scimapR's accessor return-type
+> contract (`?scimapR-stability`): their documented columns change only via a
+> `lifecycle` deprecation, so pipelines built on them do not break across
+> releases.
 
 ## 3. Policy evaluation
 

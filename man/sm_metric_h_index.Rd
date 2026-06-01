@@ -7,6 +7,7 @@
 sm_metric_h_index(
   corpus,
   level = c("author", "institution", "source", "country"),
+  self_corrected = FALSE,
   call = rlang::caller_env()
 )
 }
@@ -15,6 +16,13 @@ sm_metric_h_index(
 
 \item{level}{Character; the entity level. One of \code{"author"} (default),
 \code{"institution"}, \code{"source"}, or \code{"country"}.}
+
+\item{self_corrected}{Logical (default \code{FALSE}). When \code{TRUE}, self-citations
+identified by \code{\link[=sm_self_citation]{sm_self_citation()}} are removed before computing the index
+(each work's citation count is reduced by the entity's internal
+self-citations to it, floored at 0). Only available for \code{"author"} and
+\code{"institution"} levels. The corrected index is always \code{<=} the
+uncorrected one.}
 
 \item{call}{Caller environment for error reporting.}
 }
@@ -25,11 +33,19 @@ A tibble with columns for the entity ID/name and \code{h_index}.
 Computes the h-index for entities at the specified level. An entity has
 h-index \emph{h} if \emph{h} of its works have at least \emph{h} citations each.
 }
+\details{
+Self-correction uses the corpus's internal reference network (no API calls):
+citations counted against a work are reduced by those coming from works that
+share the entity. Because the network is internal to the corpus, this is a
+lower-bound correction on the global \code{cited_by_count}.
+}
 \examples{
 corpus <- sm_example_corpus()
 sm_metric_h_index(corpus, level = "author")
 }
 \seealso{
+\code{\link[=sm_self_citation]{sm_self_citation()}}
+
 Other metrics:
 \code{\link[=sm_metric_collab_index]{sm_metric_collab_index()}},
 \code{\link[=sm_metric_disruption]{sm_metric_disruption()}},
@@ -38,6 +54,7 @@ Other metrics:
 \code{\link[=sm_metric_m_index]{sm_metric_m_index()}},
 \code{\link[=sm_metric_novelty]{sm_metric_novelty()}},
 \code{\link[=sm_metric_rcr]{sm_metric_rcr()}},
+\code{\link[=sm_self_citation]{sm_self_citation()}},
 \code{\link[=sm_summary_authors]{sm_summary_authors()}},
 \code{\link[=sm_summary_period]{sm_summary_period()}},
 \code{\link[=sm_summary_sources]{sm_summary_sources()}},

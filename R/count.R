@@ -90,20 +90,33 @@ sm_count <- function(corpus,
         return(empty)
       }
       has_col <- function(col) col %in% names(a) && any(!is.na(a[[col]]))
-      # Prefer structured institution identifiers, then matched names, then
-      # fall back to the raw affiliation string (un-disambiguated).
-      id_col <- if (has_col("institution_id")) {
-        "institution_id"
+
+      if (has_col("institution_id")) {
+        # structured identifiers available -- use them
+        name_col <- if ("institution_name" %in% names(a)) "institution_name" else "institution_id"
+        tibble::tibble(
+          work_id = a$work_id,
+          entity_id = as.character(a$institution_id),
+          entity_name = as.character(a[[name_col]])
+        )
       } else if (has_col("institution_match")) {
-        "institution_match"
-      } else if (has_col("institution_id_raw")) {
-        "institution_id_raw"
+        tibble::tibble(
+          work_id = a$work_id,
+          entity_id = as.character(a$institution_match),
+          entity_name = as.character(a$institution_match)
+        )
       } else if (has_col("raw_affiliation")) {
+        # C2: no structured IDs -- cluster raw affiliation strings via the
+        # affiliation matcher, falling back to the raw string when unmatched.
         cli::cli_warn(c(
-          "!" = "No structured institution IDs found; counting by raw affiliation string.",
-          "i" = "Results are {.emph un-disambiguated}; run {.fn sm_affiliation_match}/{.fn sm_attribute_institution} for canonical institutions."
+          "!" = "No structured institution IDs found; clustering {.field raw_affiliation} via {.fn sm_affiliation_match}.",
+          "i" = "Results are {.emph un-disambiguated} and derived from raw affiliation strings; matched names use the dictionary, unmatched rows keep their raw string."
         ))
-        "raw_affiliation"
+        a2 <- suppressMessages(sm_affiliation_match(corpus, call = call))$authorships
+        ent <- ifelse(!is.na(a2$institution_match),
+                      as.character(a2$institution_match),
+                      as.character(a2$raw_affiliation))
+        tibble::tibble(work_id = a2$work_id, entity_id = ent, entity_name = ent)
       } else {
         cli::cli_warn(c(
           "!" = "No institution data found ({.field institution_id}, {.field institution_match}, or {.field raw_affiliation} all empty).",
@@ -111,12 +124,6 @@ sm_count <- function(corpus,
         ))
         return(empty)
       }
-      name_col <- if ("institution_name" %in% names(a)) "institution_name" else id_col
-      tibble::tibble(
-        work_id = a$work_id,
-        entity_id = as.character(a[[id_col]]),
-        entity_name = as.character(a[[name_col]])
-      )
     },
     source = {
       if (nrow(works) == 0L) return(empty)

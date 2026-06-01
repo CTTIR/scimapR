@@ -1,5 +1,5 @@
 # ui.R -- scimapR Shiny application UI
-# Returns a bslib page_navbar with 16 tabs.
+# Returns a bslib page_navbar with 17 tabs.
 
 sm_theme <- bslib::bs_theme(
   version    = 5,
@@ -513,6 +513,34 @@ bslib::page_navbar(
             DT::DTOutput("its_coefs")
           )
         )
+      )
+    )
+  ),
+
+  # -- 17. Self-citation -------------------------------------------------------
+  bslib::nav_panel(
+    title = "Self-citation",
+    icon  = fontawesome::fa_i("quote-right"),
+    bslib::layout_sidebar(
+      sidebar = bslib::sidebar(
+        width = 280,
+        shiny::selectInput(
+          "selfcite_level", "Level",
+          choices = c("Author" = "author", "Institution" = "institution"),
+          selected = "author"
+        ),
+        shiny::actionButton(
+          "selfcite_go", "Compute Self-citation",
+          class = "btn-primary w-100"
+        ),
+        shiny::helpText(
+          "Self-citation from the corpus reference network (no API calls).",
+          "Requires linked references."
+        )
+      ),
+      bslib::navset_card_tab(
+        bslib::nav_panel("By entity", DT::DTOutput("selfcite_entities")),
+        bslib::nav_panel("Provenance", DT::DTOutput("selfcite_provenance"))
       )
     )
   ),

@@ -11,9 +11,9 @@ test_that("sm_affiliation_match tags affiliations via pattern", {
                     names(out$authorships)))
   expect_identical(out$authorships$institution_match[1], "Bundeswehr Hospital")
   expect_identical(out$authorships$institution_match[2], "Charite Berlin")
-  expect_identical(out$authorships$match_method[1], "pattern")
+  expect_identical(as.character(out$authorships$match_method[1]), "pattern")
   expect_identical(out$authorships$institution_match[3], NA_character_)
-  expect_identical(out$authorships$match_method[3], "none")
+  expect_identical(as.character(out$authorships$match_method[3]), "none")
 })
 
 test_that("sm_affiliation_match supports a named-list dictionary", {
@@ -32,7 +32,7 @@ test_that("sm_affiliation_match uses email-domain fallback", {
 
   out <- sm_affiliation_match(corpus, email_domain_fallback = TRUE)
   expect_identical(out$authorships$institution_match[1], "Bundeswehr Hospital")
-  expect_identical(out$authorships$match_method[1], "email_domain")
+  expect_identical(as.character(out$authorships$match_method[1]), "email_domain")
 })
 
 test_that("sm_affiliation_match handles multiple affiliations per author", {

@@ -120,7 +120,8 @@ test_that("B1: sm_coverage_breakdowns accessor filters by dimension", {
   cov <- sm_coverage_audit(corpus, ref, by = "year", match = "doi")
   flat <- sm_coverage_breakdowns(cov, dimension = "year")
   expect_true(all(flat$dimension == "year"))
-  expect_equal(sm_coverage_breakdowns(cov), cov$breakdowns)
+  # tidy = FALSE preserves the legacy recall-only flat shape
+  expect_equal(sm_coverage_breakdowns(cov, tidy = FALSE), cov$breakdowns)
 })
 
 # ---- C1: coverage indexability ---------------------------------------------
@@ -156,9 +157,9 @@ test_that("C2: affiliation match populates signal and evidence", {
   m <- suppressMessages(sm_affiliation_match(corpus))
   expect_true(all(c("match_signal", "match_evidence") %in%
                     names(m$authorships)))
-  expect_identical(m$authorships$match_signal[1], "name_token")
+  expect_identical(as.character(m$authorships$match_signal[1]), "name_token")
   expect_identical(m$authorships$match_evidence[1], "Bundeswehrkrankenhaus")
-  expect_identical(m$authorships$match_signal[2], "email_domain")
+  expect_identical(as.character(m$authorships$match_signal[2]), "email_domain")
   expect_identical(m$authorships$match_evidence[2], "rki.de")
 })
 
@@ -172,7 +173,7 @@ test_that("C2: postcode signal matches when enabled with a postcode dictionary",
   corpus$authorships$raw_affiliation[1] <- "Some Lab, 10115 Berlin, Germany"
   m <- suppressMessages(
     sm_affiliation_match(corpus, patterns = pcdict, postcode_signal = TRUE))
-  expect_identical(m$authorships$match_signal[1], "postcode")
+  expect_identical(as.character(m$authorships$match_signal[1]), "postcode")
   expect_identical(m$authorships$match_evidence[1], "10115")
 })
 
@@ -185,7 +186,7 @@ test_that("C2: postcode signal is off by default (no shift in matches)", {
   corpus <- sm_example_corpus(n_works = 3, n_authors = 3, seed = 2)
   corpus$authorships$raw_affiliation[1] <- "Some Lab, 10115 Berlin, Germany"
   m <- suppressMessages(sm_affiliation_match(corpus, patterns = pcdict))
-  expect_identical(m$authorships$match_signal[1], "none")
+  expect_identical(as.character(m$authorships$match_signal[1]), "none")
 })
 
 test_that("B2: sm_affiliation_summary mirrors the annotated rows", {
@@ -194,7 +195,8 @@ test_that("B2: sm_affiliation_summary mirrors the annotated rows", {
     "Bundeswehrkrankenhaus Berlin", "Charite Universitatsmedizin Berlin")
   m <- suppressMessages(sm_affiliation_match(corpus))
   s <- sm_affiliation_summary(m)
-  expect_named(s, c("institution", "match_signal", "n_authorships", "n_works"))
+  expect_named(s, c("institution", "match_signal", "n_authorships", "n_works",
+                    "example_evidence"))
   expect_equal(sum(s$n_authorships),
                sum(!is.na(m$authorships$institution_match)))
 })

@@ -20,6 +20,8 @@ reference:
       - as_sm_corpus
       - sm_save_corpus
       - sm_filter_works
+      - sm_materialise
+      - scimapR-stability
   - title: "File ingestion"
     contents:
       - starts_with("sm_read_")
@@ -66,6 +68,7 @@ reference:
     contents:
       - starts_with("sm_metric_")
       - starts_with("sm_summary_")
+      - sm_self_citation
   - title: "Author trajectory"
     contents:
       - sm_author_trajectory
@@ -83,11 +86,14 @@ reference:
       - sm_coverage_audit
       - sm_coverage_breakdowns
       - sm_journal_in_index
+      - sm_match_types
       - sm_reconcile
   - title: "Affiliation and attribution"
     contents:
       - sm_affiliation_match
       - sm_affiliation_summary
+      - sm_affiliation_signals
+      - sm_affiliation_methods
       - sm_attribute_institution
       - sm_affiliation_dict
   - title: "Causal and policy evaluation"

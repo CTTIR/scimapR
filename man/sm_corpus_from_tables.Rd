@@ -72,6 +72,7 @@ Other corpus:
 \code{\link[=sm_build_corpus]{sm_build_corpus()}},
 \code{\link[=sm_corpus]{sm_corpus()}},
 \code{\link[=sm_dedupe]{sm_dedupe()}},
+\code{\link[=sm_materialise]{sm_materialise()}},
 \code{\link[=sm_save_corpus]{sm_save_corpus()}},
 \code{\link[=sm_validate]{sm_validate()}},
 \code{\link[=validate_sm_corpus]{validate_sm_corpus()}}

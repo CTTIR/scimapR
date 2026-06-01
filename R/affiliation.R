@@ -77,8 +77,8 @@ sm_affiliation_match <- function(corpus,
 
   if (nrow(a) == 0L) {
     a$institution_match <- character()
-    a$match_method <- character()
-    a$match_signal <- character()
+    a$match_method <- factor(character(), levels = .aff_method_levels())
+    a$match_signal <- factor(character(), levels = .aff_signal_levels())
     a$match_evidence <- character()
     corpus$authorships <- a
     return(corpus)
@@ -162,8 +162,9 @@ sm_affiliation_match <- function(corpus,
   }
 
   a$institution_match <- institution_match
-  a$match_method <- match_method
-  a$match_signal <- match_signal
+  # B1: emit controlled-vocabulary columns as factors with stable levels
+  a$match_method <- factor(match_method, levels = .aff_method_levels())
+  a$match_signal <- factor(match_signal, levels = .aff_signal_levels())
   a$match_evidence <- match_evidence
   corpus$authorships <- a
 
@@ -194,9 +195,12 @@ sm_affiliation_match <- function(corpus,
 #'   and `match_signal`).
 #' @param call Caller environment for error reporting.
 #'
-#' @return A tibble with columns `institution`, `match_signal`, `n_authorships`,
-#'   `n_works`, sorted by `n_authorships` descending. Type-stable: a 0-row
-#'   tibble (with a warning) when no matches are present.
+#' @return A tibble with columns `institution`, `match_signal` (a factor; see
+#'   [sm_affiliation_signals()]), `n_authorships`, `n_works`, and
+#'   `example_evidence` (a representative matched-evidence string for that
+#'   institution x signal --- the audit trail), sorted by `n_authorships`
+#'   descending. Type-stable: a 0-row tibble (with a warning) when no matches
+#'   are present.
 #'
 #' @family affiliation
 #' @seealso [sm_affiliation_match()]
@@ -210,8 +214,10 @@ sm_affiliation_summary <- function(corpus, call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   a <- corpus$authorships
   empty <- tibble::tibble(
-    institution = character(), match_signal = character(),
-    n_authorships = integer(), n_works = integer()
+    institution = character(),
+    match_signal = factor(character(), levels = .aff_signal_levels()),
+    n_authorships = integer(), n_works = integer(),
+    example_evidence = character()
   )
   if (!"institution_match" %in% names(a)) {
     cli::cli_warn(c(
@@ -225,14 +231,18 @@ sm_affiliation_summary <- function(corpus, call = rlang::caller_env()) {
 
   sig <- if ("match_signal" %in% names(flagged)) flagged$match_signal else
     rep(NA_character_, nrow(flagged))
+  ev <- if ("match_evidence" %in% names(flagged)) flagged$match_evidence else
+    rep(NA_character_, nrow(flagged))
 
   flagged %>%
-    dplyr::mutate(.sig = sig) %>%
+    dplyr::mutate(.sig = sig, .ev = ev) %>%
     dplyr::group_by(institution = .data$institution_match,
                     match_signal = .data$.sig) %>%
     dplyr::summarise(
       n_authorships = dplyr::n(),
       n_works = dplyr::n_distinct(.data$work_id),
+      # F2: a representative evidence string for this institution x signal
+      example_evidence = .data$.ev[!is.na(.data$.ev)][1],
       .groups = "drop"
     ) %>%
     dplyr::arrange(dplyr::desc(.data$n_authorships))
