@@ -81,11 +81,13 @@ reference:
   - title: "Coverage and reconciliation"
     contents:
       - sm_coverage_audit
+      - sm_coverage_breakdowns
       - sm_journal_in_index
       - sm_reconcile
   - title: "Affiliation and attribution"
     contents:
       - sm_affiliation_match
+      - sm_affiliation_summary
       - sm_attribute_institution
       - sm_affiliation_dict
   - title: "Causal and policy evaluation"

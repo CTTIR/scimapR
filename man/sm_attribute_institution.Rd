@@ -54,6 +54,7 @@ corpus$authorships$institution_name[1]
 \code{\link[=sm_affiliation_match]{sm_affiliation_match()}}
 
 Other affiliation:
-\code{\link[=sm_affiliation_match]{sm_affiliation_match()}}
+\code{\link[=sm_affiliation_match]{sm_affiliation_match()}},
+\code{\link[=sm_affiliation_summary]{sm_affiliation_summary()}}
 }
 \concept{affiliation}

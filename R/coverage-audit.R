@@ -24,6 +24,12 @@
 #' @param threshold Minimum Jaro-Winkler title similarity (`[0, 1]`) to accept
 #'   a title match. Default `0.9`. When the optional `stringdist` package is
 #'   not installed, the title fallback degrades to normalised exact matching.
+#' @param index_table Optional journal index master list (same contract as
+#'   [sm_journal_in_index()]; document expected columns there). When supplied,
+#'   the audit additionally reports, per corpus record, whether its journal is
+#'   **indexable** -- so "is this journal in the index" and "is this record
+#'   captured" are assessed together. When `NULL` (default) the result is
+#'   identical to before.
 #' @param call Caller environment for error reporting.
 #'
 #' @return An `sm_coverage` S3 object (a list) with components:
@@ -35,16 +41,24 @@
 #'     \item{n_corpus_only, n_reference_only}{Unmatched counts.}
 #'     \item{matches}{Tibble with one row per corpus record: `corpus_id`,
 #'       `reference_id`, `match_type` (`"doi"`/`"title"`/`"none"`),
-#'       `match_score`.}
+#'       `match_score`. When `index_table` is supplied, also `issn`,
+#'       `indexable` (logical), and `indexed_title`.}
 #'     \item{corpus_only}{Tibble of corpus records absent from the reference.}
 #'     \item{reference_only}{Tibble of reference records absent from the
 #'       corpus.}
-#'     \item{breakdowns}{Named list of per-dimension recall tibbles
-#'       (`slice`, `n_reference`, `n_matched`, `recall`).}
+#'     \item{breakdowns}{A single flat tibble (`dimension`, `level`,
+#'       `n_reference`, `n_matched`, `recall`) across all `by` dimensions. Use
+#'       [sm_coverage_breakdowns()] to access/filter it.}
+#'     \item{breakdowns_nested}{The legacy named list of per-dimension tibbles
+#'       (`slice`, `n_reference`, `n_matched`, `recall`). Retained for one
+#'       release; prefer `breakdowns`.}
+#'     \item{indexability}{When `index_table` is supplied, a summary tibble of
+#'       indexable vs non-indexable record counts; otherwise `NULL`.}
 #'   }
 #'
 #' @family coverage
-#' @seealso [sm_reconcile()], [sm_journal_in_index()]
+#' @seealso [sm_reconcile()], [sm_journal_in_index()],
+#'   [sm_coverage_breakdowns()]
 #' @export
 #' @examplesIf rlang::is_installed("stringdist")
 #' corpus <- sm_example_corpus(n_works = 30, seed = 1)
@@ -57,6 +71,7 @@ sm_coverage_audit <- function(corpus,
                               by = NULL,
                               match = c("doi_then_title", "doi", "title"),
                               threshold = 0.9,
+                              index_table = NULL,
                               call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   match <- rlang::arg_match(match, error_call = call)
@@ -103,11 +118,21 @@ sm_coverage_audit <- function(corpus,
   corpus_only <- dplyr::filter(corpus_frame, .data$id %in% corpus_only_ids)
   reference_only <- dplyr::filter(ref_frame, .data$id %in% reference_only_ids)
 
+  # ---- breakdowns: nested list (legacy) + flat tibble (preferred) ----
   matched_ref_ids <- pairs$b_id
-  breakdowns <- list()
+  breakdowns_nested <- list()
   for (dim in by) {
-    breakdowns[[dim]] <- .coverage_breakdown(reference, ref_frame,
-                                             matched_ref_ids, dim)
+    breakdowns_nested[[dim]] <- .coverage_breakdown(reference, ref_frame,
+                                                    matched_ref_ids, dim)
+  }
+  breakdowns <- .flatten_breakdowns(breakdowns_nested)
+
+  # ---- C1: journal indexability (only when an index table is supplied) ----
+  indexability <- NULL
+  if (!is.null(index_table)) {
+    idx <- .coverage_indexability(corpus, index_table, call = call)
+    matches <- dplyr::left_join(matches, idx$by_record, by = "corpus_id")
+    indexability <- idx$summary
   }
 
   structure(
@@ -125,10 +150,103 @@ sm_coverage_audit <- function(corpus,
       matches = matches,
       corpus_only = corpus_only,
       reference_only = reference_only,
-      breakdowns = breakdowns
+      breakdowns = breakdowns,
+      breakdowns_nested = breakdowns_nested,
+      indexability = indexability
     ),
     class = "sm_coverage"
   )
+}
+
+#' Flatten the per-dimension breakdown list into one tibble
+#' @noRd
+.flatten_breakdowns <- function(nested) {
+  empty <- tibble::tibble(
+    dimension = character(), level = character(),
+    n_reference = integer(), n_matched = integer(), recall = double()
+  )
+  if (length(nested) == 0L) return(empty)
+  flat <- lapply(names(nested), function(d) {
+    bd <- nested[[d]]
+    if (nrow(bd) == 0L) return(NULL)
+    tibble::tibble(
+      dimension = d,
+      level = as.character(bd$slice),
+      n_reference = bd$n_reference,
+      n_matched = bd$n_matched,
+      recall = bd$recall
+    )
+  })
+  flat <- flat[!vapply(flat, is.null, logical(1))]
+  if (length(flat) == 0L) return(empty)
+  dplyr::bind_rows(flat)
+}
+
+#' Assess journal indexability of corpus records against an index table (C1)
+#'
+#' Reuses [sm_journal_in_index()] so ISSN normalisation is not duplicated.
+#' @noRd
+.coverage_indexability <- function(corpus, index_table,
+                                   call = rlang::caller_env()) {
+  works <- corpus$works
+  sources <- corpus$sources
+
+  # resolve each work's source ISSN
+  issn_by_source <- if (nrow(sources) > 0L && "issn_l" %in% names(sources)) {
+    stats::setNames(as.character(sources$issn_l), sources$source_id)
+  } else {
+    character()
+  }
+  src_id <- if ("source_id" %in% names(works)) as.character(works$source_id) else rep(NA_character_, nrow(works))
+  work_issn <- unname(issn_by_source[src_id])
+
+  checked <- sm_journal_in_index(work_issn, reference_list = index_table,
+                                 call = call)
+
+  by_record <- tibble::tibble(
+    corpus_id = as.character(works$work_id),
+    issn = checked$issn,
+    indexable = checked$in_index,
+    indexed_title = checked$matched_title
+  )
+
+  summary <- by_record %>%
+    dplyr::group_by(.data$indexable) %>%
+    dplyr::summarise(n_records = dplyr::n(), .groups = "drop")
+
+  list(by_record = by_record, summary = summary)
+}
+
+#' Coverage breakdowns as a flat tibble
+#'
+#' @description
+#' Accessor returning the per-dimension coverage breakdowns of an
+#' [sm_coverage_audit()] result as a single flat tibble (`dimension`, `level`,
+#' `n_reference`, `n_matched`, `recall`), optionally filtered to one dimension.
+#'
+#' @param x An `sm_coverage` object.
+#' @param dimension Optional dimension name (e.g. `"year"`) to filter to.
+#'
+#' @return A tibble. Type-stable: returns a 0-row tibble with the documented
+#'   columns when there are no breakdowns.
+#'
+#' @family coverage
+#' @seealso [sm_coverage_audit()]
+#' @export
+#' @examplesIf rlang::is_installed("stringdist")
+#' corpus <- sm_example_corpus(n_works = 30, seed = 1)
+#' ref <- corpus$works[1:25, c("work_id", "doi", "title", "year")]
+#' cov <- sm_coverage_audit(corpus, ref, by = "year")
+#' sm_coverage_breakdowns(cov, dimension = "year")
+sm_coverage_breakdowns <- function(x, dimension = NULL) {
+  if (!inherits(x, "sm_coverage")) {
+    cli::cli_abort("{.arg x} must be an {.cls sm_coverage} object.")
+  }
+  bd <- x$breakdowns
+  if (!is.null(dimension)) {
+    bd <- dplyr::filter(bd, .data$dimension %in% .env$dimension)
+  }
+  bd
 }
 
 #' Per-dimension recall breakdown for a coverage audit
@@ -241,14 +359,20 @@ print.sm_coverage <- function(x, ...) {
   cli::cli_text("")
   cli::cli_text("{.strong Corpus-only:} {x$n_corpus_only}   {.strong Reference-only:} {x$n_reference_only}")
 
-  for (dim in names(x$breakdowns)) {
-    bd <- x$breakdowns[[dim]]
-    if (nrow(bd) == 0L) next
+  if (!is.null(x$indexability) && nrow(x$indexability) > 0L) {
+    n_idx <- sum(x$indexability$n_records[x$indexability$indexable %in% TRUE])
+    cli::cli_text("{.strong Indexable journals:} {n_idx}/{x$n_corpus} corpus records in a journal index")
+  }
+
+  bd <- x$breakdowns
+  for (dim in unique(bd$dimension)) {
+    sub <- dplyr::filter(bd, .data$dimension == dim)
+    if (nrow(sub) == 0L) next
     cli::cli_text("")
     cli::cli_h3("Worst-covered slices by {dim}")
-    worst <- utils::head(dplyr::arrange(bd, .data$recall), 5L)
+    worst <- utils::head(dplyr::arrange(sub, .data$recall), 5L)
     for (i in seq_len(nrow(worst))) {
-      cli::cli_text("  {worst$slice[i]}: recall {worst$recall[i]} ({worst$n_matched[i]}/{worst$n_reference[i]})")
+      cli::cli_text("  {worst$level[i]}: recall {worst$recall[i]} ({worst$n_matched[i]}/{worst$n_reference[i]})")
     }
   }
   invisible(x)
@@ -280,9 +404,8 @@ summary.sm_coverage <- function(object, ...) {
 #' @importFrom ggplot2 autoplot
 #' @export
 autoplot.sm_coverage <- function(object, dim = NULL, ...) {
-  bd_names <- names(object$breakdowns)
-  bd_names <- bd_names[vapply(object$breakdowns,
-                              function(b) nrow(b) > 0L, logical(1))]
+  bd_all <- object$breakdowns
+  bd_names <- unique(bd_all$dimension)
 
   if (length(bd_names) == 0L) {
     df <- tibble::tibble(
@@ -303,9 +426,9 @@ autoplot.sm_coverage <- function(object, dim = NULL, ...) {
   }
 
   dim <- dim %||% bd_names[1]
-  bd <- object$breakdowns[[dim]]
+  bd <- dplyr::filter(bd_all, .data$dimension == dim)
 
-  ggplot2::ggplot(bd, ggplot2::aes(.data$slice, .data$recall,
+  ggplot2::ggplot(bd, ggplot2::aes(.data$level, .data$recall,
                                    fill = .data$recall)) +
     ggplot2::geom_col() +
     ggplot2::ylim(0, 1) +

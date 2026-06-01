@@ -46,8 +46,12 @@ test_that("sm_coverage_audit produces year breakdowns", {
   ref <- corpus$works[, c("work_id", "doi", "title", "year")]
   names(ref)[1] <- "id"
   cov <- sm_coverage_audit(corpus, ref, by = "year", match = "doi")
-  expect_true("year" %in% names(cov$breakdowns))
-  bd <- cov$breakdowns$year
+  # flat tibble (B1); nested form retained for one release
+  expect_s3_class(cov$breakdowns, "tbl_df")
+  expect_named(cov$breakdowns,
+               c("dimension", "level", "n_reference", "n_matched", "recall"))
+  expect_true("year" %in% names(cov$breakdowns_nested))
+  bd <- cov$breakdowns_nested$year
   expect_named(bd, c("slice", "n_reference", "n_matched", "recall"))
   expect_true(all(bd$recall == 1))  # perfect coverage of itself
 })

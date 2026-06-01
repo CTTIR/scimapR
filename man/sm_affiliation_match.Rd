@@ -9,6 +9,7 @@ sm_affiliation_match(
   patterns = sm_affiliation_dict,
   fields = NULL,
   email_domain_fallback = TRUE,
+  postcode_signal = FALSE,
   call = rlang::caller_env()
 )
 }
@@ -33,17 +34,29 @@ a column exists). Values across multiple fields are concatenated per row.}
 has no pattern match but does have an email address (in an \code{email} column),
 match the email's domain against the dictionary's \code{email_domain} entries.}
 
+\item{postcode_signal}{Logical (default \code{FALSE}). When \code{TRUE} and the
+dictionary carries a \code{postcode} column, a postcode match is attempted as a
+last resort (lowest priority, after name tokens and email domains) so
+existing matches do not shift. Off by default.}
+
 \item{call}{Caller environment for error reporting.}
 }
 \value{
 The \code{corpus} with its \code{authorships} table gaining (or having
-updated) two columns:
+updated) four columns:
 \describe{
 \item{institution_match}{Canonical institution name, or \code{NA}.}
-\item{match_method}{\code{"pattern"}, \code{"email_domain"}, or \code{"none"}.}
+\item{match_method}{\code{"pattern"}, \code{"email_domain"}, \code{"postcode"}, or
+\code{"none"}.}
+\item{match_signal}{The signal that fired: \code{"name_token"},
+\code{"email_domain"}, \code{"postcode"}, or \code{"none"}. Precedence (highest
+first): name token, email domain, postcode.}
+\item{match_evidence}{The actual substring / domain / postcode that
+triggered the match (an audit trail), or \code{NA}.}
 }
 Type-stable: a corpus with no authorships is returned unchanged with the
-two columns present and 0 rows.
+four columns present and 0 rows. See \code{\link[=sm_affiliation_summary]{sm_affiliation_summary()}} for a tidy
+breakdown.
 }
 \description{
 A tested, extensible institution matcher for the \code{authorships} table. It
@@ -70,6 +83,7 @@ matched$authorships$institution_match[1]
 \code{\link[=sm_attribute_institution]{sm_attribute_institution()}}, \link{sm_affiliation_dict}
 
 Other affiliation:
+\code{\link[=sm_affiliation_summary]{sm_affiliation_summary()}},
 \code{\link[=sm_attribute_institution]{sm_attribute_institution()}}
 }
 \concept{affiliation}

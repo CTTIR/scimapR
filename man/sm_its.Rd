@@ -27,10 +27,20 @@ sm_its(
 
 \item{intervention_year}{Integer year at which the intervention takes effect.}
 
-\item{outcome}{One of \code{"count"} (works per year), \code{"share_q1"} (share of
-Q1-journal works; needs a \code{quartile} column), \code{"cnci"} (mean
-field-normalised citation impact per year), \code{"leadership"} (share of works
-with a corresponding/leadership author).}
+\item{outcome}{One of \code{"count"}, \code{"share_q1"}, \code{"cnci"}, \code{"leadership"}.
+The expected source columns are:
+\describe{
+\item{\code{"count"}}{Works per year (uses \code{works$year}).}
+\item{\code{"share_q1"}}{Share of Q1-journal works; needs a journal-quartile
+column on \code{works} (\code{quartile}, \code{jif_quartile}, or \code{sjr_quartile}).}
+\item{\code{"cnci"}}{Mean field-normalised citation impact per year. Impact is
+resolved from the first populated of \code{works$cnci}, a \code{corpus$metrics}
+table (\code{cnci}/\code{fnci}/\code{value} keyed by \code{work_id}), or \code{works$cited_by_count}
+(from which FNCI is derived via \code{\link[=sm_metric_fnci]{sm_metric_fnci()}}). If none is
+populated, an informative error names the columns inspected.}
+\item{\code{"leadership"}}{Share of works with a corresponding/leadership
+author (uses \code{authorships$is_corresponding}).}
+}}
 
 \item{family}{Optional GLM family (a \code{family} object, generator function, or
 name). Defaults to Poisson for \code{"count"} and Gaussian otherwise; document

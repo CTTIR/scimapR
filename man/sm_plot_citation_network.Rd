@@ -4,7 +4,14 @@
 \alias{sm_plot_citation_network}
 \title{Plot citation network}
 \usage{
-sm_plot_citation_network(corpus, top_n = 50L, dark = FALSE, ...)
+sm_plot_citation_network(
+  corpus,
+  top_n = 50L,
+  dark = FALSE,
+  precompute = FALSE,
+  max_nodes = 200L,
+  ...
+)
 }
 \arguments{
 \item{corpus}{An \code{sm_corpus}.}
@@ -13,14 +20,34 @@ sm_plot_citation_network(corpus, top_n = 50L, dark = FALSE, ...)
 
 \item{dark}{Logical; dark mode?}
 
+\item{precompute}{Logical (default \code{FALSE}). When \code{TRUE}, the graph layout is
+computed eagerly and a plain self-contained \code{ggplot} (materialised
+coordinates) is returned, instead of a lazy \code{ggraph} object. Use this when
+embedding the plot in an RMarkdown/knitr/\code{callr}/workflowr document: the
+heavy layout runs once here rather than in the (often memory-limited)
+render subprocess, where large \code{ggraph} objects can crash the harness.}
+
+\item{max_nodes}{Integer node cap (default \code{200}). Larger graphs are
+downsampled to the highest-degree nodes with a \code{cli} message; raise it to
+keep more nodes (slower to lay out and render).}
+
 \item{...}{Additional arguments.}
 }
 \value{
-A \code{ggplot} object.
+A \code{ggplot} object (a \code{ggraph} plot when \code{precompute = FALSE}, a plain
+\code{ggplot} when \code{precompute = TRUE}).
 }
 \description{
 Visualise the citation network of top-cited works.
 }
+\section{Large graphs}{
+
+For big networks, prefer \code{precompute = TRUE} and save the returned object
+(e.g. with \code{\link[=saveRDS]{saveRDS()}}); printing it in a document then re-renders cheaply
+without recomputing the layout. See the networks section of the getting-
+started vignette.
+}
+
 \examples{
 \dontshow{if (requireNamespace("ggraph", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 corpus <- sm_example_corpus()

@@ -45,11 +45,28 @@ sm_metric_novelty <- function(corpus, call = rlang::caller_env()) {
   works <- corpus$works
   refs <- corpus$references
 
-  if (nrow(works) == 0L || nrow(refs) == 0L) {
+  if (nrow(works) == 0L) {
     return(tibble::tibble(work_id = character(), novelty = double()))
+  }
+  # --- empty / absent reference-network guard (fast-exit, never spin) ---
+  if (nrow(refs) == 0L) {
+    cli::cli_warn(c(
+      "!" = "No reference network available; Uzzi novelty requires linked references.",
+      "i" = "Returning {.code NA} for all works."
+    ))
+    return(tibble::tibble(work_id = works$work_id,
+                          novelty = rep(NA_real_, nrow(works))))
   }
 
   refs <- dplyr::filter(refs, !is.na(.data$cited_work_id))
+  if (nrow(refs) == 0L) {
+    cli::cli_warn(c(
+      "!" = "References are present but none are linked to corpus works.",
+      "i" = "Uzzi novelty needs internal citation links; returning {.code NA}."
+    ))
+    return(tibble::tibble(work_id = works$work_id,
+                          novelty = rep(NA_real_, nrow(works))))
+  }
 
   # Map each cited work to its source (journal)
   if (!"source_id" %in% names(works)) {

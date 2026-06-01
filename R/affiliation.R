@@ -26,16 +26,27 @@
 #' @param email_domain_fallback Logical; if `TRUE` (default) and an authorship
 #'   has no pattern match but does have an email address (in an `email` column),
 #'   match the email's domain against the dictionary's `email_domain` entries.
+#' @param postcode_signal Logical (default `FALSE`). When `TRUE` and the
+#'   dictionary carries a `postcode` column, a postcode match is attempted as a
+#'   last resort (lowest priority, after name tokens and email domains) so
+#'   existing matches do not shift. Off by default.
 #' @param call Caller environment for error reporting.
 #'
 #' @return The `corpus` with its `authorships` table gaining (or having
-#'   updated) two columns:
+#'   updated) four columns:
 #'   \describe{
 #'     \item{institution_match}{Canonical institution name, or `NA`.}
-#'     \item{match_method}{`"pattern"`, `"email_domain"`, or `"none"`.}
+#'     \item{match_method}{`"pattern"`, `"email_domain"`, `"postcode"`, or
+#'       `"none"`.}
+#'     \item{match_signal}{The signal that fired: `"name_token"`,
+#'       `"email_domain"`, `"postcode"`, or `"none"`. Precedence (highest
+#'       first): name token, email domain, postcode.}
+#'     \item{match_evidence}{The actual substring / domain / postcode that
+#'       triggered the match (an audit trail), or `NA`.}
 #'   }
 #'   Type-stable: a corpus with no authorships is returned unchanged with the
-#'   two columns present and 0 rows.
+#'   four columns present and 0 rows. See [sm_affiliation_summary()] for a tidy
+#'   breakdown.
 #'
 #' @details
 #' To extend the dictionary, append rows to [sm_affiliation_dict] (or build your
@@ -55,9 +66,11 @@ sm_affiliation_match <- function(corpus,
                                  patterns = sm_affiliation_dict,
                                  fields = NULL,
                                  email_domain_fallback = TRUE,
+                                 postcode_signal = FALSE,
                                  call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   .check_flag(email_domain_fallback, call = call)
+  .check_flag(postcode_signal, call = call)
 
   dict <- .normalize_aff_patterns(patterns, call = call)
   a <- corpus$authorships
@@ -65,6 +78,8 @@ sm_affiliation_match <- function(corpus,
   if (nrow(a) == 0L) {
     a$institution_match <- character()
     a$match_method <- character()
+    a$match_signal <- character()
+    a$match_evidence <- character()
     corpus$authorships <- a
     return(corpus)
   }
@@ -82,25 +97,31 @@ sm_affiliation_match <- function(corpus,
   }
   aff_text <- trimws(aff_text)
 
-  institution_match <- rep(NA_character_, nrow(a))
-  match_method <- rep("none", nrow(a))
+  n <- nrow(a)
+  institution_match <- rep(NA_character_, n)
+  match_method <- rep("none", n)
+  match_signal <- rep("none", n)
+  match_evidence <- rep(NA_character_, n)
 
-  # ---- pattern matching ----
+  # ---- 1. name-token (pattern) matching, capturing the matched substring ----
   has_text <- nzchar(aff_text)
   pat_rows <- which(!is.na(dict$pattern) & nzchar(dict$pattern))
   for (pr in pat_rows) {
     todo <- which(has_text & is.na(institution_match))
     if (length(todo) == 0L) break
-    hit <- grepl(dict$pattern[pr], aff_text[todo], ignore.case = TRUE,
+    m <- regexpr(dict$pattern[pr], aff_text[todo], ignore.case = TRUE,
                  perl = TRUE)
+    hit <- m != -1L
     if (any(hit)) {
       idx <- todo[hit]
       institution_match[idx] <- dict$institution[pr]
       match_method[idx] <- "pattern"
+      match_signal[idx] <- "name_token"
+      match_evidence[idx] <- regmatches(aff_text[todo], m)
     }
   }
 
-  # ---- email-domain fallback ----
+  # ---- 2. email-domain fallback ----
   if (email_domain_fallback && "email" %in% names(a)) {
     dom_rows <- which(!is.na(dict$email_domain) & nzchar(dict$email_domain))
     if (length(dom_rows) > 0L) {
@@ -114,15 +135,107 @@ sm_affiliation_match <- function(corpus,
         if (length(hit) > 0L) {
           institution_match[i] <- dict$institution[dom_rows[hit[1]]]
           match_method[i] <- "email_domain"
+          match_signal[i] <- "email_domain"
+          match_evidence[i] <- dict$email_domain[dom_rows[hit[1]]]
         }
+      }
+    }
+  }
+
+  # ---- 3. postcode signal (opt-in, lowest priority) ----
+  if (postcode_signal && "postcode" %in% names(dict)) {
+    pc_rows <- which(!is.na(dict$postcode) & nzchar(dict$postcode))
+    for (pr in pc_rows) {
+      todo <- which(has_text & is.na(institution_match))
+      if (length(todo) == 0L) break
+      pat <- paste0("\\b", gsub("\\s+", "\\\\s*", dict$postcode[pr]), "\\b")
+      m <- regexpr(pat, aff_text[todo], perl = TRUE)
+      hit <- m != -1L
+      if (any(hit)) {
+        idx <- todo[hit]
+        institution_match[idx] <- dict$institution[pr]
+        match_method[idx] <- "postcode"
+        match_signal[idx] <- "postcode"
+        match_evidence[idx] <- regmatches(aff_text[todo], m)
       }
     }
   }
 
   a$institution_match <- institution_match
   a$match_method <- match_method
+  a$match_signal <- match_signal
+  a$match_evidence <- match_evidence
   corpus$authorships <- a
+
+  # ---- surface a concise match summary ----
+  n_flagged <- sum(!is.na(institution_match))
+  if (n_flagged > 0L) {
+    by_sig <- table(match_signal[match_signal != "none"])
+    sig_txt <- paste(sprintf("%s: %d", names(by_sig), as.integer(by_sig)),
+                     collapse = ", ")
+    cli::cli_inform(c(
+      "v" = "Affiliation matching flagged {n_flagged} authorship{?s} across {dplyr::n_distinct(institution_match[!is.na(institution_match)])} institution{?s}.",
+      "i" = "By signal: {sig_txt}. See {.fn sm_affiliation_summary} for the full breakdown."
+    ))
+  }
+
   corpus
+}
+
+#' Summarise affiliation matches
+#'
+#' @description
+#' Tidy summary of the matches produced by [sm_affiliation_match()], mirroring
+#' the audit-style summaries elsewhere in the package: counts of works and
+#' authorships flagged, broken down by institution and by `match_signal`.
+#'
+#' @param corpus An `sm_corpus` previously passed through
+#'   [sm_affiliation_match()] (so its `authorships` carry `institution_match`
+#'   and `match_signal`).
+#' @param call Caller environment for error reporting.
+#'
+#' @return A tibble with columns `institution`, `match_signal`, `n_authorships`,
+#'   `n_works`, sorted by `n_authorships` descending. Type-stable: a 0-row
+#'   tibble (with a warning) when no matches are present.
+#'
+#' @family affiliation
+#' @seealso [sm_affiliation_match()]
+#' @export
+#' @examples
+#' corpus <- sm_example_corpus(n_works = 5, n_authors = 5)
+#' corpus$authorships$raw_affiliation[1] <- "Bundeswehrkrankenhaus Berlin"
+#' corpus <- sm_affiliation_match(corpus)
+#' sm_affiliation_summary(corpus)
+sm_affiliation_summary <- function(corpus, call = rlang::caller_env()) {
+  .check_sm_corpus(corpus, call = call)
+  a <- corpus$authorships
+  empty <- tibble::tibble(
+    institution = character(), match_signal = character(),
+    n_authorships = integer(), n_works = integer()
+  )
+  if (!"institution_match" %in% names(a)) {
+    cli::cli_warn(c(
+      "!" = "No affiliation matches found on this corpus.",
+      "i" = "Run {.fn sm_affiliation_match} first."
+    ))
+    return(empty)
+  }
+  flagged <- dplyr::filter(a, !is.na(.data$institution_match))
+  if (nrow(flagged) == 0L) return(empty)
+
+  sig <- if ("match_signal" %in% names(flagged)) flagged$match_signal else
+    rep(NA_character_, nrow(flagged))
+
+  flagged %>%
+    dplyr::mutate(.sig = sig) %>%
+    dplyr::group_by(institution = .data$institution_match,
+                    match_signal = .data$.sig) %>%
+    dplyr::summarise(
+      n_authorships = dplyr::n(),
+      n_works = dplyr::n_distinct(.data$work_id),
+      .groups = "drop"
+    ) %>%
+    dplyr::arrange(dplyr::desc(.data$n_authorships))
 }
 
 #' Normalise an affiliation pattern dictionary to a standard tibble
@@ -143,6 +256,11 @@ sm_affiliation_match <- function(corpus,
         as.character(patterns$email_domain)
       } else {
         NA_character_
+      },
+      postcode = if ("postcode" %in% names(patterns)) {
+        as.character(patterns$postcode)
+      } else {
+        NA_character_
       }
     ))
   }
@@ -153,7 +271,8 @@ sm_affiliation_match <- function(corpus,
     return(tibble::tibble(
       institution = inst,
       pattern = as.character(pat),
-      email_domain = NA_character_
+      email_domain = NA_character_,
+      postcode = NA_character_
     ))
   }
 

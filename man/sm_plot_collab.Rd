@@ -9,6 +9,8 @@ sm_plot_collab(
   level = c("country", "institution", "author"),
   top_n = 20L,
   dark = FALSE,
+  precompute = FALSE,
+  max_nodes = 200L,
   ...
 )
 }
@@ -21,10 +23,18 @@ sm_plot_collab(
 
 \item{dark}{Logical; dark mode?}
 
+\item{precompute}{Logical (default \code{FALSE}). When \code{TRUE}, return a plain
+\code{ggplot} with the layout computed eagerly (see \code{\link[=sm_plot_citation_network]{sm_plot_citation_network()}}
+for why this matters when knitting large graphs).}
+
+\item{max_nodes}{Integer node cap (default \code{200}); larger graphs are
+downsampled to the highest-degree nodes with a \code{cli} message.}
+
 \item{...}{Additional arguments.}
 }
 \value{
-A \code{ggplot} object.
+A \code{ggplot} object (\code{ggraph} when \code{precompute = FALSE}, plain \code{ggplot}
+when \code{precompute = TRUE}).
 }
 \description{
 Visualise international or institutional collaboration patterns.

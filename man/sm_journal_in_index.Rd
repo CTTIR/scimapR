@@ -65,6 +65,7 @@ sm_journal_in_index(c("1078-8956", "1546-170X", "9999-9999"),
 
 Other coverage:
 \code{\link[=sm_coverage_audit]{sm_coverage_audit()}},
+\code{\link[=sm_coverage_breakdowns]{sm_coverage_breakdowns()}},
 \code{\link[=sm_reconcile]{sm_reconcile()}}
 }
 \concept{coverage}

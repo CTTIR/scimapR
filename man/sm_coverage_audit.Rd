@@ -13,6 +13,7 @@ sm_coverage_audit(
   by = NULL,
   match = c("doi_then_title", "doi", "title"),
   threshold = 0.9,
+  index_table = NULL,
   call = rlang::caller_env()
 )
 
@@ -41,6 +42,13 @@ each supplied dimension.}
 a title match. Default \code{0.9}. When the optional \code{stringdist} package is
 not installed, the title fallback degrades to normalised exact matching.}
 
+\item{index_table}{Optional journal index master list (same contract as
+\code{\link[=sm_journal_in_index]{sm_journal_in_index()}}; document expected columns there). When supplied,
+the audit additionally reports, per corpus record, whether its journal is
+\strong{indexable} -- so "is this journal in the index" and "is this record
+captured" are assessed together. When \code{NULL} (default) the result is
+identical to before.}
+
 \item{call}{Caller environment for error reporting.}
 
 \item{x}{An \code{sm_coverage} object.}
@@ -63,12 +71,19 @@ An \code{sm_coverage} S3 object (a list) with components:
 \item{n_corpus_only, n_reference_only}{Unmatched counts.}
 \item{matches}{Tibble with one row per corpus record: \code{corpus_id},
 \code{reference_id}, \code{match_type} (\code{"doi"}/\code{"title"}/\code{"none"}),
-\code{match_score}.}
+\code{match_score}. When \code{index_table} is supplied, also \code{issn},
+\code{indexable} (logical), and \code{indexed_title}.}
 \item{corpus_only}{Tibble of corpus records absent from the reference.}
 \item{reference_only}{Tibble of reference records absent from the
 corpus.}
-\item{breakdowns}{Named list of per-dimension recall tibbles
-(\code{slice}, \code{n_reference}, \code{n_matched}, \code{recall}).}
+\item{breakdowns}{A single flat tibble (\code{dimension}, \code{level},
+\code{n_reference}, \code{n_matched}, \code{recall}) across all \code{by} dimensions. Use
+\code{\link[=sm_coverage_breakdowns]{sm_coverage_breakdowns()}} to access/filter it.}
+\item{breakdowns_nested}{The legacy named list of per-dimension tibbles
+(\code{slice}, \code{n_reference}, \code{n_matched}, \code{recall}). Retained for one
+release; prefer \code{breakdowns}.}
+\item{indexability}{When \code{index_table} is supplied, a summary tibble of
+indexable vs non-indexable record counts; otherwise \code{NULL}.}
 }
 
 \code{print} returns \code{x} invisibly.
@@ -98,9 +113,11 @@ cov
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link[=sm_reconcile]{sm_reconcile()}}, \code{\link[=sm_journal_in_index]{sm_journal_in_index()}}
+\code{\link[=sm_reconcile]{sm_reconcile()}}, \code{\link[=sm_journal_in_index]{sm_journal_in_index()}},
+\code{\link[=sm_coverage_breakdowns]{sm_coverage_breakdowns()}}
 
 Other coverage:
+\code{\link[=sm_coverage_breakdowns]{sm_coverage_breakdowns()}},
 \code{\link[=sm_journal_in_index]{sm_journal_in_index()}},
 \code{\link[=sm_reconcile]{sm_reconcile()}}
 }

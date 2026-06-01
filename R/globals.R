@@ -95,5 +95,10 @@ utils::globalVariables(c(
   "caption", "alt_text", "width", "height", "dpi",
 
   # bundled data objects referenced as default arguments
-  "sm_affiliation_dict"
+  "sm_affiliation_dict",
+
+  # v0.3.0 additions (coverage breakdowns, affiliation evidence, networks)
+  "dimension", "level", "indexable", "indexed_title",
+  "match_signal", "match_evidence", "n_works", "n_records",
+  ".sig", ".sm_deg", "xend", "yend"
 ))

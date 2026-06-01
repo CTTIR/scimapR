@@ -634,7 +634,14 @@ function(input, output, session) {
     keep <- sort(sample.int(n, max(1L, floor(n * (1 - input$coverage_holdout)))))
     ref <- w[keep, c("work_id", "doi", "title", "year")]
     names(ref)[1] <- "id"
-    scimapR::sm_coverage_audit(cc, ref, by = "year", match = "doi")
+    # demo journal index ships with the package; assesses indexability too (C1)
+    idx <- tryCatch(
+      utils::read.csv(system.file("extdata", "example_journal_index.csv",
+                                  package = "scimapR"), stringsAsFactors = FALSE),
+      error = function(e) NULL
+    )
+    scimapR::sm_coverage_audit(cc, ref, by = "year", match = "doi",
+                               index_table = idx)
   })
 
   output$coverage_headline <- shiny::renderText({
@@ -649,28 +656,43 @@ function(input, output, session) {
     ggplot2::autoplot(cov)
   })
 
+  # B1: flat breakdowns table
+  output$coverage_breakdowns <- DT::renderDT({
+    cov <- coverage_result()
+    shiny::req(cov)
+    DT::datatable(cov$breakdowns, rownames = FALSE,
+                  options = list(pageLength = 10))
+  })
+
+  # C1: indexability summary
+  output$coverage_indexability <- DT::renderDT({
+    cov <- coverage_result()
+    shiny::req(cov, cov$indexability)
+    DT::datatable(cov$indexability, rownames = FALSE,
+                  options = list(dom = "t"))
+  })
+
   # ============================================================================
   # 15. AFFILIATIONS
   # ============================================================================
 
-  affil_result <- shiny::eventReactive(input$affil_go, {
-    matched <- scimapR::sm_affiliation_match(corpus())
-    a <- matched$authorships
-    a <- a[!is.na(a$institution_match), , drop = FALSE]
-    if (nrow(a) == 0) {
-      return(data.frame(institution = character(),
-                        method = character(), n = integer()))
-    }
-    agg <- as.data.frame(table(institution = a$institution_match,
-                               method = a$match_method))
-    agg <- agg[agg$Freq > 0, ]
-    names(agg)[3] <- "n"
-    agg[order(-agg$n), ]
+  affil_matched <- shiny::eventReactive(input$affil_go, {
+    suppressMessages(scimapR::sm_affiliation_match(corpus()))
   })
 
+  # B2: tidy summary by institution + match signal
   output$affil_table <- DT::renderDT({
-    DT::datatable(affil_result(), rownames = FALSE,
-                  options = list(pageLength = 10))
+    DT::datatable(scimapR::sm_affiliation_summary(affil_matched()),
+                  rownames = FALSE, options = list(pageLength = 10))
+  })
+
+  # B2/C2: per-authorship matched evidence (audit trail)
+  output$affil_evidence <- DT::renderDT({
+    a <- affil_matched()$authorships
+    a <- a[!is.na(a$institution_match),
+           intersect(c("work_id", "institution_match", "match_signal",
+                       "match_evidence"), names(a)), drop = FALSE]
+    DT::datatable(a, rownames = FALSE, options = list(pageLength = 10))
   })
 
   # ============================================================================

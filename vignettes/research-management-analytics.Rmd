@@ -69,6 +69,13 @@ summary(cov)
 ggplot2::autoplot(cov)
 ```
 
+Breakdowns are returned as a single flat tibble; use `sm_coverage_breakdowns()`
+to access or filter them:
+
+```{r coverage-breakdowns}
+sm_coverage_breakdowns(cov, dimension = "year")
+```
+
 Source coverage can be checked against a journal master list by ISSN
 (`sm_journal_in_index()`), and two corpora reconciled by content with
 `sm_reconcile()`.
@@ -80,6 +87,16 @@ ref_index <- utils::read.csv(
 )
 sm_journal_in_index(c("1078-8956", "9999-9999"), index = "doaj",
                     reference_list = ref_index)
+```
+
+Passing the same index to `sm_coverage_audit(index_table = )` assesses *record
+capture* and *journal indexability* together -- "did we capture this paper" and
+"is its journal indexed" in one pass:
+
+```{r coverage-indexability}
+cov_idx <- sm_coverage_audit(corpus, reference, match = "doi",
+                             index_table = ref_index)
+cov_idx$indexability
 ```
 
 ## 2. Affiliation capture and attribution

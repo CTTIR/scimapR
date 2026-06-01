@@ -425,19 +425,25 @@ bslib::page_navbar(
           class = "btn-primary w-100"
         )
       ),
+      bslib::value_box(
+        title = "Recall / Precision / F1",
+        value = shiny::textOutput("coverage_headline", inline = TRUE),
+        showcase = fontawesome::fa_i("bullseye"),
+        theme = "primary"
+      ),
       bslib::layout_columns(
-        col_widths = c(12, 12),
-        bslib::value_box(
-          title = "Recall / Precision / F1",
-          value = shiny::textOutput("coverage_headline", inline = TRUE),
-          showcase = fontawesome::fa_i("bullseye"),
-          theme = "primary"
-        ),
+        col_widths = c(7, 5),
         bslib::card(
           bslib::card_header("Coverage (recall) by year"),
           bslib::card_body(
             shiny::plotOutput("coverage_plot", height = "420px")
           )
+        ),
+        bslib::navset_card_tab(
+          bslib::nav_panel("Breakdowns",
+            DT::DTOutput("coverage_breakdowns")),
+          bslib::nav_panel("Indexability",
+            DT::DTOutput("coverage_indexability"))
         )
       )
     )
@@ -452,13 +458,16 @@ bslib::page_navbar(
       bslib::card_body(
         shiny::helpText(
           "Match author affiliations to institutions with the default",
-          "dictionary, then review the matches and method breakdown."
+          "dictionary, then review the summary and the matched-evidence trail."
         ),
         shiny::actionButton(
           "affil_go", "Run Affiliation Matching",
           class = "btn-primary mb-3"
         ),
-        DT::DTOutput("affil_table")
+        bslib::navset_card_tab(
+          bslib::nav_panel("Summary", DT::DTOutput("affil_table")),
+          bslib::nav_panel("Matched evidence", DT::DTOutput("affil_evidence"))
+        )
       )
     )
   ),
