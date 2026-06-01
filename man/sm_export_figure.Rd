@@ -51,14 +51,14 @@ path <- tempfile(fileext = ".png")
 sm_export_figure(p, path, multi_dpi = FALSE)
 }
 \seealso{
-Other export: 
-\code{\link{sm_export_csv}()},
-\code{\link{sm_export_cytoscape}()},
-\code{\link{sm_export_gephi}()},
-\code{\link{sm_export_quarto_report}()},
-\code{\link{sm_export_rds}()},
-\code{\link{sm_export_table}()},
-\code{\link{sm_export_vosviewer}()},
-\code{\link{sm_export_zip}()}
+Other export:
+\code{\link[=sm_export_csv]{sm_export_csv()}},
+\code{\link[=sm_export_cytoscape]{sm_export_cytoscape()}},
+\code{\link[=sm_export_gephi]{sm_export_gephi()}},
+\code{\link[=sm_export_quarto_report]{sm_export_quarto_report()}},
+\code{\link[=sm_export_rds]{sm_export_rds()}},
+\code{\link[=sm_export_table]{sm_export_table()}},
+\code{\link[=sm_export_vosviewer]{sm_export_vosviewer()}},
+\code{\link[=sm_export_zip]{sm_export_zip()}}
 }
 \concept{export}

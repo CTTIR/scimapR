@@ -29,10 +29,10 @@ prisma <- sm_screen_prisma(corpus)
 prisma$counts
 }
 \seealso{
-Other screening: 
-\code{\link{sm_export_covidence}()},
-\code{\link{sm_export_rayyan}()},
-\code{\link{sm_import_rayyan}()},
-\code{\link{sm_merge_screening_decisions}()}
+Other screening:
+\code{\link[=sm_export_covidence]{sm_export_covidence()}},
+\code{\link[=sm_export_rayyan]{sm_export_rayyan()}},
+\code{\link[=sm_import_rayyan]{sm_import_rayyan()}},
+\code{\link[=sm_merge_screening_decisions]{sm_merge_screening_decisions()}}
 }
 \concept{screening}

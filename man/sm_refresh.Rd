@@ -52,8 +52,8 @@ corpus <- sm_example_corpus()
 # refreshed <- sm_refresh(corpus, max_age_days = 7)
 }
 \seealso{
-Other refresh: 
-\code{\link{sm_lock}()},
-\code{\link{sm_staleness}()}
+Other refresh:
+\code{\link[=sm_lock]{sm_lock()}},
+\code{\link[=sm_staleness]{sm_staleness()}}
 }
 \concept{refresh}

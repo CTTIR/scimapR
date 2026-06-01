@@ -28,12 +28,12 @@ sm_plot_topic_pivots(traj)
 
 }
 \seealso{
-Other trajectory: 
-\code{\link{is_sm_trajectory}()},
-\code{\link{sm_author_trajectory}()},
-\code{\link{sm_plot_collab_turnover}()},
-\code{\link{sm_plot_trajectory}()},
-\code{\link{sm_researcher_profile}()},
+Other trajectory:
+\code{\link[=is_sm_trajectory]{is_sm_trajectory()}},
+\code{\link[=sm_author_trajectory]{sm_author_trajectory()}},
+\code{\link[=sm_plot_collab_turnover]{sm_plot_collab_turnover()}},
+\code{\link[=sm_plot_trajectory]{sm_plot_trajectory()}},
+\code{\link[=sm_researcher_profile]{sm_researcher_profile()}},
 \code{\link{sm_trajectory}}
 }
 \concept{trajectory}

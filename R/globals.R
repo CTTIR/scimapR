@@ -73,5 +73,27 @@ utils::globalVariables(c(
 
   # general
   ".", "V1", "V2", "desc", "term", "freq", "tf_idf",
-  "total", "proportion"
+  "total", "proportion",
+
+  # coverage / reconciliation (Part A)
+  "id", "slice", "matched", "n_reference", "n_matched", "recall",
+  "a_id", "b_id", "match_type", "match_score", "corpus_id", "reference_id",
+  "cc", "set", "in_index", "matched_title", "matched_issn_type",
+
+  # affiliation / attribution (Part B)
+  "institution_match", "match_method", "institution_name", "raw_aff",
+  "n_authorships", "pattern_name",
+
+  # causal / counting / maturity (Parts C, D)
+  "outcome", "intervention", "time", "time_since", "fitted", "counterfactual",
+  "estimate", "conf.low", "conf.high", "std.error", "statistic", "p.value",
+  "credit", "entity_id", "entity_name", "n_credit", "citation_mature",
+  "cnci_provisional", "is_mature", "group_label", "treated", "period_label",
+
+  # robust summary / reporting (Parts E, F)
+  "boot_lower", "boot_upper", "pp_top10", "metric_value", "file",
+  "caption", "alt_text", "width", "height", "dpi",
+
+  # bundled data objects referenced as default arguments
+  "sm_affiliation_dict"
 ))

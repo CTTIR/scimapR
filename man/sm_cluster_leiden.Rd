@@ -14,7 +14,7 @@ sm_cluster_leiden(
 \arguments{
 \item{corpus}{An \link{sm_corpus} object.}
 
-\item{network}{A \link[tidygraph:tbl_graph]{tidygraph::tbl_graph} or \link[igraph:aaa-igraph-package]{igraph::igraph} object, or
+\item{network}{A \link[tidygraph:tbl_graph]{tidygraph::tbl_graph} or \link[igraph:igraph]{igraph::igraph} object, or
 \code{NULL}. If \code{NULL} (default), a semantic similarity network is built
 via \code{\link[=sm_network_semantic]{sm_network_semantic()}}.}
 
@@ -50,10 +50,10 @@ table(corpus$works$cluster_id)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other clustering: 
-\code{\link{sm_cluster_evolution}()},
-\code{\link{sm_cluster_hdbscan}()},
-\code{\link{sm_cluster_kmeans}()},
-\code{\link{sm_cluster_label}()}
+Other clustering:
+\code{\link[=sm_cluster_evolution]{sm_cluster_evolution()}},
+\code{\link[=sm_cluster_hdbscan]{sm_cluster_hdbscan()}},
+\code{\link[=sm_cluster_kmeans]{sm_cluster_kmeans()}},
+\code{\link[=sm_cluster_label]{sm_cluster_label()}}
 }
 \concept{clustering}

@@ -22,8 +22,8 @@ corpus <- sm_example_corpus()
 sm_field_pubmed_mesh(corpus)
 }
 \seealso{
-Other field-helpers: 
-\code{\link{sm_field_clinical_trials}()},
-\code{\link{sm_field_funder}()}
+Other field-helpers:
+\code{\link[=sm_field_clinical_trials]{sm_field_clinical_trials()}},
+\code{\link[=sm_field_funder]{sm_field_funder()}}
 }
 \concept{field-helpers}

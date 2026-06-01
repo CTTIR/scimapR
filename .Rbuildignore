@@ -18,3 +18,4 @@
 ^check_.*\.txt$
 ^scimapR_icon\.svg$
 ^check_results$
+^\.remember$

@@ -18,10 +18,10 @@ sm_export_rayyan(corpus, path)
 Write corpus works in RIS format for import into Rayyan.
 }
 \seealso{
-Other screening: 
-\code{\link{sm_export_covidence}()},
-\code{\link{sm_import_rayyan}()},
-\code{\link{sm_merge_screening_decisions}()},
-\code{\link{sm_screen_prisma}()}
+Other screening:
+\code{\link[=sm_export_covidence]{sm_export_covidence()}},
+\code{\link[=sm_import_rayyan]{sm_import_rayyan()}},
+\code{\link[=sm_merge_screening_decisions]{sm_merge_screening_decisions()}},
+\code{\link[=sm_screen_prisma]{sm_screen_prisma()}}
 }
 \concept{screening}

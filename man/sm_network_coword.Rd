@@ -58,11 +58,11 @@ g <- sm_network_coword(corpus, field = "concepts", min_freq = 5L)
 g
 }
 \seealso{
-Other networks: 
-\code{\link{sm_network_citation}()},
-\code{\link{sm_network_cocitation}()},
-\code{\link{sm_network_collab}()},
-\code{\link{sm_network_coupling}()},
-\code{\link{sm_network_semantic}()}
+Other networks:
+\code{\link[=sm_network_citation]{sm_network_citation()}},
+\code{\link[=sm_network_cocitation]{sm_network_cocitation()}},
+\code{\link[=sm_network_collab]{sm_network_collab()}},
+\code{\link[=sm_network_coupling]{sm_network_coupling()}},
+\code{\link[=sm_network_semantic]{sm_network_semantic()}}
 }
 \concept{networks}

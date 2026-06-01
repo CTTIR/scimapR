@@ -21,6 +21,12 @@
 #' @param engine One of `"native"` (built-in httr2 client), `"openalexR"`
 #'   (use the openalexR package), or `"auto"` (use openalexR if available,
 #'   otherwise native).
+#' @param batch_size Integer; maximum number of `|`-joined values allowed in a
+#'   single OpenAlex filter clause before the request is automatically split
+#'   into multiple batched requests. OpenAlex limits the number of values in an
+#'   `OR` filter and the overall URL length, so long DOI (or other ID) lists
+#'   are chunked, fetched per batch, and row-bound with de-duplication. Default
+#'   `50`, which stays comfortably under the API's documented limit of 100.
 #' @param verbose Print progress messages?
 #' @param call Caller environment for error reporting.
 #'
@@ -40,11 +46,13 @@ sm_fetch_openalex <- function(query = NULL,
                               mailto = Sys.getenv("SCIMAPR_MAILTO"),
                               api_key = Sys.getenv("OPENALEX_API_KEY"),
                               engine = c("native", "openalexR", "auto"),
+                              batch_size = 50L,
                               verbose = TRUE,
                               call = rlang::caller_env()) {
   engine <- rlang::arg_match(engine, error_call = call)
   n_max <- .check_positive_int(n_max, call = call)
   per_page <- .check_positive_int(per_page, call = call)
+  batch_size <- .check_positive_int(batch_size, call = call)
 
 
   if (is.null(query) && is.null(filter)) {
@@ -61,7 +69,8 @@ sm_fetch_openalex <- function(query = NULL,
   if (engine == "openalexR") {
     return(.fetch_openalex_openalexR(
       query = query, filter = filter, n_max = n_max,
-      mailto = mailto, verbose = verbose, call = call
+      mailto = mailto, batch_size = batch_size,
+      verbose = verbose, call = call
     ))
   }
 
@@ -186,7 +195,10 @@ sm_fetch_openalex <- function(query = NULL,
     work_id = work_ids,
     doi = .normalize_doi(purrr::map_chr(results, "doi", .default = NA_character_)),
     title = purrr::map_chr(results, "title", .default = NA_character_),
-    abstract = purrr::map_chr(results, .openalex_abstract, .default = NA_character_),
+    # `.openalex_abstract` always returns a length-1 character (or
+    # `NA_character_`), so no `.default` is needed -- and passing `.default` to
+    # `map_chr()` with a function `.f` errors in current purrr (part of G1).
+    abstract = purrr::map_chr(results, .openalex_abstract),
     year = as.integer(purrr::map_int(results, "publication_year", .default = NA_integer_)),
     type = purrr::map_chr(results, "type", .default = NA_character_),
     source_id = purrr::map_chr(results, \(w) {
@@ -244,22 +256,50 @@ sm_fetch_openalex <- function(query = NULL,
   )
 }
 
-#' Reconstruct abstract from inverted index
+#' Reconstruct abstract from an OpenAlex inverted index
+#'
+#' @description
+#' OpenAlex stores abstracts as an `abstract_inverted_index`: a named list
+#' mapping each word to the integer position(s) at which it appears. This
+#' helper reconstructs the linear word order into a single character string.
+#'
+#' The reconstruction is fully defensive and type-stable: it always returns a
+#' single character string, and returns `NA_character_` whenever the abstract
+#' is absent (`NULL`), empty, or malformed (e.g. no usable integer positions).
+#' It never errors, so a single bad record cannot abort an entire fetch.
+#'
+#' @param work A single OpenAlex work (a list).
+#' @return A length-one character vector (the abstract or `NA_character_`).
 #' @noRd
 .openalex_abstract <- function(work) {
-  inv <- work[["abstract_inverted_index"]]
-  if (is.null(inv)) return(NA_character_)
-  words <- names(inv)
-  positions <- purrr::map(inv, as.integer)
-  max_pos <- max(unlist(positions), na.rm = TRUE)
-  out <- character(max_pos + 1L)
+  inv <- tryCatch(work[["abstract_inverted_index"]], error = function(e) NULL)
+  if (is.null(inv) || length(inv) == 0L) return(NA_character_)
 
+  words <- names(inv)
+  if (is.null(words)) return(NA_character_)
+
+  # Map each word to its (possibly multiple) integer positions, dropping any
+  # entries that fail to coerce to a finite integer position.
+  positions <- lapply(inv, function(p) {
+    p <- suppressWarnings(as.integer(unlist(p, use.names = FALSE)))
+    p[!is.na(p)]
+  })
+
+  all_pos <- unlist(positions, use.names = FALSE)
+  if (length(all_pos) == 0L) return(NA_character_)
+
+  max_pos <- max(all_pos)
+  if (!is.finite(max_pos) || max_pos < 0L) return(NA_character_)
+
+  out <- character(max_pos + 1L)
   for (i in seq_along(words)) {
-    for (pos in positions[[i]]) {
-      out[pos + 1L] <- words[i]
-    }
+    pos <- positions[[i]]
+    if (length(pos) == 0L) next
+    out[pos + 1L] <- words[i]
   }
-  paste(out[nzchar(out)], collapse = " ")
+
+  result <- paste(out[nzchar(out)], collapse = " ")
+  if (!nzchar(result)) NA_character_ else result
 }
 
 #' @noRd
@@ -401,38 +441,100 @@ sm_fetch_openalex <- function(query = NULL,
   dplyr::bind_rows(rows)
 }
 
+#' Parse an OpenAlex filter string into a named list of value vectors
+#'
+#' @description
+#' Splits a comma-separated `key:value` OpenAlex filter string into a named
+#' list, further splitting any `|`-joined OR values into a character vector.
+#' Returns `NULL` for an empty/`NULL` filter so it can be passed straight to
+#' `openalexR::oa_fetch(filter = ...)`.
+#' @noRd
+.parse_openalex_filter <- function(filter) {
+  if (is.null(filter) || !nzchar(filter)) return(NULL)
+  parts <- strsplit(filter, ",", fixed = TRUE)[[1]]
+  parts <- trimws(parts)
+  parts <- parts[nzchar(parts)]
+  if (length(parts) == 0L) return(NULL)
+
+  out <- list()
+  for (p in parts) {
+    kv <- strsplit(p, ":", fixed = TRUE)[[1]]
+    if (length(kv) < 2L) next
+    key <- trimws(kv[1])
+    val <- trimws(paste(kv[-1], collapse = ":"))
+    vals <- trimws(strsplit(val, "|", fixed = TRUE)[[1]])
+    vals <- vals[nzchar(vals)]
+    out[[key]] <- vals
+  }
+  if (length(out) == 0L) return(NULL)
+  out
+}
+
+#' Split a parsed OpenAlex filter into batches under an OR-value limit
+#'
+#' @description
+#' Given a parsed filter (named list of value vectors), find the clause with
+#' the most OR values; if it exceeds `batch_size`, produce one filter per chunk
+#' of that clause (holding all other clauses constant). Returns a list of
+#' parsed filters. Pure and network-free, so it is directly unit-testable.
+#' @noRd
+.batch_openalex_filter <- function(parsed, batch_size = 50L) {
+  if (is.null(parsed) || length(parsed) == 0L) return(list(NULL))
+  lengths_v <- vapply(parsed, length, integer(1))
+  longest <- names(parsed)[which.max(lengths_v)]
+  n_vals <- lengths_v[[which.max(lengths_v)]]
+
+  if (n_vals <= batch_size) return(list(parsed))
+
+  vals <- parsed[[longest]]
+  idx <- split(seq_along(vals), ceiling(seq_along(vals) / batch_size))
+  lapply(idx, function(ii) {
+    b <- parsed
+    b[[longest]] <- vals[ii]
+    b
+  })
+}
+
 #' @noRd
 .fetch_openalex_openalexR <- function(query, filter, n_max, mailto,
-                                      verbose, call) {
+                                      batch_size = 50L, verbose, call) {
   rlang::check_installed("openalexR",
                          reason = "to use engine = 'openalexR'",
                          call = call)
 
   .sm_verbose("Fetching via openalexR...", verbose)
 
-  if (nzchar(mailto)) {
-    openalexR::oa_fetch
-    opts <- list(mailto = mailto)
+  parsed <- .parse_openalex_filter(filter)
+  batches <- .batch_openalex_filter(parsed, batch_size = batch_size)
+  n_batches <- length(batches)
+  if (n_batches > 1L) {
+    .sm_verbose("Splitting filter into {n_batches} batches of <= {batch_size} values.",
+                verbose)
   }
 
   tryCatch({
-    raw <- openalexR::oa_fetch(
-      entity = "works",
-      search = query,
-      filter = if (!is.null(filter)) {
-        # parse comma-sep key:value into named list
-        parts <- strsplit(filter, ",")[[1]]
-        kv <- strsplit(parts, ":")
-        stats::setNames(
-          purrr::map_chr(kv, 2),
-          purrr::map_chr(kv, 1)
-        )
-      },
-      count_only = FALSE,
-      per_page = 200L,
-      mailto = if (nzchar(mailto)) mailto else NULL,
-      verbose = verbose
-    )
+    raw_list <- lapply(seq_along(batches), function(bi) {
+      b_filter <- batches[[bi]]
+      openalexR::oa_fetch(
+        entity = "works",
+        search = query,
+        filter = b_filter,
+        count_only = FALSE,
+        per_page = 200L,
+        mailto = if (nzchar(mailto)) mailto else NULL,
+        verbose = verbose
+      )
+    })
+
+    raw_list <- raw_list[!vapply(raw_list, is.null, logical(1))]
+    raw_list <- raw_list[vapply(raw_list, function(x) nrow(x) > 0L, logical(1))]
+
+    raw <- if (length(raw_list) == 0L) NULL else dplyr::bind_rows(raw_list)
+
+    # De-duplicate batched results on the OpenAlex work id.
+    if (!is.null(raw) && nrow(raw) > 0L && "id" %in% names(raw)) {
+      raw <- raw[!duplicated(raw[["id"]]), , drop = FALSE]
+    }
 
     if (is.null(raw) || nrow(raw) == 0) {
       .sm_verbose("No results from openalexR.", verbose)

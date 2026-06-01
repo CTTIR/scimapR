@@ -32,10 +32,16 @@ An \code{sm_corpus_diff} S3 object (a list) with components:
 }
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}}
+
 Produces a detailed comparison between two \code{sm_corpus} objects, reporting
 works added, removed, and changed; author differences; reference
 differences; and screening changes. This is useful for auditing how a
 corpus evolved between snapshots or after a refresh.
+
+This function compares strictly by internal \code{work_id}. For content-based
+reconciliation across corpora that do not share identifiers (matching by
+normalised DOI with a fuzzy title fallback), use \code{\link[=sm_reconcile]{sm_reconcile()}}.
 }
 \examples{
 \donttest{
@@ -46,11 +52,13 @@ print(d)
 }
 }
 \seealso{
-Other reproducibility: 
-\code{\link{sm_certificate}()},
-\code{\link{sm_cite_corpus}()},
-\code{\link{sm_hash_corpus}()},
-\code{\link{sm_provenance}()},
-\code{\link{sm_snapshot}()}
+\code{\link[=sm_reconcile]{sm_reconcile()}}
+
+Other reproducibility:
+\code{\link[=sm_certificate]{sm_certificate()}},
+\code{\link[=sm_cite_corpus]{sm_cite_corpus()}},
+\code{\link[=sm_hash_corpus]{sm_hash_corpus()}},
+\code{\link[=sm_provenance]{sm_provenance()}},
+\code{\link[=sm_snapshot]{sm_snapshot()}}
 }
 \concept{reproducibility}

@@ -65,11 +65,11 @@ screened <- sm_screen_regex(
 sm_screen_summary(screened)
 }
 \seealso{
-Other question: 
-\code{\link{is_sm_question}()},
-\code{\link{sm_corpus_for_question}()},
-\code{\link{sm_question}()},
-\code{\link{sm_screen_regex}()},
-\code{\link{sm_screen_summary}()}
+Other question:
+\code{\link[=is_sm_question]{is_sm_question()}},
+\code{\link[=sm_corpus_for_question]{sm_corpus_for_question()}},
+\code{\link[=sm_question]{sm_question()}},
+\code{\link[=sm_screen_regex]{sm_screen_regex()}},
+\code{\link[=sm_screen_summary]{sm_screen_summary()}}
 }
 \concept{question}

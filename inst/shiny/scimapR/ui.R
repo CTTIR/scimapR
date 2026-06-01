@@ -1,5 +1,5 @@
 # ui.R -- scimapR Shiny application UI
-# Returns a bslib page_navbar with 13 tabs.
+# Returns a bslib page_navbar with 16 tabs.
 
 sm_theme <- bslib::bs_theme(
   version    = 5,
@@ -399,6 +399,109 @@ bslib::page_navbar(
           shiny::downloadButton(
             "export_zip", "Download Bundle (.zip)",
             class = "btn-primary w-100"
+          )
+        )
+      )
+    )
+  ),
+
+  # -- 14. Coverage ------------------------------------------------------------
+  bslib::nav_panel(
+    title = "Coverage",
+    icon  = fontawesome::fa_i("clipboard-check"),
+    bslib::layout_sidebar(
+      sidebar = bslib::sidebar(
+        width = 280,
+        shiny::helpText(
+          "Simulate a ground-truth reference by holding out a fraction of",
+          "the corpus, then audit recall and precision against it."
+        ),
+        shiny::sliderInput(
+          "coverage_holdout", "Reference holdout fraction",
+          min = 0.1, max = 0.9, value = 0.25, step = 0.05
+        ),
+        shiny::actionButton(
+          "coverage_go", "Run Coverage Audit",
+          class = "btn-primary w-100"
+        )
+      ),
+      bslib::layout_columns(
+        col_widths = c(12, 12),
+        bslib::value_box(
+          title = "Recall / Precision / F1",
+          value = shiny::textOutput("coverage_headline", inline = TRUE),
+          showcase = fontawesome::fa_i("bullseye"),
+          theme = "primary"
+        ),
+        bslib::card(
+          bslib::card_header("Coverage (recall) by year"),
+          bslib::card_body(
+            shiny::plotOutput("coverage_plot", height = "420px")
+          )
+        )
+      )
+    )
+  ),
+
+  # -- 15. Affiliations --------------------------------------------------------
+  bslib::nav_panel(
+    title = "Affiliations",
+    icon  = fontawesome::fa_i("building-columns"),
+    bslib::card(
+      bslib::card_header("Institution matching review"),
+      bslib::card_body(
+        shiny::helpText(
+          "Match author affiliations to institutions with the default",
+          "dictionary, then review the matches and method breakdown."
+        ),
+        shiny::actionButton(
+          "affil_go", "Run Affiliation Matching",
+          class = "btn-primary mb-3"
+        ),
+        DT::DTOutput("affil_table")
+      )
+    )
+  ),
+
+  # -- 16. Evaluation ----------------------------------------------------------
+  bslib::nav_panel(
+    title = "Evaluation",
+    icon  = fontawesome::fa_i("chart-line"),
+    bslib::layout_sidebar(
+      sidebar = bslib::sidebar(
+        width = 280,
+        shiny::selectInput(
+          "its_outcome", "Outcome",
+          choices = c("Output count" = "count",
+                      "Mean CNCI" = "cnci",
+                      "Leadership share" = "leadership"),
+          selected = "count"
+        ),
+        shiny::numericInput(
+          "its_year", "Intervention year",
+          value = NA, min = 1900, max = 2100, step = 1
+        ),
+        shiny::actionButton(
+          "its_go", "Fit Interrupted Time Series",
+          class = "btn-primary w-100"
+        ),
+        shiny::helpText(
+          "Segmented regression with a level shift and slope change,",
+          "plus the projected counterfactual (dashed)."
+        )
+      ),
+      bslib::layout_columns(
+        col_widths = c(8, 4),
+        bslib::card(
+          bslib::card_header("Interrupted time series"),
+          bslib::card_body(
+            shiny::plotOutput("its_plot", height = "480px")
+          )
+        ),
+        bslib::card(
+          bslib::card_header("Segmented coefficients"),
+          bslib::card_body(
+            DT::DTOutput("its_coefs")
           )
         )
       )

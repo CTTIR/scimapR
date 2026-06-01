@@ -26,7 +26,7 @@ corpus <- sm_example_corpus()
 results <- sm_query(corpus, "transcriptomics")
 }
 \seealso{
-Other filters: 
-\code{\link{sm_filter_works}()}
+Other filters:
+\code{\link[=sm_filter_works]{sm_filter_works()}}
 }
 \concept{filters}

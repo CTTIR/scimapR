@@ -38,14 +38,15 @@ as_sm_corpus(corpus$works)
 
 }
 \seealso{
-Other corpus: 
-\code{\link{is_sm_corpus}()},
-\code{\link{sm_bind_corpora}()},
-\code{\link{sm_build_corpus}()},
-\code{\link{sm_corpus}()},
-\code{\link{sm_dedupe}()},
-\code{\link{sm_save_corpus}()},
-\code{\link{sm_validate}()},
-\code{\link{validate_sm_corpus}()}
+Other corpus:
+\code{\link[=is_sm_corpus]{is_sm_corpus()}},
+\code{\link[=sm_bind_corpora]{sm_bind_corpora()}},
+\code{\link[=sm_build_corpus]{sm_build_corpus()}},
+\code{\link[=sm_corpus]{sm_corpus()}},
+\code{\link[=sm_corpus_from_tables]{sm_corpus_from_tables()}},
+\code{\link[=sm_dedupe]{sm_dedupe()}},
+\code{\link[=sm_save_corpus]{sm_save_corpus()}},
+\code{\link[=sm_validate]{sm_validate()}},
+\code{\link[=validate_sm_corpus]{validate_sm_corpus()}}
 }
 \concept{corpus}

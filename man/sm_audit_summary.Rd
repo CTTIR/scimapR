@@ -44,10 +44,10 @@ print(summary_audit)
 }
 }
 \seealso{
-Other audit: 
-\code{\link{sm_audit_funding}()},
-\code{\link{sm_audit_gender}()},
-\code{\link{sm_audit_geographic}()},
-\code{\link{sm_audit_oa}()}
+Other audit:
+\code{\link[=sm_audit_funding]{sm_audit_funding()}},
+\code{\link[=sm_audit_gender]{sm_audit_gender()}},
+\code{\link[=sm_audit_geographic]{sm_audit_geographic()}},
+\code{\link[=sm_audit_oa]{sm_audit_oa()}}
 }
 \concept{audit}

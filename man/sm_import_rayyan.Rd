@@ -16,10 +16,10 @@ A tibble of screening decisions.
 Read Rayyan CSV export and parse screening decisions.
 }
 \seealso{
-Other screening: 
-\code{\link{sm_export_covidence}()},
-\code{\link{sm_export_rayyan}()},
-\code{\link{sm_merge_screening_decisions}()},
-\code{\link{sm_screen_prisma}()}
+Other screening:
+\code{\link[=sm_export_covidence]{sm_export_covidence()}},
+\code{\link[=sm_export_rayyan]{sm_export_rayyan()}},
+\code{\link[=sm_merge_screening_decisions]{sm_merge_screening_decisions()}},
+\code{\link[=sm_screen_prisma]{sm_screen_prisma()}}
 }
 \concept{screening}

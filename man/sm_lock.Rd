@@ -41,8 +41,8 @@ unlocked <- sm_unlock(locked, confirm = TRUE)
 unlocked$metadata$is_locked
 }
 \seealso{
-Other refresh: 
-\code{\link{sm_refresh}()},
-\code{\link{sm_staleness}()}
+Other refresh:
+\code{\link[=sm_refresh]{sm_refresh()}},
+\code{\link[=sm_staleness]{sm_staleness()}}
 }
 \concept{refresh}

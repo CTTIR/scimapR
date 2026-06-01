@@ -31,7 +31,7 @@ filtered <- sm_filter_works(corpus, year_range = c(2020, 2024))
 nrow(filtered$works)
 }
 \seealso{
-Other filters: 
-\code{\link{sm_query}()}
+Other filters:
+\code{\link[=sm_query]{sm_query()}}
 }
 \concept{filters}

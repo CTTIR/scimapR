@@ -56,17 +56,17 @@ Measure Influence at the Article Level. \emph{PLOS Biology}, 14(9), e1002541.
 \doi{10.1371/journal.pbio.1002541}
 }
 \seealso{
-Other metrics: 
-\code{\link{sm_metric_collab_index}()},
-\code{\link{sm_metric_disruption}()},
-\code{\link{sm_metric_fnci}()},
-\code{\link{sm_metric_g_index}()},
-\code{\link{sm_metric_h_index}()},
-\code{\link{sm_metric_m_index}()},
-\code{\link{sm_metric_novelty}()},
-\code{\link{sm_summary_authors}()},
-\code{\link{sm_summary_period}()},
-\code{\link{sm_summary_sources}()},
-\code{\link{sm_summary_works}()}
+Other metrics:
+\code{\link[=sm_metric_collab_index]{sm_metric_collab_index()}},
+\code{\link[=sm_metric_disruption]{sm_metric_disruption()}},
+\code{\link[=sm_metric_fnci]{sm_metric_fnci()}},
+\code{\link[=sm_metric_g_index]{sm_metric_g_index()}},
+\code{\link[=sm_metric_h_index]{sm_metric_h_index()}},
+\code{\link[=sm_metric_m_index]{sm_metric_m_index()}},
+\code{\link[=sm_metric_novelty]{sm_metric_novelty()}},
+\code{\link[=sm_summary_authors]{sm_summary_authors()}},
+\code{\link[=sm_summary_period]{sm_summary_period()}},
+\code{\link[=sm_summary_sources]{sm_summary_sources()}},
+\code{\link[=sm_summary_works]{sm_summary_works()}}
 }
 \concept{metrics}

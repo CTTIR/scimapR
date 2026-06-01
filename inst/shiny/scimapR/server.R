@@ -621,4 +621,87 @@ function(input, output, session) {
       )
     }
   )
+
+  # ============================================================================
+  # 14. COVERAGE
+  # ============================================================================
+
+  coverage_result <- shiny::eventReactive(input$coverage_go, {
+    cc <- corpus()
+    w <- cc$works
+    n <- nrow(w)
+    if (n < 4) return(NULL)
+    keep <- sort(sample.int(n, max(1L, floor(n * (1 - input$coverage_holdout)))))
+    ref <- w[keep, c("work_id", "doi", "title", "year")]
+    names(ref)[1] <- "id"
+    scimapR::sm_coverage_audit(cc, ref, by = "year", match = "doi")
+  })
+
+  output$coverage_headline <- shiny::renderText({
+    cov <- coverage_result()
+    if (is.null(cov)) return("N/A")
+    paste0(cov$recall, " / ", cov$precision, " / ", cov$f1)
+  })
+
+  output$coverage_plot <- shiny::renderPlot({
+    cov <- coverage_result()
+    shiny::req(cov)
+    ggplot2::autoplot(cov)
+  })
+
+  # ============================================================================
+  # 15. AFFILIATIONS
+  # ============================================================================
+
+  affil_result <- shiny::eventReactive(input$affil_go, {
+    matched <- scimapR::sm_affiliation_match(corpus())
+    a <- matched$authorships
+    a <- a[!is.na(a$institution_match), , drop = FALSE]
+    if (nrow(a) == 0) {
+      return(data.frame(institution = character(),
+                        method = character(), n = integer()))
+    }
+    agg <- as.data.frame(table(institution = a$institution_match,
+                               method = a$match_method))
+    agg <- agg[agg$Freq > 0, ]
+    names(agg)[3] <- "n"
+    agg[order(-agg$n), ]
+  })
+
+  output$affil_table <- DT::renderDT({
+    DT::datatable(affil_result(), rownames = FALSE,
+                  options = list(pageLength = 10))
+  })
+
+  # ============================================================================
+  # 16. EVALUATION (interrupted time series)
+  # ============================================================================
+
+  its_result <- shiny::eventReactive(input$its_go, {
+    cc <- corpus()
+    yrs <- cc$works$year[!is.na(cc$works$year)]
+    if (length(yrs) == 0) return(NULL)
+    iy <- input$its_year
+    if (is.na(iy)) iy <- round(stats::median(yrs))
+    tryCatch(
+      scimapR::sm_its(cc, intervention_year = iy, outcome = input$its_outcome),
+      error = function(e) NULL
+    )
+  })
+
+  output$its_plot <- shiny::renderPlot({
+    its <- its_result()
+    shiny::req(its)
+    ggplot2::autoplot(its)
+  })
+
+  output$its_coefs <- DT::renderDT({
+    its <- its_result()
+    shiny::req(its)
+    cf <- its$coefficients
+    cf[c("term", "estimate", "conf.low", "conf.high", "p.value")] <-
+      lapply(cf[c("term", "estimate", "conf.low", "conf.high", "p.value")],
+             function(x) if (is.numeric(x)) round(x, 4) else x)
+    DT::datatable(cf, rownames = FALSE, options = list(dom = "t"))
+  })
 }

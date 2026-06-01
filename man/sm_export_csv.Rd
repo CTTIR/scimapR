@@ -11,7 +11,7 @@ sm_export_csv(corpus, dir, ...)
 
 \item{dir}{Output directory.}
 
-\item{...}{Additional arguments passed to \code{\link[readr:write_delim]{readr::write_csv()}}.}
+\item{...}{Additional arguments passed to \code{\link[readr:write_csv]{readr::write_csv()}}.}
 }
 \value{
 \code{dir} invisibly.
@@ -25,14 +25,14 @@ dir <- tempdir()
 sm_export_csv(corpus, dir)
 }
 \seealso{
-Other export: 
-\code{\link{sm_export_cytoscape}()},
-\code{\link{sm_export_figure}()},
-\code{\link{sm_export_gephi}()},
-\code{\link{sm_export_quarto_report}()},
-\code{\link{sm_export_rds}()},
-\code{\link{sm_export_table}()},
-\code{\link{sm_export_vosviewer}()},
-\code{\link{sm_export_zip}()}
+Other export:
+\code{\link[=sm_export_cytoscape]{sm_export_cytoscape()}},
+\code{\link[=sm_export_figure]{sm_export_figure()}},
+\code{\link[=sm_export_gephi]{sm_export_gephi()}},
+\code{\link[=sm_export_quarto_report]{sm_export_quarto_report()}},
+\code{\link[=sm_export_rds]{sm_export_rds()}},
+\code{\link[=sm_export_table]{sm_export_table()}},
+\code{\link[=sm_export_vosviewer]{sm_export_vosviewer()}},
+\code{\link[=sm_export_zip]{sm_export_zip()}}
 }
 \concept{export}

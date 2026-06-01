@@ -12,6 +12,7 @@ sm_fetch_openalex(
   mailto = Sys.getenv("SCIMAPR_MAILTO"),
   api_key = Sys.getenv("OPENALEX_API_KEY"),
   engine = c("native", "openalexR", "auto"),
+  batch_size = 50L,
   verbose = TRUE,
   call = rlang::caller_env()
 )
@@ -36,6 +37,13 @@ If \code{NULL}, \code{filter} must be supplied.}
 (use the openalexR package), or \code{"auto"} (use openalexR if available,
 otherwise native).}
 
+\item{batch_size}{Integer; maximum number of \code{|}-joined values allowed in a
+single OpenAlex filter clause before the request is automatically split
+into multiple batched requests. OpenAlex limits the number of values in an
+\code{OR} filter and the overall URL length, so long DOI (or other ID) lists
+are chunked, fetched per batch, and row-bound with de-duplication. Default
+\code{50}, which stays comfortably under the API's documented limit of 100.}
+
 \item{verbose}{Print progress messages?}
 
 \item{call}{Caller environment for error reporting.}
@@ -59,13 +67,13 @@ print(corpus)
 }
 }
 \seealso{
-Other fetchers: 
-\code{\link{sm_fetch_arxiv}()},
-\code{\link{sm_fetch_biorxiv}()},
-\code{\link{sm_fetch_crossref}()},
-\code{\link{sm_fetch_orcid}()},
-\code{\link{sm_fetch_overton}()},
-\code{\link{sm_fetch_pubmed}()},
-\code{\link{sm_fetch_semantic_scholar}()}
+Other fetchers:
+\code{\link[=sm_fetch_arxiv]{sm_fetch_arxiv()}},
+\code{\link[=sm_fetch_biorxiv]{sm_fetch_biorxiv()}},
+\code{\link[=sm_fetch_crossref]{sm_fetch_crossref()}},
+\code{\link[=sm_fetch_orcid]{sm_fetch_orcid()}},
+\code{\link[=sm_fetch_overton]{sm_fetch_overton()}},
+\code{\link[=sm_fetch_pubmed]{sm_fetch_pubmed()}},
+\code{\link[=sm_fetch_semantic_scholar]{sm_fetch_semantic_scholar()}}
 }
 \concept{fetchers}

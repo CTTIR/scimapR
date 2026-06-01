@@ -59,10 +59,10 @@ evo$transitions
 }
 }
 \seealso{
-Other clustering: 
-\code{\link{sm_cluster_hdbscan}()},
-\code{\link{sm_cluster_kmeans}()},
-\code{\link{sm_cluster_label}()},
-\code{\link{sm_cluster_leiden}()}
+Other clustering:
+\code{\link[=sm_cluster_hdbscan]{sm_cluster_hdbscan()}},
+\code{\link[=sm_cluster_kmeans]{sm_cluster_kmeans()}},
+\code{\link[=sm_cluster_label]{sm_cluster_label()}},
+\code{\link[=sm_cluster_leiden]{sm_cluster_leiden()}}
 }
 \concept{clustering}
