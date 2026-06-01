@@ -11,7 +11,7 @@ sm_plot_collab(
   top_n = 20L,
   dark = FALSE,
   precompute = FALSE,
-  max_nodes = 200L,
+  max_nodes = NULL,
   ...
 )
 ```
@@ -43,8 +43,9 @@ sm_plot_collab(
 
 - max_nodes:
 
-  Integer node cap (default `200`); larger graphs are downsampled to the
-  highest-degree nodes with a `cli` message.
+  Optional integer node cap. `NULL` (default) keeps all nodes; set it to
+  downsample large graphs to the highest-degree nodes (opt-in, with a
+  `cli` message).
 
 - ...:
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,53 @@
       <small>Source: <a href="https://github.com/CTTIR/scimapR/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.4.0" id="scimapr-040">scimapR 0.4.0<a class="anchor" aria-label="anchor" href="#scimapr-040"></a></h2>
+<p>Stability contracts, an enrichment materializer, and self-citation-corrected metrics, plus a verify-and-harden pass on three v0.3.0 fixes that recurred in heavy use. All new behaviour is opt-in; no breaking changes.</p>
+<div class="section level3">
+<h3 id="accessor-stability-contract-a1-0-4-0">Accessor stability contract (A1)<a class="anchor" aria-label="anchor" href="#accessor-stability-contract-a1-0-4-0"></a></h3>
+<ul><li>New <code>?scimapR-stability</code> topic documents the package’s accessor return-type contract: a documented accessor’s column set changes only via a <code>lifecycle</code> deprecation and a <code>NEWS.md</code> entry. The audited accessors and their stable shapes are listed there.</li>
+<li>
+<code><a href="../reference/sm_coverage_breakdowns.html">sm_coverage_breakdowns()</a></code> gains <code>tidy = TRUE</code> (default): a guaranteed long tibble (<code>dimension</code>, <code>level</code>, <code>n_reference</code>, <code>n_matched</code>, <code>recall</code>, <code>n_corpus</code>, <code>precision</code>, <code>f1</code>). <code>tidy = FALSE</code> returns the legacy recall-only shape. (The silent list -&gt; tibble change between 0.2.0 and 0.3.0 motivated this contract.)</li>
+</ul></div>
+<div class="section level3">
+<h3 id="controlled-vocabularies-b1-0-4-0">Controlled vocabularies (B1)<a class="anchor" aria-label="anchor" href="#controlled-vocabularies-b1-0-4-0"></a></h3>
+<ul><li>Exported <code><a href="../reference/sm_affiliation_signals.html">sm_affiliation_signals()</a></code>, <code><a href="../reference/sm_affiliation_methods.html">sm_affiliation_methods()</a></code>, and <code><a href="../reference/sm_match_types.html">sm_match_types()</a></code> (with <code>describe = TRUE</code> for level + description). The <code>match_signal</code>, <code>match_method</code>, and coverage <code>match_type</code> columns are now factors with these exact levels, so downstream filtering cannot drift.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="verify-and-harden-re-reported-v030-fixes-0-4-0">Verify-and-harden (re-reported v0.3.0 fixes)<a class="anchor" aria-label="anchor" href="#verify-and-harden-re-reported-v030-fixes-0-4-0"></a></h3>
+<p>These were reported again on a real corpus; each now has a regression test reproducing the recurrence.</p>
+<ul><li>
+<strong>C1</strong> <code>sm_its(outcome = "cnci")</code>: the resolver now also searches documented impact <em>side columns</em> on <code>works</code> (<code>fnci</code>, <code>rcr</code>, <code>ncs</code>, <code>mncs</code>, <code>field_citation_ratio</code>) and a <code>corpus$metrics</code> table, in addition to <code>works$cnci</code> and <code>works$cited_by_count</code>. With no impact anywhere it errors naming every column inspected. (v0.3 only checked <code>works$cnci</code> / <code>cited_by_count</code>, so impact in a side column still produced “0 observations”.)</li>
+<li>
+<strong>C2</strong> <code>sm_count(level = "institution")</code>: when structured IDs are absent it now <em>clusters</em> <code>raw_affiliation</code> via <code><a href="../reference/sm_affiliation_match.html">sm_affiliation_match()</a></code> (canonical names where matched, raw string otherwise) with a warning, instead of counting raw strings verbatim. Absent raw affiliation -&gt; 0-row tibble + warning.</li>
+<li>
+<strong>C3</strong> network plot <code>precompute = TRUE</code> confirmed; the <code>max_nodes</code> cap is now <strong>opt-in</strong> (<code>NULL</code> default) so large renders are unchanged unless a cap is requested. A ~2,000-node graph builds with <code>precompute = TRUE</code> and re-prints without recomputing layout.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="enrichment-materializer-d1-0-4-0">Enrichment materializer (D1)<a class="anchor" aria-label="anchor" href="#enrichment-materializer-d1-0-4-0"></a></h3>
+<ul><li>
+<code>sm_materialise(corpus, sources, .by = NULL, overwrite = FALSE)</code> joins cached enrichment (named list of tibbles / RDS / parquet paths, or a cache dir) into the matching sub-tibbles by key, returning a validated <code>sm_corpus</code>. Missing keys warn (not error); overlapping columns fill <code>NA</code> unless <code>overwrite = TRUE</code>.</li>
+<li>Added an internal type-safe row-bind helper (<code>.sm_bind_rows</code>) that returns a typed template instead of a logical-column degenerate when all parts are <code>NULL</code>/empty; audited the package’s existing <code>bind_rows()</code> sites (found safe, guarded behind length checks with typed tibbles).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="self-citation-corrected-metrics-e1-e2-f1-0-4-0">Self-citation-corrected metrics (E1, E2, F1)<a class="anchor" aria-label="anchor" href="#self-citation-corrected-metrics-e1-e2-f1-0-4-0"></a></h3>
+<ul><li>
+<code>sm_self_citation(corpus, level = c("author", "institution"))</code> computes self-citation from the corpus reference network (quota-light reference overlap; no per-citation API calls), returning <code>by_entity</code>, <code>by_work</code>, and a <strong>provenance</strong> tibble (<code>citing_work_id</code>, <code>cited_work_id</code>, <code>shared_author_id</code>/<code>shared_institution_id</code>) (F1). Empty references -&gt; warning + typed empty result (no spin).</li>
+<li>
+<code><a href="../reference/sm_metric_h_index.html">sm_metric_h_index()</a></code>, <code><a href="../reference/sm_metric_g_index.html">sm_metric_g_index()</a></code>, <code><a href="../reference/sm_metric_m_index.html">sm_metric_m_index()</a></code> gain <code>self_corrected = FALSE</code>; with <code>TRUE</code> the index is recomputed after removing self-citations (author/institution levels). The corrected index is always <code>&lt;=</code> the uncorrected one.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="provenance-f2-0-4-0">Provenance (F2)<a class="anchor" aria-label="anchor" href="#provenance-f2-0-4-0"></a></h3>
+<ul><li>
+<code><a href="../reference/sm_affiliation_summary.html">sm_affiliation_summary()</a></code> now includes <code>example_evidence</code> (a representative matched-evidence string per institution x signal) alongside the factorised <code>match_signal</code>, so a reader can see which signal matched and on what evidence.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="fixtures-0-4-0">Fixtures<a class="anchor" aria-label="anchor" href="#fixtures-0-4-0"></a></h3>
+<ul><li>
+<code>inst/extdata/example_self_citation_corpus.rds</code>: a small references-bearing synthetic corpus for self-citation examples/tests.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="scimapr-030">scimapR 0.3.0<a class="anchor" aria-label="anchor" href="#scimapr-030"></a></h2>
 <p>Real-use refinements from running v0.2.0 on a ~6,853-work corpus: robustness fixes, friendlier API shapes, two new capabilities, and vignettes that ship in the installed binary. The public API is preserved (deprecation paths only).</p>

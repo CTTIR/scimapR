@@ -26,6 +26,10 @@
   : Save and load an sm_corpus
 - [`sm_filter_works()`](https://cttir.github.io/scimapR/reference/sm_filter_works.md)
   : Filter works in a corpus
+- [`sm_materialise()`](https://cttir.github.io/scimapR/reference/sm_materialise.md)
+  : Materialise cached enrichment into a corpus
+- [`scimapR-stability`](https://cttir.github.io/scimapR/reference/scimapR-stability.md)
+  : scimapR accessor return-type stability contract
 
 ## File ingestion
 
@@ -199,6 +203,10 @@
   : Summary statistics for sources (journals)
 - [`sm_summary_works()`](https://cttir.github.io/scimapR/reference/sm_summary_works.md)
   : Summary statistics for works
+- [`sm_self_citation()`](https://cttir.github.io/scimapR/reference/sm_self_citation.md)
+  [`print(`*`<sm_self_citation>`*`)`](https://cttir.github.io/scimapR/reference/sm_self_citation.md)
+  [`summary(`*`<sm_self_citation>`*`)`](https://cttir.github.io/scimapR/reference/sm_self_citation.md)
+  : Compute self-citation from corpus reference lists
 
 ## Author trajectory
 
@@ -248,6 +256,8 @@
   : Coverage breakdowns as a flat tibble
 - [`sm_journal_in_index()`](https://cttir.github.io/scimapR/reference/sm_journal_in_index.md)
   : Verify journal source coverage against an index by ISSN
+- [`sm_match_types()`](https://cttir.github.io/scimapR/reference/sm_match_types.md)
+  : Controlled vocabulary for coverage match types
 - [`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
   [`print(`*`<sm_reconciliation>`*`)`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
   [`summary(`*`<sm_reconciliation>`*`)`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
@@ -260,6 +270,10 @@
   : Match author affiliations to institutions
 - [`sm_affiliation_summary()`](https://cttir.github.io/scimapR/reference/sm_affiliation_summary.md)
   : Summarise affiliation matches
+- [`sm_affiliation_signals()`](https://cttir.github.io/scimapR/reference/sm_affiliation_signals.md)
+  : Controlled vocabulary for affiliation match signals
+- [`sm_affiliation_methods()`](https://cttir.github.io/scimapR/reference/sm_affiliation_methods.md)
+  : Controlled vocabulary for affiliation match methods
 - [`sm_attribute_institution()`](https://cttir.github.io/scimapR/reference/sm_attribute_institution.md)
   : Attribute matched affiliations to a controlled institution
   vocabulary

@@ -40,6 +40,7 @@ Other corpus:
 [`sm_corpus()`](https://cttir.github.io/scimapR/reference/sm_corpus.md),
 [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md),
 [`sm_dedupe()`](https://cttir.github.io/scimapR/reference/sm_dedupe.md),
+[`sm_materialise()`](https://cttir.github.io/scimapR/reference/sm_materialise.md),
 [`sm_validate()`](https://cttir.github.io/scimapR/reference/sm_validate.md),
 [`validate_sm_corpus()`](https://cttir.github.io/scimapR/reference/validate_sm_corpus.md)
 
@@ -49,7 +50,7 @@ Other corpus:
 corpus <- sm_example_corpus(n_works = 10)
 path <- tempfile(fileext = ".rds")
 sm_save_corpus(corpus, path)
-#> ✔ Corpus saved to /tmp/RtmpZQTSFQ/file24307318488.rds
+#> ✔ Corpus saved to /tmp/RtmpIQMgiF/file237011f4394.rds
 loaded <- sm_load_corpus(path)
 nrow(loaded$works)
 #> [1] 10

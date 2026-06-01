@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,7 +110,7 @@ citations</li>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Sources (journals):</span> 10</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Embeddings:</span> 100 x 64</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Provenance:</span> synthetic (100)</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Status:</span> Unlocked (last refreshed: 2026-06-01 12:25:50)</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Status:</span> Unlocked (last refreshed: 2026-06-01 16:49:55)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="exploring-the-corpus">Exploring the corpus<a class="anchor" aria-label="anchor" href="#exploring-the-corpus"></a>
@@ -168,11 +168,16 @@ layout is computed lazily at print time. On large graphs that lazy
 layout (and the embedded graph) can crash a knitr/<code>callr</code>/
 workflowr render subprocess. For documents, pass
 <code>precompute = TRUE</code>: the layout is computed eagerly and a
-self-contained plain <code>ggplot</code> is returned, which you can save
-and print cheaply without recomputing anything. A <code>max_nodes</code>
-cap (default 200) bounds very large graphs.</p>
+self-contained plain <code>ggplot</code> is returned, which you can
+<code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code> and print later in the document without
+recomputing anything — even for a graph with a couple of thousand
+nodes.</p>
+<p>The <code>max_nodes</code> cap is <strong>opt-in</strong>
+(<code>NULL</code> by default), so existing renders are never silently
+downsampled; set it only when you deliberately want to bound a very
+large graph (a <code>cli</code> message reports when it engages).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_plot_citation_network.html">sm_plot_citation_network</a></span><span class="op">(</span><span class="va">corpus</span>, precompute <span class="op">=</span> <span class="cn">TRUE</span>, max_nodes <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_plot_citation_network.html">sm_plot_citation_network</a></span><span class="op">(</span><span class="va">corpus</span>, precompute <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co"># saveRDS(p, "fig_network.rds")  # print later in the document, cheaply</span></span>
 <span><span class="va">p</span></span></code></pre></div>
 <p><img src="scimapR_files/figure-html/network-1.png" class="r-plt" alt="" width="672"></p>

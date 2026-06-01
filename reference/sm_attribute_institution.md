@@ -56,6 +56,8 @@ affiliations. Type-stable.
 
 Other affiliation:
 [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md),
+[`sm_affiliation_methods()`](https://cttir.github.io/scimapR/reference/sm_affiliation_methods.md),
+[`sm_affiliation_signals()`](https://cttir.github.io/scimapR/reference/sm_affiliation_signals.md),
 [`sm_affiliation_summary()`](https://cttir.github.io/scimapR/reference/sm_affiliation_summary.md)
 
 ## Examples

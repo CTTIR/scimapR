@@ -10,7 +10,7 @@ sm_plot_citation_network(
   top_n = 50L,
   dark = FALSE,
   precompute = FALSE,
-  max_nodes = 200L,
+  max_nodes = NULL,
   ...
 )
 ```
@@ -41,9 +41,9 @@ sm_plot_citation_network(
 
 - max_nodes:
 
-  Integer node cap (default `200`). Larger graphs are downsampled to the
-  highest-degree nodes with a `cli` message; raise it to keep more nodes
-  (slower to lay out and render).
+  Optional integer node cap. `NULL` (default) keeps all nodes so
+  existing renders are unchanged; set it to downsample large graphs to
+  the highest-degree nodes (opt-in, with a `cli` message).
 
 - ...:
 

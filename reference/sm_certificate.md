@@ -86,8 +86,8 @@ print(cert)
 #> 
 #> ── <sm_certificate> ────────────────────────────────────────────────────────────
 #> Version: 1.0
-#> Created: 2026-06-01 12:23:35
-#> scimapR: v0.3.0
+#> Created: 2026-06-01 16:45:36
+#> scimapR: v0.4.0
 #> R: 4.6.0 (unix)
 #> 
 #> Corpus hash: ea446b5f44659ca0

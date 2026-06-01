@@ -33,7 +33,7 @@ print(corpus)
 #> Sources (journals): 10
 #> Embeddings: 100 x 64
 #> Provenance: synthetic (100)
-#> Status: Unlocked (last refreshed: 2026-06-01 12:25:50)
+#> Status: Unlocked (last refreshed: 2026-06-01 16:49:55)
 ```
 
 ## Exploring the corpus
@@ -100,13 +100,19 @@ return `ggraph` objects whose layout is computed lazily at print time.
 On large graphs that lazy layout (and the embedded graph) can crash a
 knitr/`callr`/ workflowr render subprocess. For documents, pass
 `precompute = TRUE`: the layout is computed eagerly and a self-contained
-plain `ggplot` is returned, which you can save and print cheaply without
-recomputing anything. A `max_nodes` cap (default 200) bounds very large
-graphs.
+plain `ggplot` is returned, which you can
+[`saveRDS()`](https://rdrr.io/r/base/readRDS.html) and print later in
+the document without recomputing anything — even for a graph with a
+couple of thousand nodes.
+
+The `max_nodes` cap is **opt-in** (`NULL` by default), so existing
+renders are never silently downsampled; set it only when you
+deliberately want to bound a very large graph (a `cli` message reports
+when it engages).
 
 ``` r
 
-p <- sm_plot_citation_network(corpus, precompute = TRUE, max_nodes = 100)
+p <- sm_plot_citation_network(corpus, precompute = TRUE)
 # saveRDS(p, "fig_network.rds")  # print later in the document, cheaply
 p
 ```

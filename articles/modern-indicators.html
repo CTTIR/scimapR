@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -178,6 +178,48 @@ al., 2013).</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>        80           45      56.2                  9.44                       9</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 3 more variables: max_works_per_author &lt;int&gt;, mean_authors_per_work &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   single_author_pct &lt;dbl&gt;</span></span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="self-citation-and-self-corrected-indices">Self-citation and self-corrected indices<a class="anchor" aria-label="anchor" href="#self-citation-and-self-corrected-indices"></a>
+</h2>
+<p><code><a href="../reference/sm_self_citation.html">sm_self_citation()</a></code> derives author (or institution)
+self-citation from the reference lists already in the corpus — no
+per-citation API calls. It returns per-entity and per-work tibbles plus
+a provenance trail showing which works drove each self-citation,
+suitable for an institutional report.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sc_corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"example_self_citation_corpus.rds"</span>,</span>
+<span>                                 package <span class="op">=</span> <span class="st">"scimapR"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_self_citation.html">sm_self_citation</a></span><span class="op">(</span><span class="va">sc_corpus</span>, level <span class="op">=</span> <span class="st">"author"</span><span class="op">)</span></span>
+<span><span class="va">sc</span><span class="op">$</span><span class="va">by_entity</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 2 × 4</span></span></span>
+<span><span class="co">#&gt;   entity_id n_citations_received n_self_citations self_citation_share</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> A1                           5                4                 0.8</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> A2                           4                2                 0.5</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">sc</span><span class="op">$</span><span class="va">provenance</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 3</span></span></span>
+<span><span class="co">#&gt;   citing_work_id cited_work_id shared_author_id</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> W2             W1            A1              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> W4             W2            A1              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> W4             W2            A2              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> W5             W3            A2              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> W6             W2            A1              </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> W6             W4            A1</span></span></code></pre></div>
+<p>The h/g/m indices accept <code>self_corrected = TRUE</code>, which
+recomputes the index after removing those self-citations (always
+<code>&lt;=</code> the uncorrected value):</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/merge.html" class="external-link">merge</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="../reference/sm_metric_h_index.html">sm_metric_h_index</a></span><span class="op">(</span><span class="va">sc_corpus</span>, <span class="st">"author"</span><span class="op">)</span>,</span>
+<span>  <span class="fu"><a href="../reference/sm_metric_h_index.html">sm_metric_h_index</a></span><span class="op">(</span><span class="va">sc_corpus</span>, <span class="st">"author"</span>, self_corrected <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  by <span class="op">=</span> <span class="st">"author_id"</span>, suffixes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">""</span>, <span class="st">"_corrected"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt;   author_id h_index h_index_corrected</span></span>
+<span><span class="co">#&gt; 1        A1       3                 3</span></span>
+<span><span class="co">#&gt; 2        A2       3                 3</span></span>
+<span><span class="co">#&gt; 3        A3       1                 1</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

@@ -26,8 +26,11 @@ sm_affiliation_summary(corpus, call = rlang::caller_env())
 
 ## Value
 
-A tibble with columns `institution`, `match_signal`, `n_authorships`,
-`n_works`, sorted by `n_authorships` descending. Type-stable: a 0-row
+A tibble with columns `institution`, `match_signal` (a factor; see
+[`sm_affiliation_signals()`](https://cttir.github.io/scimapR/reference/sm_affiliation_signals.md)),
+`n_authorships`, `n_works`, and `example_evidence` (a representative
+matched-evidence string for that institution x signal — the audit
+trail), sorted by `n_authorships` descending. Type-stable: a 0-row
 tibble (with a warning) when no matches are present.
 
 ## See also
@@ -36,6 +39,8 @@ tibble (with a warning) when no matches are present.
 
 Other affiliation:
 [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md),
+[`sm_affiliation_methods()`](https://cttir.github.io/scimapR/reference/sm_affiliation_methods.md),
+[`sm_affiliation_signals()`](https://cttir.github.io/scimapR/reference/sm_affiliation_signals.md),
 [`sm_attribute_institution()`](https://cttir.github.io/scimapR/reference/sm_attribute_institution.md)
 
 ## Examples
@@ -48,8 +53,8 @@ corpus <- sm_affiliation_match(corpus)
 #> ℹ By signal: name_token: 1. See `sm_affiliation_summary()` for the full
 #>   breakdown.
 sm_affiliation_summary(corpus)
-#> # A tibble: 1 × 4
-#>   institution         match_signal n_authorships n_works
-#>   <chr>               <chr>                <int>   <int>
-#> 1 Bundeswehr Hospital name_token               1       1
+#> # A tibble: 1 × 5
+#>   institution         match_signal n_authorships n_works example_evidence     
+#>   <chr>               <fct>                <int>   <int> <chr>                
+#> 1 Bundeswehr Hospital name_token               1       1 Bundeswehrkrankenhaus
 ```

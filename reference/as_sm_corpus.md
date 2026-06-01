@@ -47,6 +47,7 @@ Other corpus:
 [`sm_corpus()`](https://cttir.github.io/scimapR/reference/sm_corpus.md),
 [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md),
 [`sm_dedupe()`](https://cttir.github.io/scimapR/reference/sm_dedupe.md),
+[`sm_materialise()`](https://cttir.github.io/scimapR/reference/sm_materialise.md),
 [`sm_save_corpus()`](https://cttir.github.io/scimapR/reference/sm_save_corpus.md),
 [`sm_validate()`](https://cttir.github.io/scimapR/reference/sm_validate.md),
 [`validate_sm_corpus()`](https://cttir.github.io/scimapR/reference/validate_sm_corpus.md)
@@ -63,7 +64,7 @@ as_sm_corpus(corpus)
 #> Sources (journals): 10
 #> Embeddings: 200 x 64
 #> Provenance: synthetic (200)
-#> Status: Unlocked (last refreshed: 2026-06-01 12:23:18)
+#> Status: Unlocked (last refreshed: 2026-06-01 16:44:45)
 as_sm_corpus(corpus$works)
 #> 
 #> ── <sm_corpus> ─────────────────────────────────────────────────────────────────

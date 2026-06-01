@@ -66,6 +66,7 @@ Other metrics:
 [`sm_metric_h_index()`](https://cttir.github.io/scimapR/reference/sm_metric_h_index.md),
 [`sm_metric_m_index()`](https://cttir.github.io/scimapR/reference/sm_metric_m_index.md),
 [`sm_metric_rcr()`](https://cttir.github.io/scimapR/reference/sm_metric_rcr.md),
+[`sm_self_citation()`](https://cttir.github.io/scimapR/reference/sm_self_citation.md),
 [`sm_summary_authors()`](https://cttir.github.io/scimapR/reference/sm_summary_authors.md),
 [`sm_summary_period()`](https://cttir.github.io/scimapR/reference/sm_summary_period.md),
 [`sm_summary_sources()`](https://cttir.github.io/scimapR/reference/sm_summary_sources.md),

@@ -11,7 +11,7 @@ authorships flagged, broken down by institution and by match_signal."><meta prop
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,15 +65,20 @@ and <code>match_signal</code>).</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble with columns <code>institution</code>, <code>match_signal</code>, <code>n_authorships</code>,
-<code>n_works</code>, sorted by <code>n_authorships</code> descending. Type-stable: a 0-row
-tibble (with a warning) when no matches are present.</p>
+    <p>A tibble with columns <code>institution</code>, <code>match_signal</code> (a factor; see
+<code><a href="sm_affiliation_signals.html">sm_affiliation_signals()</a></code>), <code>n_authorships</code>, <code>n_works</code>, and
+<code>example_evidence</code> (a representative matched-evidence string for that
+institution x signal — the audit trail), sorted by <code>n_authorships</code>
+descending. Type-stable: a 0-row tibble (with a warning) when no matches
+are present.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="sm_affiliation_match.html">sm_affiliation_match()</a></code></p>
 <p>Other affiliation:
 <code><a href="sm_affiliation_match.html">sm_affiliation_match()</a></code>,
+<code><a href="sm_affiliation_methods.html">sm_affiliation_methods()</a></code>,
+<code><a href="sm_affiliation_signals.html">sm_affiliation_signals()</a></code>,
 <code><a href="sm_attribute_institution.html">sm_attribute_institution()</a></code></p></div>
     </div>
 
@@ -86,10 +91,10 @@ tibble (with a warning) when no matches are present.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> By signal: name_token: 1. See `sm_affiliation_summary()` for the full</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   breakdown.</span>
 <span class="r-in"><span><span class="fu">sm_affiliation_summary</span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 4</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   institution         match_signal n_authorships n_works</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Bundeswehr Hospital name_token               1       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   institution         match_signal n_authorships n_works example_evidence     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Bundeswehr Hospital name_token               1       1 Bundeswehrkrankenhaus</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

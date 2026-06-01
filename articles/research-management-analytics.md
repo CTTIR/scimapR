@@ -72,19 +72,19 @@ to access or filter them:
 ``` r
 
 sm_coverage_breakdowns(cov, dimension = "year")
-#> # A tibble: 10 × 5
-#>    dimension level n_reference n_matched recall
-#>    <chr>     <chr>       <int>     <int>  <dbl>
-#>  1 year      2015           18        18      1
-#>  2 year      2016           12        12      1
-#>  3 year      2017           15        15      1
-#>  4 year      2018           16        16      1
-#>  5 year      2019           19        19      1
-#>  6 year      2020            9         9      1
-#>  7 year      2021           16        16      1
-#>  8 year      2022           13        13      1
-#>  9 year      2023           17        17      1
-#> 10 year      2024           15        15      1
+#> # A tibble: 10 × 8
+#>    dimension level n_reference n_matched recall n_corpus precision    f1
+#>    <chr>     <chr>       <int>     <int>  <dbl>    <int>     <dbl> <dbl>
+#>  1 year      2015           18        18      1       24     0.75  0.857
+#>  2 year      2016           12        12      1       17     0.706 0.828
+#>  3 year      2017           15        15      1       20     0.75  0.857
+#>  4 year      2018           16        16      1       20     0.8   0.889
+#>  5 year      2019           19        19      1       25     0.76  0.864
+#>  6 year      2020            9         9      1       15     0.6   0.75 
+#>  7 year      2021           16        16      1       20     0.8   0.889
+#>  8 year      2022           13        13      1       19     0.684 0.812
+#>  9 year      2023           17        17      1       20     0.85  0.919
+#> 10 year      2024           15        15      1       20     0.75  0.857
 ```
 
 Source coverage can be checked against a journal master list by ISSN
@@ -139,21 +139,42 @@ corpus$authorships$raw_affiliation[1:3] <- c(
   "Walter Reed Army Institute of Research"
 )
 corpus <- sm_affiliation_match(corpus)
-head(subset(corpus$authorships, !is.na(institution_match),
-            select = c(work_id, institution_match, match_method)), 3)
-#> # A tibble: 3 × 3
-#>   work_id    institution_match   match_method
-#>   <chr>      <chr>               <chr>       
-#> 1 W000000001 Bundeswehr Hospital pattern     
-#> 2 W000000001 Charite Berlin      pattern     
-#> 3 W000000001 Walter Reed         pattern
-
 ror <- utils::read.csv(
   system.file("extdata", "example_ror.csv", package = "scimapR"),
   stringsAsFactors = FALSE
 )
 corpus <- sm_attribute_institution(corpus, vocabulary = "ror", ror_table = ror)
 ```
+
+`match_signal` is a factor with an exported, stable level set
+([`sm_affiliation_signals()`](https://cttir.github.io/scimapR/reference/sm_affiliation_signals.md)),
+so you can filter reliably — for example to keep only name-token matches
+and inspect the evidence that triggered them:
+
+``` r
+
+sm_affiliation_signals()
+#> [1] "name_token"   "email_domain" "postcode"     "none"
+summary_tbl <- sm_affiliation_summary(corpus)
+subset(summary_tbl, match_signal == "name_token",
+       select = c(institution, match_signal, n_works, example_evidence))
+#> # A tibble: 3 × 4
+#>   institution         match_signal n_works example_evidence     
+#>   <chr>               <fct>          <int> <chr>                
+#> 1 Bundeswehr Hospital name_token         1 Bundeswehrkrankenhaus
+#> 2 Charite Berlin      name_token         1 Charite              
+#> 3 Walter Reed         name_token         1 Walter Reed
+```
+
+The `example_evidence` column (and the per-authorship `match_evidence`
+column) give an audit trail: which signal matched, on what string.
+
+> **Stability.** Accessors like
+> [`sm_affiliation_summary()`](https://cttir.github.io/scimapR/reference/sm_affiliation_summary.md)
+> and `sm_coverage_breakdowns(tidy = TRUE)` follow scimapR’s accessor
+> return-type contract (`?scimapR-stability`): their documented columns
+> change only via a `lifecycle` deprecation, so pipelines built on them
+> do not break across releases.
 
 ## 3. Policy evaluation
 

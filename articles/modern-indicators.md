@@ -124,6 +124,54 @@ sm_summary_authors(corpus) |> head(5)
 #> #   single_author_pct <dbl>
 ```
 
+## Self-citation and self-corrected indices
+
+[`sm_self_citation()`](https://cttir.github.io/scimapR/reference/sm_self_citation.md)
+derives author (or institution) self-citation from the reference lists
+already in the corpus — no per-citation API calls. It returns per-entity
+and per-work tibbles plus a provenance trail showing which works drove
+each self-citation, suitable for an institutional report.
+
+``` r
+
+sc_corpus <- readRDS(system.file("extdata", "example_self_citation_corpus.rds",
+                                 package = "scimapR"))
+sc <- sm_self_citation(sc_corpus, level = "author")
+sc$by_entity
+#> # A tibble: 2 × 4
+#>   entity_id n_citations_received n_self_citations self_citation_share
+#>   <chr>                    <int>            <int>               <dbl>
+#> 1 A1                           5                4                 0.8
+#> 2 A2                           4                2                 0.5
+head(sc$provenance)
+#> # A tibble: 6 × 3
+#>   citing_work_id cited_work_id shared_author_id
+#>   <chr>          <chr>         <chr>           
+#> 1 W2             W1            A1              
+#> 2 W4             W2            A1              
+#> 3 W4             W2            A2              
+#> 4 W5             W3            A2              
+#> 5 W6             W2            A1              
+#> 6 W6             W4            A1
+```
+
+The h/g/m indices accept `self_corrected = TRUE`, which recomputes the
+index after removing those self-citations (always `<=` the uncorrected
+value):
+
+``` r
+
+merge(
+  sm_metric_h_index(sc_corpus, "author"),
+  sm_metric_h_index(sc_corpus, "author", self_corrected = TRUE),
+  by = "author_id", suffixes = c("", "_corrected")
+)
+#>   author_id h_index h_index_corrected
+#> 1        A1       3                 3
+#> 2        A2       3                 3
+#> 3        A3       1                 1
+```
+
 ## References
 
 - Funk, R. J. & Owen-Smith, J. (2017). A Dynamic Network Measure of

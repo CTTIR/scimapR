@@ -78,6 +78,4 @@ corpus$authorships$institution_name <- sample(
   c("A", "B", "C", "D"), nrow(corpus$authorships), replace = TRUE)
 synth <- sm_synth(corpus, treated = "A", donors = c("B", "C", "D"),
                   intervention_year = 2020, outcome = "count")
-#> Error in dplyr::rename(., unit_name = !!unit): Can't rename columns that don't exist.
-#> ✖ Column `unit` doesn't exist.
 ```

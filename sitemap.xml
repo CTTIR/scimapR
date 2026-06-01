@@ -23,8 +23,11 @@
 <url><loc>https://cttir.github.io/scimapR/reference/is_sm_trajectory.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/pipe.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/scimapR-package.html</loc></url>
+<url><loc>https://cttir.github.io/scimapR/reference/scimapR-stability.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_affiliation_dict.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_affiliation_match.html</loc></url>
+<url><loc>https://cttir.github.io/scimapR/reference/sm_affiliation_methods.html</loc></url>
+<url><loc>https://cttir.github.io/scimapR/reference/sm_affiliation_signals.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_affiliation_summary.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_attribute_institution.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_audit_funding.html</loc></url>
@@ -97,6 +100,8 @@
 <url><loc>https://cttir.github.io/scimapR/reference/sm_its.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_journal_in_index.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_lock.html</loc></url>
+<url><loc>https://cttir.github.io/scimapR/reference/sm_match_types.html</loc></url>
+<url><loc>https://cttir.github.io/scimapR/reference/sm_materialise.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_merge_screening_decisions.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_metric_collab_index.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_metric_disruption.html</loc></url>
@@ -153,6 +158,7 @@
 <url><loc>https://cttir.github.io/scimapR/reference/sm_screen_prisma.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_screen_regex.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_screen_summary.html</loc></url>
+<url><loc>https://cttir.github.io/scimapR/reference/sm_self_citation.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_snapshot.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_staleness.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_summary_authors.html</loc></url>

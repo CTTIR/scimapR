@@ -9,7 +9,7 @@ h-index h if h of its works have at least h citations each."><meta property="og:
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,6 +46,7 @@ h-index <em>h</em> if <em>h</em> of its works have at least <em>h</em> citations
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sm_metric_h_index</span><span class="op">(</span></span>
 <span>  <span class="va">corpus</span>,</span>
 <span>  level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"author"</span>, <span class="st">"institution"</span>, <span class="st">"source"</span>, <span class="st">"country"</span><span class="op">)</span>,</span>
+<span>  self_corrected <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -63,6 +64,15 @@ h-index <em>h</em> if <em>h</em> of its works have at least <em>h</em> citations
 <code>"institution"</code>, <code>"source"</code>, or <code>"country"</code>.</p></dd>
 
 
+<dt id="arg-self-corrected">self_corrected<a class="anchor" aria-label="anchor" href="#arg-self-corrected"></a></dt>
+<dd><p>Logical (default <code>FALSE</code>). When <code>TRUE</code>, self-citations
+identified by <code><a href="sm_self_citation.html">sm_self_citation()</a></code> are removed before computing the index
+(each work's citation count is reduced by the entity's internal
+self-citations to it, floored at 0). Only available for <code>"author"</code> and
+<code>"institution"</code> levels. The corrected index is always <code>&lt;=</code> the
+uncorrected one.</p></dd>
+
+
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
 <dd><p>Caller environment for error reporting.</p></dd>
 
@@ -72,8 +82,16 @@ h-index <em>h</em> if <em>h</em> of its works have at least <em>h</em> citations
     <p>A tibble with columns for the entity ID/name and <code>h_index</code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Self-correction uses the corpus's internal reference network (no API calls):
+citations counted against a work are reduced by those coming from works that
+share the entity. Because the network is internal to the corpus, this is a
+lower-bound correction on the global <code>cited_by_count</code>.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>Other metrics:
+    <div class="dont-index"><p><code><a href="sm_self_citation.html">sm_self_citation()</a></code></p>
+<p>Other metrics:
 <code><a href="sm_metric_collab_index.html">sm_metric_collab_index()</a></code>,
 <code><a href="sm_metric_disruption.html">sm_metric_disruption()</a></code>,
 <code><a href="sm_metric_fnci.html">sm_metric_fnci()</a></code>,
@@ -81,6 +99,7 @@ h-index <em>h</em> if <em>h</em> of its works have at least <em>h</em> citations
 <code><a href="sm_metric_m_index.html">sm_metric_m_index()</a></code>,
 <code><a href="sm_metric_novelty.html">sm_metric_novelty()</a></code>,
 <code><a href="sm_metric_rcr.html">sm_metric_rcr()</a></code>,
+<code><a href="sm_self_citation.html">sm_self_citation()</a></code>,
 <code><a href="sm_summary_authors.html">sm_summary_authors()</a></code>,
 <code><a href="sm_summary_period.html">sm_summary_period()</a></code>,
 <code><a href="sm_summary_sources.html">sm_summary_sources()</a></code>,

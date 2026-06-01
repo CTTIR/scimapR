@@ -168,6 +168,7 @@ An `sm_coverage` S3 object (a list) with components:
 Other coverage:
 [`sm_coverage_breakdowns()`](https://cttir.github.io/scimapR/reference/sm_coverage_breakdowns.md),
 [`sm_journal_in_index()`](https://cttir.github.io/scimapR/reference/sm_journal_in_index.md),
+[`sm_match_types()`](https://cttir.github.io/scimapR/reference/sm_match_types.md),
 [`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
 
 ## Examples

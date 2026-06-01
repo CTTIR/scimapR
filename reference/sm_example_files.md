@@ -34,8 +34,8 @@ sm_example_files()
 #>  [5] "example_journal_index.csv"        "example_lens.csv"                
 #>  [7] "example_openalex.json"            "example_openalex_inverted.json"  
 #>  [9] "example_pubmed.xml"               "example_ror.csv"                 
-#> [11] "example_scopus.csv"               "example_sparse.bib"              
-#> [13] "example_wos.txt"                 
+#> [11] "example_scopus.csv"               "example_self_citation_corpus.rds"
+#> [13] "example_sparse.bib"               "example_wos.txt"                 
 sm_example_files("example.bib")
 #> [1] "/home/runner/work/_temp/Library/scimapR/extdata/example.bib"
 ```

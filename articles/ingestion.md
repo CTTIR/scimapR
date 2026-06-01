@@ -39,6 +39,26 @@ corpus
 You can pass any of `works`, `authorships`, `sources`, `institutions`,
 `references`, `concepts`, etc. as named list elements.
 
+### Materialising cached enrichment
+
+Once you have a corpus, fold cached enrichment (a metrics table, a
+citation cache, …) into it with
+[`sm_materialise()`](https://cttir.github.io/scimapR/reference/sm_materialise.md)
+rather than hand-writing the join. It matches by key, fills `NA` cells
+(or replaces with `overwrite = TRUE`), and returns a schema-valid corpus
+— avoiding the classic `bind_rows()` bug where a `NULL` element silently
+becomes a logical column.
+
+``` r
+
+metrics <- data.frame(work_id = corpus$works$work_id,
+                      cnci = c(1.4, 0.8, 1.1))
+corpus <- sm_materialise(corpus, sources = list(works = metrics))
+#> ✔ Materialised 3 enrichment rows into works (+1 column).
+"cnci" %in% names(corpus$works)
+#> [1] TRUE
+```
+
 ## File ingestion
 
 scimapR reads 12 bibliographic formats with native clean-room parsers.
@@ -51,9 +71,9 @@ sm_example_files()
 #>  [3] "example_journal_index.csv"        "example_lens.csv"                
 #>  [5] "example_openalex_inverted.json"   "example_openalex.json"           
 #>  [7] "example_pubmed.xml"               "example_ror.csv"                 
-#>  [9] "example_scopus.csv"               "example_sparse.bib"              
-#> [11] "example_wos.txt"                  "example.bib"                     
-#> [13] "example.ris"
+#>  [9] "example_scopus.csv"               "example_self_citation_corpus.rds"
+#> [11] "example_sparse.bib"               "example_wos.txt"                 
+#> [13] "example.bib"                      "example.ris"
 ```
 
 ``` r
