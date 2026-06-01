@@ -42,10 +42,10 @@ oa <- sm_audit_oa(corpus)
 print(oa)
 }
 \seealso{
-Other audit: 
-\code{\link{print.sm_audit_summary}()},
-\code{\link{sm_audit_funding}()},
-\code{\link{sm_audit_gender}()},
-\code{\link{sm_audit_geographic}()}
+Other audit:
+\code{\link[=print.sm_audit_summary]{print.sm_audit_summary()}},
+\code{\link[=sm_audit_funding]{sm_audit_funding()}},
+\code{\link[=sm_audit_gender]{sm_audit_gender()}},
+\code{\link[=sm_audit_geographic]{sm_audit_geographic()}}
 }
 \concept{audit}

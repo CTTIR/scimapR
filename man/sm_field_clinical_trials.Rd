@@ -26,8 +26,8 @@ sm_field_clinical_trials(corpus)
 
 }
 \seealso{
-Other field-helpers: 
-\code{\link{sm_field_funder}()},
-\code{\link{sm_field_pubmed_mesh}()}
+Other field-helpers:
+\code{\link[=sm_field_funder]{sm_field_funder()}},
+\code{\link[=sm_field_pubmed_mesh]{sm_field_pubmed_mesh()}}
 }
 \concept{field-helpers}

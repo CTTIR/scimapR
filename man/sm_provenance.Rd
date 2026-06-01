@@ -23,11 +23,11 @@ corpus <- sm_example_corpus()
 sm_provenance(corpus)
 }
 \seealso{
-Other reproducibility: 
-\code{\link{sm_certificate}()},
-\code{\link{sm_cite_corpus}()},
-\code{\link{sm_diff_corpora}()},
-\code{\link{sm_hash_corpus}()},
-\code{\link{sm_snapshot}()}
+Other reproducibility:
+\code{\link[=sm_certificate]{sm_certificate()}},
+\code{\link[=sm_cite_corpus]{sm_cite_corpus()}},
+\code{\link[=sm_diff_corpora]{sm_diff_corpora()}},
+\code{\link[=sm_hash_corpus]{sm_hash_corpus()}},
+\code{\link[=sm_snapshot]{sm_snapshot()}}
 }
 \concept{reproducibility}

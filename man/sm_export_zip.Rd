@@ -44,14 +44,14 @@ sm_export_zip(corpus, path, include = c("rds", "certificate"))
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-Other export: 
-\code{\link{sm_export_csv}()},
-\code{\link{sm_export_cytoscape}()},
-\code{\link{sm_export_figure}()},
-\code{\link{sm_export_gephi}()},
-\code{\link{sm_export_quarto_report}()},
-\code{\link{sm_export_rds}()},
-\code{\link{sm_export_table}()},
-\code{\link{sm_export_vosviewer}()}
+Other export:
+\code{\link[=sm_export_csv]{sm_export_csv()}},
+\code{\link[=sm_export_cytoscape]{sm_export_cytoscape()}},
+\code{\link[=sm_export_figure]{sm_export_figure()}},
+\code{\link[=sm_export_gephi]{sm_export_gephi()}},
+\code{\link[=sm_export_quarto_report]{sm_export_quarto_report()}},
+\code{\link[=sm_export_rds]{sm_export_rds()}},
+\code{\link[=sm_export_table]{sm_export_table()}},
+\code{\link[=sm_export_vosviewer]{sm_export_vosviewer()}}
 }
 \concept{export}

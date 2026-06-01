@@ -60,10 +60,10 @@ geo <- sm_audit_geographic(corpus)
 print(geo)
 }
 \seealso{
-Other audit: 
-\code{\link{print.sm_audit_summary}()},
-\code{\link{sm_audit_funding}()},
-\code{\link{sm_audit_gender}()},
-\code{\link{sm_audit_oa}()}
+Other audit:
+\code{\link[=print.sm_audit_summary]{print.sm_audit_summary()}},
+\code{\link[=sm_audit_funding]{sm_audit_funding()}},
+\code{\link[=sm_audit_gender]{sm_audit_gender()}},
+\code{\link[=sm_audit_oa]{sm_audit_oa()}}
 }
 \concept{audit}

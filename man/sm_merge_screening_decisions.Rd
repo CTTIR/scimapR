@@ -19,10 +19,10 @@ Add external screening decisions (from Rayyan, Covidence, or manual
 spreadsheet) into the corpus screening table.
 }
 \seealso{
-Other screening: 
-\code{\link{sm_export_covidence}()},
-\code{\link{sm_export_rayyan}()},
-\code{\link{sm_import_rayyan}()},
-\code{\link{sm_screen_prisma}()}
+Other screening:
+\code{\link[=sm_export_covidence]{sm_export_covidence()}},
+\code{\link[=sm_export_rayyan]{sm_export_rayyan()}},
+\code{\link[=sm_import_rayyan]{sm_import_rayyan()}},
+\code{\link[=sm_screen_prisma]{sm_screen_prisma()}}
 }
 \concept{screening}

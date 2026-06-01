@@ -16,11 +16,11 @@ Logical.
 Test if an object is an sm_question
 }
 \seealso{
-Other question: 
-\code{\link{sm_corpus_for_question}()},
-\code{\link{sm_question}()},
-\code{\link{sm_screen_against_question}()},
-\code{\link{sm_screen_regex}()},
-\code{\link{sm_screen_summary}()}
+Other question:
+\code{\link[=sm_corpus_for_question]{sm_corpus_for_question()}},
+\code{\link[=sm_question]{sm_question()}},
+\code{\link[=sm_screen_against_question]{sm_screen_against_question()}},
+\code{\link[=sm_screen_regex]{sm_screen_regex()}},
+\code{\link[=sm_screen_summary]{sm_screen_summary()}}
 }
 \concept{question}

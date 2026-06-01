@@ -33,13 +33,13 @@ corpus <- sm_enrich_opencitations(corpus)
 }
 }
 \seealso{
-Other enrichers: 
-\code{\link{sm_enrich_altmetric}()},
-\code{\link{sm_enrich_concepts}()},
-\code{\link{sm_enrich_orcid}()},
-\code{\link{sm_enrich_retraction}()},
-\code{\link{sm_enrich_ror}()},
-\code{\link{sm_enrich_specter}()},
-\code{\link{sm_enrich_unpaywall}()}
+Other enrichers:
+\code{\link[=sm_enrich_altmetric]{sm_enrich_altmetric()}},
+\code{\link[=sm_enrich_concepts]{sm_enrich_concepts()}},
+\code{\link[=sm_enrich_orcid]{sm_enrich_orcid()}},
+\code{\link[=sm_enrich_retraction]{sm_enrich_retraction()}},
+\code{\link[=sm_enrich_ror]{sm_enrich_ror()}},
+\code{\link[=sm_enrich_specter]{sm_enrich_specter()}},
+\code{\link[=sm_enrich_unpaywall]{sm_enrich_unpaywall()}}
 }
 \concept{enrichers}

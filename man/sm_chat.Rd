@@ -79,7 +79,7 @@ because citations are constrained to retrieved works.
 }
 }
 \seealso{
-Other chat: 
-\code{\link{sm_chat_render}()}
+Other chat:
+\code{\link[=sm_chat_render]{sm_chat_render()}}
 }
 \concept{chat}

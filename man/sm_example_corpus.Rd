@@ -46,7 +46,7 @@ corpus <- sm_example_corpus()
 print(corpus)
 }
 \seealso{
-Other example: 
-\code{\link{sm_example_files}()}
+Other example:
+\code{\link[=sm_example_files]{sm_example_files()}}
 }
 \concept{example}

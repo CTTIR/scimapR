@@ -34,8 +34,8 @@ corpus <- sm_example_corpus()
 sm_staleness(corpus)
 }
 \seealso{
-Other refresh: 
-\code{\link{sm_lock}()},
-\code{\link{sm_refresh}()}
+Other refresh:
+\code{\link[=sm_lock]{sm_lock()}},
+\code{\link[=sm_refresh]{sm_refresh()}}
 }
 \concept{refresh}

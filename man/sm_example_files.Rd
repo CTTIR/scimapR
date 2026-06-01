@@ -22,7 +22,7 @@ sm_example_files()
 sm_example_files("example.bib")
 }
 \seealso{
-Other example: 
-\code{\link{sm_example_corpus}()}
+Other example:
+\code{\link[=sm_example_corpus]{sm_example_corpus()}}
 }
 \concept{example}

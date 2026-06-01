@@ -35,7 +35,7 @@ and a reference list. Supported formats are Markdown, HTML, and Quarto.
 }
 }
 \seealso{
-Other chat: 
-\code{\link{sm_chat}()}
+Other chat:
+\code{\link[=sm_chat]{sm_chat()}}
 }
 \concept{chat}

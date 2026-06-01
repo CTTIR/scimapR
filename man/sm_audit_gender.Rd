@@ -82,10 +82,10 @@ gender_audit <- sm_audit_gender(corpus, method = "manual")
 print(gender_audit)
 }
 \seealso{
-Other audit: 
-\code{\link{print.sm_audit_summary}()},
-\code{\link{sm_audit_funding}()},
-\code{\link{sm_audit_geographic}()},
-\code{\link{sm_audit_oa}()}
+Other audit:
+\code{\link[=print.sm_audit_summary]{print.sm_audit_summary()}},
+\code{\link[=sm_audit_funding]{sm_audit_funding()}},
+\code{\link[=sm_audit_geographic]{sm_audit_geographic()}},
+\code{\link[=sm_audit_oa]{sm_audit_oa()}}
 }
 \concept{audit}

@@ -35,7 +35,7 @@ Source title, DOI, Abstract, and more.
 }
 \section{Implementation}{
 
-The native parser reads the Scopus CSV export using \code{\link[readr:read_delim]{readr::read_csv()}}.
+The native parser reads the Scopus CSV export using \code{\link[readr:read_csv]{readr::read_csv()}}.
 Scopus CSV column names may vary between export versions; the parser
 matches on known column name patterns. Key columns:
 Authors, Title, Year, Source title, DOI, Abstract, Document Type,
@@ -55,17 +55,17 @@ comprehensive science mapping analysis. \emph{Journal of Informetrics},
 11(4), 959--975. \doi{10.1016/j.joi.2017.08.007}
 }
 \seealso{
-Other readers: 
-\code{\link{sm_read_auto}()},
-\code{\link{sm_read_bib}()},
-\code{\link{sm_read_cochrane}()},
-\code{\link{sm_read_dimensions}()},
-\code{\link{sm_read_endnote}()},
-\code{\link{sm_read_lens}()},
-\code{\link{sm_read_openalex_json}()},
-\code{\link{sm_read_pubmed_xml}()},
-\code{\link{sm_read_ris}()},
-\code{\link{sm_read_wos}()},
-\code{\link{sm_read_zotero}()}
+Other readers:
+\code{\link[=sm_read_auto]{sm_read_auto()}},
+\code{\link[=sm_read_bib]{sm_read_bib()}},
+\code{\link[=sm_read_cochrane]{sm_read_cochrane()}},
+\code{\link[=sm_read_dimensions]{sm_read_dimensions()}},
+\code{\link[=sm_read_endnote]{sm_read_endnote()}},
+\code{\link[=sm_read_lens]{sm_read_lens()}},
+\code{\link[=sm_read_openalex_json]{sm_read_openalex_json()}},
+\code{\link[=sm_read_pubmed_xml]{sm_read_pubmed_xml()}},
+\code{\link[=sm_read_ris]{sm_read_ris()}},
+\code{\link[=sm_read_wos]{sm_read_wos()}},
+\code{\link[=sm_read_zotero]{sm_read_zotero()}}
 }
 \concept{readers}

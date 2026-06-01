@@ -18,7 +18,7 @@ sm_read_pubmed_xml(
 \item{encoding}{Character scalar. File encoding (default \code{"UTF-8"}).}
 
 \item{engine}{Character scalar. One of \code{"native"} (built-in parser using
-\link[xml2:xml2-package]{xml2::xml2}), \code{"bibliometrix"} (delegate to \code{bibliometrix::convert2df()}),
+\link[xml2:xml2]{xml2}), \code{"bibliometrix"} (delegate to \code{bibliometrix::convert2df()}),
 or \code{"auto"} (try bibliometrix first, fall back to native).}
 
 \item{verbose}{Logical. Print progress messages?}
@@ -64,17 +64,17 @@ comprehensive science mapping analysis. \emph{Journal of Informetrics},
 11(4), 959--975. \doi{10.1016/j.joi.2017.08.007}
 }
 \seealso{
-Other readers: 
-\code{\link{sm_read_auto}()},
-\code{\link{sm_read_bib}()},
-\code{\link{sm_read_cochrane}()},
-\code{\link{sm_read_dimensions}()},
-\code{\link{sm_read_endnote}()},
-\code{\link{sm_read_lens}()},
-\code{\link{sm_read_openalex_json}()},
-\code{\link{sm_read_ris}()},
-\code{\link{sm_read_scopus}()},
-\code{\link{sm_read_wos}()},
-\code{\link{sm_read_zotero}()}
+Other readers:
+\code{\link[=sm_read_auto]{sm_read_auto()}},
+\code{\link[=sm_read_bib]{sm_read_bib()}},
+\code{\link[=sm_read_cochrane]{sm_read_cochrane()}},
+\code{\link[=sm_read_dimensions]{sm_read_dimensions()}},
+\code{\link[=sm_read_endnote]{sm_read_endnote()}},
+\code{\link[=sm_read_lens]{sm_read_lens()}},
+\code{\link[=sm_read_openalex_json]{sm_read_openalex_json()}},
+\code{\link[=sm_read_ris]{sm_read_ris()}},
+\code{\link[=sm_read_scopus]{sm_read_scopus()}},
+\code{\link[=sm_read_wos]{sm_read_wos()}},
+\code{\link[=sm_read_zotero]{sm_read_zotero()}}
 }
 \concept{readers}

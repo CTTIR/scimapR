@@ -46,11 +46,11 @@ loaded <- sm_snapshot_load(path)
 identical(nrow(corpus$works), nrow(loaded$works))
 }
 \seealso{
-Other reproducibility: 
-\code{\link{sm_certificate}()},
-\code{\link{sm_cite_corpus}()},
-\code{\link{sm_diff_corpora}()},
-\code{\link{sm_hash_corpus}()},
-\code{\link{sm_provenance}()}
+Other reproducibility:
+\code{\link[=sm_certificate]{sm_certificate()}},
+\code{\link[=sm_cite_corpus]{sm_cite_corpus()}},
+\code{\link[=sm_diff_corpora]{sm_diff_corpora()}},
+\code{\link[=sm_hash_corpus]{sm_hash_corpus()}},
+\code{\link[=sm_provenance]{sm_provenance()}}
 }
 \concept{reproducibility}

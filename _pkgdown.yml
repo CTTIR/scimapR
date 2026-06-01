@@ -78,6 +78,30 @@ reference:
     contents:
       - starts_with("sm_audit_")
       - sm_plot_equity_dashboard
+  - title: "Coverage and reconciliation"
+    contents:
+      - sm_coverage_audit
+      - sm_journal_in_index
+      - sm_reconcile
+  - title: "Affiliation and attribution"
+    contents:
+      - sm_affiliation_match
+      - sm_attribute_institution
+      - sm_affiliation_dict
+  - title: "Causal and policy evaluation"
+    contents:
+      - sm_its
+      - sm_did
+      - sm_synth
+  - title: "Counting and robust impact"
+    contents:
+      - sm_citation_maturity
+      - sm_count
+      - sm_metric_summary
+  - title: "Reproducible reporting"
+    contents:
+      - sm_figure_manifest
+      - sm_corpus_from_tables
   - title: "Conversational exploration"
     contents:
       - sm_chat
@@ -135,6 +159,7 @@ articles:
       - question-driven-reviews
       - reproducibility-and-certificates
       - equity-trajectory-and-chat
+      - research-management-analytics
   - title: "Ecosystem"
     contents:
       - relationship-to-bibliometrix

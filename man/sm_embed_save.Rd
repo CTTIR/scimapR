@@ -29,8 +29,8 @@ sm_embed_save(corpus, "my_embeddings.rds")
 }
 }
 \seealso{
-Other embedding: 
-\code{\link{sm_embed_load}()},
-\code{\link{sm_embed_works}()}
+Other embedding:
+\code{\link[=sm_embed_load]{sm_embed_load()}},
+\code{\link[=sm_embed_works]{sm_embed_works()}}
 }
 \concept{embedding}

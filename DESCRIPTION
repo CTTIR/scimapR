@@ -1,7 +1,7 @@
 Package: scimapR
 Type: Package
 Title: Reproducible, Question-Driven, Embedding-Aware Science Mapping
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person("Raban", "Heller", email = "raban.heller@charite.de",
            role = c("aut", "cre"),
@@ -31,7 +31,6 @@ BugReports: https://github.com/CTTIR/scimapR/issues
 Encoding: UTF-8
 Language: en-US
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Depends:
     R (>= 4.1.0)
 Imports:
@@ -99,7 +98,12 @@ Suggests:
     tidytext,
     uwot,
     dbscan,
-    openxlsx2
+    openxlsx2,
+    boot,
+    magick,
+    png,
+    tidysynth
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 LazyData: true
+Config/roxygen2/version: 8.0.0

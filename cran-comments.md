@@ -2,8 +2,20 @@
 0 errors | 0 warnings | 0 notes
 
 ## Test environments
-* local: Windows 11, R 4.5.3
+* local: Windows 11, R 4.5.2
 * GitHub Actions: ubuntu-release, ubuntu-devel, ubuntu-oldrel-1, macos-release, windows-release
+
+## Release summary
+
+Version 0.2.0 adds a research-management analytics layer (coverage and
+completeness auditing, affiliation disambiguation and ROR attribution,
+interrupted-time-series and difference-in-differences policy evaluation,
+citation-maturity flagging, full/fractional counting, and robust impact
+summaries) plus a reproducible tabular constructor and figure manifest. It
+also fixes four ingestion bugs (OpenAlex abstract reconstruction and DOI
+batching, a bibliometrix BibTeX wrapper failure on field-sparse entries, and
+native BibTeX parser performance). All new optional dependencies are in
+Suggests and guarded with `requireNamespace()`.
 
 ## This is a new submission.
 

@@ -46,11 +46,11 @@ g <- sm_network_collab(corpus, level = "author")
 g
 }
 \seealso{
-Other networks: 
-\code{\link{sm_network_citation}()},
-\code{\link{sm_network_cocitation}()},
-\code{\link{sm_network_coupling}()},
-\code{\link{sm_network_coword}()},
-\code{\link{sm_network_semantic}()}
+Other networks:
+\code{\link[=sm_network_citation]{sm_network_citation()}},
+\code{\link[=sm_network_cocitation]{sm_network_cocitation()}},
+\code{\link[=sm_network_coupling]{sm_network_coupling()}},
+\code{\link[=sm_network_coword]{sm_network_coword()}},
+\code{\link[=sm_network_semantic]{sm_network_semantic()}}
 }
 \concept{networks}

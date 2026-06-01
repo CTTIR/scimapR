@@ -31,7 +31,7 @@ Abstract, and Item Type.
 }
 \section{Implementation}{
 
-The parser reads the Zotero CSV export format using \code{\link[readr:read_delim]{readr::read_csv()}}.
+The parser reads the Zotero CSV export format using \code{\link[readr:read_csv]{readr::read_csv()}}.
 Zotero CSV exports have a standard set of column names. Key columns
 matched (case-insensitive): Key, Title, Author, Publication Year,
 DOI, Publication Title, Abstract Note, Item Type, ISSN, Language,
@@ -51,17 +51,17 @@ comprehensive science mapping analysis. \emph{Journal of Informetrics},
 11(4), 959--975. \doi{10.1016/j.joi.2017.08.007}
 }
 \seealso{
-Other readers: 
-\code{\link{sm_read_auto}()},
-\code{\link{sm_read_bib}()},
-\code{\link{sm_read_cochrane}()},
-\code{\link{sm_read_dimensions}()},
-\code{\link{sm_read_endnote}()},
-\code{\link{sm_read_lens}()},
-\code{\link{sm_read_openalex_json}()},
-\code{\link{sm_read_pubmed_xml}()},
-\code{\link{sm_read_ris}()},
-\code{\link{sm_read_scopus}()},
-\code{\link{sm_read_wos}()}
+Other readers:
+\code{\link[=sm_read_auto]{sm_read_auto()}},
+\code{\link[=sm_read_bib]{sm_read_bib()}},
+\code{\link[=sm_read_cochrane]{sm_read_cochrane()}},
+\code{\link[=sm_read_dimensions]{sm_read_dimensions()}},
+\code{\link[=sm_read_endnote]{sm_read_endnote()}},
+\code{\link[=sm_read_lens]{sm_read_lens()}},
+\code{\link[=sm_read_openalex_json]{sm_read_openalex_json()}},
+\code{\link[=sm_read_pubmed_xml]{sm_read_pubmed_xml()}},
+\code{\link[=sm_read_ris]{sm_read_ris()}},
+\code{\link[=sm_read_scopus]{sm_read_scopus()}},
+\code{\link[=sm_read_wos]{sm_read_wos()}}
 }
 \concept{readers}

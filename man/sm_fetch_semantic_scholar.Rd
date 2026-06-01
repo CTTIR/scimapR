@@ -51,13 +51,13 @@ print(corpus)
 }
 }
 \seealso{
-Other fetchers: 
-\code{\link{sm_fetch_arxiv}()},
-\code{\link{sm_fetch_biorxiv}()},
-\code{\link{sm_fetch_crossref}()},
-\code{\link{sm_fetch_openalex}()},
-\code{\link{sm_fetch_orcid}()},
-\code{\link{sm_fetch_overton}()},
-\code{\link{sm_fetch_pubmed}()}
+Other fetchers:
+\code{\link[=sm_fetch_arxiv]{sm_fetch_arxiv()}},
+\code{\link[=sm_fetch_biorxiv]{sm_fetch_biorxiv()}},
+\code{\link[=sm_fetch_crossref]{sm_fetch_crossref()}},
+\code{\link[=sm_fetch_openalex]{sm_fetch_openalex()}},
+\code{\link[=sm_fetch_orcid]{sm_fetch_orcid()}},
+\code{\link[=sm_fetch_overton]{sm_fetch_overton()}},
+\code{\link[=sm_fetch_pubmed]{sm_fetch_pubmed()}}
 }
 \concept{fetchers}

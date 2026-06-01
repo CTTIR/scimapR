@@ -1,10 +1,16 @@
 #' Compare two corpora
 #'
 #' @description
+#' `r lifecycle::badge("superseded")`
+#'
 #' Produces a detailed comparison between two `sm_corpus` objects, reporting
 #' works added, removed, and changed; author differences; reference
 #' differences; and screening changes. This is useful for auditing how a
 #' corpus evolved between snapshots or after a refresh.
+#'
+#' This function compares strictly by internal `work_id`. For content-based
+#' reconciliation across corpora that do not share identifiers (matching by
+#' normalised DOI with a fuzzy title fallback), use [sm_reconcile()].
 #'
 #' @param corpus1 An `sm_corpus` object (the "before" state).
 #' @param corpus2 An `sm_corpus` object (the "after" state).
@@ -21,6 +27,7 @@
 #' }
 #'
 #' @family reproducibility
+#' @seealso [sm_reconcile()]
 #' @export
 #' @examples
 #' \donttest{

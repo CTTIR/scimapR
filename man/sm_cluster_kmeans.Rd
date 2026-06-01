@@ -48,10 +48,10 @@ table(corpus$works$cluster_id)
 }
 }
 \seealso{
-Other clustering: 
-\code{\link{sm_cluster_evolution}()},
-\code{\link{sm_cluster_hdbscan}()},
-\code{\link{sm_cluster_label}()},
-\code{\link{sm_cluster_leiden}()}
+Other clustering:
+\code{\link[=sm_cluster_evolution]{sm_cluster_evolution()}},
+\code{\link[=sm_cluster_hdbscan]{sm_cluster_hdbscan()}},
+\code{\link[=sm_cluster_label]{sm_cluster_label()}},
+\code{\link[=sm_cluster_leiden]{sm_cluster_leiden()}}
 }
 \concept{clustering}

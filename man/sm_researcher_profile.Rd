@@ -39,12 +39,12 @@ embed, and build a trajectory analysis.
 }
 }
 \seealso{
-Other trajectory: 
-\code{\link{is_sm_trajectory}()},
-\code{\link{sm_author_trajectory}()},
-\code{\link{sm_plot_collab_turnover}()},
-\code{\link{sm_plot_topic_pivots}()},
-\code{\link{sm_plot_trajectory}()},
+Other trajectory:
+\code{\link[=is_sm_trajectory]{is_sm_trajectory()}},
+\code{\link[=sm_author_trajectory]{sm_author_trajectory()}},
+\code{\link[=sm_plot_collab_turnover]{sm_plot_collab_turnover()}},
+\code{\link[=sm_plot_topic_pivots]{sm_plot_topic_pivots()}},
+\code{\link[=sm_plot_trajectory]{sm_plot_trajectory()}},
 \code{\link{sm_trajectory}}
 }
 \concept{trajectory}

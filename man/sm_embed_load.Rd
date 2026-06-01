@@ -30,8 +30,8 @@ dim(corpus$embeddings)
 }
 }
 \seealso{
-Other embedding: 
-\code{\link{sm_embed_save}()},
-\code{\link{sm_embed_works}()}
+Other embedding:
+\code{\link[=sm_embed_save]{sm_embed_save()}},
+\code{\link[=sm_embed_works]{sm_embed_works()}}
 }
 \concept{embedding}

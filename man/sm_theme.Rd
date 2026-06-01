@@ -26,20 +26,20 @@ library(ggplot2)
 ggplot(mtcars, aes(wt, mpg)) + geom_point() + sm_theme()
 }
 \seealso{
-Other plots: 
-\code{\link{autoplot.sm_corpus}()},
-\code{\link{sm_palette_qualitative}()},
-\code{\link{sm_plot_bradford}()},
-\code{\link{sm_plot_citation_network}()},
-\code{\link{sm_plot_collab}()},
-\code{\link{sm_plot_equity_dashboard}()},
-\code{\link{sm_plot_evolution}()},
-\code{\link{sm_plot_heaps}()},
-\code{\link{sm_plot_landscape}()},
-\code{\link{sm_plot_lotka}()},
-\code{\link{sm_plot_production}()},
-\code{\link{sm_plot_thematic_map}()},
-\code{\link{sm_plot_top}()},
-\code{\link{sm_scale_color}()}
+Other plots:
+\code{\link[=autoplot.sm_corpus]{autoplot.sm_corpus()}},
+\code{\link[=sm_palette_qualitative]{sm_palette_qualitative()}},
+\code{\link[=sm_plot_bradford]{sm_plot_bradford()}},
+\code{\link[=sm_plot_citation_network]{sm_plot_citation_network()}},
+\code{\link[=sm_plot_collab]{sm_plot_collab()}},
+\code{\link[=sm_plot_equity_dashboard]{sm_plot_equity_dashboard()}},
+\code{\link[=sm_plot_evolution]{sm_plot_evolution()}},
+\code{\link[=sm_plot_heaps]{sm_plot_heaps()}},
+\code{\link[=sm_plot_landscape]{sm_plot_landscape()}},
+\code{\link[=sm_plot_lotka]{sm_plot_lotka()}},
+\code{\link[=sm_plot_production]{sm_plot_production()}},
+\code{\link[=sm_plot_thematic_map]{sm_plot_thematic_map()}},
+\code{\link[=sm_plot_top]{sm_plot_top()}},
+\code{\link[=sm_scale_color]{sm_scale_color()}}
 }
 \concept{plots}
