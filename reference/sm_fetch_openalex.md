@@ -19,6 +19,7 @@ sm_fetch_openalex(
   mailto = Sys.getenv("SCIMAPR_MAILTO"),
   api_key = Sys.getenv("OPENALEX_API_KEY"),
   engine = c("native", "openalexR", "auto"),
+  batch_size = 50L,
   verbose = TRUE,
   call = rlang::caller_env()
 )
@@ -58,6 +59,16 @@ sm_fetch_openalex(
   One of `"native"` (built-in httr2 client), `"openalexR"` (use the
   openalexR package), or `"auto"` (use openalexR if available, otherwise
   native).
+
+- batch_size:
+
+  Integer; maximum number of `|`-joined values allowed in a single
+  OpenAlex filter clause before the request is automatically split into
+  multiple batched requests. OpenAlex limits the number of values in an
+  `OR` filter and the overall URL length, so long DOI (or other ID)
+  lists are chunked, fetched per batch, and row-bound with
+  de-duplication. Default `50`, which stays comfortably under the API's
+  documented limit of 100.
 
 - verbose:
 

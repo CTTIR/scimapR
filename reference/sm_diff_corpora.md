@@ -1,9 +1,16 @@
 # Compare two corpora
 
+**\[superseded\]**
+
 Produces a detailed comparison between two `sm_corpus` objects,
 reporting works added, removed, and changed; author differences;
 reference differences; and screening changes. This is useful for
 auditing how a corpus evolved between snapshots or after a refresh.
+
+This function compares strictly by internal `work_id`. For content-based
+reconciliation across corpora that do not share identifiers (matching by
+normalised DOI with a fuzzy title fallback), use
+[`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md).
 
 ## Usage
 
@@ -65,6 +72,8 @@ An `sm_corpus_diff` S3 object (a list) with components:
   Hash of `corpus2`.
 
 ## See also
+
+[`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
 
 Other reproducibility:
 [`sm_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md),

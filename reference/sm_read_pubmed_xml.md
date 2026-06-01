@@ -30,7 +30,7 @@ sm_read_pubmed_xml(
 - engine:
 
   Character scalar. One of `"native"` (built-in parser using
-  [xml2::xml2](http://xml2.r-lib.org/reference/xml2-package.md)),
+  [xml2](http://xml2.r-lib.org/reference/xml2-package.md)),
   `"bibliometrix"` (delegate to
   [`bibliometrix::convert2df()`](https://rdrr.io/pkg/bibliometrix/man/convert2df.html)),
   or `"auto"` (try bibliometrix first, fall back to native).

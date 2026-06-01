@@ -27,8 +27,10 @@ sm_cluster_leiden(
 
   A
   [tidygraph::tbl_graph](https://tidygraph.data-imaginist.com/reference/tbl_graph.html)
-  or igraph::igraph object, or `NULL`. If `NULL` (default), a semantic
-  similarity network is built via
+  or
+  [igraph::igraph](https://r.igraph.org/reference/aaa-igraph-package.html)
+  object, or `NULL`. If `NULL` (default), a semantic similarity network
+  is built via
   [`sm_network_semantic()`](https://cttir.github.io/scimapR/reference/sm_network_semantic.md).
 
 - resolution:

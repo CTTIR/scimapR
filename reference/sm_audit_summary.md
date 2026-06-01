@@ -87,13 +87,13 @@ summary_audit <- sm_audit_summary(corpus)
 #> Warning: 404 (client error): /works/10.1234/example.13 - Resource not found.
 #> Warning: 429 (client error): /works/10.1234/example.14 - 
 #> Warning: 429 (client error): /works/10.1234/example.15 - 
-#> Warning: 429 (client error): /works/10.1234/example.16 - 
+#> Warning: 404 (client error): /works/10.1234/example.16 - Resource not found.
 #> Warning: 429 (client error): /works/10.1234/example.17 - 
 #> Warning: 429 (client error): /works/10.1234/example.18 - 
 #> Warning: 404 (client error): /works/10.1234/example.19 - Resource not found.
 #> Warning: 429 (client error): /works/10.1234/example.20 - 
 #> Warning: 429 (client error): /works/10.1234/example.21 - 
-#> Warning: 404 (client error): /works/10.1234/example.22 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.22 - 
 #> Warning: 429 (client error): /works/10.1234/example.23 - 
 #> Warning: 429 (client error): /works/10.1234/example.24 - 
 #> Warning: 429 (client error): /works/10.1234/example.25 - 

@@ -22,6 +22,8 @@
   Certificates](https://cttir.github.io/scimapR/articles/reproducibility-and-certificates.md):
 - [Equity Audit, Trajectory Analysis, and Corpus
   Chat](https://cttir.github.io/scimapR/articles/equity-trajectory-and-chat.md):
+- [Research-management analytics: coverage, attribution, and policy
+  evaluation](https://cttir.github.io/scimapR/articles/research-management-analytics.md):
 
 ### Ecosystem
 

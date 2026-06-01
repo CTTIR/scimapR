@@ -1,7 +1,7 @@
 # Read EndNote XML export files
 
 Parse EndNote XML export files into an `sm_corpus` object. Uses
-[xml2::xml2](http://xml2.r-lib.org/reference/xml2-package.md) to extract
+[xml2](http://xml2.r-lib.org/reference/xml2-package.md) to extract
 record metadata from the EndNote XML format.
 
 ## Usage

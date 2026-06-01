@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,9 +77,12 @@ parsers.</p>
 <span></span>
 <span><span class="co"># List available example files</span></span>
 <span><span class="fu"><a href="../reference/sm_example_files.html">sm_example_files</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "example_dimensions.csv" "example_lens.csv"       "example_openalex.json" </span></span>
-<span><span class="co">#&gt; [4] "example_pubmed.xml"     "example_scopus.csv"     "example_wos.txt"       </span></span>
-<span><span class="co">#&gt; [7] "example.bib"            "example.ris"</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] "example_dimensions.csv"         "example_journal_index.csv"     </span></span>
+<span><span class="co">#&gt;  [3] "example_lens.csv"               "example_openalex_inverted.json"</span></span>
+<span><span class="co">#&gt;  [5] "example_openalex.json"          "example_pubmed.xml"            </span></span>
+<span><span class="co">#&gt;  [7] "example_ror.csv"                "example_scopus.csv"            </span></span>
+<span><span class="co">#&gt;  [9] "example_sparse.bib"             "example_wos.txt"               </span></span>
+<span><span class="co">#&gt; [11] "example.bib"                    "example.ris"</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Read a BibTeX file</span></span>
 <span><span class="va">bib_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_example_files.html">sm_example_files</a></span><span class="op">(</span><span class="st">"example.bib"</span><span class="op">)</span></span>

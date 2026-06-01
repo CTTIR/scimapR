@@ -10,9 +10,12 @@ library(scimapR)
 
 # List available example files
 sm_example_files()
-#> [1] "example_dimensions.csv" "example_lens.csv"       "example_openalex.json" 
-#> [4] "example_pubmed.xml"     "example_scopus.csv"     "example_wos.txt"       
-#> [7] "example.bib"            "example.ris"
+#>  [1] "example_dimensions.csv"         "example_journal_index.csv"     
+#>  [3] "example_lens.csv"               "example_openalex_inverted.json"
+#>  [5] "example_openalex.json"          "example_pubmed.xml"            
+#>  [7] "example_ror.csv"                "example_scopus.csv"            
+#>  [9] "example_sparse.bib"             "example_wos.txt"               
+#> [11] "example.bib"                    "example.ris"
 ```
 
 ``` r

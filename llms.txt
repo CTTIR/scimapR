@@ -379,6 +379,8 @@ Issues and pull requests are welcome at
   : Calculate Uzzi novelty score
 - [`sm_metric_rcr()`](https://cttir.github.io/scimapR/reference/sm_metric_rcr.md)
   : Calculate Relative Citation Ratio
+- [`sm_metric_summary()`](https://cttir.github.io/scimapR/reference/sm_metric_summary.md)
+  : Robust summary of a heavy-tailed impact metric
 - [`sm_summary_authors()`](https://cttir.github.io/scimapR/reference/sm_summary_authors.md)
   : Summary statistics for authors
 - [`sm_summary_period()`](https://cttir.github.io/scimapR/reference/sm_summary_period.md)
@@ -425,6 +427,63 @@ Issues and pull requests are welcome at
 - [`sm_plot_equity_dashboard()`](https://cttir.github.io/scimapR/reference/sm_plot_equity_dashboard.md)
   : Plot equity dashboard
 
+## Coverage and reconciliation
+
+- [`sm_coverage_audit()`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md)
+  [`print(`*`<sm_coverage>`*`)`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md)
+  [`summary(`*`<sm_coverage>`*`)`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md)
+  [`autoplot(`*`<sm_coverage>`*`)`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md)
+  : Audit corpus coverage against a ground-truth reference
+- [`sm_journal_in_index()`](https://cttir.github.io/scimapR/reference/sm_journal_in_index.md)
+  : Verify journal source coverage against an index by ISSN
+- [`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
+  [`print(`*`<sm_reconciliation>`*`)`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
+  [`summary(`*`<sm_reconciliation>`*`)`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
+  [`autoplot(`*`<sm_reconciliation>`*`)`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
+  : Reconcile two corpora by DOI and title
+
+## Affiliation and attribution
+
+- [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  : Match author affiliations to institutions
+- [`sm_attribute_institution()`](https://cttir.github.io/scimapR/reference/sm_attribute_institution.md)
+  : Attribute matched affiliations to a controlled institution
+  vocabulary
+- [`sm_affiliation_dict`](https://cttir.github.io/scimapR/reference/sm_affiliation_dict.md)
+  : Default affiliation-matching dictionary
+
+## Causal and policy evaluation
+
+- [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md)
+  [`print(`*`<sm_its>`*`)`](https://cttir.github.io/scimapR/reference/sm_its.md)
+  [`summary(`*`<sm_its>`*`)`](https://cttir.github.io/scimapR/reference/sm_its.md)
+  [`autoplot(`*`<sm_its>`*`)`](https://cttir.github.io/scimapR/reference/sm_its.md)
+  : Interrupted time series for a corpus outcome
+- [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md)
+  [`print(`*`<sm_did>`*`)`](https://cttir.github.io/scimapR/reference/sm_did.md)
+  [`summary(`*`<sm_did>`*`)`](https://cttir.github.io/scimapR/reference/sm_did.md)
+  [`autoplot(`*`<sm_did>`*`)`](https://cttir.github.io/scimapR/reference/sm_did.md)
+  : Difference-in-differences for a treated vs control institution set
+- [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  [`print(`*`<sm_synth>`*`)`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  : Synthetic control for a treated institution
+
+## Counting and robust impact
+
+- [`sm_citation_maturity()`](https://cttir.github.io/scimapR/reference/sm_citation_maturity.md)
+  : Flag citation-immature recent years
+- [`sm_count()`](https://cttir.github.io/scimapR/reference/sm_count.md)
+  : Full and fractional output / impact counting
+- [`sm_metric_summary()`](https://cttir.github.io/scimapR/reference/sm_metric_summary.md)
+  : Robust summary of a heavy-tailed impact metric
+
+## Reproducible reporting
+
+- [`sm_figure_manifest()`](https://cttir.github.io/scimapR/reference/sm_figure_manifest.md)
+  : Build a figure caption and alt-text manifest
+- [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md)
+  : Construct an sm_corpus from a relational set of tables
+
 ## Conversational exploration
 
 - [`sm_chat()`](https://cttir.github.io/scimapR/reference/sm_chat.md)
@@ -452,7 +511,7 @@ Issues and pull requests are welcome at
   : Save and load corpus snapshots
 - [`sm_diff_corpora()`](https://cttir.github.io/scimapR/reference/sm_diff_corpora.md)
   [`print(`*`<sm_corpus_diff>`*`)`](https://cttir.github.io/scimapR/reference/sm_diff_corpora.md)
-  : Compare two corpora
+  **\[superseded\]** : Compare two corpora
 
 ## Visualization
 
@@ -578,6 +637,8 @@ Issues and pull requests are welcome at
   Certificates](https://cttir.github.io/scimapR/articles/reproducibility-and-certificates.md):
 - [Equity Audit, Trajectory Analysis, and Corpus
   Chat](https://cttir.github.io/scimapR/articles/equity-trajectory-and-chat.md):
+- [Research-management analytics: coverage, attribution, and policy
+  evaluation](https://cttir.github.io/scimapR/articles/research-management-analytics.md):
 
 ### Ecosystem
 

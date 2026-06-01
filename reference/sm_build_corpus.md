@@ -34,6 +34,7 @@ Other corpus:
 [`is_sm_corpus()`](https://cttir.github.io/scimapR/reference/is_sm_corpus.md),
 [`sm_bind_corpora()`](https://cttir.github.io/scimapR/reference/sm_bind_corpora.md),
 [`sm_corpus()`](https://cttir.github.io/scimapR/reference/sm_corpus.md),
+[`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md),
 [`sm_dedupe()`](https://cttir.github.io/scimapR/reference/sm_dedupe.md),
 [`sm_save_corpus()`](https://cttir.github.io/scimapR/reference/sm_save_corpus.md),
 [`sm_validate()`](https://cttir.github.io/scimapR/reference/sm_validate.md),

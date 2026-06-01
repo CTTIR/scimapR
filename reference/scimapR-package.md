@@ -35,3 +35,8 @@ Useful links:
 
 **Maintainer**: Raban Heller <raban.heller@charite.de>
 ([ORCID](https://orcid.org/0000-0001-8006-9742))
+
+Authors:
+
+- Raban Heller <raban.heller@charite.de>
+  ([ORCID](https://orcid.org/0000-0001-8006-9742))
