@@ -6,9 +6,25 @@
 #' @param corpus An `sm_corpus`.
 #' @param top_n Number of top works to include.
 #' @param dark Logical; dark mode?
+#' @param precompute Logical (default `FALSE`). When `TRUE`, the graph layout is
+#'   computed eagerly and a plain self-contained `ggplot` (materialised
+#'   coordinates) is returned, instead of a lazy `ggraph` object. Use this when
+#'   embedding the plot in an RMarkdown/knitr/`callr`/workflowr document: the
+#'   heavy layout runs once here rather than in the (often memory-limited)
+#'   render subprocess, where large `ggraph` objects can crash the harness.
+#' @param max_nodes Integer node cap (default `200`). Larger graphs are
+#'   downsampled to the highest-degree nodes with a `cli` message; raise it to
+#'   keep more nodes (slower to lay out and render).
 #' @param ... Additional arguments.
 #'
-#' @return A `ggplot` object.
+#' @return A `ggplot` object (a `ggraph` plot when `precompute = FALSE`, a plain
+#'   `ggplot` when `precompute = TRUE`).
+#'
+#' @section Large graphs:
+#' For big networks, prefer `precompute = TRUE` and save the returned object
+#' (e.g. with [saveRDS()]); printing it in a document then re-renders cheaply
+#' without recomputing the layout. See the networks section of the getting-
+#' started vignette.
 #'
 #' @examplesIf requireNamespace("ggraph", quietly = TRUE)
 #' corpus <- sm_example_corpus()
@@ -17,7 +33,9 @@
 #' @family plots
 #' @export
 sm_plot_citation_network <- function(corpus, top_n = 50L,
-                                     dark = FALSE, ...) {
+                                     dark = FALSE,
+                                     precompute = FALSE,
+                                     max_nodes = 200L, ...) {
   .check_sm_corpus(corpus)
   rlang::check_installed("ggraph",
     reason = "to plot citation networks.")
@@ -63,16 +81,9 @@ sm_plot_citation_network <- function(corpus, top_n = 50L,
     directed = TRUE
   )
 
-  ggraph::ggraph(g, layout = "stress") +
-    ggraph::geom_edge_link(alpha = 0.3, arrow = ggplot2::arrow(
-      length = ggplot2::unit(2, "mm"), type = "closed"
-    )) +
-    ggraph::geom_node_point(
-      ggplot2::aes(size = .data$cited_by_count),
-      colour = viridisLite::viridis(1)
-    ) +
-    ggraph::theme_graph(base_family = "",
-                        background = if (dark) "#0e0e0e" else "white") +
-    sm_theme(dark = dark) +
-    ggplot2::labs(title = "Citation Network", size = "Citations")
+  .sm_render_network(
+    g, directed = TRUE, title = "Citation Network", dark = dark,
+    precompute = precompute, max_nodes = max_nodes,
+    node_size = "cited_by_count", node_label = FALSE
+  )
 }

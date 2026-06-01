@@ -82,14 +82,34 @@ sm_count <- function(corpus,
     },
     institution = {
       a <- corpus$authorships
-      if (nrow(a) == 0L) return(empty)
-      id_col <- if ("institution_id" %in% names(a) &&
-                    any(!is.na(a$institution_id))) {
+      if (nrow(a) == 0L) {
+        cli::cli_warn(c(
+          "!" = "No authorships available; cannot count by institution.",
+          "i" = "Returning an empty result."
+        ))
+        return(empty)
+      }
+      has_col <- function(col) col %in% names(a) && any(!is.na(a[[col]]))
+      # Prefer structured institution identifiers, then matched names, then
+      # fall back to the raw affiliation string (un-disambiguated).
+      id_col <- if (has_col("institution_id")) {
         "institution_id"
-      } else if ("institution_match" %in% names(a)) {
+      } else if (has_col("institution_match")) {
         "institution_match"
+      } else if (has_col("institution_id_raw")) {
+        "institution_id_raw"
+      } else if (has_col("raw_affiliation")) {
+        cli::cli_warn(c(
+          "!" = "No structured institution IDs found; counting by raw affiliation string.",
+          "i" = "Results are {.emph un-disambiguated}; run {.fn sm_affiliation_match}/{.fn sm_attribute_institution} for canonical institutions."
+        ))
+        "raw_affiliation"
       } else {
-        "institution_id"
+        cli::cli_warn(c(
+          "!" = "No institution data found ({.field institution_id}, {.field institution_match}, or {.field raw_affiliation} all empty).",
+          "i" = "Returning an empty result."
+        ))
+        return(empty)
       }
       name_col <- if ("institution_name" %in% names(a)) "institution_name" else id_col
       tibble::tibble(

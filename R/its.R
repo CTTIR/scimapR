@@ -52,14 +52,15 @@
         dplyr::arrange(.data$year)
     },
     cnci = {
-      fnci <- sm_metric_fnci(corpus, call = call)
-      fnci <- dplyr::filter(fnci, .data$work_id %in% works$work_id)
-      fnci %>%
-        dplyr::filter(!is.na(.data$fnci)) %>%
+      res <- .resolve_impact_values(corpus, call = call)
+      works %>%
+        dplyr::select("work_id", "year") %>%
+        dplyr::inner_join(res$values, by = "work_id") %>%
+        dplyr::filter(!is.na(.data$value)) %>%
         dplyr::group_by(.data$year) %>%
         dplyr::summarise(
           n_works = dplyr::n(),
-          value = mean(.data$fnci, na.rm = TRUE),
+          value = mean(.data$value, na.rm = TRUE),
           .groups = "drop"
         ) %>%
         dplyr::arrange(.data$year)
@@ -89,6 +90,69 @@
   )
 }
 
+#' Resolve a per-work impact (CNCI) series from common locations
+#'
+#' @description
+#' Searches the corpus for impact data in a documented order and uses the first
+#' populated source: (1) a precomputed `works$cnci` column; (2) a dedicated
+#' `corpus$metrics` table (`cnci`/`fnci`/`value` column keyed by `work_id`);
+#' (3) `works$cited_by_count`, from which a field-normalised impact (FNCI) is
+#' derived via [sm_metric_fnci()]. If none is populated it raises an
+#' informative error naming the exact columns inspected -- instead of letting
+#' the downstream series collapse to "0 observations".
+#'
+#' @return A list with `values` (tibble of `work_id`, `value`) and `source`
+#'   (a human-readable label of the location used).
+#' @noRd
+.resolve_impact_values <- function(corpus, call = rlang::caller_env()) {
+  works <- corpus$works
+  checked <- character()
+
+  # 1. precomputed CNCI column on works
+  checked <- c(checked, "works$cnci")
+  if ("cnci" %in% names(works) && any(!is.na(works$cnci))) {
+    return(list(
+      values = tibble::tibble(work_id = works$work_id,
+                              value = as.numeric(works$cnci)),
+      source = "works$cnci"
+    ))
+  }
+
+  # 2. dedicated metrics table, if the corpus carries one
+  checked <- c(checked, "corpus$metrics")
+  metrics <- corpus[["metrics"]]
+  if (!is.null(metrics) && is.data.frame(metrics) &&
+      "work_id" %in% names(metrics)) {
+    mcol <- intersect(c("cnci", "fnci", "value"), names(metrics))
+    if (length(mcol) > 0L && any(!is.na(metrics[[mcol[1]]]))) {
+      return(list(
+        values = tibble::tibble(work_id = as.character(metrics$work_id),
+                                value = as.numeric(metrics[[mcol[1]]])),
+        source = paste0("corpus$metrics$", mcol[1])
+      ))
+    }
+  }
+
+  # 3. derive a normalised impact from citation counts
+  checked <- c(checked, "works$cited_by_count")
+  if ("cited_by_count" %in% names(works) &&
+      any(!is.na(works$cited_by_count))) {
+    fnci <- sm_metric_fnci(corpus, call = call)
+    if (any(!is.na(fnci$fnci))) {
+      return(list(
+        values = tibble::tibble(work_id = fnci$work_id, value = fnci$fnci),
+        source = "works$cited_by_count (field-normalised)"
+      ))
+    }
+  }
+
+  cli::cli_abort(c(
+    "Outcome {.val cnci} has no usable impact data in this corpus.",
+    "i" = "Looked for, in order: {.field {checked}}.",
+    "i" = "Populate {.code works$cnci}, a {.code corpus$metrics} table, or {.code works$cited_by_count}; enrich citations (e.g. {.fn sm_enrich_opencitations}) or supply impact via {.fn sm_metric_summary}."
+  ), call = call)
+}
+
 #' Default GLM family for an outcome
 #' @noRd
 .sm_outcome_family <- function(outcome, family) {
@@ -113,10 +177,20 @@
 #'
 #' @param corpus An `sm_corpus`.
 #' @param intervention_year Integer year at which the intervention takes effect.
-#' @param outcome One of `"count"` (works per year), `"share_q1"` (share of
-#'   Q1-journal works; needs a `quartile` column), `"cnci"` (mean
-#'   field-normalised citation impact per year), `"leadership"` (share of works
-#'   with a corresponding/leadership author).
+#' @param outcome One of `"count"`, `"share_q1"`, `"cnci"`, `"leadership"`.
+#'   The expected source columns are:
+#'   \describe{
+#'     \item{`"count"`}{Works per year (uses `works$year`).}
+#'     \item{`"share_q1"`}{Share of Q1-journal works; needs a journal-quartile
+#'       column on `works` (`quartile`, `jif_quartile`, or `sjr_quartile`).}
+#'     \item{`"cnci"`}{Mean field-normalised citation impact per year. Impact is
+#'       resolved from the first populated of `works$cnci`, a `corpus$metrics`
+#'       table (`cnci`/`fnci`/`value` keyed by `work_id`), or `works$cited_by_count`
+#'       (from which FNCI is derived via [sm_metric_fnci()]). If none is
+#'       populated, an informative error names the columns inspected.}
+#'     \item{`"leadership"`}{Share of works with a corresponding/leadership
+#'       author (uses `authorships$is_corresponding`).}
+#'   }
 #' @param family Optional GLM family (a `family` object, generator function, or
 #'   name). Defaults to Poisson for `"count"` and Gaussian otherwise; document
 #'   your choice when overriding.

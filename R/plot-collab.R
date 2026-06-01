@@ -7,9 +7,15 @@
 #' @param level Collaboration level.
 #' @param top_n Number of top entities to include.
 #' @param dark Logical; dark mode?
+#' @param precompute Logical (default `FALSE`). When `TRUE`, return a plain
+#'   `ggplot` with the layout computed eagerly (see [sm_plot_citation_network()]
+#'   for why this matters when knitting large graphs).
+#' @param max_nodes Integer node cap (default `200`); larger graphs are
+#'   downsampled to the highest-degree nodes with a `cli` message.
 #' @param ... Additional arguments.
 #'
-#' @return A `ggplot` object.
+#' @return A `ggplot` object (`ggraph` when `precompute = FALSE`, plain `ggplot`
+#'   when `precompute = TRUE`).
 #'
 #' @examplesIf requireNamespace("ggraph", quietly = TRUE)
 #' corpus <- sm_example_corpus()
@@ -20,7 +26,9 @@
 sm_plot_collab <- function(corpus,
                            level = c("country", "institution", "author"),
                            top_n = 20L,
-                           dark = FALSE, ...) {
+                           dark = FALSE,
+                           precompute = FALSE,
+                           max_nodes = 200L, ...) {
   .check_sm_corpus(corpus)
   rlang::check_installed("ggraph",
     reason = "to plot collaboration networks.")
@@ -57,20 +65,11 @@ sm_plot_collab <- function(corpus,
       directed = FALSE
     )
 
-    ggraph::ggraph(g, layout = "stress") +
-      ggraph::geom_edge_link(
-        ggplot2::aes(width = .data$weight),
-        alpha = 0.4,
-        colour = viridisLite::viridis(1)
-      ) +
-      ggraph::geom_node_point(size = 4,
-                               colour = viridisLite::viridis(1, begin = 0.3)) +
-      ggraph::geom_node_text(ggplot2::aes(label = .data$name),
-                              repel = TRUE, size = 3) +
-      sm_theme(dark = dark) +
-      ggplot2::labs(title = "Collaboration Network") +
-      ggraph::theme_graph(base_family = "",
-                          background = if (dark) "#0e0e0e" else "white")
+    .sm_render_network(
+      g, directed = FALSE, title = "Collaboration Network", dark = dark,
+      precompute = precompute, max_nodes = max_nodes,
+      edge_weight = TRUE, node_label = TRUE
+    )
   } else if (level == "institution") {
     collab <- corpus$authorships %>%
       dplyr::filter(!is.na(.data$institution_id)) %>%
@@ -116,20 +115,11 @@ sm_plot_collab <- function(corpus,
       directed = FALSE
     )
 
-    ggraph::ggraph(g, layout = "stress") +
-      ggraph::geom_edge_link(
-        ggplot2::aes(width = .data$weight),
-        alpha = 0.4,
-        colour = viridisLite::viridis(1)
-      ) +
-      ggraph::geom_node_point(size = 4,
-                               colour = viridisLite::viridis(1, begin = 0.3)) +
-      ggraph::geom_node_text(ggplot2::aes(label = .data$name),
-                              repel = TRUE, size = 3) +
-      sm_theme(dark = dark) +
-      ggplot2::labs(title = "Institutional Collaboration Network") +
-      ggraph::theme_graph(base_family = "",
-                          background = if (dark) "#0e0e0e" else "white")
+    .sm_render_network(
+      g, directed = FALSE, title = "Institutional Collaboration Network",
+      dark = dark, precompute = precompute, max_nodes = max_nodes,
+      edge_weight = TRUE, node_label = TRUE
+    )
 
   } else {
     collab <- corpus$authorships %>%
@@ -176,19 +166,10 @@ sm_plot_collab <- function(corpus,
       directed = FALSE
     )
 
-    ggraph::ggraph(g, layout = "stress") +
-      ggraph::geom_edge_link(
-        ggplot2::aes(width = .data$weight),
-        alpha = 0.4,
-        colour = viridisLite::viridis(1)
-      ) +
-      ggraph::geom_node_point(size = 4,
-                               colour = viridisLite::viridis(1, begin = 0.3)) +
-      ggraph::geom_node_text(ggplot2::aes(label = .data$name),
-                              repel = TRUE, size = 3) +
-      sm_theme(dark = dark) +
-      ggplot2::labs(title = "Author Collaboration Network") +
-      ggraph::theme_graph(base_family = "",
-                          background = if (dark) "#0e0e0e" else "white")
+    .sm_render_network(
+      g, directed = FALSE, title = "Author Collaboration Network",
+      dark = dark, precompute = precompute, max_nodes = max_nodes,
+      edge_weight = TRUE, node_label = TRUE
+    )
   }
 }

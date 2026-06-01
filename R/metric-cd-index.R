@@ -49,13 +49,25 @@ sm_metric_disruption <- function(corpus, call = rlang::caller_env()) {
   works <- corpus$works
   refs <- corpus$references
 
-  # --- empty input guard ---
-  if (nrow(works) == 0L || nrow(refs) == 0L) {
+  # --- empty / absent reference-network guard (fast-exit, never spin) ---
+  if (nrow(works) == 0L) {
     return(tibble::tibble(work_id = character(), cd_index = double()))
+  }
+  if (nrow(refs) == 0L) {
+    cli::cli_warn(c(
+      "!" = "No reference network available; the CD (disruption) index requires linked references.",
+      "i" = "Returning {.code NA} for all works. Enrich references first (e.g. {.fn sm_enrich_opencitations})."
+    ))
+    return(tibble::tibble(work_id = works$work_id,
+                          cd_index = rep(NA_real_, nrow(works))))
   }
 
   refs <- dplyr::filter(refs, !is.na(.data$cited_work_id))
   if (nrow(refs) == 0L) {
+    cli::cli_warn(c(
+      "!" = "References are present but none are linked to corpus works ({.field cited_work_id} all missing).",
+      "i" = "The CD (disruption) index needs internal citation links; returning {.code NA} for all works."
+    ))
     return(tibble::tibble(work_id = works$work_id,
                           cd_index = rep(NA_real_, nrow(works))))
   }
@@ -67,51 +79,39 @@ sm_metric_disruption <- function(corpus, call = rlang::caller_env()) {
 
   focal_ids <- works$work_id
 
-  # Pre-compute: for each work, the set of works that cite it
-  # (reverse lookup from refs)
-  citers_of <- refs %>%
-    dplyr::select(focal = "cited_work_id", citer = "work_id") %>%
-    dplyr::distinct()
+  # O(1) adjacency lookups via split(), avoiding the previous per-work linear
+  # scans that made this O(n^2) and could spin for minutes on large corpora.
+  # citers_by[[w]] = works that cite w;  refs_by[[w]] = works cited by w.
+  citers_by <- split(refs$work_id, refs$cited_work_id)
+  refs_by <- split(refs$cited_work_id, refs$work_id)
+  citers_by <- lapply(citers_by, unique)
+  refs_by <- lapply(refs_by, unique)
 
-  # Pre-compute: for each work, its reference set
-  refs_of <- refs %>%
-    dplyr::select(focal = "work_id", ref = "cited_work_id") %>%
-    dplyr::distinct()
-
-  # Compute CD index for each focal work
-  cd_values <- vapply(focal_ids, function(f) {
-    # References of focal work f
-    f_refs <- refs_of$ref[refs_of$focal == f]
-    if (length(f_refs) == 0L) return(NA_real_)
-
-    # Works that cite f
-    f_citers <- citers_of$citer[citers_of$focal == f]
-    if (length(f_citers) == 0L) {
-      # n_i = 0, n_j = 0
-      # n_k = works citing f's refs but not f
-      f_ref_citers <- unique(citers_of$citer[citers_of$focal %in% f_refs])
-      n_k <- length(setdiff(f_ref_citers, f_citers))
-      if (n_k == 0L) return(NA_real_)
-      return(0 / n_k)  # CD = (0 - 0) / (0 + 0 + n_k) = 0
+  cd_values <- numeric(length(focal_ids))
+  cli::cli_progress_bar("Computing CD (disruption) index",
+                        total = length(focal_ids),
+                        .envir = environment())
+  for (idx in seq_along(focal_ids)) {
+    f <- focal_ids[idx]
+    f_refs <- refs_by[[f]]
+    if (is.null(f_refs) || length(f_refs) == 0L) {
+      cd_values[idx] <- NA_real_
+      cli::cli_progress_update(.envir = environment())
+      next
     }
+    f_citers <- citers_by[[f]]
+    if (is.null(f_citers)) f_citers <- character()
+    # works that cite any of f's references
+    f_ref_citers <- unique(unlist(citers_by[f_refs], use.names = FALSE))
 
-    # Works that cite any of f's references
-    f_ref_citers <- unique(citers_of$citer[citers_of$focal %in% f_refs])
-
-    # n_j: cite both f and at least one of f's refs
     n_j <- length(intersect(f_citers, f_ref_citers))
-
-    # n_i: cite f but NOT any of f's refs
     n_i <- length(f_citers) - n_j
-
-    # n_k: cite f's refs but NOT f
     n_k <- length(setdiff(f_ref_citers, f_citers))
-
     denom <- n_i + n_j + n_k
-    if (denom == 0L) return(NA_real_)
-
-    (n_i - n_j) / denom
-  }, double(1))
+    cd_values[idx] <- if (denom == 0L) NA_real_ else (n_i - n_j) / denom
+    cli::cli_progress_update(.envir = environment())
+  }
+  cli::cli_progress_done(.envir = environment())
 
   tibble::tibble(
     work_id  = focal_ids,

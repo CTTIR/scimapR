@@ -42,19 +42,27 @@ sm_audit_summary <- function(corpus,
   funding <- .extract_audit(dots, "sm_audit_funding")
   oa <- .extract_audit(dots, "sm_audit_oa")
 
-  # Run missing audits
+  # Run missing audits, with a progress bar so long runs on large corpora
+  # show motion rather than appearing to hang.
+  cli::cli_progress_bar("Running equity audits", total = 4L,
+                        .envir = environment())
   if (is.null(geo)) {
     geo <- sm_audit_geographic(corpus, call = call)
   }
+  cli::cli_progress_update(.envir = environment())
   if (is.null(gender)) {
     gender <- sm_audit_gender(corpus, method = "manual", call = call)
   }
+  cli::cli_progress_update(.envir = environment())
   if (is.null(funding)) {
     funding <- sm_audit_funding(corpus, call = call)
   }
+  cli::cli_progress_update(.envir = environment())
   if (is.null(oa)) {
     oa <- sm_audit_oa(corpus, call = call)
   }
+  cli::cli_progress_update(.envir = environment())
+  cli::cli_progress_done(.envir = environment())
 
   # Build overview
   overview <- tibble::tibble(
