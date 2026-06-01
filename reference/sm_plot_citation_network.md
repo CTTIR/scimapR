@@ -5,7 +5,14 @@ Visualise the citation network of top-cited works.
 ## Usage
 
 ``` r
-sm_plot_citation_network(corpus, top_n = 50L, dark = FALSE, ...)
+sm_plot_citation_network(
+  corpus,
+  top_n = 50L,
+  dark = FALSE,
+  precompute = FALSE,
+  max_nodes = 200L,
+  ...
+)
 ```
 
 ## Arguments
@@ -22,13 +29,37 @@ sm_plot_citation_network(corpus, top_n = 50L, dark = FALSE, ...)
 
   Logical; dark mode?
 
+- precompute:
+
+  Logical (default `FALSE`). When `TRUE`, the graph layout is computed
+  eagerly and a plain self-contained `ggplot` (materialised coordinates)
+  is returned, instead of a lazy `ggraph` object. Use this when
+  embedding the plot in an RMarkdown/knitr/`callr`/workflowr document:
+  the heavy layout runs once here rather than in the (often
+  memory-limited) render subprocess, where large `ggraph` objects can
+  crash the harness.
+
+- max_nodes:
+
+  Integer node cap (default `200`). Larger graphs are downsampled to the
+  highest-degree nodes with a `cli` message; raise it to keep more nodes
+  (slower to lay out and render).
+
 - ...:
 
   Additional arguments.
 
 ## Value
 
-A `ggplot` object.
+A `ggplot` object (a `ggraph` plot when `precompute = FALSE`, a plain
+`ggplot` when `precompute = TRUE`).
+
+## Large graphs
+
+For big networks, prefer `precompute = TRUE` and save the returned
+object (e.g. with [`saveRDS()`](https://rdrr.io/r/base/readRDS.html));
+printing it in a document then re-renders cheaply without recomputing
+the layout. See the networks section of the getting- started vignette.
 
 ## See also
 

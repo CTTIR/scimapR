@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -118,10 +118,27 @@ against it, and see which years are worst covered.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">cov</span><span class="op">)</span></span></code></pre></div>
 <p><img src="research-management-analytics_files/figure-html/coverage-plot-1.png" class="r-plt" alt="" width="576"></p>
+<p>Breakdowns are returned as a single flat tibble; use
+<code><a href="../reference/sm_coverage_breakdowns.html">sm_coverage_breakdowns()</a></code> to access or filter them:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/sm_coverage_breakdowns.html">sm_coverage_breakdowns</a></span><span class="op">(</span><span class="va">cov</span>, dimension <span class="op">=</span> <span class="st">"year"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 10 × 5</span></span></span>
+<span><span class="co">#&gt;    dimension level n_reference n_matched recall</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> year      2015           18        18      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> year      2016           12        12      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> year      2017           15        15      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> year      2018           16        16      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> year      2019           19        19      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> year      2020            9         9      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> year      2021           16        16      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> year      2022           13        13      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> year      2023           17        17      1</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> year      2024           15        15      1</span></span></code></pre></div>
 <p>Source coverage can be checked against a journal master list by ISSN
 (<code><a href="../reference/sm_journal_in_index.html">sm_journal_in_index()</a></code>), and two corpora reconciled by
 content with <code><a href="../reference/sm_reconcile.html">sm_reconcile()</a></code>.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ref_index</span> <span class="op">&lt;-</span> <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"example_journal_index.csv"</span>, package <span class="op">=</span> <span class="st">"scimapR"</span><span class="op">)</span>,</span>
 <span>  stringsAsFactors <span class="op">=</span> <span class="cn">FALSE</span></span>
@@ -133,6 +150,18 @@ content with <code><a href="../reference/sm_reconcile.html">sm_reconcile()</a></
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 1078-8956 doaj  TRUE     Nature Medicine print            </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 9999-9999 doaj  FALSE    <span style="color: #BB0000;">NA</span>              <span style="color: #BB0000;">NA</span></span></span></code></pre></div>
+<p>Passing the same index to
+<code>sm_coverage_audit(index_table = )</code> assesses <em>record
+capture</em> and <em>journal indexability</em> together – “did we
+capture this paper” and “is its journal indexed” in one pass:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cov_idx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_coverage_audit.html">sm_coverage_audit</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">reference</span>, match <span class="op">=</span> <span class="st">"doi"</span>,</span>
+<span>                             index_table <span class="op">=</span> <span class="va">ref_index</span><span class="op">)</span></span>
+<span><span class="va">cov_idx</span><span class="op">$</span><span class="va">indexability</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 2</span></span></span>
+<span><span class="co">#&gt;   indexable n_records</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> FALSE           200</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="affiliation-capture-and-attribution">2. Affiliation capture and attribution<a class="anchor" aria-label="anchor" href="#affiliation-capture-and-attribution"></a>
@@ -142,7 +171,7 @@ content with <code><a href="../reference/sm_reconcile.html">sm_reconcile()</a></
 dictionary (with multilingual variants and an email-domain fallback),
 and <code><a href="../reference/sm_attribute_institution.html">sm_attribute_institution()</a></code> rolls matches up to a
 controlled vocabulary.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">corpus</span><span class="op">$</span><span class="va">authorships</span><span class="op">$</span><span class="va">raw_affiliation</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Bundeswehrkrankenhaus Berlin"</span>,</span>
 <span>  <span class="st">"Charite - Universitatsmedizin Berlin"</span>,</span>
@@ -169,7 +198,7 @@ controlled vocabulary.</p>
 </h2>
 <p>Did an intervention in 2020 change output? An interrupted time series
 fits a level shift and slope change with a counterfactual.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">its</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_its.html">sm_its</a></span><span class="op">(</span><span class="va">corpus</span>, intervention_year <span class="op">=</span> <span class="fl">2020</span>, outcome <span class="op">=</span> <span class="st">"count"</span><span class="op">)</span></span>
 <span><span class="va">its</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">its</span><span class="op">)</span></span></code></pre></div>
@@ -179,7 +208,7 @@ excluded automatically (<code><a href="../reference/sm_citation_maturity.html">s
 same flags on <code>works</code>).</p>
 <p>A treated-vs-control comparison uses difference-in-differences. Here
 we tag two illustrative institution groups.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">corpus</span><span class="op">$</span><span class="va">authorships</span><span class="op">$</span><span class="va">institution_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Treated Inst"</span>, <span class="st">"Control Inst"</span><span class="op">)</span>,</span>
 <span>  length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">$</span><span class="va">authorships</span><span class="op">)</span><span class="op">)</span></span>
@@ -193,7 +222,7 @@ we tag two illustrative institution groups.</p>
 </h2>
 <p>Fractional counting attributes a multi-author paper’s single unit of
 credit across its contributors.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/sm_count.html">sm_count</a></span><span class="op">(</span><span class="va">corpus</span>, method <span class="op">=</span> <span class="st">"fractional"</span>, level <span class="op">=</span> <span class="st">"author"</span><span class="op">)</span>, <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 5</span></span></span>
 <span><span class="co">#&gt;   entity_id  entity_name    n_works credit weighted_citations</span></span>
@@ -205,7 +234,7 @@ credit across its contributors.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> A000000041 Raj Andersson       11   4.16               79.9</span></span></code></pre></div>
 <p>Heavy-tailed metrics are summarised robustly with medians, bootstrap
 CIs, and the proportion of papers in the global top 10%.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sm_metric_summary.html">sm_metric_summary</a></span><span class="op">(</span><span class="va">corpus</span>, metric <span class="op">=</span> <span class="st">"citations"</span>, seed <span class="op">=</span> <span class="fl">1</span>, n_boot <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 8</span></span></span>
 <span><span class="co">#&gt;   metric        n  mean median median_ci_low median_ci_high pp_top10 n_boot</span></span>
@@ -218,7 +247,7 @@ CIs, and the proportion of papers in the global top 10%.</p>
 <p>Finally, <code><a href="../reference/sm_figure_manifest.html">sm_figure_manifest()</a></code> turns a directory of
 exported figures into a captions / alt-text manifest for the
 manuscript.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dir</span> <span class="op">&lt;-</span> <span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_tempfile.html" class="external-link">local_tempdir</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">gg</span> <span class="op">&lt;-</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">its</span><span class="op">)</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"fig_its.png"</span><span class="op">)</span>, <span class="va">gg</span>, width <span class="op">=</span> <span class="fl">6</span>, height <span class="op">=</span> <span class="fl">4</span>,</span>

@@ -13,7 +13,7 @@ pre-intervention trend projected forward)."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,10 +81,27 @@ pre-intervention trend projected forward).</p>
 
 
 <dt id="arg-outcome">outcome<a class="anchor" aria-label="anchor" href="#arg-outcome"></a></dt>
-<dd><p>One of <code>"count"</code> (works per year), <code>"share_q1"</code> (share of
-Q1-journal works; needs a <code>quartile</code> column), <code>"cnci"</code> (mean
-field-normalised citation impact per year), <code>"leadership"</code> (share of works
-with a corresponding/leadership author).</p></dd>
+<dd><p>One of <code>"count"</code>, <code>"share_q1"</code>, <code>"cnci"</code>, <code>"leadership"</code>.
+The expected source columns are:</p><dl><dt><code>"count"</code></dt>
+<dd><p>Works per year (uses <code>works$year</code>).</p></dd>
+
+<dt><code>"share_q1"</code></dt>
+<dd><p>Share of Q1-journal works; needs a journal-quartile
+column on <code>works</code> (<code>quartile</code>, <code>jif_quartile</code>, or <code>sjr_quartile</code>).</p></dd>
+
+<dt><code>"cnci"</code></dt>
+<dd><p>Mean field-normalised citation impact per year. Impact is
+resolved from the first populated of <code>works$cnci</code>, a <code>corpus$metrics</code>
+table (<code>cnci</code>/<code>fnci</code>/<code>value</code> keyed by <code>work_id</code>), or <code>works$cited_by_count</code>
+(from which FNCI is derived via <code><a href="sm_metric_fnci.html">sm_metric_fnci()</a></code>). If none is
+populated, an informative error names the columns inspected.</p></dd>
+
+<dt><code>"leadership"</code></dt>
+<dd><p>Share of works with a corresponding/leadership
+author (uses <code>authorships$is_corresponding</code>).</p></dd>
+
+
+</dl></dd>
 
 
 <dt id="arg-family">family<a class="anchor" aria-label="anchor" href="#arg-family"></a></dt>

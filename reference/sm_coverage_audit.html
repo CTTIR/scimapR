@@ -21,7 +21,7 @@ retained so every decision can be inspected.'><meta property="og:image" content=
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,6 +67,7 @@ retained so every decision can be inspected.</p>
 <span>  by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  match <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doi_then_title"</span>, <span class="st">"doi"</span>, <span class="st">"title"</span><span class="op">)</span>,</span>
 <span>  threshold <span class="op">=</span> <span class="fl">0.9</span>,</span>
+<span>  index_table <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -112,6 +113,15 @@ a title match. Default <code>0.9</code>. When the optional <code>stringdist</cod
 not installed, the title fallback degrades to normalised exact matching.</p></dd>
 
 
+<dt id="arg-index-table">index_table<a class="anchor" aria-label="anchor" href="#arg-index-table"></a></dt>
+<dd><p>Optional journal index master list (same contract as
+<code><a href="sm_journal_in_index.html">sm_journal_in_index()</a></code>; document expected columns there). When supplied,
+the audit additionally reports, per corpus record, whether its journal is
+<strong>indexable</strong> – so "is this journal in the index" and "is this record
+captured" are assessed together. When <code>NULL</code> (default) the result is
+identical to before.</p></dd>
+
+
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
 <dd><p>Caller environment for error reporting.</p></dd>
 
@@ -154,7 +164,8 @@ drawn.</p></dd>
 <dt>matches</dt>
 <dd><p>Tibble with one row per corpus record: <code>corpus_id</code>,
 <code>reference_id</code>, <code>match_type</code> (<code>"doi"</code>/<code>"title"</code>/<code>"none"</code>),
-<code>match_score</code>.</p></dd>
+<code>match_score</code>. When <code>index_table</code> is supplied, also <code>issn</code>,
+<code>indexable</code> (logical), and <code>indexed_title</code>.</p></dd>
 
 <dt>corpus_only</dt>
 <dd><p>Tibble of corpus records absent from the reference.</p></dd>
@@ -164,8 +175,18 @@ drawn.</p></dd>
 corpus.</p></dd>
 
 <dt>breakdowns</dt>
-<dd><p>Named list of per-dimension recall tibbles
-(<code>slice</code>, <code>n_reference</code>, <code>n_matched</code>, <code>recall</code>).</p></dd>
+<dd><p>A single flat tibble (<code>dimension</code>, <code>level</code>,
+<code>n_reference</code>, <code>n_matched</code>, <code>recall</code>) across all <code>by</code> dimensions. Use
+<code><a href="sm_coverage_breakdowns.html">sm_coverage_breakdowns()</a></code> to access/filter it.</p></dd>
+
+<dt>breakdowns_nested</dt>
+<dd><p>The legacy named list of per-dimension tibbles
+(<code>slice</code>, <code>n_reference</code>, <code>n_matched</code>, <code>recall</code>). Retained for one
+release; prefer <code>breakdowns</code>.</p></dd>
+
+<dt>indexability</dt>
+<dd><p>When <code>index_table</code> is supplied, a summary tibble of
+indexable vs non-indexable record counts; otherwise <code>NULL</code>.</p></dd>
 
 
 </dl><p><code>print</code> returns <code>x</code> invisibly.</p>
@@ -174,8 +195,10 @@ corpus.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="sm_reconcile.html">sm_reconcile()</a></code>, <code><a href="sm_journal_in_index.html">sm_journal_in_index()</a></code></p>
+    <div class="dont-index"><p><code><a href="sm_reconcile.html">sm_reconcile()</a></code>, <code><a href="sm_journal_in_index.html">sm_journal_in_index()</a></code>,
+<code><a href="sm_coverage_breakdowns.html">sm_coverage_breakdowns()</a></code></p>
 <p>Other coverage:
+<code><a href="sm_coverage_breakdowns.html">sm_coverage_breakdowns()</a></code>,
 <code><a href="sm_journal_in_index.html">sm_journal_in_index()</a></code>,
 <code><a href="sm_reconcile.html">sm_reconcile()</a></code></p></div>
     </div>

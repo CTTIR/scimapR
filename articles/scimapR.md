@@ -33,7 +33,7 @@ print(corpus)
 #> Sources (journals): 10
 #> Embeddings: 100 x 64
 #> Provenance: synthetic (100)
-#> Status: Unlocked (last refreshed: 2026-06-01 09:55:41)
+#> Status: Unlocked (last refreshed: 2026-06-01 12:25:50)
 ```
 
 ## Exploring the corpus
@@ -89,6 +89,29 @@ sm_plot_top(corpus, level = "authors", n = 10)
 ![Top authors](scimapR_files/figure-html/top-authors-1.png)
 
 Top authors
+
+## Networks and large graphs
+
+Network plots such as
+[`sm_plot_citation_network()`](https://cttir.github.io/scimapR/reference/sm_plot_citation_network.md)
+and
+[`sm_plot_collab()`](https://cttir.github.io/scimapR/reference/sm_plot_collab.md)
+return `ggraph` objects whose layout is computed lazily at print time.
+On large graphs that lazy layout (and the embedded graph) can crash a
+knitr/`callr`/ workflowr render subprocess. For documents, pass
+`precompute = TRUE`: the layout is computed eagerly and a self-contained
+plain `ggplot` is returned, which you can save and print cheaply without
+recomputing anything. A `max_nodes` cap (default 200) bounds very large
+graphs.
+
+``` r
+
+p <- sm_plot_citation_network(corpus, precompute = TRUE, max_nodes = 100)
+# saveRDS(p, "fig_network.rds")  # print later in the document, cheaply
+p
+```
+
+![](scimapR_files/figure-html/network-1.png)
 
 ## Filtering
 

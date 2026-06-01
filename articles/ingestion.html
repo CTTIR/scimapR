@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -68,22 +68,59 @@
     
     
 <div class="section level2">
+<h2 id="bring-your-own-relational-data-recommended">Bring your own relational data (recommended)<a class="anchor" aria-label="anchor" href="#bring-your-own-relational-data-recommended"></a>
+</h2>
+<p>If your data is already tabular – a manual tracker, an institutional
+export, a spreadsheet of works – the most robust entry point is
+<code><a href="../reference/sm_corpus_from_tables.html">sm_corpus_from_tables()</a></code>. It validates the required columns,
+coerces types, fills missing optional tables with correctly-typed 0-row
+tibbles, and returns a ready <code>sm_corpus</code>, side-stepping
+format-specific parsers entirely. A works-only corpus is perfectly
+valid:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">works</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  work_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"W"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>,</span>
+<span>  title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Spatial transcriptomics in cancer"</span>,</span>
+<span>            <span class="st">"Immune checkpoint resistance"</span>,</span>
+<span>            <span class="st">"A biomarker discovery cohort"</span><span class="op">)</span>,</span>
+<span>  year <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2019"</span>, <span class="st">"2020"</span>, <span class="st">"2021"</span><span class="op">)</span>,   <span class="co"># character -&gt; coerced to integer</span></span>
+<span>  doi <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"10.1234/example."</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>,</span>
+<span>  cited_by_count <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">12</span>, <span class="fl">5</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_corpus_from_tables.html">sm_corpus_from_tables</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>works <span class="op">=</span> <span class="va">works</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #00BB00;">works</span>: coerced column <span style="color: #00BB00;">year</span> and <span style="color: #00BB00;">cited_by_count</span> to the schema type.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> <span style="color: #00BB00;">works</span>: filled missing column <span style="color: #00BB00;">abstract</span>, <span style="color: #00BB00;">type</span>, <span style="color: #00BB00;">source_id</span>, <span style="color: #00BB00;">oa_status</span>, <span style="color: #00BB00;">language</span>,</span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">pmid</span>, <span style="color: #00BB00;">arxiv_id</span>, <span style="color: #00BB00;">openalex_id</span>, <span style="color: #00BB00;">is_retracted</span>, <span style="color: #00BB00;">retraction_date</span>, and</span></span>
+<span><span class="co">#&gt;   <span style="color: #00BB00;">last_refreshed</span> with typed `NA`.</span></span>
+<span><span class="va">corpus</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">&lt;sm_corpus&gt;</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────</span></span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Works:</span> 3 | <span style="font-weight: bold;">Authors:</span> 0 | <span style="font-weight: bold;">Institutions:</span> 0</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Years:</span> 2019 - 2021</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Sources (journals):</span> 0</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Embeddings:</span> none</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Status:</span> Unlocked (last refreshed: never)</span></span></code></pre></div>
+<p>You can pass any of <code>works</code>, <code>authorships</code>,
+<code>sources</code>, <code>institutions</code>,
+<code>references</code>, <code>concepts</code>, etc. as named list
+elements.</p>
+</div>
+<div class="section level2">
 <h2 id="file-ingestion">File ingestion<a class="anchor" aria-label="anchor" href="#file-ingestion"></a>
 </h2>
 <p>scimapR reads 12 bibliographic formats with native clean-room
 parsers.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/CTTIR/scimapR" class="external-link">scimapR</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># List available example files</span></span>
-<span><span class="fu"><a href="../reference/sm_example_files.html">sm_example_files</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] "example_dimensions.csv"         "example_journal_index.csv"     </span></span>
-<span><span class="co">#&gt;  [3] "example_lens.csv"               "example_openalex_inverted.json"</span></span>
-<span><span class="co">#&gt;  [5] "example_openalex.json"          "example_pubmed.xml"            </span></span>
-<span><span class="co">#&gt;  [7] "example_ror.csv"                "example_scopus.csv"            </span></span>
-<span><span class="co">#&gt;  [9] "example_sparse.bib"             "example_wos.txt"               </span></span>
-<span><span class="co">#&gt; [11] "example.bib"                    "example.ris"</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># List available example files</span></span>
+<span><span class="fu"><a href="../reference/sm_example_files.html">sm_example_files</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt;  [1] "example_affiliation_postcode.csv" "example_dimensions.csv"          </span></span>
+<span><span class="co">#&gt;  [3] "example_journal_index.csv"        "example_lens.csv"                </span></span>
+<span><span class="co">#&gt;  [5] "example_openalex_inverted.json"   "example_openalex.json"           </span></span>
+<span><span class="co">#&gt;  [7] "example_pubmed.xml"               "example_ror.csv"                 </span></span>
+<span><span class="co">#&gt;  [9] "example_scopus.csv"               "example_sparse.bib"              </span></span>
+<span><span class="co">#&gt; [11] "example_wos.txt"                  "example.bib"                     </span></span>
+<span><span class="co">#&gt; [13] "example.ris"</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Read a BibTeX file</span></span>
 <span><span class="va">bib_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_example_files.html">sm_example_files</a></span><span class="op">(</span><span class="st">"example.bib"</span><span class="op">)</span></span>
 <span><span class="va">corpus_bib</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_read_bib.html">sm_read_bib</a></span><span class="op">(</span><span class="va">bib_path</span><span class="op">)</span></span>
@@ -99,7 +136,7 @@ parsers.</p>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Embeddings:</span> none</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Provenance:</span> bibtex (3)</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Status:</span> Unlocked (last refreshed: never)</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Read an RIS file</span></span>
 <span><span class="va">ris_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_example_files.html">sm_example_files</a></span><span class="op">(</span><span class="st">"example.ris"</span><span class="op">)</span></span>
 <span><span class="va">corpus_ris</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_read_ris.html">sm_read_ris</a></span><span class="op">(</span><span class="va">ris_path</span><span class="op">)</span></span>
@@ -111,7 +148,7 @@ parsers.</p>
 <div class="section level2">
 <h2 id="combining-multiple-sources">Combining multiple sources<a class="anchor" aria-label="anchor" href="#combining-multiple-sources"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">combined</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_build_corpus.html">sm_build_corpus</a></span><span class="op">(</span><span class="va">corpus_bib</span>, <span class="va">corpus_ris</span>, dedupe <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removed 3 duplicate works by DOI.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">combined</span><span class="op">$</span><span class="va">works</span><span class="op">)</span></span>
@@ -120,7 +157,7 @@ parsers.</p>
 <div class="section level2">
 <h2 id="auto-detection">Auto-detection<a class="anchor" aria-label="anchor" href="#auto-detection"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">corpus_auto</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_read_auto.html">sm_read_auto</a></span><span class="op">(</span><span class="va">bib_path</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Detected format: <span style="color: #0000BB;">"bibtex"</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Reading BibTeX file:</span></span>
@@ -133,7 +170,7 @@ parsers.</p>
 <h2 id="api-fetching">API fetching<a class="anchor" aria-label="anchor" href="#api-fetching"></a>
 </h2>
 <p>For API-based ingestion, set your email for polite pool access:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>SCIMAPR_MAILTO <span class="op">=</span> <span class="st">"your.email@example.com"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Fetch from OpenAlex</span></span>
@@ -147,14 +184,14 @@ tracking.</p>
 <div class="section level2">
 <h2 id="deduplication">Deduplication<a class="anchor" aria-label="anchor" href="#deduplication"></a>
 </h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_example_corpus.html">sm_example_corpus</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">deduped</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_dedupe.html">sm_dedupe</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="validation">Validation<a class="anchor" aria-label="anchor" href="#validation"></a>
 </h2>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">issues</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_validate.html">sm_validate</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">issues</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 0</span></span></code></pre></div>

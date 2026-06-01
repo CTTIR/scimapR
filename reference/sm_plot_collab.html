@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,8 @@
 <span>  level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"country"</span>, <span class="st">"institution"</span>, <span class="st">"author"</span><span class="op">)</span>,</span>
 <span>  top_n <span class="op">=</span> <span class="fl">20L</span>,</span>
 <span>  dark <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  precompute <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  max_nodes <span class="op">=</span> <span class="fl">200L</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -69,13 +71,25 @@
 <dd><p>Logical; dark mode?</p></dd>
 
 
+<dt id="arg-precompute">precompute<a class="anchor" aria-label="anchor" href="#arg-precompute"></a></dt>
+<dd><p>Logical (default <code>FALSE</code>). When <code>TRUE</code>, return a plain
+<code>ggplot</code> with the layout computed eagerly (see <code><a href="sm_plot_citation_network.html">sm_plot_citation_network()</a></code>
+for why this matters when knitting large graphs).</p></dd>
+
+
+<dt id="arg-max-nodes">max_nodes<a class="anchor" aria-label="anchor" href="#arg-max-nodes"></a></dt>
+<dd><p>Integer node cap (default <code>200</code>); larger graphs are
+downsampled to the highest-degree nodes with a <code>cli</code> message.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>ggplot</code> object.</p>
+    <p>A <code>ggplot</code> object (<code>ggraph</code> when <code>precompute = FALSE</code>, plain <code>ggplot</code>
+when <code>precompute = TRUE</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

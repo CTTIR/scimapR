@@ -244,6 +244,8 @@
   [`summary(`*`<sm_coverage>`*`)`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md)
   [`autoplot(`*`<sm_coverage>`*`)`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md)
   : Audit corpus coverage against a ground-truth reference
+- [`sm_coverage_breakdowns()`](https://cttir.github.io/scimapR/reference/sm_coverage_breakdowns.md)
+  : Coverage breakdowns as a flat tibble
 - [`sm_journal_in_index()`](https://cttir.github.io/scimapR/reference/sm_journal_in_index.md)
   : Verify journal source coverage against an index by ISSN
 - [`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
@@ -256,6 +258,8 @@
 
 - [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
   : Match author affiliations to institutions
+- [`sm_affiliation_summary()`](https://cttir.github.io/scimapR/reference/sm_affiliation_summary.md)
+  : Summarise affiliation matches
 - [`sm_attribute_institution()`](https://cttir.github.io/scimapR/reference/sm_attribute_institution.md)
   : Attribute matched affiliations to a controlled institution
   vocabulary

@@ -65,6 +65,28 @@ ggplot2::autoplot(cov)
 
 ![](research-management-analytics_files/figure-html/coverage-plot-1.png)
 
+Breakdowns are returned as a single flat tibble; use
+[`sm_coverage_breakdowns()`](https://cttir.github.io/scimapR/reference/sm_coverage_breakdowns.md)
+to access or filter them:
+
+``` r
+
+sm_coverage_breakdowns(cov, dimension = "year")
+#> # A tibble: 10 × 5
+#>    dimension level n_reference n_matched recall
+#>    <chr>     <chr>       <int>     <int>  <dbl>
+#>  1 year      2015           18        18      1
+#>  2 year      2016           12        12      1
+#>  3 year      2017           15        15      1
+#>  4 year      2018           16        16      1
+#>  5 year      2019           19        19      1
+#>  6 year      2020            9         9      1
+#>  7 year      2021           16        16      1
+#>  8 year      2022           13        13      1
+#>  9 year      2023           17        17      1
+#> 10 year      2024           15        15      1
+```
+
 Source coverage can be checked against a journal master list by ISSN
 ([`sm_journal_in_index()`](https://cttir.github.io/scimapR/reference/sm_journal_in_index.md)),
 and two corpora reconciled by content with
@@ -83,6 +105,21 @@ sm_journal_in_index(c("1078-8956", "9999-9999"), index = "doaj",
 #>   <chr>     <chr> <lgl>    <chr>           <chr>            
 #> 1 1078-8956 doaj  TRUE     Nature Medicine print            
 #> 2 9999-9999 doaj  FALSE    NA              NA
+```
+
+Passing the same index to `sm_coverage_audit(index_table = )` assesses
+*record capture* and *journal indexability* together – “did we capture
+this paper” and “is its journal indexed” in one pass:
+
+``` r
+
+cov_idx <- sm_coverage_audit(corpus, reference, match = "doi",
+                             index_table = ref_index)
+cov_idx$indexability
+#> # A tibble: 1 × 2
+#>   indexable n_records
+#>   <lgl>         <int>
+#> 1 FALSE           200
 ```
 
 ## 2. Affiliation capture and attribution

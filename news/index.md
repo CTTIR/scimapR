@@ -1,5 +1,82 @@
 # Changelog
 
+## scimapR 0.3.0
+
+Real-use refinements from running v0.2.0 on a ~6,853-work corpus:
+robustness fixes, friendlier API shapes, two new capabilities, and
+vignettes that ship in the installed binary. The public API is preserved
+(deprecation paths only).
+
+### Bug fixes
+
+- **A1** `sm_its(outcome = "cnci")` no longer fails with a cryptic “Too
+  few yearly observations: 0” when impact lives outside
+  `cited_by_count`. The resolver now searches, in order, `works$cnci`, a
+  `corpus$metrics` table, then `works$cited_by_count` (deriving FNCI);
+  if none is populated it raises an informative error naming the columns
+  it inspected.
+- **A2** `sm_count(level = "institution")` falls back to
+  `authorships$raw_affiliation` (with a `cli` warning that results are
+  un-disambiguated) when structured institution IDs are absent, and
+  warns rather than returning a silent empty result when no institution
+  data exists.
+- **A3**
+  [`sm_metric_disruption()`](https://cttir.github.io/scimapR/reference/sm_metric_disruption.md)
+  and
+  [`sm_metric_novelty()`](https://cttir.github.io/scimapR/reference/sm_metric_novelty.md)
+  fast-exit with a warning when the reference network is empty/absent
+  instead of spinning; the disruption index was rewritten with O(1)
+  adjacency lookups (no longer O(n^2)) and now shows a `cli` progress
+  bar.
+  [`sm_audit_summary()`](https://cttir.github.io/scimapR/reference/sm_audit_summary.md)
+  shows a progress bar across its sub-audits.
+- **A4** Network plots
+  ([`sm_plot_citation_network()`](https://cttir.github.io/scimapR/reference/sm_plot_citation_network.md),
+  [`sm_plot_collab()`](https://cttir.github.io/scimapR/reference/sm_plot_collab.md))
+  gain `precompute = TRUE` (eager layout -\> a self-contained plain
+  `ggplot` that prints cheaply in knitr/`callr`/workflowr subprocesses)
+  and a `max_nodes` cap (default 200) for very large graphs.
+
+### Ergonomics
+
+- **B1** `sm_coverage_audit()$breakdowns` is now a single flat tibble
+  (`dimension`, `level`, `n_reference`, `n_matched`, `recall`). The
+  previous nested list remains available under `$breakdowns_nested` for
+  one release. New accessor
+  [`sm_coverage_breakdowns()`](https://cttir.github.io/scimapR/reference/sm_coverage_breakdowns.md)
+  returns/filters the flat tibble.
+- **B2**
+  [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  documents its added columns and gains
+  [`sm_affiliation_summary()`](https://cttir.github.io/scimapR/reference/sm_affiliation_summary.md)
+  — a tidy works/authorships breakdown by institution and match signal,
+  also surfaced as a `cli` summary on completion.
+- **B3**
+  [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md)
+  is promoted in the ingestion vignette as the recommended “bring your
+  own relational data” entry point.
+
+### New capabilities
+
+- **C1** `sm_coverage_audit(..., index_table = )` additionally assesses
+  journal **indexability** (reusing
+  [`sm_journal_in_index()`](https://cttir.github.io/scimapR/reference/sm_journal_in_index.md)),
+  adding `issn`/`indexable` columns to `$matches` and an `$indexability`
+  summary. Output is unchanged when `index_table` is `NULL`.
+- **C2**
+  [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  returns `match_signal` (`name_token`/`email_domain`/`postcode`) and
+  `match_evidence` (the matched substring/domain/code) for an audit
+  trail, plus an opt-in `postcode_signal = TRUE` matcher (off by default
+  so existing matches are stable).
+
+### Packaging
+
+- **D1** Vignettes now ship in the installed binary; browse them offline
+  with `vignette(package = "scimapR")` / `browseVignettes("scimapR")`,
+  or online at the pkgdown site. New `inst/extdata/` fixtures:
+  `example_affiliation_postcode.csv`.
+
 ## scimapR 0.2.0
 
 A new capability layer for research-coverage, affiliation-attribution,

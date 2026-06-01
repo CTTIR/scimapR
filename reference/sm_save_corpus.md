@@ -49,7 +49,7 @@ Other corpus:
 corpus <- sm_example_corpus(n_works = 10)
 path <- tempfile(fileext = ".rds")
 sm_save_corpus(corpus, path)
-#> ✔ Corpus saved to /tmp/Rtmp9NJRZU/file254d82590fc.rds
+#> ✔ Corpus saved to /tmp/RtmpZQTSFQ/file24307318488.rds
 loaded <- sm_load_corpus(path)
 nrow(loaded$works)
 #> [1] 10

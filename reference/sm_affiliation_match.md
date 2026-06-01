@@ -18,6 +18,7 @@ sm_affiliation_match(
   patterns = sm_affiliation_dict,
   fields = NULL,
   email_domain_fallback = TRUE,
+  postcode_signal = FALSE,
   call = rlang::caller_env()
 )
 ```
@@ -54,6 +55,13 @@ sm_affiliation_match(
   but does have an email address (in an `email` column), match the
   email's domain against the dictionary's `email_domain` entries.
 
+- postcode_signal:
+
+  Logical (default `FALSE`). When `TRUE` and the dictionary carries a
+  `postcode` column, a postcode match is attempted as a last resort
+  (lowest priority, after name tokens and email domains) so existing
+  matches do not shift. Off by default.
+
 - call:
 
   Caller environment for error reporting.
@@ -61,7 +69,7 @@ sm_affiliation_match(
 ## Value
 
 The `corpus` with its `authorships` table gaining (or having updated)
-two columns:
+four columns:
 
 - institution_match:
 
@@ -69,10 +77,23 @@ two columns:
 
 - match_method:
 
-  `"pattern"`, `"email_domain"`, or `"none"`.
+  `"pattern"`, `"email_domain"`, `"postcode"`, or `"none"`.
+
+- match_signal:
+
+  The signal that fired: `"name_token"`, `"email_domain"`, `"postcode"`,
+  or `"none"`. Precedence (highest first): name token, email domain,
+  postcode.
+
+- match_evidence:
+
+  The actual substring / domain / postcode that triggered the match (an
+  audit trail), or `NA`.
 
 Type-stable: a corpus with no authorships is returned unchanged with the
-two columns present and 0 rows.
+four columns present and 0 rows. See
+[`sm_affiliation_summary()`](https://cttir.github.io/scimapR/reference/sm_affiliation_summary.md)
+for a tidy breakdown.
 
 ## Details
 
@@ -88,6 +109,7 @@ To extend the dictionary, append rows to
 [sm_affiliation_dict](https://cttir.github.io/scimapR/reference/sm_affiliation_dict.md)
 
 Other affiliation:
+[`sm_affiliation_summary()`](https://cttir.github.io/scimapR/reference/sm_affiliation_summary.md),
 [`sm_attribute_institution()`](https://cttir.github.io/scimapR/reference/sm_attribute_institution.md)
 
 ## Examples
@@ -96,6 +118,9 @@ Other affiliation:
 corpus <- sm_example_corpus(n_works = 5, n_authors = 5)
 corpus$authorships$raw_affiliation[1] <- "Bundeswehrkrankenhaus Berlin"
 matched <- sm_affiliation_match(corpus)
+#> ✔ Affiliation matching flagged 1 authorship across 1 institution.
+#> ℹ By signal: name_token: 1. See `sm_affiliation_summary()` for the full
+#>   breakdown.
 matched$authorships$institution_match[1]
 #> [1] "Bundeswehr Hospital"
 ```

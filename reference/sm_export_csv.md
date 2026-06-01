@@ -45,5 +45,5 @@ Other export:
 corpus <- sm_example_corpus(n_works = 10)
 dir <- tempdir()
 sm_export_csv(corpus, dir)
-#> ✔ Corpus tables saved to /tmp/Rtmp9NJRZU
+#> ✔ Corpus tables saved to /tmp/RtmpZQTSFQ
 ```

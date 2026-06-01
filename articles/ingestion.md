@@ -1,21 +1,59 @@
 # Building a Corpus from Files and APIs
 
+## Bring your own relational data (recommended)
+
+If your data is already tabular – a manual tracker, an institutional
+export, a spreadsheet of works – the most robust entry point is
+[`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md).
+It validates the required columns, coerces types, fills missing optional
+tables with correctly-typed 0-row tibbles, and returns a ready
+`sm_corpus`, side-stepping format-specific parsers entirely. A
+works-only corpus is perfectly valid:
+
+``` r
+
+works <- data.frame(
+  work_id = paste0("W", 1:3),
+  title = c("Spatial transcriptomics in cancer",
+            "Immune checkpoint resistance",
+            "A biomarker discovery cohort"),
+  year = c("2019", "2020", "2021"),   # character -> coerced to integer
+  doi = paste0("10.1234/example.", 1:3),
+  cited_by_count = c(12, 5, 1)
+)
+corpus <- sm_corpus_from_tables(list(works = works))
+#> ℹ works: coerced column year and cited_by_count to the schema type.
+#> ℹ works: filled missing column abstract, type, source_id, oa_status, language,
+#>   pmid, arxiv_id, openalex_id, is_retracted, retraction_date, and
+#>   last_refreshed with typed `NA`.
+corpus
+#> 
+#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
+#> Works: 3 | Authors: 0 | Institutions: 0
+#> Years: 2019 - 2021
+#> Sources (journals): 0
+#> Embeddings: none
+#> Status: Unlocked (last refreshed: never)
+```
+
+You can pass any of `works`, `authorships`, `sources`, `institutions`,
+`references`, `concepts`, etc. as named list elements.
+
 ## File ingestion
 
 scimapR reads 12 bibliographic formats with native clean-room parsers.
 
 ``` r
 
-library(scimapR)
-
 # List available example files
 sm_example_files()
-#>  [1] "example_dimensions.csv"         "example_journal_index.csv"     
-#>  [3] "example_lens.csv"               "example_openalex_inverted.json"
-#>  [5] "example_openalex.json"          "example_pubmed.xml"            
-#>  [7] "example_ror.csv"                "example_scopus.csv"            
-#>  [9] "example_sparse.bib"             "example_wos.txt"               
-#> [11] "example.bib"                    "example.ris"
+#>  [1] "example_affiliation_postcode.csv" "example_dimensions.csv"          
+#>  [3] "example_journal_index.csv"        "example_lens.csv"                
+#>  [5] "example_openalex_inverted.json"   "example_openalex.json"           
+#>  [7] "example_pubmed.xml"               "example_ror.csv"                 
+#>  [9] "example_scopus.csv"               "example_sparse.bib"              
+#> [11] "example_wos.txt"                  "example.bib"                     
+#> [13] "example.ris"
 ```
 
 ``` r

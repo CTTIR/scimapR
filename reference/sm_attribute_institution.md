@@ -55,7 +55,8 @@ affiliations. Type-stable.
 [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
 
 Other affiliation:
-[`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+[`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md),
+[`sm_affiliation_summary()`](https://cttir.github.io/scimapR/reference/sm_affiliation_summary.md)
 
 ## Examples
 
@@ -67,6 +68,9 @@ ror <- utils::read.csv(
 corpus <- sm_example_corpus(n_works = 5, n_authors = 5)
 corpus$authorships$raw_affiliation[1] <- "Charite Universitatsmedizin Berlin"
 corpus <- sm_affiliation_match(corpus)
+#> ✔ Affiliation matching flagged 1 authorship across 1 institution.
+#> ℹ By signal: name_token: 1. See `sm_affiliation_summary()` for the full
+#>   breakdown.
 corpus <- sm_attribute_institution(corpus, vocabulary = "ror",
                                    ror_table = ror)
 corpus$authorships$institution_name[1]

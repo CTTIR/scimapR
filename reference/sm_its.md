@@ -39,10 +39,32 @@ autoplot(object, ...)
 
 - outcome:
 
-  One of `"count"` (works per year), `"share_q1"` (share of Q1-journal
-  works; needs a `quartile` column), `"cnci"` (mean field-normalised
-  citation impact per year), `"leadership"` (share of works with a
-  corresponding/leadership author).
+  One of `"count"`, `"share_q1"`, `"cnci"`, `"leadership"`. The expected
+  source columns are:
+
+  `"count"`
+
+  :   Works per year (uses `works$year`).
+
+  `"share_q1"`
+
+  :   Share of Q1-journal works; needs a journal-quartile column on
+      `works` (`quartile`, `jif_quartile`, or `sjr_quartile`).
+
+  `"cnci"`
+
+  :   Mean field-normalised citation impact per year. Impact is resolved
+      from the first populated of `works$cnci`, a `corpus$metrics` table
+      (`cnci`/`fnci`/`value` keyed by `work_id`), or
+      `works$cited_by_count` (from which FNCI is derived via
+      [`sm_metric_fnci()`](https://cttir.github.io/scimapR/reference/sm_metric_fnci.md)).
+      If none is populated, an informative error names the columns
+      inspected.
+
+  `"leadership"`
+
+  :   Share of works with a corresponding/leadership author (uses
+      `authorships$is_corresponding`).
 
 - family:
 

@@ -73,6 +73,7 @@ normalised input), `index`, `in_index` (logical), `matched_title`
 
 Other coverage:
 [`sm_coverage_audit()`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md),
+[`sm_coverage_breakdowns()`](https://cttir.github.io/scimapR/reference/sm_coverage_breakdowns.md),
 [`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
 
 ## Examples

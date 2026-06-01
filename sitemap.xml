@@ -25,6 +25,7 @@
 <url><loc>https://cttir.github.io/scimapR/reference/scimapR-package.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_affiliation_dict.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_affiliation_match.html</loc></url>
+<url><loc>https://cttir.github.io/scimapR/reference/sm_affiliation_summary.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_attribute_institution.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_audit_funding.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_audit_gender.html</loc></url>
@@ -49,6 +50,7 @@
 <url><loc>https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_count.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_coverage_audit.html</loc></url>
+<url><loc>https://cttir.github.io/scimapR/reference/sm_coverage_breakdowns.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_dedupe.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_did.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/reference/sm_diff_corpora.html</loc></url>

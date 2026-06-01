@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,42 @@
       <small>Source: <a href="https://github.com/CTTIR/scimapR/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.0" id="scimapr-030">scimapR 0.3.0<a class="anchor" aria-label="anchor" href="#scimapr-030"></a></h2>
+<p>Real-use refinements from running v0.2.0 on a ~6,853-work corpus: robustness fixes, friendlier API shapes, two new capabilities, and vignettes that ship in the installed binary. The public API is preserved (deprecation paths only).</p>
+<div class="section level3">
+<h3 id="bug-fixes-0-3-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-3-0"></a></h3>
+<ul><li>
+<strong>A1</strong> <code>sm_its(outcome = "cnci")</code> no longer fails with a cryptic “Too few yearly observations: 0” when impact lives outside <code>cited_by_count</code>. The resolver now searches, in order, <code>works$cnci</code>, a <code>corpus$metrics</code> table, then <code>works$cited_by_count</code> (deriving FNCI); if none is populated it raises an informative error naming the columns it inspected.</li>
+<li>
+<strong>A2</strong> <code>sm_count(level = "institution")</code> falls back to <code>authorships$raw_affiliation</code> (with a <code>cli</code> warning that results are un-disambiguated) when structured institution IDs are absent, and warns rather than returning a silent empty result when no institution data exists.</li>
+<li>
+<strong>A3</strong> <code><a href="../reference/sm_metric_disruption.html">sm_metric_disruption()</a></code> and <code><a href="../reference/sm_metric_novelty.html">sm_metric_novelty()</a></code> fast-exit with a warning when the reference network is empty/absent instead of spinning; the disruption index was rewritten with O(1) adjacency lookups (no longer O(n^2)) and now shows a <code>cli</code> progress bar. <code><a href="../reference/sm_audit_summary.html">sm_audit_summary()</a></code> shows a progress bar across its sub-audits.</li>
+<li>
+<strong>A4</strong> Network plots (<code><a href="../reference/sm_plot_citation_network.html">sm_plot_citation_network()</a></code>, <code><a href="../reference/sm_plot_collab.html">sm_plot_collab()</a></code>) gain <code>precompute = TRUE</code> (eager layout -&gt; a self-contained plain <code>ggplot</code> that prints cheaply in knitr/<code>callr</code>/workflowr subprocesses) and a <code>max_nodes</code> cap (default 200) for very large graphs.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="ergonomics-0-3-0">Ergonomics<a class="anchor" aria-label="anchor" href="#ergonomics-0-3-0"></a></h3>
+<ul><li>
+<strong>B1</strong> <code>sm_coverage_audit()$breakdowns</code> is now a single flat tibble (<code>dimension</code>, <code>level</code>, <code>n_reference</code>, <code>n_matched</code>, <code>recall</code>). The previous nested list remains available under <code>$breakdowns_nested</code> for one release. New accessor <code><a href="../reference/sm_coverage_breakdowns.html">sm_coverage_breakdowns()</a></code> returns/filters the flat tibble.</li>
+<li>
+<strong>B2</strong> <code><a href="../reference/sm_affiliation_match.html">sm_affiliation_match()</a></code> documents its added columns and gains <code><a href="../reference/sm_affiliation_summary.html">sm_affiliation_summary()</a></code> — a tidy works/authorships breakdown by institution and match signal, also surfaced as a <code>cli</code> summary on completion.</li>
+<li>
+<strong>B3</strong> <code><a href="../reference/sm_corpus_from_tables.html">sm_corpus_from_tables()</a></code> is promoted in the ingestion vignette as the recommended “bring your own relational data” entry point.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="new-capabilities-0-3-0">New capabilities<a class="anchor" aria-label="anchor" href="#new-capabilities-0-3-0"></a></h3>
+<ul><li>
+<strong>C1</strong> <code>sm_coverage_audit(..., index_table = )</code> additionally assesses journal <strong>indexability</strong> (reusing <code><a href="../reference/sm_journal_in_index.html">sm_journal_in_index()</a></code>), adding <code>issn</code>/<code>indexable</code> columns to <code>$matches</code> and an <code>$indexability</code> summary. Output is unchanged when <code>index_table</code> is <code>NULL</code>.</li>
+<li>
+<strong>C2</strong> <code><a href="../reference/sm_affiliation_match.html">sm_affiliation_match()</a></code> returns <code>match_signal</code> (<code>name_token</code>/<code>email_domain</code>/<code>postcode</code>) and <code>match_evidence</code> (the matched substring/domain/code) for an audit trail, plus an opt-in <code>postcode_signal = TRUE</code> matcher (off by default so existing matches are stable).</li>
+</ul></div>
+<div class="section level3">
+<h3 id="packaging-0-3-0">Packaging<a class="anchor" aria-label="anchor" href="#packaging-0-3-0"></a></h3>
+<ul><li>
+<strong>D1</strong> Vignettes now ship in the installed binary; browse them offline with <code>vignette(package = "scimapR")</code> / <code>browseVignettes("scimapR")</code>, or online at the pkgdown site. New <code>inst/extdata/</code> fixtures: <code>example_affiliation_postcode.csv</code>.</li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="scimapr-020">scimapR 0.2.0<a class="anchor" aria-label="anchor" href="#scimapr-020"></a></h2>
 <p>A new capability layer for research-coverage, affiliation-attribution, and policy-evaluation analyses, plus four reproducible bug fixes. All existing functionality, the <code>sm_corpus</code> schema, bibliometrix interop, and the Shiny app are preserved.</p>

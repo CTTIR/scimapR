@@ -21,6 +21,7 @@ sm_coverage_audit(
   by = NULL,
   match = c("doi_then_title", "doi", "title"),
   threshold = 0.9,
+  index_table = NULL,
   call = rlang::caller_env()
 )
 
@@ -63,6 +64,16 @@ autoplot(object, dim = NULL, ...)
   Minimum Jaro-Winkler title similarity (`[0, 1]`) to accept a title
   match. Default `0.9`. When the optional `stringdist` package is not
   installed, the title fallback degrades to normalised exact matching.
+
+- index_table:
+
+  Optional journal index master list (same contract as
+  [`sm_journal_in_index()`](https://cttir.github.io/scimapR/reference/sm_journal_in_index.md);
+  document expected columns there). When supplied, the audit
+  additionally reports, per corpus record, whether its journal is
+  **indexable** – so "is this journal in the index" and "is this record
+  captured" are assessed together. When `NULL` (default) the result is
+  identical to before.
 
 - call:
 
@@ -112,7 +123,9 @@ An `sm_coverage` S3 object (a list) with components:
 - matches:
 
   Tibble with one row per corpus record: `corpus_id`, `reference_id`,
-  `match_type` (`"doi"`/`"title"`/`"none"`), `match_score`.
+  `match_type` (`"doi"`/`"title"`/`"none"`), `match_score`. When
+  `index_table` is supplied, also `issn`, `indexable` (logical), and
+  `indexed_title`.
 
 - corpus_only:
 
@@ -124,8 +137,21 @@ An `sm_coverage` S3 object (a list) with components:
 
 - breakdowns:
 
-  Named list of per-dimension recall tibbles (`slice`, `n_reference`,
-  `n_matched`, `recall`).
+  A single flat tibble (`dimension`, `level`, `n_reference`,
+  `n_matched`, `recall`) across all `by` dimensions. Use
+  [`sm_coverage_breakdowns()`](https://cttir.github.io/scimapR/reference/sm_coverage_breakdowns.md)
+  to access/filter it.
+
+- breakdowns_nested:
+
+  The legacy named list of per-dimension tibbles (`slice`,
+  `n_reference`, `n_matched`, `recall`). Retained for one release;
+  prefer `breakdowns`.
+
+- indexability:
+
+  When `index_table` is supplied, a summary tibble of indexable vs
+  non-indexable record counts; otherwise `NULL`.
 
 `print` returns `x` invisibly.
 
@@ -136,9 +162,11 @@ An `sm_coverage` S3 object (a list) with components:
 ## See also
 
 [`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md),
-[`sm_journal_in_index()`](https://cttir.github.io/scimapR/reference/sm_journal_in_index.md)
+[`sm_journal_in_index()`](https://cttir.github.io/scimapR/reference/sm_journal_in_index.md),
+[`sm_coverage_breakdowns()`](https://cttir.github.io/scimapR/reference/sm_coverage_breakdowns.md)
 
 Other coverage:
+[`sm_coverage_breakdowns()`](https://cttir.github.io/scimapR/reference/sm_coverage_breakdowns.md),
 [`sm_journal_in_index()`](https://cttir.github.io/scimapR/reference/sm_journal_in_index.md),
 [`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
 
