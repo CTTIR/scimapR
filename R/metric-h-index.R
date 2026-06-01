@@ -7,11 +7,24 @@
 #' @param corpus An [sm_corpus] object.
 #' @param level Character; the entity level. One of `"author"` (default),
 #'   `"institution"`, `"source"`, or `"country"`.
+#' @param self_corrected Logical (default `FALSE`). When `TRUE`, self-citations
+#'   identified by [sm_self_citation()] are removed before computing the index
+#'   (each work's citation count is reduced by the entity's internal
+#'   self-citations to it, floored at 0). Only available for `"author"` and
+#'   `"institution"` levels. The corrected index is always `<=` the
+#'   uncorrected one.
 #' @param call Caller environment for error reporting.
 #'
 #' @return A tibble with columns for the entity ID/name and `h_index`.
 #'
+#' @details
+#' Self-correction uses the corpus's internal reference network (no API calls):
+#' citations counted against a work are reduced by those coming from works that
+#' share the entity. Because the network is internal to the corpus, this is a
+#' lower-bound correction on the global `cited_by_count`.
+#'
 #' @family metrics
+#' @seealso [sm_self_citation()]
 #' @export
 #' @examples
 #' corpus <- sm_example_corpus()
@@ -19,11 +32,17 @@
 sm_metric_h_index <- function(corpus,
                               level = c("author", "institution", "source",
                                         "country"),
+                              self_corrected = FALSE,
                               call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   level <- rlang::arg_match(level, error_call = call)
+  .check_flag(self_corrected, call = call)
 
   entity_cites <- .get_entity_citations(corpus, level, call)
+
+  if (isTRUE(self_corrected)) {
+    entity_cites <- .apply_self_correction(entity_cites, corpus, level, call)
+  }
 
   if (nrow(entity_cites) == 0L) {
     return(.empty_metric_tibble(level, "h_index"))
@@ -51,11 +70,14 @@ sm_metric_h_index <- function(corpus,
 #'
 #' @param corpus An [sm_corpus] object.
 #' @param level Character; the entity level. Defaults to `"author"`.
+#' @param self_corrected Logical (default `FALSE`); remove self-citations
+#'   ([sm_self_citation()]) before computing the index. Author/institution only.
 #' @param call Caller environment for error reporting.
 #'
 #' @return A tibble with columns for the entity ID/name and `g_index`.
 #'
 #' @family metrics
+#' @seealso [sm_self_citation()]
 #' @export
 #' @examples
 #' corpus <- sm_example_corpus()
@@ -63,11 +85,17 @@ sm_metric_h_index <- function(corpus,
 sm_metric_g_index <- function(corpus,
                               level = c("author", "institution", "source",
                                         "country"),
+                              self_corrected = FALSE,
                               call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   level <- rlang::arg_match(level, error_call = call)
+  .check_flag(self_corrected, call = call)
 
   entity_cites <- .get_entity_citations(corpus, level, call)
+
+  if (isTRUE(self_corrected)) {
+    entity_cites <- .apply_self_correction(entity_cites, corpus, level, call)
+  }
 
   if (nrow(entity_cites) == 0L) {
     return(.empty_metric_tibble(level, "g_index"))
@@ -95,12 +123,15 @@ sm_metric_g_index <- function(corpus,
 #'
 #' @param corpus An [sm_corpus] object.
 #' @param level Character; the entity level. Defaults to `"author"`.
+#' @param self_corrected Logical (default `FALSE`); remove self-citations
+#'   ([sm_self_citation()]) before computing the index. Author/institution only.
 #' @param call Caller environment for error reporting.
 #'
 #' @return A tibble with columns for the entity ID/name, `h_index`,
 #'   `first_year`, `career_years`, and `m_index`.
 #'
 #' @family metrics
+#' @seealso [sm_self_citation()]
 #' @export
 #' @examples
 #' corpus <- sm_example_corpus()
@@ -108,11 +139,17 @@ sm_metric_g_index <- function(corpus,
 sm_metric_m_index <- function(corpus,
                               level = c("author", "institution", "source",
                                         "country"),
+                              self_corrected = FALSE,
                               call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   level <- rlang::arg_match(level, error_call = call)
+  .check_flag(self_corrected, call = call)
 
   entity_cites <- .get_entity_citations(corpus, level, call)
+
+  if (isTRUE(self_corrected) && nrow(entity_cites) > 0L) {
+    entity_cites <- .apply_self_correction(entity_cites, corpus, level, call)
+  }
 
   if (nrow(entity_cites) == 0L) {
     col_name <- .entity_col_name(level)
@@ -146,6 +183,31 @@ sm_metric_m_index <- function(corpus,
 
 
 # --- Internal helpers ---
+
+#' Apply self-citation correction to entity-citation pairs
+#'
+#' Subtracts each entity's internal self-citations to each of its works from
+#' that work's citation count (floored at 0). Only meaningful at the
+#' `"author"`/`"institution"` levels (which carry entity membership).
+#' @noRd
+.apply_self_correction <- function(entity_cites, corpus, level, call) {
+  if (!level %in% c("author", "institution")) {
+    cli::cli_abort(c(
+      "{.code self_corrected = TRUE} is only available for {.val author} and {.val institution} levels.",
+      "i" = "Self-citation requires entity membership; {.val {level}} has none."
+    ), call = call)
+  }
+  if (nrow(entity_cites) == 0L) return(entity_cites)
+  sc <- .self_cite_counts(corpus, level, call = call)
+  entity_cites %>%
+    dplyr::left_join(sc, by = c("entity" = "entity_id",
+                                "work_id" = "cited_work_id")) %>%
+    dplyr::mutate(
+      n_self = dplyr::coalesce(.data$n_self, 0L),
+      cited_by_count = pmax(.data$cited_by_count - .data$n_self, 0L)
+    ) %>%
+    dplyr::select(-"n_self")
+}
 
 #' Compute h-index from a vector of citation counts
 #' @noRd

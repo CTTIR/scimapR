@@ -64,6 +64,7 @@ Other metrics:
 \code{\link[=sm_metric_h_index]{sm_metric_h_index()}},
 \code{\link[=sm_metric_m_index]{sm_metric_m_index()}},
 \code{\link[=sm_metric_novelty]{sm_metric_novelty()}},
+\code{\link[=sm_self_citation]{sm_self_citation()}},
 \code{\link[=sm_summary_authors]{sm_summary_authors()}},
 \code{\link[=sm_summary_period]{sm_summary_period()}},
 \code{\link[=sm_summary_sources]{sm_summary_sources()}},

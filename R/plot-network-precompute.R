@@ -7,14 +7,15 @@
 # returned object prints cheaply in a document subprocess without re-running
 # graph layout. A node cap bounds the work for very large graphs.
 
-#' Cap a graph to its highest-degree nodes
+#' Cap a graph to its highest-degree nodes (opt-in: no-op when max_nodes is NULL)
 #' @noRd
 .sm_cap_graph <- function(g, max_nodes) {
+  if (is.null(max_nodes)) return(g)
   n_nodes <- nrow(tibble::as_tibble(tidygraph::activate(g, "nodes")))
   if (n_nodes <= max_nodes) return(g)
   cli::cli_inform(c(
-    "i" = "Network has {n_nodes} nodes; capping to the {max_nodes} highest-degree nodes.",
-    "i" = "Override with {.arg max_nodes} (larger graphs are slower to lay out and render)."
+    "i" = "Network has {n_nodes} nodes; capping to the {max_nodes} highest-degree nodes ({.arg max_nodes} = {max_nodes}).",
+    "i" = "The cap is opt-in; omit {.arg max_nodes} to keep all nodes."
   ))
   g %>%
     tidygraph::activate("nodes") %>%
@@ -37,7 +38,7 @@
 #' @param node_label Logical; draw node text labels.
 #' @noRd
 .sm_render_network <- function(g, directed, title, dark,
-                               precompute = FALSE, max_nodes = 200L,
+                               precompute = FALSE, max_nodes = NULL,
                                layout = "stress",
                                edge_weight = FALSE,
                                node_size = NULL,

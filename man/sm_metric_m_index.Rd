@@ -7,6 +7,7 @@
 sm_metric_m_index(
   corpus,
   level = c("author", "institution", "source", "country"),
+  self_corrected = FALSE,
   call = rlang::caller_env()
 )
 }
@@ -14,6 +15,9 @@ sm_metric_m_index(
 \item{corpus}{An \link{sm_corpus} object.}
 
 \item{level}{Character; the entity level. Defaults to \code{"author"}.}
+
+\item{self_corrected}{Logical (default \code{FALSE}); remove self-citations
+(\code{\link[=sm_self_citation]{sm_self_citation()}}) before computing the index. Author/institution only.}
 
 \item{call}{Caller environment for error reporting.}
 }
@@ -31,6 +35,8 @@ corpus <- sm_example_corpus()
 sm_metric_m_index(corpus, level = "author")
 }
 \seealso{
+\code{\link[=sm_self_citation]{sm_self_citation()}}
+
 Other metrics:
 \code{\link[=sm_metric_collab_index]{sm_metric_collab_index()}},
 \code{\link[=sm_metric_disruption]{sm_metric_disruption()}},
@@ -39,6 +45,7 @@ Other metrics:
 \code{\link[=sm_metric_h_index]{sm_metric_h_index()}},
 \code{\link[=sm_metric_novelty]{sm_metric_novelty()}},
 \code{\link[=sm_metric_rcr]{sm_metric_rcr()}},
+\code{\link[=sm_self_citation]{sm_self_citation()}},
 \code{\link[=sm_summary_authors]{sm_summary_authors()}},
 \code{\link[=sm_summary_period]{sm_summary_period()}},
 \code{\link[=sm_summary_sources]{sm_summary_sources()}},

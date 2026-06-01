@@ -1,3 +1,83 @@
+# scimapR 0.4.0
+
+Stability contracts, an enrichment materializer, and self-citation-corrected
+metrics, plus a verify-and-harden pass on three v0.3.0 fixes that recurred in
+heavy use. All new behaviour is opt-in; no breaking changes.
+
+## Accessor stability contract (A1)
+
+- New `?scimapR-stability` topic documents the package's accessor return-type
+  contract: a documented accessor's column set changes only via a `lifecycle`
+  deprecation and a `NEWS.md` entry. The audited accessors and their stable
+  shapes are listed there.
+- `sm_coverage_breakdowns()` gains `tidy = TRUE` (default): a guaranteed long
+  tibble (`dimension`, `level`, `n_reference`, `n_matched`, `recall`,
+  `n_corpus`, `precision`, `f1`). `tidy = FALSE` returns the legacy recall-only
+  shape. (The silent list -> tibble change between 0.2.0 and 0.3.0 motivated
+  this contract.)
+
+## Controlled vocabularies (B1)
+
+- Exported `sm_affiliation_signals()`, `sm_affiliation_methods()`, and
+  `sm_match_types()` (with `describe = TRUE` for level + description). The
+  `match_signal`, `match_method`, and coverage `match_type` columns are now
+  factors with these exact levels, so downstream filtering cannot drift.
+
+## Verify-and-harden (re-reported v0.3.0 fixes)
+
+These were reported again on a real corpus; each now has a regression test
+reproducing the recurrence.
+
+- **C1** `sm_its(outcome = "cnci")`: the resolver now also searches documented
+  impact *side columns* on `works` (`fnci`, `rcr`, `ncs`, `mncs`,
+  `field_citation_ratio`) and a `corpus$metrics` table, in addition to
+  `works$cnci` and `works$cited_by_count`. With no impact anywhere it errors
+  naming every column inspected. (v0.3 only checked `works$cnci` /
+  `cited_by_count`, so impact in a side column still produced "0 observations".)
+- **C2** `sm_count(level = "institution")`: when structured IDs are absent it
+  now *clusters* `raw_affiliation` via `sm_affiliation_match()` (canonical names
+  where matched, raw string otherwise) with a warning, instead of counting raw
+  strings verbatim. Absent raw affiliation -> 0-row tibble + warning.
+- **C3** network plot `precompute = TRUE` confirmed; the `max_nodes` cap is now
+  **opt-in** (`NULL` default) so large renders are unchanged unless a cap is
+  requested. A ~2,000-node graph builds with `precompute = TRUE` and re-prints
+  without recomputing layout.
+
+## Enrichment materializer (D1)
+
+- `sm_materialise(corpus, sources, .by = NULL, overwrite = FALSE)` joins cached
+  enrichment (named list of tibbles / RDS / parquet paths, or a cache dir) into
+  the matching sub-tibbles by key, returning a validated `sm_corpus`. Missing
+  keys warn (not error); overlapping columns fill `NA` unless `overwrite = TRUE`.
+- Added an internal type-safe row-bind helper (`.sm_bind_rows`) that returns a
+  typed template instead of a logical-column degenerate when all parts are
+  `NULL`/empty; audited the package's existing `bind_rows()` sites (found safe,
+  guarded behind length checks with typed tibbles).
+
+## Self-citation-corrected metrics (E1, E2, F1)
+
+- `sm_self_citation(corpus, level = c("author", "institution"))` computes
+  self-citation from the corpus reference network (quota-light reference
+  overlap; no per-citation API calls), returning `by_entity`, `by_work`, and a
+  **provenance** tibble (`citing_work_id`, `cited_work_id`,
+  `shared_author_id`/`shared_institution_id`) (F1). Empty references ->
+  warning + typed empty result (no spin).
+- `sm_metric_h_index()`, `sm_metric_g_index()`, `sm_metric_m_index()` gain
+  `self_corrected = FALSE`; with `TRUE` the index is recomputed after removing
+  self-citations (author/institution levels). The corrected index is always
+  `<=` the uncorrected one.
+
+## Provenance (F2)
+
+- `sm_affiliation_summary()` now includes `example_evidence` (a representative
+  matched-evidence string per institution x signal) alongside the factorised
+  `match_signal`, so a reader can see which signal matched and on what evidence.
+
+## Fixtures
+
+- `inst/extdata/example_self_citation_corpus.rds`: a small references-bearing
+  synthetic corpus for self-citation examples/tests.
+
 # scimapR 0.3.0
 
 Real-use refinements from running v0.2.0 on a ~6,853-work corpus: robustness

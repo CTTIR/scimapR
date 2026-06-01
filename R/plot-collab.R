@@ -10,8 +10,9 @@
 #' @param precompute Logical (default `FALSE`). When `TRUE`, return a plain
 #'   `ggplot` with the layout computed eagerly (see [sm_plot_citation_network()]
 #'   for why this matters when knitting large graphs).
-#' @param max_nodes Integer node cap (default `200`); larger graphs are
-#'   downsampled to the highest-degree nodes with a `cli` message.
+#' @param max_nodes Optional integer node cap. `NULL` (default) keeps all
+#'   nodes; set it to downsample large graphs to the highest-degree nodes
+#'   (opt-in, with a `cli` message).
 #' @param ... Additional arguments.
 #'
 #' @return A `ggplot` object (`ggraph` when `precompute = FALSE`, plain `ggplot`
@@ -28,7 +29,7 @@ sm_plot_collab <- function(corpus,
                            top_n = 20L,
                            dark = FALSE,
                            precompute = FALSE,
-                           max_nodes = 200L, ...) {
+                           max_nodes = NULL, ...) {
   .check_sm_corpus(corpus)
   rlang::check_installed("ggraph",
     reason = "to plot collaboration networks.")

@@ -224,11 +224,13 @@ sm_synth <- function(corpus,
   panel <- dplyr::bind_rows(panels)
   panel <- dplyr::select(panel, "unit", "year", "value")
 
+  # tidysynth expects bare (tidyselect) column names, not strings; the panel
+  # columns are always `unit`/`value`/`year` (constructed above).
   synth <- tidysynth::synthetic_control(
     panel,
-    outcome = "value",
-    unit = "unit",
-    time = "year",
+    outcome = !!rlang::sym("value"),
+    unit = !!rlang::sym("unit"),
+    time = !!rlang::sym("year"),
     i_unit = treated,
     i_time = intervention_year,
     generate_placebos = FALSE

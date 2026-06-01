@@ -70,11 +70,15 @@ return `ggraph` objects whose layout is computed lazily at print time. On large
 graphs that lazy layout (and the embedded graph) can crash a knitr/`callr`/
 workflowr render subprocess. For documents, pass `precompute = TRUE`: the layout
 is computed eagerly and a self-contained plain `ggplot` is returned, which you
-can save and print cheaply without recomputing anything. A `max_nodes` cap
-(default 200) bounds very large graphs.
+can `saveRDS()` and print later in the document without recomputing anything ---
+even for a graph with a couple of thousand nodes.
+
+The `max_nodes` cap is **opt-in** (`NULL` by default), so existing renders are
+never silently downsampled; set it only when you deliberately want to bound a
+very large graph (a `cli` message reports when it engages).
 
 ```{r network, eval = requireNamespace("ggraph", quietly = TRUE)}
-p <- sm_plot_citation_network(corpus, precompute = TRUE, max_nodes = 100)
+p <- sm_plot_citation_network(corpus, precompute = TRUE)
 # saveRDS(p, "fig_network.rds")  # print later in the document, cheaply
 p
 ```

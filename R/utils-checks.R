@@ -50,3 +50,27 @@
                                   call = rlang::caller_env()) {
   rlang::check_installed(pkg, reason = reason, call = call)
 }
+
+#' Type-safe row-bind that never coerces NULL/0-row elements to logical
+#'
+#' `dplyr::bind_rows()` on a list containing `NULL` or a 0-row tibble whose
+#' columns default to `logical` can silently corrupt column types. This helper
+#' drops `NULL`/empty elements first and, if nothing remains, returns the typed
+#' `template` (the package's 0-row-with-correct-columns convention) instead of a
+#' degenerate logical-column tibble.
+#'
+#' @param parts A list of tibbles/data frames (may contain `NULL`).
+#' @param template A typed 0-row tibble returned when no non-empty parts remain.
+#' @noRd
+.sm_bind_rows <- function(parts, template = NULL) {
+  if (!is.list(parts)) parts <- list(parts)
+  keep <- vapply(parts, function(x) {
+    !is.null(x) && (is.data.frame(x)) && nrow(x) > 0L
+  }, logical(1))
+  parts <- parts[keep]
+  if (length(parts) == 0L) {
+    if (!is.null(template)) return(template)
+    return(tibble::tibble())
+  }
+  dplyr::bind_rows(parts)
+}

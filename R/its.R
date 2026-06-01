@@ -108,22 +108,30 @@
   works <- corpus$works
   checked <- character()
 
-  # 1. precomputed CNCI column on works
-  checked <- c(checked, "works$cnci")
-  if ("cnci" %in% names(works) && any(!is.na(works$cnci))) {
-    return(list(
-      values = tibble::tibble(work_id = works$work_id,
-                              value = as.numeric(works$cnci)),
-      source = "works$cnci"
-    ))
+  # documented impact column names searched on `works` and a metrics table
+  impact_cols <- c("cnci", "fnci", "rcr", "cnci_value", "ncs", "mncs",
+                   "field_citation_ratio")
+
+  # 1. a precomputed impact column on works (cnci preferred, then siblings)
+  wcol <- intersect(impact_cols, names(works))
+  for (col in wcol) {
+    checked <- c(checked, paste0("works$", col))
+    if (any(!is.na(works[[col]]))) {
+      return(list(
+        values = tibble::tibble(work_id = works$work_id,
+                                value = as.numeric(works[[col]])),
+        source = paste0("works$", col)
+      ))
+    }
   }
+  if (length(wcol) == 0L) checked <- c(checked, "works$cnci")
 
   # 2. dedicated metrics table, if the corpus carries one
   checked <- c(checked, "corpus$metrics")
   metrics <- corpus[["metrics"]]
   if (!is.null(metrics) && is.data.frame(metrics) &&
       "work_id" %in% names(metrics)) {
-    mcol <- intersect(c("cnci", "fnci", "value"), names(metrics))
+    mcol <- intersect(c(impact_cols, "value"), names(metrics))
     if (length(mcol) > 0L && any(!is.na(metrics[[mcol[1]]]))) {
       return(list(
         values = tibble::tibble(work_id = as.character(metrics$work_id),

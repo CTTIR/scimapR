@@ -14,9 +14,12 @@ and \code{match_signal}).}
 \item{call}{Caller environment for error reporting.}
 }
 \value{
-A tibble with columns \code{institution}, \code{match_signal}, \code{n_authorships},
-\code{n_works}, sorted by \code{n_authorships} descending. Type-stable: a 0-row
-tibble (with a warning) when no matches are present.
+A tibble with columns \code{institution}, \code{match_signal} (a factor; see
+\code{\link[=sm_affiliation_signals]{sm_affiliation_signals()}}), \code{n_authorships}, \code{n_works}, and
+\code{example_evidence} (a representative matched-evidence string for that
+institution x signal --- the audit trail), sorted by \code{n_authorships}
+descending. Type-stable: a 0-row tibble (with a warning) when no matches
+are present.
 }
 \description{
 Tidy summary of the matches produced by \code{\link[=sm_affiliation_match]{sm_affiliation_match()}}, mirroring
@@ -34,6 +37,8 @@ sm_affiliation_summary(corpus)
 
 Other affiliation:
 \code{\link[=sm_affiliation_match]{sm_affiliation_match()}},
+\code{\link[=sm_affiliation_methods]{sm_affiliation_methods()}},
+\code{\link[=sm_affiliation_signals]{sm_affiliation_signals()}},
 \code{\link[=sm_attribute_institution]{sm_attribute_institution()}}
 }
 \concept{affiliation}

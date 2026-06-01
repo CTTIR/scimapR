@@ -660,8 +660,9 @@ function(input, output, session) {
   output$coverage_breakdowns <- DT::renderDT({
     cov <- coverage_result()
     shiny::req(cov)
-    DT::datatable(cov$breakdowns, rownames = FALSE,
-                  options = list(pageLength = 10))
+    # A1: the stable tidy contract (recall + precision + f1 per slice)
+    DT::datatable(scimapR::sm_coverage_breakdowns(cov, tidy = TRUE),
+                  rownames = FALSE, options = list(pageLength = 10))
   })
 
   # C1: indexability summary
@@ -725,5 +726,32 @@ function(input, output, session) {
       lapply(cf[c("term", "estimate", "conf.low", "conf.high", "p.value")],
              function(x) if (is.numeric(x)) round(x, 4) else x)
     DT::datatable(cf, rownames = FALSE, options = list(dom = "t"))
+  })
+
+  # ============================================================================
+  # 17. SELF-CITATION
+  # ============================================================================
+
+  selfcite_result <- shiny::eventReactive(input$selfcite_go, {
+    tryCatch(
+      suppressWarnings(scimapR::sm_self_citation(corpus(),
+                                                 level = input$selfcite_level)),
+      error = function(e) NULL
+    )
+  })
+
+  output$selfcite_entities <- DT::renderDT({
+    sc <- selfcite_result()
+    shiny::req(sc)
+    DT::datatable(sc$by_entity, rownames = FALSE,
+                  options = list(pageLength = 10))
+  })
+
+  # F1: provenance trail behind each self-citation
+  output$selfcite_provenance <- DT::renderDT({
+    sc <- selfcite_result()
+    shiny::req(sc)
+    DT::datatable(sc$provenance, rownames = FALSE,
+                  options = list(pageLength = 10))
   })
 }

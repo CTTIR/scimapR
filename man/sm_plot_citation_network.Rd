@@ -9,7 +9,7 @@ sm_plot_citation_network(
   top_n = 50L,
   dark = FALSE,
   precompute = FALSE,
-  max_nodes = 200L,
+  max_nodes = NULL,
   ...
 )
 }
@@ -27,9 +27,9 @@ embedding the plot in an RMarkdown/knitr/\code{callr}/workflowr document: the
 heavy layout runs once here rather than in the (often memory-limited)
 render subprocess, where large \code{ggraph} objects can crash the harness.}
 
-\item{max_nodes}{Integer node cap (default \code{200}). Larger graphs are
-downsampled to the highest-degree nodes with a \code{cli} message; raise it to
-keep more nodes (slower to lay out and render).}
+\item{max_nodes}{Optional integer node cap. \code{NULL} (default) keeps all nodes
+so existing renders are unchanged; set it to downsample large graphs to the
+highest-degree nodes (opt-in, with a \code{cli} message).}
 
 \item{...}{Additional arguments.}
 }

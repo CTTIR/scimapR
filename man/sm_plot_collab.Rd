@@ -10,7 +10,7 @@ sm_plot_collab(
   top_n = 20L,
   dark = FALSE,
   precompute = FALSE,
-  max_nodes = 200L,
+  max_nodes = NULL,
   ...
 )
 }
@@ -27,8 +27,9 @@ sm_plot_collab(
 \code{ggplot} with the layout computed eagerly (see \code{\link[=sm_plot_citation_network]{sm_plot_citation_network()}}
 for why this matters when knitting large graphs).}
 
-\item{max_nodes}{Integer node cap (default \code{200}); larger graphs are
-downsampled to the highest-degree nodes with a \code{cli} message.}
+\item{max_nodes}{Optional integer node cap. \code{NULL} (default) keeps all
+nodes; set it to downsample large graphs to the highest-degree nodes
+(opt-in, with a \code{cli} message).}
 
 \item{...}{Additional arguments.}
 }

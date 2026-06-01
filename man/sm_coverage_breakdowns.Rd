@@ -4,21 +4,33 @@
 \alias{sm_coverage_breakdowns}
 \title{Coverage breakdowns as a flat tibble}
 \usage{
-sm_coverage_breakdowns(x, dimension = NULL)
+sm_coverage_breakdowns(x, dimension = NULL, tidy = TRUE)
 }
 \arguments{
 \item{x}{An \code{sm_coverage} object.}
 
 \item{dimension}{Optional dimension name (e.g. \code{"year"}) to filter to.}
+
+\item{tidy}{Logical (default \code{TRUE}). The stable long contract: returns
+columns \code{dimension}, \code{level}, \code{n_reference}, \code{n_matched}, \code{recall},
+\code{n_corpus}, \code{precision}, \code{f1}. With \code{tidy = FALSE}, the legacy recall-only
+shape (\code{dimension}, \code{level}, \code{n_reference}, \code{n_matched}, \code{recall}) is
+returned for backward compatibility.}
 }
 \value{
-A tibble. Type-stable: returns a 0-row tibble with the documented
-columns when there are no breakdowns.
+A tibble (see \code{tidy}). Type-stable: a 0-row tibble with the
+documented columns when there are no breakdowns. Slices present on only one
+side (corpus vs reference) carry \code{NA} in the other side's counts/metric.
 }
 \description{
 Accessor returning the per-dimension coverage breakdowns of an
-\code{\link[=sm_coverage_audit]{sm_coverage_audit()}} result as a single flat tibble (\code{dimension}, \code{level},
-\code{n_reference}, \code{n_matched}, \code{recall}), optionally filtered to one dimension.
+\code{\link[=sm_coverage_audit]{sm_coverage_audit()}} result as a single flat (long) tibble, optionally
+filtered to one dimension.
+}
+\details{
+This accessor honours the package's accessor return-type stability contract
+(see \link{scimapR-stability}): with \code{tidy = TRUE} the column set is guaranteed
+and will only change via a \code{lifecycle} deprecation.
 }
 \examples{
 \dontshow{if (rlang::is_installed("stringdist")) withAutoprint(\{ # examplesIf}
@@ -29,11 +41,12 @@ sm_coverage_breakdowns(cov, dimension = "year")
 \dontshow{\}) # examplesIf}
 }
 \seealso{
-\code{\link[=sm_coverage_audit]{sm_coverage_audit()}}
+\code{\link[=sm_coverage_audit]{sm_coverage_audit()}}, \link{scimapR-stability}
 
 Other coverage:
 \code{\link[=sm_coverage_audit]{sm_coverage_audit()}},
 \code{\link[=sm_journal_in_index]{sm_journal_in_index()}},
+\code{\link[=sm_match_types]{sm_match_types()}},
 \code{\link[=sm_reconcile]{sm_reconcile()}}
 }
 \concept{coverage}
