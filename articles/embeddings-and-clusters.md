@@ -54,7 +54,7 @@ head(labels)
 #> Sources (journals): 10
 #> Embeddings: 6 x 64
 #> Provenance: synthetic (6)
-#> Status: Unlocked (last refreshed: 2026-06-10 11:33:17)
+#> Status: Unlocked (last refreshed: 2026-06-10 18:39:51)
 ```
 
 ## Thematic map

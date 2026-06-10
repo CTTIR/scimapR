@@ -11,7 +11,8 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" sizes="any" href="favicon.ico">
 <link rel="manifest" href="site.webmanifest">
-<script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<!-- katex math --><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" onload="renderMathInElement(document.body);"></script><script src="katex-auto.js"></script><script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/Inter-0.4.10/font.css" rel="stylesheet">
 <link href="deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
@@ -21,6 +22,7 @@
 <meta name="description" content="A comprehensive toolkit for bibliometric and scientometric analysis, designed as a complement to the foundational bibliometrix package (Aria &amp; Cuccurullo, 2017, &lt;doi:10.1016/j.joi.2017.08.007&gt;). Provides unified ingestion from major bibliographic sources including OpenAlex, Crossref, Semantic Scholar, PubMed, arXiv, bioRxiv, ORCID, Overton, Unpaywall, Scopus, and Web of Science exports; classical science mapping (co-citation, bibliographic coupling, co-authorship, co-word networks); modern citation indicators (CD index, Relative Citation Ratio, field-normalized scores, Uzzi novelty); embedding-based research cluster discovery; structured research-question objects with optional LLM-grounded screening; author trajectory analysis; equity and representation auditing with explicit confidence and method reporting; reproducible-by-construction corpus certificates enabling exact re-derivation of a corpus; retrieval-grounded conversational corpus exploration; and a comprehensive shiny application with publication-ready figure and table export. Output is fully tidyverse-compatible with tibble-based corpora, viridis-themed ggplot2 visualizations, and tidygraph network objects.">
 <meta property="og:description" content="A comprehensive toolkit for bibliometric and scientometric analysis, designed as a complement to the foundational bibliometrix package (Aria &amp; Cuccurullo, 2017, &lt;doi:10.1016/j.joi.2017.08.007&gt;). Provides unified ingestion from major bibliographic sources including OpenAlex, Crossref, Semantic Scholar, PubMed, arXiv, bioRxiv, ORCID, Overton, Unpaywall, Scopus, and Web of Science exports; classical science mapping (co-citation, bibliographic coupling, co-authorship, co-word networks); modern citation indicators (CD index, Relative Citation Ratio, field-normalized scores, Uzzi novelty); embedding-based research cluster discovery; structured research-question objects with optional LLM-grounded screening; author trajectory analysis; equity and representation auditing with explicit confidence and method reporting; reproducible-by-construction corpus certificates enabling exact re-derivation of a corpus; retrieval-grounded conversational corpus exploration; and a comprehensive shiny application with publication-ready figure and table export. Output is fully tidyverse-compatible with tibble-based corpora, viridis-themed ggplot2 visualizations, and tidygraph network objects.">
 <meta property="og:image" content="https://cttir.github.io/scimapR/logo.svg">
+<meta name="theme-color" content="#1565c0">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -28,9 +30,9 @@
 
     <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="index.html">scimapR</a>
+    <a class="navbar-brand me-2" href="index.html"><img src="logo.svg" alt="" class="themakr-navbar-logo">scimapR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,16 +40,14 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="articles/scimapR.html">Get started</a></li>
-<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="articles/index.html">Articles</a></li>
-<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
-      </ul>
+      <ul class="navbar-nav me-auto"></ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="articles/index.html">Articles</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/CTTIR/scimapR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
@@ -299,11 +299,10 @@
 </ul>
 </div>
 
-<div class="dev-status">
-<h2 data-toc-skip>Dev status</h2>
+<div class="r-universe">
+<h2 data-toc-skip>R-universe</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
-<li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
+<li><p>Browse the <a href="https://cttir.github.io/website/" class="external-link">CTTIR universe</a> for installable builds of this package and the rest of the suite.</p></li>
 </ul>
 </div>
 
@@ -313,6 +312,10 @@
 
     <footer><div class="pkgdown-footer-left">
   <p>Developed by Raban Heller.</p>
+</div>
+
+<div class="pkgdown-footer-center themakr-footer-suite">
+  <p><span class="themakr-footer-pkg">scimapR</span> is part of the <a href="https://cttir.github.io/website/" class="external-link">CTTIR</a> suite · <a href="https://github.com/CTTIR" class="external-link">GitHub</a></p>
 </div>
 
 <div class="pkgdown-footer-right">
