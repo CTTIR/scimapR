@@ -19,3 +19,4 @@
 ^scimapR_icon\.svg$
 ^check_results$
 ^\.remember$
+^_pkgdown\.yml$
