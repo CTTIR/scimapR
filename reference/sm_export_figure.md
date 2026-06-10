@@ -81,5 +81,5 @@ corpus <- sm_example_corpus(n_works = 20)
 p <- sm_plot_production(corpus)
 path <- tempfile(fileext = ".png")
 sm_export_figure(p, path, multi_dpi = FALSE)
-#> ✔ Saved figure to: /tmp/RtmpIQMgiF/file237042337c62.png
+#> ✔ Saved figure to: /tmp/RtmpQ6ymDy/file25533275d365.png
 ```

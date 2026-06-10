@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
-<script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/Inter-0.4.10/font.css" rel="stylesheet">
 <link href="../deps/JetBrains_Mono-0.4.10/font.css" rel="stylesheet">
@@ -23,7 +23,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="../index.html">scimapR</a>
 
@@ -46,6 +46,14 @@
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/CTTIR/scimapR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
+<li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
+  </ul>
+</li>
       </ul>
 </div>
 
@@ -67,9 +75,9 @@
 
     
     
-<div class="section level2">
-<h2 id="what-is-scimapr">What is scimapR?<a class="anchor" aria-label="anchor" href="#what-is-scimapr"></a>
-</h2>
+<div class="section level3">
+<h3 id="what-is-scimapr">What is scimapR?<a class="anchor" aria-label="anchor" href="#what-is-scimapr"></a>
+</h3>
 <p>scimapR is a comprehensive toolkit for bibliometric and scientometric
 analysis in R. It is designed as a complement to the foundational <a href="https://www.bibliometrix.org/" class="external-link">bibliometrix</a> package,
 adding:</p>
@@ -94,9 +102,9 @@ epistemic humility</li>
 citations</li>
 </ul>
 </div>
-<div class="section level2">
-<h2 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
-</h2>
+<div class="section level3">
+<h3 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h3>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/CTTIR/scimapR" class="external-link">scimapR</a></span><span class="op">)</span></span>
 <span></span>
@@ -110,11 +118,11 @@ citations</li>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Sources (journals):</span> 10</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Embeddings:</span> 100 x 64</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Provenance:</span> synthetic (100)</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Status:</span> Unlocked (last refreshed: 2026-06-01 16:49:55)</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Status:</span> Unlocked (last refreshed: 2026-06-10 11:33:54)</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="exploring-the-corpus">Exploring the corpus<a class="anchor" aria-label="anchor" href="#exploring-the-corpus"></a>
-</h2>
+<div class="section level3">
+<h3 id="exploring-the-corpus">Exploring the corpus<a class="anchor" aria-label="anchor" href="#exploring-the-corpus"></a>
+</h3>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># View works</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">$</span><span class="va">works</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"work_id"</span>, <span class="st">"title"</span>, <span class="st">"year"</span>, <span class="st">"cited_by_count"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
@@ -140,9 +148,9 @@ citations</li>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> A000000005 David Brown   </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> A000000006 Hiroshi Sato</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="visualisation">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation"></a>
-</h2>
+<div class="section level3">
+<h3 id="visualisation">Visualisation<a class="anchor" aria-label="anchor" href="#visualisation"></a>
+</h3>
 <p>All plots use viridis colour palettes by default.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sm_plot_production.html">sm_plot_production</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span></code></pre></div>
@@ -159,9 +167,9 @@ Top authors
 </p>
 </div>
 </div>
-<div class="section level2">
-<h2 id="networks-and-large-graphs">Networks and large graphs<a class="anchor" aria-label="anchor" href="#networks-and-large-graphs"></a>
-</h2>
+<div class="section level3">
+<h3 id="networks-and-large-graphs">Networks and large graphs<a class="anchor" aria-label="anchor" href="#networks-and-large-graphs"></a>
+</h3>
 <p>Network plots such as <code><a href="../reference/sm_plot_citation_network.html">sm_plot_citation_network()</a></code> and
 <code><a href="../reference/sm_plot_collab.html">sm_plot_collab()</a></code> return <code>ggraph</code> objects whose
 layout is computed lazily at print time. On large graphs that lazy
@@ -182,17 +190,17 @@ large graph (a <code>cli</code> message reports when it engages).</p>
 <span><span class="va">p</span></span></code></pre></div>
 <p><img src="scimapR_files/figure-html/network-1.png" class="r-plt" alt="" width="672"></p>
 </div>
-<div class="section level2">
-<h2 id="filtering">Filtering<a class="anchor" aria-label="anchor" href="#filtering"></a>
-</h2>
+<div class="section level3">
+<h3 id="filtering">Filtering<a class="anchor" aria-label="anchor" href="#filtering"></a>
+</h3>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recent</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_filter_works.html">sm_filter_works</a></span><span class="op">(</span><span class="va">corpus</span>, year_range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2020</span>, <span class="fl">2024</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">recent</span><span class="op">$</span><span class="va">works</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 53</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
-</h2>
+<div class="section level3">
+<h3 id="next-steps">Next steps<a class="anchor" aria-label="anchor" href="#next-steps"></a>
+</h3>
 <ul>
 <li>See <code><a href="../articles/ingestion.html">vignette("ingestion")</a></code> for building corpora from
 real data</li>
@@ -203,6 +211,23 @@ analysis</li>
 <li>Run <code><a href="../reference/sm_run_app.html">sm_run_app()</a></code> for the interactive Shiny
 explorer</li>
 </ul>
+</div>
+<div class="section level2">
+<h2 id="use-of-llm-tools">Use of LLM tools<a class="anchor" aria-label="anchor" href="#use-of-llm-tools"></a>
+</h2>
+<p>Portions of this package were prepared with assistance from large
+language model tooling for narrowly defined, non-authorial tasks:
+copyediting, prose smoothing, Markdown/LaTeX formatting, scaffolding of
+boilerplate files (CI configs, build scripts), code refactoring. The
+tools used were <a href="https://kisski.gwdg.de/leistungen/2-02-llm-service/" class="external-link">Chat AI</a>,
+the LLM service of KISSKI (GWDG), and a self-hosted <strong>Mistral
+Small (24B, Apache-2.0)</strong> run locally via <a href="https://ollama.com/" class="external-link">Ollama</a> and the <code>ollamar</code> R
+package — local inference only, with no data sent to third parties for
+the self-hosted model.</p>
+<p>All scientific claims, methodological choices, analyses,
+interpretations, and conclusions are the author’s own. No LLM-generated
+text was incorporated without review and revision, and every reference
+was verified against its DOI, arXiv ID, or ISBN.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
