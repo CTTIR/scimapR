@@ -38,16 +38,16 @@ sm_provenance(corpus)
 #> # A tibble: 200 × 8
 #>    work_id    source    source_id_external fetch_date          query      engine
 #>    <chr>      <chr>     <chr>              <dttm>              <chr>      <chr> 
-#>  1 W000000001 synthetic NA                 2026-06-10 18:37:29 sm_exampl… native
-#>  2 W000000002 synthetic NA                 2026-06-10 18:37:29 sm_exampl… native
-#>  3 W000000003 synthetic NA                 2026-06-10 18:37:29 sm_exampl… native
-#>  4 W000000004 synthetic NA                 2026-06-10 18:37:29 sm_exampl… native
-#>  5 W000000005 synthetic NA                 2026-06-10 18:37:29 sm_exampl… native
-#>  6 W000000006 synthetic NA                 2026-06-10 18:37:29 sm_exampl… native
-#>  7 W000000007 synthetic NA                 2026-06-10 18:37:29 sm_exampl… native
-#>  8 W000000008 synthetic NA                 2026-06-10 18:37:29 sm_exampl… native
-#>  9 W000000009 synthetic NA                 2026-06-10 18:37:29 sm_exampl… native
-#> 10 W000000010 synthetic NA                 2026-06-10 18:37:29 sm_exampl… native
+#>  1 W000000001 synthetic NA                 2026-06-11 06:37:17 sm_exampl… native
+#>  2 W000000002 synthetic NA                 2026-06-11 06:37:17 sm_exampl… native
+#>  3 W000000003 synthetic NA                 2026-06-11 06:37:17 sm_exampl… native
+#>  4 W000000004 synthetic NA                 2026-06-11 06:37:17 sm_exampl… native
+#>  5 W000000005 synthetic NA                 2026-06-11 06:37:17 sm_exampl… native
+#>  6 W000000006 synthetic NA                 2026-06-11 06:37:17 sm_exampl… native
+#>  7 W000000007 synthetic NA                 2026-06-11 06:37:17 sm_exampl… native
+#>  8 W000000008 synthetic NA                 2026-06-11 06:37:17 sm_exampl… native
+#>  9 W000000009 synthetic NA                 2026-06-11 06:37:17 sm_exampl… native
+#> 10 W000000010 synthetic NA                 2026-06-11 06:37:17 sm_exampl… native
 #> # ℹ 190 more rows
 #> # ℹ 2 more variables: scimapR_version <chr>, prompt_hash <chr>
 ```
