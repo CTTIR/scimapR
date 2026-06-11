@@ -260,7 +260,4 @@
   <polygon points="250,44 441,153 441,367 250,476 59,367 59,153"
     fill="none" stroke="#7C3AED" stroke-width="1.5" stroke-linejoin="round" opacity="0.55"/>
 
-  <text font-family="monospace" font-weight="700" font-size="28"
-    fill="#C4B5F7" text-anchor="middle" x="250" y="545" letter-spacing="1">scimapR</text>
-
 </svg>
