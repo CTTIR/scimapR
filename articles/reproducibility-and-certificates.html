@@ -95,12 +95,12 @@ researcher can use to re-derive the exact same corpus.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 8</span></span></span>
 <span><span class="co">#&gt;   work_id    source    source_id_external fetch_date          query       engine</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> W000000001 synthetic <span style="color: #BB0000;">NA</span>                 2026-06-11 <span style="color: #949494;">06:57:28</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> W000000002 synthetic <span style="color: #BB0000;">NA</span>                 2026-06-11 <span style="color: #949494;">06:57:28</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> W000000003 synthetic <span style="color: #BB0000;">NA</span>                 2026-06-11 <span style="color: #949494;">06:57:28</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> W000000004 synthetic <span style="color: #BB0000;">NA</span>                 2026-06-11 <span style="color: #949494;">06:57:28</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> W000000005 synthetic <span style="color: #BB0000;">NA</span>                 2026-06-11 <span style="color: #949494;">06:57:28</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> W000000006 synthetic <span style="color: #BB0000;">NA</span>                 2026-06-11 <span style="color: #949494;">06:57:28</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> W000000001 synthetic <span style="color: #BB0000;">NA</span>                 2026-06-22 <span style="color: #949494;">09:29:17</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> W000000002 synthetic <span style="color: #BB0000;">NA</span>                 2026-06-22 <span style="color: #949494;">09:29:17</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> W000000003 synthetic <span style="color: #BB0000;">NA</span>                 2026-06-22 <span style="color: #949494;">09:29:17</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> W000000004 synthetic <span style="color: #BB0000;">NA</span>                 2026-06-22 <span style="color: #949494;">09:29:17</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> W000000005 synthetic <span style="color: #BB0000;">NA</span>                 2026-06-22 <span style="color: #949494;">09:29:17</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> W000000006 synthetic <span style="color: #BB0000;">NA</span>                 2026-06-22 <span style="color: #949494;">09:29:17</span> sm_example… native</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: scimapR_version &lt;chr&gt;, prompt_hash &lt;chr&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -119,7 +119,7 @@ researcher can use to re-derive the exact same corpus.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">cert</span>, max.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 18</span></span>
 <span><span class="co">#&gt;  $ certificate_version: chr "1.0"</span></span>
-<span><span class="co">#&gt;  $ created            : POSIXct[1:1], format: "2026-06-11 06:57:28"</span></span>
+<span><span class="co">#&gt;  $ created            : POSIXct[1:1], format: "2026-06-22 09:29:18"</span></span>
 <span><span class="co">#&gt;  $ scimapR_version    : chr "0.4.0"</span></span>
 <span><span class="co">#&gt;  $ r_version          : chr "4.6.0"</span></span>
 <span><span class="co">#&gt;  $ platform           : chr "unix"</span></span>
@@ -152,7 +152,7 @@ researcher can use to re-derive the exact same corpus.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/sm_save_corpus.html">sm_save_corpus</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">tmp</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus saved to <span style="color: #0000BB;">/tmp/Rtmppdl8Ms/file311439490522.rds</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus saved to <span style="color: #0000BB;">/tmp/RtmpvTfSHY/file305cb28a34a.rds</span></span></span>
 <span><span class="va">loaded</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_save_corpus.html">sm_load_corpus</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">loaded</span><span class="op">$</span><span class="va">works</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 200</span></span></code></pre></div>
@@ -163,7 +163,7 @@ researcher can use to re-derive the exact same corpus.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">snap_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/sm_snapshot.html">sm_snapshot</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">snap_path</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus snapshot saved to <span style="color: #0000BB;">/tmp/Rtmppdl8Ms/file31145d3368f1.rds</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus snapshot saved to <span style="color: #0000BB;">/tmp/RtmpvTfSHY/file305c5eafd7a.rds</span>.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Size: 122K | Hash: ea446b5f4465</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -171,7 +171,7 @@ researcher can use to re-derive the exact same corpus.</p>
 </h2>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sm_cite_corpus.html">sm_cite_corpus</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Corpus assembled using scimapR v0.4.0 on 2026-06-11. Contains 200 works by 80</span></span>
+<span><span class="co">#&gt; Corpus assembled using scimapR v0.4.0 on 2026-06-22. Contains 200 works by 80</span></span>
 <span><span class="co">#&gt; authors (2015-2024). Data sources: synthetic. Corpus hash: ea446b5f4465.</span></span></code></pre></div>
 </div>
 <div class="section level2">

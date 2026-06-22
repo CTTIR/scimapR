@@ -33,7 +33,7 @@ print(corpus)
 #> Sources (journals): 10
 #> Embeddings: 100 x 64
 #> Provenance: synthetic (100)
-#> Status: Unlocked (last refreshed: 2026-06-11 06:57:38)
+#> Status: Unlocked (last refreshed: 2026-06-22 09:29:27)
 ```
 
 ### Exploring the corpus

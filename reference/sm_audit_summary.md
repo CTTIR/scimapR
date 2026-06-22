@@ -79,23 +79,23 @@ summary_audit <- sm_audit_summary(corpus)
 #> Warning: 404 (client error): /works/10.1234/example.5 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.6 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.7 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.8 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.8 - 
 #> Warning: 404 (client error): /works/10.1234/example.9 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.10 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.10 - 
 #> Warning: 404 (client error): /works/10.1234/example.11 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.12 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.13 - Resource not found.
-#> Warning: 429 (client error): /works/10.1234/example.14 - 
-#> Warning: 404 (client error): /works/10.1234/example.15 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.13 - 
+#> Warning: 404 (client error): /works/10.1234/example.14 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.15 - 
 #> Warning: 429 (client error): /works/10.1234/example.16 - 
 #> Warning: 404 (client error): /works/10.1234/example.17 - Resource not found.
-#> Warning: 429 (client error): /works/10.1234/example.18 - 
+#> Warning: 404 (client error): /works/10.1234/example.18 - Resource not found.
 #> Warning: 429 (client error): /works/10.1234/example.19 - 
 #> Warning: 429 (client error): /works/10.1234/example.20 - 
-#> Warning: 429 (client error): /works/10.1234/example.21 - 
+#> Warning: 404 (client error): /works/10.1234/example.21 - Resource not found.
 #> Warning: 429 (client error): /works/10.1234/example.22 - 
 #> Warning: 429 (client error): /works/10.1234/example.23 - 
-#> Warning: 429 (client error): /works/10.1234/example.24 - 
+#> Warning: 404 (client error): /works/10.1234/example.24 - Resource not found.
 #> Warning: 429 (client error): /works/10.1234/example.25 - 
 #> Warning: 429 (client error): /works/10.1234/example.26 - 
 #> Warning: 429 (client error): /works/10.1234/example.27 - 
@@ -237,7 +237,7 @@ summary_audit <- sm_audit_summary(corpus)
 #> Warning: 429 (client error): /works/10.1234/example.163 - 
 #> Warning: 429 (client error): /works/10.1234/example.164 - 
 #> Warning: 429 (client error): /works/10.1234/example.165 - 
-#> Warning: 404 (client error): /works/10.1234/example.166 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.166 - 
 #> Warning: 429 (client error): /works/10.1234/example.167 - 
 #> Warning: 429 (client error): /works/10.1234/example.168 - 
 #> Warning: 429 (client error): /works/10.1234/example.169 - 
@@ -248,16 +248,16 @@ summary_audit <- sm_audit_summary(corpus)
 #> Warning: 429 (client error): /works/10.1234/example.174 - 
 #> Warning: 429 (client error): /works/10.1234/example.175 - 
 #> Warning: 429 (client error): /works/10.1234/example.176 - 
-#> Warning: 404 (client error): /works/10.1234/example.177 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.177 - 
 #> Warning: 429 (client error): /works/10.1234/example.178 - 
 #> Warning: 429 (client error): /works/10.1234/example.179 - 
-#> Warning: 404 (client error): /works/10.1234/example.180 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.180 - 
 #> Warning: 429 (client error): /works/10.1234/example.181 - 
-#> Warning: 404 (client error): /works/10.1234/example.182 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.182 - 
 #> Warning: 429 (client error): /works/10.1234/example.183 - 
-#> Warning: 404 (client error): /works/10.1234/example.184 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.184 - 
 #> Warning: 429 (client error): /works/10.1234/example.185 - 
-#> Warning: 404 (client error): /works/10.1234/example.186 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.186 - 
 #> Warning: 429 (client error): /works/10.1234/example.187 - 
 #> Warning: 429 (client error): /works/10.1234/example.188 - 
 #> Warning: 429 (client error): /works/10.1234/example.189 - 
@@ -275,7 +275,7 @@ summary_audit <- sm_audit_summary(corpus)
 #> ℹ No funding data found via "crossref".
 #> ℹ This may be because the works lack DOIs/identifiers, or the source does not
 #>   have funding metadata.
-#> Running equity audits ■■■■■■■■■■■■■■■■■■■■■■■           75% | ETA:  2s
+#> Running equity audits ■■■■■■■■■■■■■■■■■■■■■■■           75% | ETA:  1s
 #> Running equity audits ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 print(summary_audit)
 #> 
