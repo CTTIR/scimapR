@@ -6,8 +6,11 @@
 docs/
 inst/doc/
 _build.R
-.claude/
-CLAUDE.md
 DROPHERE/
 *.Rcheck/
 scimapR_*.tar.gz
+*.tmp
+*.log
+*~
+*.bak
+*.orig
