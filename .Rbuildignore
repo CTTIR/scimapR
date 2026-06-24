@@ -20,3 +20,5 @@
 ^check_results$
 ^\.remember$
 ^_pkgdown\.yml$
+
+^_coverage$
