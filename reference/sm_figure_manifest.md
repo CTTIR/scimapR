@@ -63,10 +63,10 @@ ggplot2::ggsave(file.path(d, "fig1.png"),
                 ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) +
                   ggplot2::geom_point(),
                 width = 4, height = 3, dpi = 150)
-#> Error in ggplot2::ggsave(file.path(d, "fig1.png"), ggplot2::ggplot(mtcars,     ggplot2::aes(wt, mpg)) + ggplot2::geom_point(), width = 4,     height = 3, dpi = 150): Cannot find directory /tmp/RtmpygYB6X/file242313e62910.
+#> Error in ggplot2::ggsave(file.path(d, "fig1.png"), ggplot2::ggplot(mtcars,     ggplot2::aes(wt, mpg)) + ggplot2::geom_point(), width = 4,     height = 3, dpi = 150): Cannot find directory /tmp/RtmpIpa81t/file24232b7643a0.
 #> ℹ Please supply an existing directory or use `create.dir = TRUE`.
 sm_figure_manifest(d)
-#> Warning: ! Directory /tmp/RtmpygYB6X/file242313e62910 does not exist.
+#> Warning: ! Directory /tmp/RtmpIpa81t/file24232b7643a0 does not exist.
 #> ℹ Returning an empty figure manifest.
 #> # A tibble: 0 × 6
 #> # ℹ 6 variables: file <chr>, caption <chr>, alt_text <chr>, width <int>,
