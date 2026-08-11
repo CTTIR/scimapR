@@ -1,7 +1,7 @@
 Package: scimapR
 Type: Package
 Title: Reproducible, Question-Driven, Embedding-Aware Science Mapping
-Version: 0.4.0
+Version: 0.1.0
 Authors@R:
     person("R.", "Heller", email = "raban.heller@charite.de",
            role = c("aut", "cre"),
