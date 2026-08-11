@@ -24,7 +24,7 @@ bibentry(
   volume   = "11",
   number   = "4",
   pages    = "959--975",
-  doi      = "10.1016/j.joi.2017.08.007"
+  doi      = "10.5281/zenodo.21889960"
 )
 
 citFooter(
