@@ -25,7 +25,7 @@ Embedding-Aware Science Mapping*. R package version 0.1.0,
 Aria M, Cuccurullo C (2017). “bibliometrix: An R-tool for comprehensive
 science mapping analysis.” *Journal of Informetrics*, **11**(4),
 959–975.
-[doi:10.1016/j.joi.2017.08.007](https://doi.org/10.1016/j.joi.2017.08.007).
+[doi:10.5281/zenodo.21889960](https://doi.org/10.5281/zenodo.21889960).
 
     @Article{,
       title = {bibliometrix: An R-tool for comprehensive science mapping analysis},
@@ -35,5 +35,5 @@ science mapping analysis.” *Journal of Informetrics*, **11**(4),
       volume = {11},
       number = {4},
       pages = {959--975},
-      doi = {10.1016/j.joi.2017.08.007},
+      doi = {10.5281/zenodo.21889960},
     }

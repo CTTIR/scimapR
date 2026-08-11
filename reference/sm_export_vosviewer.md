@@ -43,6 +43,6 @@ net <- sm_network_cocitation(corpus)
 sm_export_vosviewer(net, tempfile(fileext = ".tsv"))
 #> Warning: Unknown or uninitialised column: `from`.
 #> Warning: Unknown or uninitialised column: `to`.
-#> ✔ Network exported for VOSviewer to /tmp/RtmpIpa81t/file242374d40795.tsv
+#> ✔ Network exported for VOSviewer to /tmp/Rtmp6vKbQn/file249a2e465d66.tsv
 # }
 ```

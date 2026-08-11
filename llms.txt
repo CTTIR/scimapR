@@ -1,5 +1,7 @@
 # scimapR
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21889960.svg)](https://doi.org/10.5281/zenodo.21889960)
+
 **The reproducible, equity-aware, question-driven, AI-assisted
 bibliometric toolkit for working biomedical researchers.**
 
