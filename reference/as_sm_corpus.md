@@ -64,7 +64,7 @@ as_sm_corpus(corpus)
 #> Sources (journals): 10
 #> Embeddings: 200 x 64
 #> Provenance: synthetic (200)
-#> Status: Unlocked (last refreshed: 2026-08-11 14:59:01)
+#> Status: Unlocked (last refreshed: 2026-08-21 19:40:05)
 as_sm_corpus(corpus$works)
 #> 
 #> ── <sm_corpus> ─────────────────────────────────────────────────────────────────

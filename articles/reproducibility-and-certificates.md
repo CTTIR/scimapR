@@ -38,12 +38,12 @@ head(sm_provenance(corpus))
 #> # A tibble: 6 × 8
 #>   work_id    source    source_id_external fetch_date          query       engine
 #>   <chr>      <chr>     <chr>              <dttm>              <chr>       <chr> 
-#> 1 W000000001 synthetic NA                 2026-08-11 15:03:31 sm_example… native
-#> 2 W000000002 synthetic NA                 2026-08-11 15:03:31 sm_example… native
-#> 3 W000000003 synthetic NA                 2026-08-11 15:03:31 sm_example… native
-#> 4 W000000004 synthetic NA                 2026-08-11 15:03:31 sm_example… native
-#> 5 W000000005 synthetic NA                 2026-08-11 15:03:31 sm_example… native
-#> 6 W000000006 synthetic NA                 2026-08-11 15:03:31 sm_example… native
+#> 1 W000000001 synthetic NA                 2026-08-21 19:43:06 sm_example… native
+#> 2 W000000002 synthetic NA                 2026-08-21 19:43:06 sm_example… native
+#> 3 W000000003 synthetic NA                 2026-08-21 19:43:06 sm_example… native
+#> 4 W000000004 synthetic NA                 2026-08-21 19:43:06 sm_example… native
+#> 5 W000000005 synthetic NA                 2026-08-21 19:43:06 sm_example… native
+#> 6 W000000006 synthetic NA                 2026-08-21 19:43:06 sm_example… native
 #> # ℹ 2 more variables: scimapR_version <chr>, prompt_hash <chr>
 ```
 
@@ -64,7 +64,7 @@ cert <- sm_certificate(corpus)
 str(cert, max.level = 1)
 #> List of 18
 #>  $ certificate_version: chr "1.0"
-#>  $ created            : POSIXct[1:1], format: "2026-08-11 15:03:31"
+#>  $ created            : POSIXct[1:1], format: "2026-08-21 19:43:07"
 #>  $ scimapR_version    : chr "0.1.0"
 #>  $ r_version          : chr "4.6.1"
 #>  $ platform           : chr "unix"
@@ -99,7 +99,7 @@ result$matches
 
 tmp <- tempfile(fileext = ".rds")
 sm_save_corpus(corpus, tmp)
-#> ✔ Corpus saved to /tmp/RtmpM4wJS5/file30d97e995938.rds
+#> ✔ Corpus saved to /tmp/RtmpN5YJPK/file31d264101ea3.rds
 loaded <- sm_load_corpus(tmp)
 nrow(loaded$works)
 #> [1] 200
@@ -111,7 +111,7 @@ nrow(loaded$works)
 
 snap_path <- tempfile(fileext = ".rds")
 sm_snapshot(corpus, snap_path)
-#> ✔ Corpus snapshot saved to /tmp/RtmpM4wJS5/file30d9c2e262d.rds.
+#> ✔ Corpus snapshot saved to /tmp/RtmpN5YJPK/file31d25360b511.rds.
 #> ℹ Size: 122K | Hash: ea446b5f4465
 ```
 
@@ -120,7 +120,7 @@ sm_snapshot(corpus, snap_path)
 ``` r
 
 sm_cite_corpus(corpus)
-#> Corpus assembled using scimapR v0.1.0 on 2026-08-11. Contains 200 works by 80
+#> Corpus assembled using scimapR v0.1.0 on 2026-08-21. Contains 200 works by 80
 #> authors (2015-2024). Data sources: synthetic. Corpus hash: ea446b5f4465.
 ```
 
