@@ -66,9 +66,9 @@ Other export:
 corpus <- sm_example_corpus(n_works = 10)
 path <- tempfile(fileext = ".zip")
 sm_export_zip(corpus, path, include = c("rds", "certificate"))
-#> ✔ Corpus saved to /tmp/RtmpVDxLPH/file25bdc3ac938/corpus.rds
-#> ✔ Certificate written to /tmp/RtmpVDxLPH/file25bdc3ac938/certificate.yaml.
+#> ✔ Corpus saved to /tmp/RtmpyoACUq/file23fa2364b74d/corpus.rds
+#> ✔ Certificate written to /tmp/RtmpyoACUq/file23fa2364b74d/certificate.yaml.
 #> ✔ Certificate created. Corpus hash: 58b250d94efb
-#> ✔ Bundle saved to /tmp/RtmpVDxLPH/file25bd2093c864.zip
+#> ✔ Bundle saved to /tmp/RtmpyoACUq/file23fa280ef4d0.zip
 # }
 ```
