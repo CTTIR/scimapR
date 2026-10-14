@@ -437,6 +437,6 @@ sm_export_cytoscape(net, tempfile(fileext = ".json"))
 #> Warning: Unknown or uninitialised column: `to`.
 #> Warning: Unknown or uninitialised column: `from`.
 #> Warning: Unknown or uninitialised column: `to`.
-#> ✔ Network exported for Cytoscape to /tmp/Rtmpi2zvt0/file22fc33b92413.json
+#> ✔ Network exported for Cytoscape to /tmp/Rtmpqoun7E/file230e3c36da92.json
 # }
 ```

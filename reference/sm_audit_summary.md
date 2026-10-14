@@ -85,11 +85,11 @@ summary_audit <- sm_audit_summary(corpus)
 #> Warning: 404 (client error): /works/10.1234/example.11 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.12 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.13 - Resource not found.
-#> Warning: 429 (client error): /works/10.1234/example.14 - 
-#> Warning: 404 (client error): /works/10.1234/example.15 - Resource not found.
-#> Warning: 429 (client error): /works/10.1234/example.16 - 
+#> Warning: 404 (client error): /works/10.1234/example.14 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.15 - 
+#> Warning: 404 (client error): /works/10.1234/example.16 - Resource not found.
 #> Warning: 429 (client error): /works/10.1234/example.17 - 
-#> Warning: 404 (client error): /works/10.1234/example.18 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.18 - 
 #> Warning: 429 (client error): /works/10.1234/example.19 - 
 #> Warning: 429 (client error): /works/10.1234/example.20 - 
 #> Warning: 429 (client error): /works/10.1234/example.21 - 
@@ -275,7 +275,7 @@ summary_audit <- sm_audit_summary(corpus)
 #> ℹ No funding data found via "crossref".
 #> ℹ This may be because the works lack DOIs/identifiers, or the source does not
 #>   have funding metadata.
-#> Running equity audits ■■■■■■■■■■■■■■■■■■■■■■■           75% | ETA:  3s
+#> Running equity audits ■■■■■■■■■■■■■■■■■■■■■■■           75% | ETA:  1s
 #> Running equity audits ■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■  100% | ETA:  0s
 print(summary_audit)
 #> 

@@ -94,11 +94,11 @@ funding <- sm_audit_funding(corpus, source = "crossref")
 #> Warning: 404 (client error): /works/10.1234/example.11 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.12 - Resource not found.
 #> Warning: 404 (client error): /works/10.1234/example.13 - Resource not found.
-#> Warning: 404 (client error): /works/10.1234/example.14 - Resource not found.
-#> Warning: 429 (client error): /works/10.1234/example.15 - 
-#> Warning: 429 (client error): /works/10.1234/example.16 - 
+#> Warning: 429 (client error): /works/10.1234/example.14 - 
+#> Warning: 404 (client error): /works/10.1234/example.15 - Resource not found.
+#> Warning: 404 (client error): /works/10.1234/example.16 - Resource not found.
 #> Warning: 429 (client error): /works/10.1234/example.17 - 
-#> Warning: 404 (client error): /works/10.1234/example.18 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.18 - 
 #> Warning: 429 (client error): /works/10.1234/example.19 - 
 #> Warning: 429 (client error): /works/10.1234/example.20 - 
 #> Warning: 429 (client error): /works/10.1234/example.21 - 
@@ -114,7 +114,7 @@ funding <- sm_audit_funding(corpus, source = "crossref")
 #> Warning: 429 (client error): /works/10.1234/example.31 - 
 #> Warning: 429 (client error): /works/10.1234/example.32 - 
 #> Warning: 429 (client error): /works/10.1234/example.33 - 
-#> Warning: 404 (client error): /works/10.1234/example.34 - Resource not found.
+#> Warning: 429 (client error): /works/10.1234/example.34 - 
 #> Warning: 429 (client error): /works/10.1234/example.35 - 
 #> Warning: 429 (client error): /works/10.1234/example.36 - 
 #> Warning: 429 (client error): /works/10.1234/example.37 - 
