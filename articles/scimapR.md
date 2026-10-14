@@ -15,7 +15,7 @@ MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.or
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 
-### What is scimapR?
+## What is scimapR?
 
 scimapR is a comprehensive toolkit for bibliometric and scientometric
 analysis in R. It is designed as a complement to the foundational
@@ -32,7 +32,7 @@ analysis in R. It is designed as a complement to the foundational
   humility
 - **LLM-grounded corpus chat** with retrieval-constrained citations
 
-### Quick start
+## Quick start
 
 ``` r
 
@@ -48,10 +48,10 @@ print(corpus)
 #> Sources (journals): 10
 #> Embeddings: 100 x 64
 #> Provenance: synthetic (100)
-#> Status: Unlocked (last refreshed: 2026-08-22 13:19:44)
+#> Status: Unlocked (last refreshed: 2026-10-14 11:21:13)
 ```
 
-### Exploring the corpus
+## Exploring the corpus
 
 ``` r
 
@@ -83,7 +83,7 @@ head(corpus$authors[, c("author_id", "display_name")])
 #> 6 A000000006 Hiroshi Sato
 ```
 
-### Visualisation
+## Visualisation
 
 All plots use viridis colour palettes by default.
 
@@ -105,7 +105,7 @@ sm_plot_top(corpus, level = "authors", n = 10)
 
 Top authors
 
-### Networks and large graphs
+## Networks and large graphs
 
 Network plots such as
 [`sm_plot_citation_network()`](https://cttir.github.io/scimapR/reference/sm_plot_citation_network.md)
@@ -134,7 +134,7 @@ p
 
 ![](scimapR_files/figure-html/network-1.png)
 
-### Filtering
+## Filtering
 
 ``` r
 
@@ -143,7 +143,7 @@ nrow(recent$works)
 #> [1] 53
 ```
 
-### Next steps
+## Next steps
 
 - See
   [`vignette("ingestion")`](https://cttir.github.io/scimapR/articles/ingestion.md)
@@ -157,21 +157,3 @@ nrow(recent$works)
 - Run
   [`sm_run_app()`](https://cttir.github.io/scimapR/reference/sm_run_app.md)
   for the interactive Shiny explorer
-
-## Use of LLM tools
-
-Portions of this package were prepared with assistance from large
-language model tooling for narrowly defined, non-authorial tasks:
-copyediting, prose smoothing, Markdown/LaTeX formatting, scaffolding of
-boilerplate files (CI configs, build scripts), code refactoring. The
-tools used were [Chat
-AI](https://kisski.gwdg.de/leistungen/2-02-llm-service/), the LLM
-service of KISSKI (GWDG), and a self-hosted **Mistral Small (24B,
-Apache-2.0)** run locally via [Ollama](https://ollama.com/) and the
-`ollamar` R package — local inference only, with no data sent to third
-parties for the self-hosted model.
-
-All scientific claims, methodological choices, analyses,
-interpretations, and conclusions are the author’s own. No LLM-generated
-text was incorporated without review and revision, and every reference
-was verified against its DOI, arXiv ID, or ISBN.

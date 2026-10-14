@@ -85,10 +85,10 @@ head(corpus$works[, c("work_id", "cluster_id", "cluster_label")])
 #>   work_id    cluster_id cluster_label                 
 #>   <chr>           <int> <chr>                         
 #> 1 W000000001          5 analysis; analyzed; approaches
-#> 2 W000000002          3 analysis; analyzed; approaches
+#> 2 W000000002          1 analysis; analyzed; approaches
 #> 3 W000000003          5 analysis; analyzed; approaches
 #> 4 W000000004          5 analysis; analyzed; approaches
-#> 5 W000000005          4 analysis; analyzed; approaches
-#> 6 W000000006          1 analysis; analyzed; approaches
+#> 5 W000000005          3 analysis; analyzed; approaches
+#> 6 W000000006          4 analysis; analyzed; approaches
 # }
 ```

@@ -2,7 +2,7 @@
 
 Clusters works using the HDBSCAN (Hierarchical Density-Based Spatial
 Clustering of Applications with Noise) algorithm via
-[`dbscan::hdbscan()`](https://rdrr.io/pkg/dbscan/man/hdbscan.html).
+[`dbscan::hdbscan()`](http://michael.hahsler.net/dbscan/reference/hdbscan.md).
 Optionally reduces embedding dimensions first with UMAP or PCA.
 
 ## Usage
@@ -82,6 +82,6 @@ corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10L)
 table(corpus$works$cluster_id)
 #> 
 #>  1  2  3  4  5 
-#> 40 45 27 39 49 
+#> 45 27 39 40 49 
 # }
 ```

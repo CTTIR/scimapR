@@ -73,6 +73,6 @@ corpus <- sm_cluster_kmeans(corpus, k = 5)
 table(corpus$works$cluster_id)
 #> 
 #>  1  2  3  4  5 
-#> 40 27 39 45 49 
+#> 39 27 45 40 49 
 # }
 ```

@@ -90,35 +90,35 @@ evo$snapshots
 #> # A tibble: 15 × 4
 #>    window    cluster_id n_works top_terms                                       
 #>    <chr>          <int>   <int> <chr>                                           
-#>  1 2015-2017          1      12 spatial; transcriptomics; meta; biomarker; canc…
+#>  1 2015-2017          1       8 clinical; outcomes; spatial; transcriptomics; c…
 #>  2 2015-2017          2       8 expression; gene; biomarker; cross; discovery   
-#>  3 2015-2017          3       8 clinical; outcomes; spatial; transcriptomics; c…
-#>  4 2015-2017          4      11 spatial; transcriptomics; biomarker; cell; clin…
+#>  3 2015-2017          3      11 spatial; transcriptomics; biomarker; cell; clin…
+#>  4 2015-2017          4      12 spatial; transcriptomics; meta; biomarker; canc…
 #>  5 2015-2017          5      13 clinical; outcomes; drug; resistance; cross     
-#>  6 2018-2020          1      14 cancer; colorectal; randomized; trial; cell     
+#>  6 2018-2020          1      16 cell; rna; seq; single; microenvironment        
 #>  7 2018-2020          2       7 cell; clinical; cohort; outcomes; rna           
-#>  8 2018-2020          3      16 cell; rna; seq; single; microenvironment        
-#>  9 2018-2020          4      15 clinical; outcomes; spatial; transcriptomics; e…
+#>  8 2018-2020          3      15 clinical; outcomes; spatial; transcriptomics; e…
+#>  9 2018-2020          4      14 cancer; colorectal; randomized; trial; cell     
 #> 10 2018-2020          5      13 microenvironment; tumor; biomarker; discovery; …
-#> 11 2021-2024          1      14 clinical; expression; gene; outcomes; biomarker 
+#> 11 2021-2024          1      15 biomarker; cell; discovery; randomized; rna     
 #> 12 2021-2024          2      12 cancer; checkpoint; colorectal; cross; immune   
-#> 13 2021-2024          3      15 biomarker; cell; discovery; randomized; rna     
-#> 14 2021-2024          4      19 spatial; transcriptomics; biomarker; case; cell 
+#> 13 2021-2024          3      19 spatial; transcriptomics; biomarker; case; cell 
+#> 14 2021-2024          4      14 clinical; expression; gene; outcomes; biomarker 
 #> 15 2021-2024          5      23 cancer; colorectal; drug; resistance; clinical  
 evo$transitions
 #> # A tibble: 50 × 6
 #>    from_window to_window from_cluster to_cluster jaccard n_shared
 #>    <chr>       <chr>            <int>      <int>   <dbl>    <int>
-#>  1 2015-2017   2018-2020            3          3   0.871       27
-#>  2 2015-2017   2018-2020            3          5   0.788       26
-#>  3 2015-2017   2018-2020            3          4   0.879       29
-#>  4 2015-2017   2018-2020            3          1   0.879       29
-#>  5 2015-2017   2018-2020            3          2   0.742       23
-#>  6 2015-2017   2018-2020            4          3   0.727       24
-#>  7 2015-2017   2018-2020            4          5   0.758       25
-#>  8 2015-2017   2018-2020            4          4   0.848       28
-#>  9 2015-2017   2018-2020            4          1   0.848       28
-#> 10 2015-2017   2018-2020            4          2   0.710       22
+#>  1 2015-2017   2018-2020            1          1   0.871       27
+#>  2 2015-2017   2018-2020            1          5   0.788       26
+#>  3 2015-2017   2018-2020            1          3   0.879       29
+#>  4 2015-2017   2018-2020            1          4   0.879       29
+#>  5 2015-2017   2018-2020            1          2   0.742       23
+#>  6 2015-2017   2018-2020            3          1   0.727       24
+#>  7 2015-2017   2018-2020            3          5   0.758       25
+#>  8 2015-2017   2018-2020            3          3   0.848       28
+#>  9 2015-2017   2018-2020            3          4   0.848       28
+#> 10 2015-2017   2018-2020            3          2   0.710       22
 #> # ℹ 40 more rows
 # }
 ```
