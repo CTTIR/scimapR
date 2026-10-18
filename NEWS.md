@@ -1,3 +1,21 @@
+# scimapR (development version)
+
+- New synthetic example files shaped like a Web of Science export of three
+  invented military-medical units and their civilian partners:
+  `example_realuse_corpus.rds` (150 works), `example_realuse_reference.csv`
+  (a publication-tracker reference list) and
+  `example_realuse_affiliation_dict.csv` (an affiliation dictionary). See
+  the "Real-use fixture" section of `?sm_example_files`.
+- The examples of `sm_audit_funding()` and `sm_audit_summary()` run
+  offline: they no longer send one Crossref request per DOI of the example
+  corpus when `R CMD check --as-cran` runs `\donttest{}` code. The live
+  lookup is shown in an example that runs only in interactive sessions.
+- `sm_audit_summary()` no longer sends web requests by default. Its new
+  `online` argument controls the funding audit, which looks up every DOI on
+  Crossref: with the default `online = FALSE` that audit is reported as not
+  run unless a precomputed `sm_audit_funding()` result is passed, and
+  `online = TRUE` runs it as before.
+
 # scimapR 0.4.0
 
 Stability contracts, an enrichment materializer, and self-citation-corrected

@@ -308,11 +308,53 @@ sm_example_corpus <- function(n_works = 200L,
 #'
 #' @return A character string path, or a character vector of available files.
 #'
+#' @section Real-use fixture:
+#' Three files form a synthetic fixture shaped like a corpus that was built
+#' from a Web of Science export of three military-medical units and their
+#' civilian partners. Everything in it is invented: units, cities, people,
+#' journals, titles and DOIs (`10.9999/...`). The script
+#' `data-raw/realuse-fixture.R` in the package sources rebuilds the files.
+#' \describe{
+#'   \item{`example_realuse_corpus.rds`}{An [sm_corpus] built with
+#'     [sm_corpus_from_tables()]: 150 works from 2016 to 2026, with authors,
+#'     Web of Science style addresses (ten of them German strings with
+#'     non-ASCII letters), one corresponding author per work, sources, Web
+#'     of Science style cited references and keyword and category concepts.
+#'     Extra `works` columns are `quartile` (`NA` for every 2026 work),
+#'     `fwci`, `field` (the first Web of Science category), `volume` and
+#'     `first_page`; `work_id` holds the Web of Science accession number.
+#'     `metadata$last_refresh` is a numeric time stamp in seconds since
+#'     1970-01-01 UTC.}
+#'   \item{`example_realuse_reference.csv`}{A reference list in the style of
+#'     a publication tracker, with columns `id`, `doi`, `title`, `year`,
+#'     `institution` (the reporting unit) and `category` (a publication
+#'     class code). It holds 120 of the corpus works and 40 items that are
+#'     not in the corpus.}
+#'   \item{`example_realuse_affiliation_dict.csv`}{An affiliation dictionary
+#'     in the [sm_affiliation_dict] format (`institution`, `pattern`,
+#'     `email_domain`) for [sm_affiliation_match()]: institutes first, the
+#'     hospital patterns anchored on its city next, a generic fallback last.
+#'     Its institution names are the `institution` values of the reference
+#'     list.}
+#' }
+#' The CSV files are UTF-8 encoded.
+#'
 #' @family example
 #' @export
 #' @examples
 #' sm_example_files()
 #' sm_example_files("example.bib")
+#'
+#' # The real-use fixture
+#' fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
+#' ref <- readr::read_csv(sm_example_files("example_realuse_reference.csv"),
+#'                        col_types = "cccicc")
+#' dict <- readr::read_csv(
+#'   sm_example_files("example_realuse_affiliation_dict.csv"),
+#'   col_types = "ccc"
+#' )
+#' matched <- sm_affiliation_match(fix, dict)
+#' table(matched$authorships$institution_match, useNA = "ifany")
 sm_example_files <- function(name = NULL) {
   dir <- system.file("extdata", package = "scimapR")
   if (!nzchar(dir)) {

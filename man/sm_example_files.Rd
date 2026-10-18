@@ -17,9 +17,53 @@ A character string path, or a character vector of available files.
 Returns the path to bundled example bibliographic files in the package's
 \code{inst/extdata} directory.
 }
+\section{Real-use fixture}{
+
+Three files form a synthetic fixture shaped like a corpus that was built
+from a Web of Science export of three military-medical units and their
+civilian partners. Everything in it is invented: units, cities, people,
+journals, titles and DOIs (\code{10.9999/...}). The script
+\code{data-raw/realuse-fixture.R} in the package sources rebuilds the files.
+\describe{
+\item{\code{example_realuse_corpus.rds}}{An \link{sm_corpus} built with
+\code{\link[=sm_corpus_from_tables]{sm_corpus_from_tables()}}: 150 works from 2016 to 2026, with authors,
+Web of Science style addresses (ten of them German strings with
+non-ASCII letters), one corresponding author per work, sources, Web
+of Science style cited references and keyword and category concepts.
+Extra \code{works} columns are \code{quartile} (\code{NA} for every 2026 work),
+\code{fwci}, \code{field} (the first Web of Science category), \code{volume} and
+\code{first_page}; \code{work_id} holds the Web of Science accession number.
+\code{metadata$last_refresh} is a numeric time stamp in seconds since
+1970-01-01 UTC.}
+\item{\code{example_realuse_reference.csv}}{A reference list in the style of
+a publication tracker, with columns \code{id}, \code{doi}, \code{title}, \code{year},
+\code{institution} (the reporting unit) and \code{category} (a publication
+class code). It holds 120 of the corpus works and 40 items that are
+not in the corpus.}
+\item{\code{example_realuse_affiliation_dict.csv}}{An affiliation dictionary
+in the \link{sm_affiliation_dict} format (\code{institution}, \code{pattern},
+\code{email_domain}) for \code{\link[=sm_affiliation_match]{sm_affiliation_match()}}: institutes first, the
+hospital patterns anchored on its city next, a generic fallback last.
+Its institution names are the \code{institution} values of the reference
+list.}
+}
+The CSV files are UTF-8 encoded.
+}
+
 \examples{
 sm_example_files()
 sm_example_files("example.bib")
+
+# The real-use fixture
+fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
+ref <- readr::read_csv(sm_example_files("example_realuse_reference.csv"),
+                       col_types = "cccicc")
+dict <- readr::read_csv(
+  sm_example_files("example_realuse_affiliation_dict.csv"),
+  col_types = "ccc"
+)
+matched <- sm_affiliation_match(fix, dict)
+table(matched$authorships$institution_match, useNA = "ifany")
 }
 \seealso{
 Other example:

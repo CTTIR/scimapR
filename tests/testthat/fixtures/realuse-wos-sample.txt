@@ -1,0 +1,546 @@
+FN Clarivate Analytics Web of Science
+VR 1.0
+PT J
+AU Valdez, P
+   Mertens, C
+   Ostendorf, U
+   Rasmussen, A
+   Pieper, C
+   Uhlig, L
+AF Valdez, Pieter
+   Mertens, Clara
+   Ostendorf, Ute
+   Rasmussen, Amara
+   Pieper, Clara
+   Uhlig, Lea
+TI Exertional heat stroke during summer training at Wychwick
+SO EXAMPLE JOURNAL OF PUBLIC HEALTH
+LA English
+DT Review
+DE exertional heat illness; recruits; active cooling; heat acclimatization
+ID HUMANS; DEHYDRATION; EXERCISE
+AB Sleep restriction impaired vigilance on hot afternoons. Prior episodes predicted recurrence within the same season. Core body temperature was recorded in 1800 reservists during a 14-day march near Wychwick.
+C1 [Valdez, Pieter] Univ Riverside, Sch Publ Hlth, Riverside RV9 9ZZ, England.
+   [Mertens, Clara; Ostendorf, Ute; Pieper, Clara] Zent Inst Sanitatswesens Nordstadt, Dept Hyg, D-99003 Nordstadt, Germany.
+   [Rasmussen, Amara] Alpenau Cantonal Hosp, Dept Infect Dis, CH-9999 Alpenau, Switzerland.
+   [Uhlig, Lea] Zent Inst Sanitatswesens Nordstadt, Lab Med, D-99003 Nordstadt, Germany.
+RP Uhlig, L (corresponding author), Zent Inst Sanitatswesens Nordstadt, Lab Med, D-99003 Nordstadt, Germany.
+CR Ramos D, 1990, J EXT MED RES, V47, P73, DOI 10.9999/ext.00012
+   Ramos N, 1990, TRANSFUS EX MED, V48, P447, DOI 10.9999/ext.00076
+   Lopes G, 1993, EX PUBLIC HEALTH REV, V11, P473
+   Silva D, 1994, EX EPIDEMIOL INFECT, V7, P736, DOI 10.9999/ext.00468
+   Thiel A, 1995, ARCH INVENT PATHOL, V24, P42, DOI 10.9999/ext.00422
+   Yates F, 1998, VECTOR ZOONOT EX, V38, P454, DOI 10.9999/ext.00033
+   Nunes E, 1999, ARCH INVENT PATHOL, V35, P138, DOI 10.9999/ext.00040
+   Delgado T, 2000, CLIN EX SURG, V6, P967, DOI 10.9999/ext.00505
+   Kraft T, 2000, EX PUBLIC HEALTH REV, V32, P351
+   Albrecht C, 2002, EX CRIT CARE, V21, P547, DOI 10.9999/ext.00049
+   Maier P, 2003, SPORT MED EX, V32, P80, DOI 10.9999/ext.00039
+   Nowak R, 2003, PREHOSP CARE REV, V58, P559, DOI 10.9999/ext.00492
+   Peters D, 2003, EX PUBLIC HEALTH REV, V48, P470
+   Yates F, 2003, EX MIL HLTH REP, V13, P83, DOI 10.9999/ext.00432
+   Norwood N, 2004, EX MIL HLTH REP, V10, P516, DOI 10.9999/ext.00404
+   Quigley K, 2005, EUR J SAMPLE INFECT, V4, P138, DOI 10.9999/ext.00008
+   Dias C, 2006, EX PUBLIC HEALTH REV, V36, P808, DOI 10.9999/ext.00510
+   Pinto R, 2008, BEISPIEL ARCH HYG, V21, P648, DOI 10.9999/ext.00395
+   Jarvis C, 2009, J APPL PHYSIOL EX, V46, P8, DOI 10.9999/ext.00089
+   Barlow A, 2010, EX CRIT CARE, V8, P653, DOI 10.9999/ext.00436
+   Ramos G, 2010, SPORT MED EX, V37, P858, DOI 10.9999/ext.00394
+   Fuchs M, 2011, ARCH INVENT PATHOL, V24, P765, DOI 10.9999/ext.00095
+   Lopes E, 2012, WILDERNESS EX MED, V19, P127, DOI 10.9999/ext.00482
+   Moura H, 2012, INJURY EX, V27, P397
+   Bauer P, 2013, J INVENT EMERG MED, V17, P582, DOI 10.9999/ext.00068
+   Ferreira L, 2013, EX EPIDEMIOL INFECT, V9, P68, DOI 10.9999/ext.00401
+   Ramsey M, 2013, INJURY EX, V46, P96, DOI 10.9999/ext.00043
+   Voss A, 2013, ZOONOSES EX, V23, P699, DOI 10.9999/ext.00480
+   Maier C, 2014, EX EPIDEMIOL INFECT, V38, P81
+   Whitaker T, 2014, J INVENT EMERG MED, V46, P667
+   Barlow K, 2015, J SYNTH VIROL, V17, P461, DOI 10.9999/ext.00058
+   Greer E, 2015, TRANSFUS EX MED, V38, P468, DOI 10.9999/ext.00442
+   Oakley G, 2015, SPORT MED EX, V27, P402, DOI 10.9999/ext.00014
+   Lorenz K, 2018, EUR J SAMPLE INFECT, V1, P44, DOI 10.9999/ext.00022
+NR 34
+TC 6
+SN 9999-0091
+EI 9998-0096
+J9 EX J PUBLIC HEALTH
+JI Ex. J. Public Health
+PY 2019
+VL 18
+BP 752
+DI 10.9999/ejph.2019.001
+WC Public, Environmental & Occupational Health
+SC Public, Environmental & Occupational Health
+UT WOS:000999900000012
+ER
+
+PT J
+AU Classen, L
+   Eriksen, E
+   Duarte, F
+   Hagedorn, L
+   Castellano, M
+   Andersen, J
+AF Classen, Lea
+   Eriksen, Eirik
+   Duarte, Felix
+   Hagedorn, Lea
+   Castellano, Miriam
+   Andersen, Julia
+TI Zoonotic surveillance: 1796 samples from Larkmoor
+SO FIELD EPIDEMIOLOGY LETTERS
+LA English
+DT Article
+DE orthohantavirus; rodent reservoir; zoonotic surveillance; seroconversion
+ID EUROPE; EPIDEMIOLOGY; INFECTION
+AB Dust from nests in unused buildings was the likely source. Exposure was highest near forest edges, storage sheds and bivouacs. Field serology was combined with molecular typing of lung samples.
+C1 [Classen, Lea] Fed Armed Forces Inst Microbiol, D-99002 Southcity, Germany.
+   [Eriksen, Eirik] Lakeside Univ, Dept Epidemiol, Lakeside, MA 02999 USA.
+   [Duarte, Felix] Nordstadt Univ Hosp, Dept Dermatol, D-99013 Nordstadt, Germany.
+   [Hagedorn, Lea] Fed Armed Forces Inst Microbiol, Dept Bacteriol, D-99002 Southcity, Germany.
+   [Castellano, Miriam; Andersen, Julia] Southcity Med Sch, Dept Infect Dis, D-99012 Southcity, Germany.
+RP Duarte, F (corresponding author), Nordstadt Univ Hosp, Dept Dermatol, D-99013 Nordstadt, Germany.
+CR Mercer T, 1990, ZOONOSES EX, V22, P637, DOI 10.9999/ext.00084
+   Barlow F, 1991, J EXT MED RES, V36, P72, DOI 10.9999/ext.00090
+   Costa E, 1992, ARCH INVENT PATHOL, V40, P682, DOI 10.9999/ext.00120
+   Maier E, 1993, EX PUBLIC HEALTH REV, V54, P703
+   Lowell P, 1997, PREHOSP CARE REV, V42, P895, DOI 10.9999/ext.00166
+   Bauer N, 1998, VECTOR ZOONOT EX, V28, P663, DOI 10.9999/ext.00031
+   Holloway F, 1998, EX CRIT CARE, V32, P884
+   Ziegler R, 2000, J THERM BIOL EX, V28, P713
+   Forsyth P, 2002, TRANSFUS EX MED, V50, P422
+   Peters D, 2003, EX PUBLIC HEALTH REV, V48, P470
+   Voss K, 2003, EX MIL HLTH REP, V27, P270, DOI 10.9999/ext.00123
+   Maier S, 2005, BEISPIEL ARCH HYG, V58, P416, DOI 10.9999/ext.00003
+   Ramsey G, 2009, EUR J SAMPLE INFECT, V44, P180, DOI 10.9999/ext.00164
+   Lorenz T, 2012, J THERM BIOL EX, V6, P255, DOI 10.9999/ext.00034
+   Moura S, 2012, ZOONOSES EX, V29, P7, DOI 10.9999/ext.00215
+   Lorenz A, 2014, EUR J SAMPLE INFECT, V60, P286, DOI 10.9999/ext.00122
+   Chandler N, 2016, EX MIL HLTH REP, V13, P150, DOI 10.9999/ext.00006
+   Costa M, 2018, SPORT MED EX, V5, P110
+   Valdez P, 2019, EX J PUBLIC HEALTH, V18, P752, DOI 10.9999/ejph.2019.001
+NR 19
+TC 0
+SN 9999-0040
+EI 9998-0045
+J9 FIELD EPIDEMIOL LETT
+JI Field Epidemiol. Lett.
+PY 2020
+VL 14
+BP 107
+DI 10.9999/fepl.2020.002
+WC Public, Environmental & Occupational Health; Infectious Diseases
+SC Public, Environmental & Occupational Health; Infectious Diseases
+UT WOS:000999900000029
+ER
+
+PT J
+AU Kowalczyk, S
+   Castellano, M
+   Jasper, J
+   Sorensen, P
+   Feldhaus, F
+AF Kowalczyk, Stefan
+   Castellano, Miriam
+   Jasper, Julia
+   Sorensen, Pieter
+   Feldhaus, Florian
+TI Seasonal risk in Brackenstead: 1359 cases, 2014-2019
+SO EXAMPLE INFECTIOUS DISEASE REPORTS
+LA English
+DT Article
+DE orthohantavirus; nephropathia epidemica; field epidemiology
+ID TRANSMISSION; VIRUS
+AB Beech mast years were followed by rodent outbreaks and case clusters. Seroconversion occurred in 57 percent of field personnel after field exercises. Most infections caused fever, back pain and transient renal impairment.
+C1 [Kowalczyk, Stefan] Univ Northtown, Dept Microbiol, Northtown, Germany.
+   [Castellano, Miriam] Southcity Med Sch, Dept Infect Dis, D-99012 Southcity, Germany.
+   [Jasper, Julia] Fed Armed Forces Inst Microbiol, Dept Bacteriol, D-99002 Southcity, Germany.
+   [Sorensen, Pieter] Alpenau Cantonal Hosp, Dept Infect Dis, CH-9999 Alpenau, Switzerland.
+   [Feldhaus, Florian] Fed Armed Forces Inst Microbiol, Dept Virol, D-99002 Southcity, Germany.
+RP Kowalczyk, S (corresponding author), Univ Northtown, Dept Microbiol, Northtown, Germany.
+CR Conrad T, 1993, ZOONOSES EX, V10, P70, DOI 10.9999/ext.00174
+   Nunes Q, 1994, EX PUBLIC HEALTH REV, V13, P815, DOI 10.9999/ext.00037
+   Mercer N, 1995, J SYNTH VIROL, V8, P499
+   Vance P, 1995, J EXT MED RES, V6, P850, DOI 10.9999/ext.00130
+   Jarvis G, 1996, EX CRIT CARE, V18, P344, DOI 10.9999/ext.00119
+   Jung I, 1996, PREHOSP CARE REV, V9, P705, DOI 10.9999/ext.00016
+   Dahl I, 1999, EX PUBLIC HEALTH REV, V19, P139, DOI 10.9999/ext.00201
+   Dias E, 2001, VECTOR ZOONOT EX, V44, P290, DOI 10.9999/ext.00131
+   Vahrenkamp S, 2016, ACTA FICTA MICROBIOL, V12, P80, DOI 10.9999/afmi.2016.001
+   Ellison L, 2018, BEISPIEL ARCH HYG, V50, P982, DOI 10.9999/ext.00038
+   Valdez P, 2019, EX J PUBLIC HEALTH, V18, P752, DOI 10.9999/ejph.2019.001
+   Thiel F, 2020, J THERM BIOL EX, V36, P433
+NR 12
+TC 22
+SN 9999-0024
+EI 9998-0029
+J9 EX INFECT DIS REP
+JI Ex. Infect. Dis. Rep.
+PY 2020
+VL 12
+BP 537
+DI 10.9999/eidr.2020.002
+WC Infectious Diseases; Microbiology
+SC Infectious Diseases; Microbiology
+UT WOS:000999900000030
+ER
+
+PT J
+AU Morgenroth, J
+   Tiedemann, A
+AF Morgenroth, Jan
+   Tiedemann, Anna
+TI Damage control resuscitation at Sedgewick: 1341 casualties, 2017-2021
+SO INTERNATIONAL JOURNAL OF INVENTED TRAUMA CARE
+LA English
+DT Article
+DE hemorrhage control; tactical medicine; tourniquet; trauma registry
+ID MORTALITY; RESUSCITATION; MANAGEMENT; OUTCOMES
+AB Hemorrhage control training improved skills among combat engineers. Massive transfusion protocols were activated 7 times. Limb ischaemia did not increase when tourniquets were converted early.
+C1 [Morgenroth, Jan] Armed Forces Hosp Northtown, Dept Anesthesiol, D-99001 Northtown, Germany.
+   [Tiedemann, Anna] Armed Forces Hosp Northtown, Dept Emergency Med, D-99001 Northtown, Germany.
+RP Morgenroth, J (corresponding author), Armed Forces Hosp Northtown, Dept Anesthesiol, D-99001 Northtown, Germany.
+CR Mercer T, 1990, ZOONOSES EX, V22, P637, DOI 10.9999/ext.00084
+   Ziegler F, 1992, EX EPIDEMIOL INFECT, V50, P379
+   Graf D, 1998, CLIN EX SURG, V15, P981, DOI 10.9999/ext.00243
+   Quigley L, 2006, PREHOSP CARE REV, V29, P230
+   Nowak C, 2008, J INVENT EMERG MED, V32, P963, DOI 10.9999/ext.00029
+   Costa S, 2009, J INVENT EMERG MED, V60, P605
+   Lopes A, 2013, ZOONOSES EX, V21, P138, DOI 10.9999/ext.00299
+   Lorenz K, 2018, EUR J SAMPLE INFECT, V1, P44, DOI 10.9999/ext.00022
+   Mertens C, 2018, EX INFECT DIS REP, V10, P211, DOI 10.9999/eidr.2018.001
+   Otto R, 2018, EX EPIDEMIOL INFECT, V59, P846, DOI 10.9999/ext.00096
+   Gerlach I, 2020, FIELD EPIDEMIOL LETT, V14, P474, DOI 10.9999/fepl.2020.001
+   Kowalczyk S, 2020, EX INFECT DIS REP, V12, P537, DOI 10.9999/eidr.2020.002
+   Upton H, 2021, ZOONOSES EX, V13, P507, DOI 10.9999/ext.00287
+NR 13
+TC 2
+SN 9999-0059
+EI 9998-0053
+J9 INT J INVENT TRAUMA C
+JI Int. J. Invent. Trauma Care
+PY 2022
+VL 17
+BP 319
+DI 10.9999/ijtc.2022.002
+WC Emergency Medicine; Surgery
+SC Emergency Medicine; Surgery
+UT WOS:000999900000065
+ER
+
+PT J
+AU Rautenberg, M
+   Lombardi, C
+   Achterberg, L
+   Hollerbach, L
+AF Rautenberg, Marie
+   Lombardi, Chiara
+   Achterberg, Lukas
+   Hollerbach, Lena
+TI Junctional bleeding control after prehospital whole blood: 1746 cases from Marrowdale
+SO ANNALS OF SYNTHETIC SURGERY
+LA English
+DT Review
+DE hemorrhage control; tourniquet; trauma registry
+ID INJURY; MORTALITY; TRANSFUSION
+AB Limb ischaemia did not increase when tourniquets were converted early. Junctional bleeding remained the leading cause of preventable death. We analysed 1746 casualties recorded in the Marrowdale trauma registry.
+C1 [Rautenberg, Marie] Armed Forces Hosp Northtown, Dept Emergency Med, D-99001 Northtown, Germany.
+   [Lombardi, Chiara] Hilltop Univ Med Ctr, Dept Surg, NL-9999 ZZ Hilltop, Netherlands.
+   [Achterberg, Lukas] Armed Forces Hosp Northtown, Dept Trauma Surg, D-99001 Northtown, Germany.
+   [Achterberg, Lukas] Univ Northtown, Dept Trauma Surg, Northtown, Germany.
+   [Hollerbach, Lena] Armed Forces Hosp Northtown, Dept Internal Med, D-99001 Northtown, Germany.
+RP Lombardi, C (corresponding author), Hilltop Univ Med Ctr, Dept Surg, NL-9999 ZZ Hilltop, Netherlands.
+CR Yates G, 1990, PREHOSP CARE REV, V32, P574
+   Ziegler R, 1991, SPORT MED EX, V32, P639, DOI 10.9999/ext.00275
+   Fuchs M, 1992, WILDERNESS EX MED, V49, P578, DOI 10.9999/ext.00329
+   Oakley L, 1998, EUR J SAMPLE INFECT, V34, P8, DOI 10.9999/ext.00085
+   Mercer B, 2001, J INVENT EMERG MED, V12, P375, DOI 10.9999/ext.00300
+   Pinto T, 2005, CLIN EX SURG, V23, P30
+   Prescott E, 2005, CLIN EX SURG, V39, P978
+   Ferreira R, 2008, EUR J SAMPLE INFECT, V4, P218
+   Nowak S, 2008, WILDERNESS EX MED, V39, P860, DOI 10.9999/ext.00285
+   Nunes L, 2008, EX EPIDEMIOL INFECT, V11, P60, DOI 10.9999/ext.00257
+   Upton N, 2008, EX EPIDEMIOL INFECT, V56, P472
+   Wagner T, 2010, EX MIL HLTH REP, V10, P818, DOI 10.9999/ext.00353
+   Fuchs M, 2011, ARCH INVENT PATHOL, V24, P765, DOI 10.9999/ext.00095
+   Forsyth Q, 2013, J INVENT EMERG MED, V6, P967, DOI 10.9999/ext.00335
+   Abbott P, 2014, EX PUBLIC HEALTH REV, V50, P960, DOI 10.9999/ext.00376
+   Conrad F, 2014, EUR J SAMPLE INFECT, V9, P222, DOI 10.9999/ext.00322
+   Oakley G, 2015, SPORT MED EX, V27, P402, DOI 10.9999/ext.00014
+   Chandler N, 2016, EX MIL HLTH REP, V13, P150, DOI 10.9999/ext.00006
+   Ferreira S, 2017, J THERM BIOL EX, V55, P267, DOI 10.9999/ext.00380
+   Jarvis K, 2019, VECTOR ZOONOT EX, V56, P655, DOI 10.9999/ext.00283
+   Chandler F, 2020, EX EPIDEMIOL INFECT, V31, P262, DOI 10.9999/ext.00035
+   Chandler O, 2020, VECTOR ZOONOT EX, V57, P766
+   Kowalczyk S, 2020, EX INFECT DIS REP, V12, P537, DOI 10.9999/eidr.2020.002
+   Wagner D, 2020, WILDERNESS EX MED, V43, P231
+   Dorfmeister T, 2021, Z BEISPIELMED, V19, P333, DOI 10.9999/zbsm.2021.002
+NR 25
+TC 3
+SN 9999-0032
+EI 9998-0037
+J9 ANN SYNTH SURG
+JI Ann. Synth. Surg.
+PY 2022
+VL 15
+BP 571
+DI 10.9999/asur.2022.001
+WC Surgery
+SC Surgery
+UT WOS:000999900000069
+ER
+
+PT J
+AU Nachtigall, M
+   Brennecke, F
+   Jankowski, J
+   Gutknecht, J
+   Jovanovic, T
+AF Nachtigall, Moritz
+   Brennecke, Florian
+   Jankowski, Jonas
+   Gutknecht, Julia
+   Jovanovic, Tomasz
+TI Whole blood transfusion at Hazelbury: 1239 casualties, 2017-2022
+SO ANNALS OF SYNTHETIC SURGERY
+LA English
+DT Article
+DE hemorrhage control; tourniquet; prehospital care
+ID MANAGEMENT; INJURY; MORTALITY
+AB Prehospital intervals shortened after whole blood became available. We analysed 1239 casualties recorded in the Hazelbury trauma registry. Early tourniquet application was associated with lower mortality.
+C1 [Nachtigall, Moritz] Armed Forces Hosp Northtown, Dept Anesthesiol, D-99001 Northtown, Germany.
+   [Brennecke, Florian; Gutknecht, Julia] Armed Forces Hosp Northtown, Dept Trauma Surg, D-99001 Northtown, Germany.
+   [Brennecke, Florian] Univ Northtown, Dept Trauma Surg, Northtown, Germany.
+   [Jankowski, Jonas] Armed Forces Hosp Northtown, Dept Internal Med, D-99001 Northtown, Germany.
+   [Jovanovic, Tomasz] Hilltop Univ Med Ctr, Dept Surg, NL-9999 ZZ Hilltop, Netherlands.
+RP Nachtigall, M (corresponding author), Armed Forces Hosp Northtown, Dept Anesthesiol, D-99001 Northtown, Germany.
+CR Fuchs M, 1992, WILDERNESS EX MED, V49, P578, DOI 10.9999/ext.00329
+   Vance L, 1992, WILDERNESS EX MED, V41, P185, DOI 10.9999/ext.00075
+   Quigley Q, 1993, EX EPIDEMIOL INFECT, V41, P129, DOI 10.9999/ext.00341
+   Silva O, 1993, EX MIL HLTH REP, V54, P514
+   Kraft L, 2017, SPORT MED EX, V34, P434, DOI 10.9999/ext.00050
+   Ramos L, 2019, CLIN EX SURG, V58, P615, DOI 10.9999/ext.00332
+   Classen L, 2020, FIELD EPIDEMIOL LETT, V14, P107, DOI 10.9999/fepl.2020.002
+   Delgado F, 2023, BEISPIEL ARCH HYG, V30, P654
+NR 8
+TC 4
+SN 9999-0032
+EI 9998-0037
+J9 ANN SYNTH SURG
+JI Ann. Synth. Surg.
+PY 2023
+VL 16
+BP 591
+DI 10.9999/asur.2023.001
+WC Surgery
+SC Surgery
+UT WOS:000999900000079
+ER
+
+PT J
+AU Quernheim, B
+   Lombardi, C
+   Jovanovic, T
+AF Quernheim, Bernd
+   Lombardi, Chiara
+   Jovanovic, Tomasz
+TI Whole blood transfusion after fibrinogen concentrate: 1394 cases from Thornstead
+SO INTERNATIONAL JOURNAL OF INVENTED TRAUMA CARE
+LA English
+DT Article
+DE hemorrhage control; junctional bleeding; trauma registry
+ID OUTCOMES; TRANSFUSION; TRAUMA
+AB Early tourniquet application was associated with lower mortality. Hemorrhage control training improved skills among recruits. Massive transfusion protocols were activated 3 times.
+C1 [Quernheim, Bernd] Armed Forces Hosp Northtown, Dept Emergency Med, D-99001 Northtown, Germany.
+   [Lombardi, Chiara; Jovanovic, Tomasz] Hilltop Univ Med Ctr, Dept Surg, NL-9999 ZZ Hilltop, Netherlands.
+RP Quernheim, B (corresponding author), Armed Forces Hosp Northtown, Dept Emergency Med, D-99001 Northtown, Germany.
+CR Hahn R, 1996, CLIN EX SURG, V28, P888
+   Ramsey F, 1996, J SYNTH VIROL, V13, P693, DOI 10.9999/ext.00011
+   Thornton M, 1996, ZOONOSES EX, V46, P929
+   Peters D, 2003, EX PUBLIC HEALTH REV, V48, P470
+   Holloway F, 2009, J SYNTH VIROL, V14, P353, DOI 10.9999/ext.00352
+   Wagner T, 2010, EX MIL HLTH REP, V10, P818, DOI 10.9999/ext.00353
+   Ramos H, 2011, INJURY EX, V14, P735, DOI 10.9999/ext.00333
+   Ramsey M, 2013, INJURY EX, V46, P96, DOI 10.9999/ext.00043
+   Pinto O, 2014, EX EPIDEMIOL INFECT, V42, P75
+   Pinto L, 2015, BEISPIEL ARCH HYG, V35, P309, DOI 10.9999/ext.00261
+   Kendrick G, 2016, PREHOSP CARE REV, V24, P935, DOI 10.9999/ext.00074
+   Greer B, 2017, EX MIL HLTH REP, V37, P545, DOI 10.9999/ext.00055
+   Whitaker Q, 2019, INJURY EX, V12, P210, DOI 10.9999/ext.00099
+   Upton H, 2021, ZOONOSES EX, V13, P507, DOI 10.9999/ext.00287
+   Rautenberg M, 2022, ANN SYNTH SURG, V15, P571, DOI 10.9999/asur.2022.001
+   Otto A, 2024, J THERM BIOL EX, V34, P697, DOI 10.9999/ext.00379
+NR 16
+TC 0
+SN 9999-0059
+EI 9998-0053
+J9 INT J INVENT TRAUMA C
+JI Int. J. Invent. Trauma Care
+PY 2024
+VL 19
+BP 425
+DI 10.9999/ijtc.2024.001
+WC Emergency Medicine; Surgery
+SC Emergency Medicine; Surgery
+UT WOS:000999900000107
+ER
+
+PT J
+AU Tiedemann, A
+   Lombardi, C
+   Dittmer, P
+   Dorfmeister, T
+   Ulbrich, J
+   Iversen, P
+   Falkenrath, N
+   Ilgner, T
+AF Tiedemann, Anna
+   Lombardi, Chiara
+   Dittmer, Paul
+   Dorfmeister, Tobias
+   Ulbrich, Jan
+   Iversen, Pieter
+   Falkenrath, Niklas
+   Ilgner, Tobias
+TI Pelvic binder use in 1862 reservists, Ironleigh registry
+SO INTERNATIONAL JOURNAL OF INVENTED TRAUMA CARE
+LA English
+DT Article
+DE hemorrhage control; damage control resuscitation; trauma registry
+ID TRANSFUSION; OUTCOMES; INJURY; TRAUMA
+AB Point-of-care coagulation testing guided blood product use. Junctional bleeding remained the leading cause of preventable death. Hemorrhage control training improved skills among reservists.
+C1 [Tiedemann, Anna; Ulbrich, Jan] Armed Forces Hosp Northtown, Dept Emergency Med, D-99001 Northtown, Germany.
+   [Lombardi, Chiara; Iversen, Pieter] Hilltop Univ Med Ctr, Dept Surg, NL-9999 ZZ Hilltop, Netherlands.
+   [Dittmer, Paul] Armed Forces Med Off, D-99009 Westburg, Germany.
+   [Dorfmeister, Tobias; Falkenrath, Niklas] Armed Forces Hosp Northtown, Dept Trauma Surg, D-99001 Northtown, Germany.
+   [Dorfmeister, Tobias] Univ Northtown, Dept Trauma Surg, Northtown, Germany.
+   [Ilgner, Tobias] Armed Forces Hosp Northtown, Dept Internal Med, D-99001 Northtown, Germany.
+RP Lombardi, C (corresponding author), Hilltop Univ Med Ctr, Dept Surg, NL-9999 ZZ Hilltop, Netherlands.
+CR Nunes Q, 1994, EX PUBLIC HEALTH REV, V13, P815, DOI 10.9999/ext.00037
+   Kendrick P, 1995, PREHOSP CARE REV, V4, P15, DOI 10.9999/ext.00365
+   Graf D, 1998, CLIN EX SURG, V15, P981, DOI 10.9999/ext.00243
+   Oakley L, 1998, EUR J SAMPLE INFECT, V34, P8, DOI 10.9999/ext.00085
+   Mercer B, 2001, J INVENT EMERG MED, V12, P375, DOI 10.9999/ext.00300
+   Dahl H, 2007, J THERM BIOL EX, V53, P532, DOI 10.9999/ext.00269
+   Conrad T, 2008, PREHOSP CARE REV, V55, P91
+   Holloway P, 2010, TRANSFUS EX MED, V26, P4
+   Lopes A, 2013, ZOONOSES EX, V21, P138, DOI 10.9999/ext.00299
+   Kraft L, 2017, SPORT MED EX, V34, P434, DOI 10.9999/ext.00050
+   Iversen P, 2020, J EXAMPLE MED, V11, P795, DOI 10.9999/jexm.2020.001
+   Voss D, 2020, EX PUBLIC HEALTH REV, V17, P801, DOI 10.9999/ext.00338
+   Upton H, 2021, ZOONOSES EX, V13, P507, DOI 10.9999/ext.00287
+   Holloway D, 2024, EX PUBLIC HEALTH REV, V32, P752, DOI 10.9999/ext.00018
+   Mercer E, 2024, J INVENT EMERG MED, V37, P400, DOI 10.9999/ext.00301
+   Quernheim B, 2024, INT J INVENT TRAUMA C, V19, P425, DOI 10.9999/ijtc.2024.001
+NR 16
+TC 1
+SN 9999-0059
+EI 9998-0053
+J9 INT J INVENT TRAUMA C
+JI Int. J. Invent. Trauma Care
+PY 2025
+VL 20
+BP 634
+DI 10.9999/ijtc.2025.001
+WC Emergency Medicine; Surgery
+SC Emergency Medicine; Surgery
+UT WOS:000999900000123
+ER
+
+PT J
+AU Eriksen, E
+   Kowalczyk, S
+   Zirngibl, U
+AF Eriksen, Eirik
+   Kowalczyk, Stefan
+   Zirngibl, Ute
+TI Habitat suitability modelling and febrile renal syndrome in 1964 naval personnel at Wychmoor
+SO FIELD EPIDEMIOLOGY LETTERS
+LA English
+DT Article
+DE orthohantavirus; field epidemiology; bank vole
+ID VIRUS; RODENTS
+AB Field serology was combined with molecular typing of lung samples. Seroconversion occurred in 18 percent of naval personnel after field exercises. Surveillance data from 6 seasons were linked with weather records.
+C1 [Eriksen, Eirik] Lakeside Univ, Dept Epidemiol, Lakeside, MA 02999 USA.
+   [Kowalczyk, Stefan] Univ Northtown, Dept Microbiol, Northtown, Germany.
+   [Zirngibl, Ute] Zent Inst Sanitatswesens Nordstadt, Dept Occupat Med, D-99003 Nordstadt, Germany.
+RP Eriksen, E (corresponding author), Lakeside Univ, Dept Epidemiol, Lakeside, MA 02999 USA.
+CR Mercer H, 1991, EX MIL HLTH REP, V13, P543, DOI 10.9999/ext.00237
+   Abbott P, 1992, EX EPIDEMIOL INFECT, V2, P669
+   Jarvis H, 1992, SPORT MED EX, V13, P43, DOI 10.9999/ext.00107
+   Graf N, 1993, J THERM BIOL EX, V40, P874
+   Kendrick R, 1995, EUR J SAMPLE INFECT, V38, P602
+   Sutton H, 1995, TRANSFUS EX MED, V17, P892, DOI 10.9999/ext.00108
+   Nunes E, 1999, ARCH INVENT PATHOL, V35, P138, DOI 10.9999/ext.00040
+   Voss H, 2000, CLIN EX SURG, V25, P47, DOI 10.9999/ext.00155
+   Forsyth P, 2002, TRANSFUS EX MED, V50, P422
+   Gomes F, 2006, J THERM BIOL EX, V14, P765, DOI 10.9999/ext.00203
+   Hahn P, 2015, J EXT MED RES, V48, P721
+   Upton H, 2016, ZOONOSES EX, V60, P327, DOI 10.9999/ext.00190
+   Ellison L, 2017, EX PUBLIC HEALTH REV, V41, P517, DOI 10.9999/ext.00216
+   Kraft L, 2017, SPORT MED EX, V34, P434, DOI 10.9999/ext.00050
+   Pieper C, 2020, Z BEISPIELMED, V18, P30, DOI 10.9999/zbsm.2020.001
+   Morgenroth J, 2022, INT J INVENT TRAUMA C, V17, P319, DOI 10.9999/ijtc.2022.002
+   Pieper C, 2023, EX INFECT DIS REP, V15, P32, DOI 10.9999/eidr.2023.002
+   Classen L, 2024, EX INFECT DIS REP, V16, P240, DOI 10.9999/eidr.2024.001
+   Dias F, 2024, J THERM BIOL EX, V31, P314
+   Gomes G, 2024, J THERM BIOL EX, V50, P77, DOI 10.9999/ext.00188
+NR 20
+TC 1
+SN 9999-0040
+EI 9998-0045
+J9 FIELD EPIDEMIOL LETT
+JI Field Epidemiol. Lett.
+PY 2025
+VL 19
+BP 37
+DI 10.9999/fepl.2025.004
+WC Public, Environmental & Occupational Health; Infectious Diseases
+SC Public, Environmental & Occupational Health; Infectious Diseases
+UT WOS:000999900000128
+ER
+
+PT J
+AU Grabowski, M
+   Fromm, J
+   Bockholt, K
+   Hessling, J
+AF Grabowski, Marie
+   Fromm, Julia
+   Bockholt, Katrin
+   Hessling, Julia
+TI Trauma team activation and readmission in 1841 patients at Rushwold
+SO JOURNAL OF EXAMPLE MEDICINE
+LA English
+DT Article
+DE hemorrhage control; junctional bleeding; tourniquet
+ID OUTCOMES; RESUSCITATION; MANAGEMENT; MORTALITY
+AB We analysed 1841 casualties recorded in the Rushwold trauma registry. Helicopter evacuation reduced time to surgery by 25 minutes. Prehospital intervals shortened after whole blood became available.
+C1 [Grabowski, Marie; Fromm, Julia; Hessling, Julia] Armed Forces Command Med Serv, Div Prevent Med, D-99008 Eastham, Germany.
+   [Bockholt, Katrin] Armed Forces Med Off, D-99009 Westburg, Germany.
+CR Quigley E, 1992, CLIN EX SURG, V19, P961, DOI 10.9999/ext.00026
+   Pinto S, 1995, J EXT MED RES, V10, P947, DOI 10.9999/ext.00319
+   Thornton M, 1996, ZOONOSES EX, V46, P929
+   Graf K, 2005, EX MIL HLTH REP, V1, P577, DOI 10.9999/ext.00015
+   Dahl H, 2007, J THERM BIOL EX, V53, P532, DOI 10.9999/ext.00269
+   Dahl F, 2016, J INVENT EMERG MED, V20, P162
+   Dorfmeister T, 2020, INT J INVENT TRAUMA C, V15, P338, DOI 10.9999/ijtc.2020.002
+   Dorfmeister T, 2021, Z BEISPIELMED, V19, P333, DOI 10.9999/zbsm.2021.002
+   Ferreira G, 2022, BEISPIEL ARCH HYG, V58, P477
+   Quernheim B, 2024, INT J INVENT TRAUMA C, V19, P425, DOI 10.9999/ijtc.2024.001
+NR 10
+TC 0
+SN 9999-0016
+EI 9998-0010
+J9 J EXAMPLE MED
+JI J. Example Med.
+PY 2025
+VL 16
+BP 86
+DI 10.9999/jexm.2025.001
+WC Medicine, General & Internal
+SC General & Internal Medicine
+UT WOS:000999900000130
+ER
+
+EF

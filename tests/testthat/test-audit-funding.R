@@ -89,3 +89,22 @@ test_that("sm_audit_funding informs when fetcher returns no rows", {
   expect_equal(res$n_works_total, 5L)
   expect_equal(res$n_works_funded, 0L)
 })
+
+test_that("the sm_audit_funding() examples send no Crossref request", {
+  # R CMD check --as-cran runs \donttest code; the examples used to send one
+  # Crossref request per DOI of the 200-work example corpus.
+  exprs <- rd_example_exprs("sm_audit_funding")
+  n_calls <- 0L
+  n_dois <- 0L
+  testthat::local_mocked_bindings(
+    .fetch_funding_crossref = function(works, call) {
+      n_calls <<- n_calls + 1L
+      n_dois <<- n_dois + sum(!is.na(works$doi) & nzchar(works$doi))
+      tibble::tibble(work_id = character(), funder_name = character(),
+                     funder_doi = character())
+    }
+  )
+  run_example_exprs(exprs)
+  expect_gt(n_calls, 0L)
+  expect_identical(n_dois, 0L)
+})

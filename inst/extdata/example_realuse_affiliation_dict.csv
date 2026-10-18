@@ -1,0 +1,9 @@
+institution,pattern,email_domain
+Federal Armed Forces Institute of Microbiology,fed\w* armed forces inst\w* microbiol,microbiology.forces.example
+Federal Armed Forces Institute of Microbiology,institut f\w+r mikrobiologie der streitkr\w+fte,
+Zentrales Institut des Sanitätswesens Nordstadt,sanit\w+wesens,sanitaetswesen-nordstadt.example
+Zentrales Institut des Sanitätswesens Nordstadt,\bübung\b,
+Armed Forces Hospital Northtown,armed forces hosp\w* northtown,hospital-northtown.example
+Armed Forces Hospital Northtown,streitkr\w+ftekrankenhaus northtown,
+Armed Forces Hospital Northtown,\bfuß\b.*\bnorthtown\b,
+Sonstige Dienststellen der Streitkräfte,\barmed forces\b,
