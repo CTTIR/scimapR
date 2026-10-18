@@ -15,7 +15,8 @@ sm_enrich_concepts(
 \item{corpus}{An \code{sm_corpus} object.}
 
 \item{source}{One of \code{"openalex"} (fetch OpenAlex concepts via DOI) or
-\code{"mesh"} (fetch MeSH terms via PubMed PMID).}
+\code{"mesh"} (fetch MeSH terms via PubMed PMID; the concept \code{score} is 1
+for a major topic of the article and 0 otherwise).}
 
 \item{verbose}{Print progress messages?}
 

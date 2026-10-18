@@ -181,6 +181,28 @@ test_that("print.sm_certificate runs and returns invisibly", {
   expect_invisible(print(cert))
 })
 
+test_that("a certificate prints the same UTC time after a YAML round trip", {
+  withr::local_timezone("America/Los_Angeles")
+  corpus <- sm_example_corpus(n_works = 6, n_authors = 3,
+                              with_embeddings = FALSE, seed = 13)
+  tmp <- withr::local_tempfile(fileext = ".yaml")
+  fresh <- suppressMessages(sm_certificate(corpus, path = tmp))
+  back <- .list_to_cert(yaml::read_yaml(tmp))
+  created_line <- function(cert) {
+    grep("Created", cli::cli_fmt(print(cert)), value = TRUE)
+  }
+  expect_match(created_line(fresh),
+               "^Created: [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9:]{8} UTC$")
+  expect_identical(created_line(back), created_line(fresh))
+
+  # 08:14:31 in Los Angeles is 15:14:31 UTC, before and after the round trip
+  fresh$created <- as.POSIXct("2026-10-18 08:14:31",
+                              tz = "America/Los_Angeles")
+  back <- .list_to_cert(yaml::yaml.load(yaml::as.yaml(.cert_to_list(fresh))))
+  expect_identical(created_line(fresh), "Created: 2026-10-18 15:14:31 UTC")
+  expect_identical(created_line(back), "Created: 2026-10-18 15:14:31 UTC")
+})
+
 test_that("print.sm_cert_verification shows PASS / FAIL", {
   corpus <- sm_example_corpus(n_works = 10, n_authors = 5,
                               with_embeddings = FALSE, seed = 1)
@@ -195,6 +217,64 @@ test_that("print.sm_cert_verification shows PASS / FAIL", {
 })
 
 # --- round-trip cert <-> list ------------------------------------------
+
+test_that("sm_certificate accepts numeric, text, Date and POSIXct timestamps", {
+  withr::local_timezone("America/Los_Angeles")
+  corpus <- sm_example_corpus(n_works = 6, n_authors = 3,
+                              with_embeddings = FALSE, seed = 11)
+  values <- list(
+    1792237500,
+    "2026-10-17T13:45:00+02:00",
+    as.POSIXct("2026-10-17 04:45:00", tz = "America/Los_Angeles"),
+    as.POSIXlt("2026-10-17 11:45:00", tz = "UTC")
+  )
+  for (value in values) {
+    corpus$metadata$build_date <- value
+    corpus$metadata$last_refresh <- value
+    cert <- suppressMessages(sm_certificate(corpus))
+    expect_identical(cert$metadata$build_date, "2026-10-17T11:45:00Z")
+    expect_identical(cert$metadata$last_refresh, "2026-10-17T11:45:00Z")
+  }
+  corpus$metadata$last_refresh <- as.Date("2026-01-01")
+  cert <- suppressMessages(sm_certificate(corpus))
+  expect_identical(cert$metadata$last_refresh, "2026-01-01T00:00:00Z")
+  corpus$metadata$build_date <- NA
+  corpus$metadata$last_refresh <- NULL
+  cert <- suppressMessages(sm_certificate(corpus))
+  expect_identical(cert$metadata$build_date, NA_character_)
+  expect_identical(cert$metadata$last_refresh, NA_character_)
+})
+
+test_that("a numeric build_date from a table no longer breaks sm_certificate", {
+  works <- tibble::tibble(work_id = "W1", title = "Synthetic work",
+                          year = 2020L)
+  corpus <- sm_corpus_from_tables(list(works = works),
+                                  metadata = list(build_date = 1792195200))
+  cert <- suppressMessages(sm_certificate(corpus))
+  expect_identical(cert$metadata$build_date, "2026-10-17T00:00:00Z")
+  expect_identical(cert$metadata$last_refresh, NA_character_)
+})
+
+test_that("certificate timestamps survive a YAML round trip", {
+  corpus <- sm_example_corpus(n_works = 6, n_authors = 3,
+                              with_embeddings = FALSE, seed = 12)
+  corpus$metadata$last_refresh <- 1792237500
+  tmp <- withr::local_tempfile(fileext = ".yaml")
+  cert <- suppressMessages(sm_certificate(corpus, path = tmp))
+  loaded <- yaml::read_yaml(tmp)
+  stamp <- "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+  expect_match(loaded$created, stamp)
+  expect_match(loaded$metadata$build_date, stamp)
+  expect_identical(.as_utc_time(loaded$metadata$last_refresh),
+                   .POSIXct(1792237500, tz = "UTC"))
+  back <- .list_to_cert(loaded)
+  expect_s3_class(back$created, "POSIXct")
+  expect_equal(as.numeric(back$created), floor(as.numeric(cert$created)))
+  # certificates written before timestamps were UTC keep loading
+  loaded$created <- "2026-10-17T13:45:00+0200"
+  expect_identical(.list_to_cert(loaded)$created,
+                   .POSIXct(1792237500, tz = "UTC"))
+})
 
 test_that("certificate survives YAML round-trip via internal converters", {
   corpus <- sm_example_corpus(n_works = 8, n_authors = 4,

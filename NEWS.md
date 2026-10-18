@@ -15,6 +15,40 @@
   Crossref: with the default `online = FALSE` that audit is reported as not
   run unless a precomputed `sm_audit_funding()` result is passed, and
   `online = TRUE` runs it as before.
+- `sm_certificate()`, `sm_cite_corpus()` and citation-maturity cut-offs
+  (`sm_citation_maturity()`, `sm_its(outcome = "cnci")`) accept numeric,
+  character, Date and POSIXct timestamps in `metadata$build_date` and
+  `metadata$last_refresh`. Numbers are read as seconds since 1970-01-01 UTC,
+  as corpora restored from tables store them, and implausible numbers (such
+  as milliseconds) are ignored with a message. Text is read as ISO 8601 (a
+  date, or a date and time with an optional `Z` or `+hh`, `+hhmm` or
+  `+hh:mm` offset); other text counts as missing. Certificates write their
+  timestamps in UTC, for example `2026-10-17T11:45:00Z`, still read the
+  older form, and print the creation time in UTC.
+- `sm_metric_fnci()` gains `min_cell` and `by_type` (opt-in fallback
+  baselines) and informs when many works sit in tiny cells;
+  `sm_its(outcome = "cnci")` and `sm_metric_summary(metric = "cnci")` show
+  that message too. With `min_cell`, a work whose field-year cell is too
+  small falls back to its field in the neighbouring years and then to its
+  year, `field` may list several `;`-separated categories, and the result
+  reports `n_cell` and `baseline`. `by_type = TRUE` gives articles and
+  reviews baselines of their own.
+- `sm_metric_fnci(classification = "manual")` reports a factor `field` by
+  its labels instead of its integer codes.
+- `sm_metric_fnci(classification = "mesh")` never uses a MeSH check tag
+  (such as Humans, Female or Adult) or a descriptor of study design or
+  statistics (such as Retrospective Studies, Risk Factors or Treatment
+  Outcome) as a work's field. `sm_fetch_pubmed()`, `sm_read_pubmed_xml()`
+  and `sm_enrich_concepts(source = "mesh")` now record each MeSH heading's
+  major-topic flag as its concept `score` (1 for a major topic, 0
+  otherwise; before, always `NA`), so the field is a major topic of the
+  work. Headings without scores, as from other sources, give the work's
+  heading that is most frequent in the corpus instead of the first one
+  listed, with a message.
+- `sm_cluster_evolution(link_by = "cluster_id")` follows a global clustering
+  across windows; snapshots gain `share`. Each cluster present in two
+  consecutive windows gives one transition, except the noise cluster named
+  by the new `noise` argument (default `0L`).
 
 # scimapR 0.4.0
 

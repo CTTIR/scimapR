@@ -61,6 +61,21 @@ test_that("year range is N/A for an empty corpus", {
   expect_match(out, "N/A")
 })
 
+test_that("a numeric, text or missing build_date gives a UTC date", {
+  corpus <- sm_example_corpus(n_works = 4, n_authors = 3,
+                              with_embeddings = FALSE, seed = 7)
+  # epoch seconds, as a corpus restored from a table stores them
+  corpus$metadata$build_date <- 1792195200
+  out <- suppressMessages(sm_cite_corpus(corpus, style = "yaml"))
+  expect_match(out, "build_date: \"2026-10-17\"", fixed = TRUE)
+  corpus$metadata$build_date <- "2026-10-16T23:30:00-02:00"
+  out <- suppressMessages(sm_cite_corpus(corpus, style = "text"))
+  expect_match(out, " on 2026-10-17. ", fixed = TRUE)
+  corpus$metadata$build_date <- NA
+  out <- suppressMessages(sm_cite_corpus(corpus, style = "text"))
+  expect_match(out, " on unknown. ", fixed = TRUE)
+})
+
 test_that("refresh sources are stripped from the source listing", {
   corpus <- sm_example_corpus(n_works = 4, n_authors = 3,
                               with_embeddings = FALSE, seed = 6)

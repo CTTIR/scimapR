@@ -242,7 +242,6 @@ test_that("H10: the cnci summary uses stored fwci, like sm_its()", {
 })
 
 test_that("H11: a numeric last_refresh works in certificates and maturity", {
-  skip("H11 pending - prompt A13")
   skip_if_not_installed("yaml")
   # Intent: the fixture stores last_refresh as epoch seconds (2026-10-17
   # UTC). The certificate formats it as a date, and the maturity cutoff is
@@ -255,14 +254,19 @@ test_that("H11: a numeric last_refresh works in certificates and maturity", {
 })
 
 test_that("H12: small FNCI cells fall back to a larger baseline", {
-  skip("H12 pending - prompt A13")
   # Intent: with classification = "manual" (works$field) the default gives
-  # FNCI = 1 to every cited work alone in its field-year cell. With
-  # min_cell no FNCI of exactly 1 comes from a cell smaller than min_cell,
-  # and the result reports the cell size and the baseline level used.
+  # FNCI = 1 to every cited work alone in its field-year cell, and says so
+  # because more than a quarter of the works sit in cells of fewer than
+  # ten. With min_cell no FNCI of exactly 1 comes from a cell smaller than
+  # min_cell, and the result reports the cell size and the baseline level
+  # used.
   fix <- realuse_corpus()
-  default <- sm_metric_fnci(fix, classification = "manual")
+  expect_message(
+    default <- sm_metric_fnci(fix, classification = "manual"),
+    class = "scimapR_fnci_small_cells"
+  )
   cell <- paste(default$field, default$year)
+  expect_gt(mean(as.vector(table(cell)[cell]) < 10L), 0.25)
   singles <- cell %in% names(which(table(cell) == 1L)) &
     default$cited_by_count > 0L
   expect_gte(sum(singles), 5L)
@@ -275,7 +279,6 @@ test_that("H12: small FNCI cells fall back to a larger baseline", {
 })
 
 test_that("H13: a global clustering is followed across time windows", {
-  skip("H13 pending - prompt A13")
   # Intent: with one clustering for the whole corpus (the same cluster_id
   # in every window), link_by = "cluster_id" gives one transition per
   # cluster present in both windows and none for noise (cluster 0). The

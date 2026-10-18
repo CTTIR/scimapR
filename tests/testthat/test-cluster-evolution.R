@@ -98,3 +98,126 @@ test_that(".assign_window labels years correctly", {
   expect_equal(res[2], "2015-2019")
   expect_true(is.na(res[3]))
 })
+
+# ---- hand-made corpus: transitions worked out by hand ----------------------
+
+evo_hand_corpus <- function() {
+  works <- tibble::tibble(
+    work_id = sprintf("W%02d", 1:11),
+    title = c(
+      "Malaria vector control trial", "Malaria vaccine trial",
+      "Heat illness in soldiers", "Heat stroke recovery", "Editorial note",
+      "Malaria vaccine efficacy", "Burn wound care", "Heat illness prevention",
+      "Editorial note", NA, NA
+    ),
+    year = c(2020L, 2021L, 2020L, 2021L, 2021L,
+             2022L, 2023L, 2022L, 2023L, 2020L, 2023L),
+    cluster_id = c(1L, 1L, 2L, 2L, 0L, 1L, 2L, 3L, 0L, 4L, 4L)
+  )
+  scimapR::sm_corpus(works = works)
+}
+
+evo_windows <- list(2020:2021, 2022:2023)
+
+test_that("term linking gives the transitions worked out by hand", {
+  evo <- suppressMessages(
+    sm_cluster_evolution(evo_hand_corpus(), time_windows = evo_windows)
+  )
+  # Window 1: cluster 1 {malaria vector control trial vaccine}, cluster 2
+  # {heat illness soldiers stroke recovery}, noise 0 {editorial note},
+  # cluster 4 (no title). Window 2: 1 {malaria vaccine efficacy}, 2 {burn
+  # wound care}, 3 {heat illness prevention}, 0 {editorial note}, 4.
+  expected <- tibble::tibble(
+    from_window = "2020-2021", to_window = "2022-2023",
+    from_cluster = c(1L, 2L, 0L), to_cluster = c(1L, 3L, 0L),
+    jaccard = c(0.3333, 0.3333, 1), n_shared = c(2L, 2L, 2L)
+  )
+  expect_equal(evo$transitions, expected)
+  expect_identical(attr(evo, "link_by"), "terms")
+  terms <- suppressMessages(
+    sm_cluster_evolution(evo_hand_corpus(), time_windows = evo_windows,
+                         link_by = "terms")
+  )
+  expect_identical(terms$transitions, evo$transitions)
+  expect_identical(terms$snapshots, evo$snapshots)
+})
+
+test_that("default and term linking agree on a k-means clustering", {
+  corpus <- make_clustered_corpus_evo(seed = 8)
+  default <- suppressMessages(sm_cluster_evolution(corpus))
+  terms <- suppressMessages(sm_cluster_evolution(corpus, link_by = "terms"))
+  expect_identical(default$transitions, terms$transitions)
+  expect_identical(default$snapshots, terms$snapshots)
+})
+
+test_that("link_by = 'cluster_id' follows each cluster across windows", {
+  expect_message(
+    evo <- sm_cluster_evolution(evo_hand_corpus(), time_windows = evo_windows,
+                                link_by = "cluster_id"),
+    "cluster id"
+  )
+  # clusters 1, 2 and 4 are in both windows; 0 is noise and 3 is new.
+  # Cluster 4 has no title terms in either window, so its Jaccard is 0.
+  expected <- tibble::tibble(
+    from_window = "2020-2021", to_window = "2022-2023",
+    from_cluster = c(1L, 2L, 4L), to_cluster = c(1L, 2L, 4L),
+    jaccard = c(0.3333, 0, 0), n_shared = c(2L, 0L, 0L)
+  )
+  expect_equal(evo$transitions, expected)
+  expect_identical(attr(evo, "link_by"), "cluster_id")
+  # link_threshold does not filter in this mode
+  strict <- suppressMessages(
+    sm_cluster_evolution(evo_hand_corpus(), time_windows = evo_windows,
+                         link_by = "cluster_id", link_threshold = 0.99)
+  )
+  expect_identical(strict$transitions, evo$transitions)
+})
+
+test_that("noise = NULL treats cluster 0 as an ordinary cluster", {
+  evo <- suppressMessages(
+    sm_cluster_evolution(evo_hand_corpus(), time_windows = evo_windows,
+                         link_by = "cluster_id", noise = NULL)
+  )
+  expect_identical(evo$transitions$from_cluster, c(0L, 1L, 2L, 4L))
+  expect_identical(evo$transitions$jaccard[1], 1)
+  expect_error(
+    sm_cluster_evolution(evo_hand_corpus(), link_by = "cluster_id",
+                         noise = c(0L, -1L)),
+    "noise"
+  )
+  expect_error(sm_cluster_evolution(evo_hand_corpus(), link_by = "years"),
+               "link_by")
+})
+
+test_that("snapshots report each cluster's share of its window", {
+  evo <- suppressMessages(
+    sm_cluster_evolution(evo_hand_corpus(), time_windows = evo_windows)
+  )
+  snaps <- evo$snapshots
+  expect_true("share" %in% names(snaps))
+  w1 <- snaps[snaps$window == "2020-2021", ]
+  expect_equal(w1$share[match(c(0L, 1L, 2L, 4L), w1$cluster_id)],
+               c(1, 2, 2, 1) / 6)
+  sums <- as.vector(tapply(snaps$share, snaps$window, sum))
+  expect_equal(sums, c(1, 1))
+})
+
+test_that("every return path carries share and the link_by attribute", {
+  corpus <- evo_hand_corpus()
+  one <- suppressMessages(
+    sm_cluster_evolution(corpus, time_windows = list(2020:2023),
+                         link_by = "cluster_id")
+  )
+  expect_identical(attr(one, "link_by"), "cluster_id")
+  expect_equal(nrow(one$transitions), 0L)
+  expect_equal(sum(one$snapshots$share), 1)
+
+  corpus$works$cluster_id <- NA_integer_
+  none <- sm_cluster_evolution(corpus, link_by = "cluster_id")
+  expect_identical(attr(none, "link_by"), "cluster_id")
+  expect_named(none$snapshots,
+               c("window", "cluster_id", "n_works", "top_terms", "share"))
+  expect_type(none$snapshots$share, "double")
+  expect_equal(nrow(none$transitions), 0L)
+  expect_identical(attr(sm_cluster_evolution(corpus), "link_by"), "terms")
+})

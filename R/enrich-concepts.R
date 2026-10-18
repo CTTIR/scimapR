@@ -10,7 +10,8 @@
 #'
 #' @param corpus An `sm_corpus` object.
 #' @param source One of `"openalex"` (fetch OpenAlex concepts via DOI) or
-#'   `"mesh"` (fetch MeSH terms via PubMed PMID).
+#'   `"mesh"` (fetch MeSH terms via PubMed PMID; the concept `score` is 1
+#'   for a major topic of the article and 0 otherwise).
 #' @param verbose Print progress messages?
 #' @param call Caller environment for error reporting.
 #'
@@ -214,15 +215,17 @@ sm_enrich_concepts <- function(corpus,
       if (is.na(match_idx)) next
       wid <- id_batch[match_idx]
 
-      mesh_nodes <- xml2::xml_find_all(article, ".//MeshHeading/DescriptorName")
-      if (length(mesh_nodes) == 0) next
+      headings <- .pubmed_mesh_rows(
+        xml2::xml_find_all(article, ".//MeshHeading")
+      )
+      if (nrow(headings) == 0) next
 
       new_concepts[[length(new_concepts) + 1L]] <- tibble::tibble(
         work_id = wid,
-        concept_id = xml2::xml_attr(mesh_nodes, "UI"),
-        concept_name = xml2::xml_text(mesh_nodes),
+        concept_id = headings$concept_id,
+        concept_name = headings$concept_name,
         level = NA_integer_,
-        score = NA_real_,
+        score = headings$score,
         vocabulary = "mesh"
       )
     }

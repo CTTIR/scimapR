@@ -2,21 +2,20 @@
 
 #' Determine the most recent citation-mature year for a corpus
 #'
-#' The "as-of" year is taken from `metadata$last_refresh` when available,
-#' otherwise from the maximum publication year. Works published after
-#' `as_of - lag` are citation-immature. Returns the cutoff year (the last
-#' year considered mature), or `NA_integer_` if no years are present.
+#' The "as-of" year is the UTC year of `metadata$last_refresh` when it holds
+#' a usable timestamp (POSIXct, Date, epoch seconds or ISO 8601 text, read
+#' by `.as_utc_time()`), otherwise the maximum publication year. Works
+#' published after `as_of - lag` are citation-immature. Returns the cutoff
+#' year (the last year considered mature), or `NA_integer_` if no years are
+#' present.
 #' @noRd
 .maturity_cutoff <- function(corpus, lag = 2L) {
   lag <- as.integer(lag)
   years <- corpus$works$year
   years <- years[!is.na(years)]
 
-  as_of <- NA_integer_
-  lr <- corpus$metadata$last_refresh
-  if (!is.null(lr) && !is.na(lr)) {
-    as_of <- suppressWarnings(as.integer(format(as.Date(lr), "%Y")))
-  }
+  as_of <- .utc_year(.as_utc_time(corpus$metadata$last_refresh,
+                                  what = "metadata$last_refresh"))
   if (is.na(as_of)) {
     if (length(years) == 0L) return(NA_integer_)
     as_of <- max(years)
@@ -33,7 +32,11 @@
 #'
 #' Works published within the most recent `lag` years -- relative to the
 #' corpus's "as-of" date (`metadata$last_refresh` if present, else the maximum
-#' publication year) -- are flagged provisional.
+#' publication year) -- are flagged provisional. `last_refresh` may be a
+#' POSIXct, a Date, numeric seconds since 1970-01-01 UTC (as in corpora
+#' restored from tables) or ISO 8601 text; its year is taken in UTC. A value
+#' that is not a plausible date (for example milliseconds stored as seconds)
+#' is ignored with a message.
 #'
 #' @param corpus An `sm_corpus`.
 #' @param lag Integer number of recent years to treat as citation-immature

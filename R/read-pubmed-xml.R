@@ -26,7 +26,9 @@
 #' - `MedlineCitation/Article/Journal/Title` and `/ISSN` for the journal
 #' - `MedlineCitation/Article/Journal/JournalIssue/PubDate/Year` for year
 #' - `MedlineCitation/Article/AuthorList/Author` for authors
-#' - `MedlineCitation/MeshHeadingList/MeshHeading` for MeSH terms
+#' - `MedlineCitation/MeshHeadingList/MeshHeading` for MeSH terms; the
+#'   concept `score` is 1 for a major topic of the article (`MajorTopicYN`
+#'   on the descriptor or one of its qualifiers) and 0 otherwise
 #' - `PubmedData/ArticleIdList/ArticleId[@IdType='doi']` for DOI
 #' - `MedlineCitation/Article/PublicationTypeList` for document type
 #'
@@ -142,7 +144,8 @@ sm_read_pubmed_xml <- function(path,
 
   # --- concepts (MeSH terms) -----------------------------------------------
   mesh_lists <- lapply(parsed, function(r) r$mesh_terms)
-  concepts <- .pubmed_build_concepts(mesh_lists, work_ids)
+  score_lists <- lapply(parsed, function(r) r$mesh_scores)
+  concepts <- .pubmed_build_concepts(mesh_lists, work_ids, score_lists)
 
   # --- provenance -----------------------------------------------------------
   provenance <- tibble::tibble(
@@ -299,15 +302,11 @@ sm_read_pubmed_xml <- function(path,
   language <- .xml_text_or_na(node,
     ".//MedlineCitation/Article/Language")
 
-  # MeSH terms
-  mesh_nodes <- xml2::xml_find_all(node,
-    ".//MedlineCitation/MeshHeadingList/MeshHeading/DescriptorName")
-  mesh_terms <- if (length(mesh_nodes) > 0L) {
-    vapply(mesh_nodes, function(mn) xml2::xml_text(mn, trim = TRUE),
-           character(1))
-  } else {
-    character()
-  }
+  # MeSH terms, with the major-topic flag as score
+  mesh <- .pubmed_mesh_rows(
+    xml2::xml_find_all(node, ".//MedlineCitation/MeshHeadingList/MeshHeading")
+  )
+  mesh_terms <- trimws(mesh$concept_name)
 
   list(
     pmid         = pmid,
@@ -321,7 +320,8 @@ sm_read_pubmed_xml <- function(path,
     affiliations = affiliations,
     pub_type     = pub_type,
     language     = language,
-    mesh_terms   = mesh_terms
+    mesh_terms   = mesh_terms,
+    mesh_scores  = mesh$score
   )
 }
 
@@ -389,22 +389,22 @@ sm_read_pubmed_xml <- function(path,
 }
 
 #' Build concepts from PubMed MeSH terms
+#'
+#' `score_lists` holds the major-topic flags (1 or 0) of the terms.
 #' @noRd
-.pubmed_build_concepts <- function(mesh_lists, work_ids) {
+.pubmed_build_concepts <- function(mesh_lists, work_ids, score_lists) {
   rows <- list()
   for (i in seq_along(mesh_lists)) {
-    terms <- mesh_lists[[i]]
-    if (length(terms) == 0L) next
-    terms <- trimws(terms)
-    terms <- terms[nzchar(terms)]
-    if (length(terms) == 0L) next
+    terms <- trimws(mesh_lists[[i]])
+    keep <- nzchar(terms)
+    if (!any(keep)) next
 
     rows[[length(rows) + 1L]] <- tibble::tibble(
       work_id = work_ids[i],
       concept_id = NA_character_,
-      concept_name = terms,
+      concept_name = terms[keep],
       level = NA_integer_,
-      score = NA_real_,
+      score = score_lists[[i]][keep],
       vocabulary = "mesh"
     )
   }

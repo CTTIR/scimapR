@@ -5,6 +5,10 @@
 #' in manuscripts. The block documents the number of works, sources queried,
 #' date range, scimapR version, and corpus hash for reproducibility.
 #'
+#' The build date is the UTC date of `metadata$build_date`, which may be a
+#' POSIXct, a Date, numeric seconds since 1970-01-01 UTC or ISO 8601 text;
+#' a missing or implausible value is shown as `unknown`.
+#'
 #' @param corpus An `sm_corpus` object.
 #' @param style Character. Citation style: `"text"` for a plain-text
 #'   paragraph, `"bibtex"` for a BibTeX entry, or `"yaml"` for a YAML block.
@@ -35,7 +39,9 @@ sm_cite_corpus <- function(corpus,
     "N/A"
   }
 
-  build_date <- format(corpus$metadata$build_date, "%Y-%m-%d")
+  build_date <- .format_utc_time(corpus$metadata$build_date, "%Y-%m-%d",
+                                 what = "metadata$build_date")
+  if (is.na(build_date)) build_date <- "unknown"
   pkg_version <- corpus$metadata$scimapR_version %||% "unknown"
   corpus_hash <- tryCatch(
     substr(sm_hash_corpus(corpus), 1, 12),

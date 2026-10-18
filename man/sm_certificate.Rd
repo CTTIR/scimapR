@@ -54,6 +54,17 @@ of the corpus from scratch.
 the corpus. \code{sm_verify_certificate()} compares a live corpus against
 a certificate to detect divergence.
 }
+\details{
+Certificates write their timestamps (\code{created} and the corpus's
+\code{build_date} and \code{last_refresh}) in UTC as ISO 8601 text, for example
+\verb{2026-10-17T11:45:00Z}, and read back both this form and the older one
+with a numeric offset. Printing a certificate shows \code{created} in UTC as
+well, so a certificate read back from YAML prints the same time as the
+one it was written from. The corpus timestamps may be stored as POSIXct, a
+Date, numeric seconds since 1970-01-01 UTC (as in corpora restored from
+tables) or ISO 8601 text. A missing or implausible value is written as
+\code{NA}.
+}
 \examples{
 \dontshow{if (requireNamespace("yaml", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 corpus <- sm_example_corpus()

@@ -132,6 +132,33 @@ test_that("mesh enrichment parses MeSH descriptors from mocked XML", {
   expect_true(all(mesh$work_id[mesh$concept_name == "Neoplasms"] ==
                     corpus$works$work_id[1]))
   expect_true("pubmed" %in% out$provenance$source)
+  expect_true(all(is.na(mesh$score))) # no MajorTopicYN flags
+})
+
+test_that("mesh enrichment records major topics as score 1", {
+  corpus <- sm_example_corpus(n_works = 2, n_authors = 3,
+                              with_embeddings = FALSE, seed = 6)
+  xml_str <- paste0(
+    "<PubmedArticleSet>",
+    "<PubmedArticle><MedlineCitation><PMID>", corpus$works$pmid[1],
+    "</PMID><MeshHeadingList>",
+    "<MeshHeading><DescriptorName UI='D001' MajorTopicYN='N'>Neoplasms",
+    "</DescriptorName><QualifierName MajorTopicYN='Y'>genetics",
+    "</QualifierName></MeshHeading>",
+    "<MeshHeading><DescriptorName UI='D002' MajorTopicYN='N'>Humans",
+    "</DescriptorName></MeshHeading>",
+    "</MeshHeadingList></MedlineCitation></PubmedArticle>",
+    "</PubmedArticleSet>"
+  )
+  testthat::local_mocked_bindings(
+    req_perform = function(req, ...) structure(list(), class = "sm_fake_resp"),
+    resp_body_string = function(resp, ...) xml_str,
+    .package = "httr2"
+  )
+  out <- sm_enrich_concepts(corpus, source = "mesh", verbose = FALSE)
+  mesh <- out$concepts[out$concepts$vocabulary == "mesh", ]
+  expect_identical(mesh$concept_id, c("D001", "D002"))
+  expect_identical(mesh$score, c(1, 0))
 })
 
 test_that("mesh enrichment tolerates a request error gracefully", {
