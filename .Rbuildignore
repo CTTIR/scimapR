@@ -22,3 +22,6 @@
 ^_pkgdown\.yml$
 
 ^_coverage$
+^\.stack$
+^CITATION\.cff$
+^\.zenodo\.json$

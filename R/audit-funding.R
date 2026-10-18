@@ -27,11 +27,18 @@
 #' @family audit
 #' @export
 #' @examples
-#' \donttest{
-#' corpus <- sm_example_corpus()
+#' # Works without a DOI need no Crossref lookup, so this runs offline and
+#' # returns an empty audit.
+#' corpus <- sm_example_corpus(n_works = 20, n_authors = 10)
+#' corpus$works$doi <- NA_character_
 #' funding <- sm_audit_funding(corpus, source = "crossref")
 #' print(funding)
-#' }
+#' @examplesIf interactive()
+#' # Live lookup: one Crossref request per DOI (the example DOIs are invented,
+#' # so no funders are found).
+#' corpus <- sm_example_corpus(n_works = 3, n_authors = 3)
+#' funding <- sm_audit_funding(corpus, source = "crossref")
+#' print(funding)
 sm_audit_funding <- function(corpus,
                              source = c("crossref", "openalex"),
                              call = rlang::caller_env()) {

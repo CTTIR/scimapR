@@ -46,11 +46,19 @@ The result includes funder counts, the proportion of works with known
 funding, and a concentration analysis.
 }
 \examples{
-\donttest{
-corpus <- sm_example_corpus()
+# Works without a DOI need no Crossref lookup, so this runs offline and
+# returns an empty audit.
+corpus <- sm_example_corpus(n_works = 20, n_authors = 10)
+corpus$works$doi <- NA_character_
 funding <- sm_audit_funding(corpus, source = "crossref")
 print(funding)
-}
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
+# Live lookup: one Crossref request per DOI (the example DOIs are invented,
+# so no funders are found).
+corpus <- sm_example_corpus(n_works = 3, n_authors = 3)
+funding <- sm_audit_funding(corpus, source = "crossref")
+print(funding)
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 Other audit:

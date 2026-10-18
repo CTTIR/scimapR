@@ -91,6 +91,18 @@ test_that("print.sm_audit_oa prints distribution and limitations", {
   expect_match(txt, "Limitations")
 })
 
+test_that("print methods show a funding audit that was not run", {
+  corpus <- sm_example_corpus(n_works = 25, n_authors = 12,
+                              with_embeddings = FALSE, seed = 7)
+  res <- suppressMessages(sm_audit_summary(corpus))
+  txt <- cap_print(res)
+  expect_match(txt, "funding: coverage n/a | not run", fixed = TRUE)
+  expect_match(txt, "geographic: coverage [0-9.]+%")
+  funding_txt <- cap_print(res$funding)
+  expect_match(funding_txt, "Not run")
+  expect_no_match(funding_txt, "NA")
+})
+
 test_that("print.sm_audit_summary prints overview and limitations", {
   corpus <- sm_example_corpus(n_works = 25, n_authors = 12,
                               with_embeddings = FALSE, seed = 6)

@@ -76,3 +76,69 @@ test_that("sm_example_files errors for unknown file", {
 
   expect_error(sm_example_files("nonexistent_file.xyz"), "not found")
 })
+
+test_that("sm_example_files lists the real-use fixture files", {
+  files <- sm_example_files()
+  expect_true(all(c("example_realuse_corpus.rds",
+                    "example_realuse_reference.csv",
+                    "example_realuse_affiliation_dict.csv") %in% files))
+})
+
+test_that("the real-use fixture has the documented shape", {
+  fix <- realuse_corpus()
+  expect_s3_class(fix, "sm_corpus")
+  works <- fix$works
+  expect_equal(nrow(works), 150L)
+  counts <- table(works$year)
+  expect_equal(as.vector(counts[c("2016", "2017", "2026")]), c(1L, 2L, 10L))
+  expect_true(all(startsWith(works$work_id, "WOS:")))
+  expect_true(all(c("quartile", "fwci", "field") %in% names(works)))
+  expect_true(all(is.na(works$quartile[works$year == 2026L])))
+  known <- tapply(!is.na(works$quartile), works$year, any)
+  expect_true(all(known[as.character(2016:2025)]))
+  expect_identical(fix$metadata$last_refresh, 1792195200)
+  expect_identical(works$doi, tolower(works$doi))
+
+  a <- fix$authorships
+  corresponding <- unique(a[a$is_corresponding, c("work_id", "author_id")])
+  expect_setequal(corresponding$work_id, works$work_id)
+  expect_equal(anyDuplicated(corresponding$work_id), 0L)
+  expect_equal(sum(grepl("[^ -~]", a$raw_affiliation)), 10L)
+  expect_true(all(is.na(fix$references$cited_work_id)))
+
+  ref <- realuse_reference()
+  dict <- realuse_dict()
+  expect_equal(nrow(ref), 160L)
+  expect_equal(sum(ref$title %in% works$title), 120L)
+  expect_setequal(unique(ref$institution), unique(dict$institution))
+})
+
+test_that("the real-use fixture marks every non-ASCII string as UTF-8", {
+  # Unmarked strings are read in the native encoding, so a German title
+  # without a mark would read differently outside a UTF-8 locale.
+  char_values <- function(x) {
+    if (is.character(x)) return(x)
+    if (is.list(x)) return(unlist(lapply(x, char_values), use.names = FALSE))
+    character()
+  }
+  values <- char_values(unclass(realuse_corpus()))
+  non_ascii <- values[grepl("[^ -~]", values, useBytes = TRUE)]
+  expect_gt(length(non_ascii), 0L)
+  expect_identical(unique(Encoding(non_ascii)), "UTF-8")
+})
+
+test_that("the real-use plaintext twin matches the fixture works", {
+  fix <- realuse_corpus()
+  twin <- sm_read_wos(realuse_wos_sample(), verbose = FALSE)
+  expect_equal(nrow(twin$works), 10L)
+  expect_true(all(twin$works$doi %in% fix$works$doi))
+  expect_true(all(twin$provenance$source_id_external %in% fix$works$work_id))
+  ids <- fix$works$work_id[match(twin$works$doi, fix$works$doi)]
+  for (i in seq_along(ids)) {
+    expect_identical(
+      twin$references$cited_raw[twin$references$work_id ==
+                                  twin$works$work_id[i]],
+      fix$references$cited_raw[fix$references$work_id == ids[i]]
+    )
+  }
+})

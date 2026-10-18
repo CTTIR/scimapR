@@ -147,6 +147,10 @@ print.sm_audit_gender <- function(x, ...) {
 print.sm_audit_funding <- function(x, ...) {
   cli::cli_h1("<sm_audit_funding>")
 
+  if (is.na(x$coverage)) {
+    cli::cli_text("Not run: no funding source was queried.")
+    return(invisible(x))
+  }
   cli::cli_text("{.strong Data source:} {x$source}")
   cli::cli_text(
     "{.strong Works with funding data:} {x$n_works_funded} / {x$n_works_total} ({round(x$coverage * 100, 1)}%)"
@@ -247,9 +251,13 @@ print.sm_audit_summary <- function(x, ...) {
   cli::cli_h3("Overview")
   for (i in seq_len(nrow(x$overview))) {
     row <- x$overview[i, ]
-    coverage_pct <- round(row$coverage * 100, 1)
+    row$coverage <- if (is.na(row$coverage)) {
+      "n/a"
+    } else {
+      paste0(round(row$coverage * 100, 1), "%")
+    }
     cli::cli_text(
-      "  {row$audit}: coverage {coverage_pct}% | {row$top_finding}"
+      "  {row$audit}: coverage {row$coverage} | {row$top_finding}"
     )
   }
 

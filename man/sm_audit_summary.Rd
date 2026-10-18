@@ -7,7 +7,7 @@
 \usage{
 \method{print}{sm_audit_summary}(x, ...)
 
-sm_audit_summary(corpus, ..., call = rlang::caller_env())
+sm_audit_summary(corpus, ..., online = FALSE, call = rlang::caller_env())
 }
 \arguments{
 \item{x}{An audit object to print.}
@@ -18,6 +18,12 @@ these are included directly rather than being re-run.}
 
 \item{corpus}{An \code{sm_corpus} object.}
 
+\item{online}{Logical. Whether audits that send web requests may run.
+Only the funding audit does: \code{\link[=sm_audit_funding]{sm_audit_funding()}} looks up every DOI on
+Crossref. With the default \code{FALSE}, a funding audit is included only
+when one is passed in \code{...}; otherwise it is reported as not run. Set
+\code{TRUE} to run it with its default Crossref source.}
+
 \item{call}{Caller environment for error reporting.}
 }
 \value{
@@ -25,23 +31,35 @@ An \code{sm_audit_summary} S3 object containing:
 \describe{
 \item{geographic}{An \code{sm_audit_geographic} result.}
 \item{gender}{An \code{sm_audit_gender} result.}
-\item{funding}{An \code{sm_audit_funding} result.}
+\item{funding}{An \code{sm_audit_funding} result. A funding audit that was
+not run has no funders, \code{source = "none"} and \code{coverage = NA}.}
 \item{oa}{An \code{sm_audit_oa} result.}
-\item{overview}{A one-row tibble summarising coverage across all audits.}
+\item{overview}{A tibble with one row per audit: \code{audit}, \code{coverage}
+(\code{NA} for an audit that was not run) and \code{top_finding}.}
 }
 }
 \description{
 Runs all available equity audits (geographic, gender, funding, OA status)
 on a corpus and returns a combined summary. Individual audit results can
 be passed as \code{...} arguments to avoid re-computation; any missing audits
-are run with default parameters.
+are run with default parameters, except that the gender audit uses
+\code{method = "manual"} and audits that send web requests run only when
+\code{online = TRUE}.
 }
 \examples{
-\donttest{
-corpus <- sm_example_corpus()
+corpus <- sm_example_corpus(n_works = 50, n_authors = 20)
+# The funding audit needs one Crossref request per DOI, so it is not run
+# unless online = TRUE.
 summary_audit <- sm_audit_summary(corpus)
+summary_audit$overview
+
+# A precomputed audit is used as it is. This funding audit sends no
+# request because its copy of the corpus has no DOIs.
+no_doi <- corpus
+no_doi$works$doi <- NA_character_
+funding <- sm_audit_funding(no_doi)
+summary_audit <- sm_audit_summary(corpus, funding)
 print(summary_audit)
-}
 }
 \seealso{
 Other audit:

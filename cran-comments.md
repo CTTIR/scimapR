@@ -38,7 +38,9 @@ The DESCRIPTION, README, inst/CITATION, and a dedicated vignette
 foundational work.
 
 All examples use bundled synthetic data and the `sm_example_corpus()`
-generator. All network-fetching functions are wrapped in `\donttest{}`.
+generator. Examples that would contact a web service are wrapped in
+`\dontrun{}` or run only in interactive sessions (`@examplesIf interactive()`);
+every example that runs during `R CMD check` works offline.
 All Python-dependent embedding functions degrade gracefully when reticulate
 or sentence-transformers are unavailable. All LLM-dependent functions
 error informatively when ellmer is unavailable. All bibliometrix-dependent
