@@ -26,6 +26,10 @@ to the console and returned invisibly.
 Produces a structured citation block for a corpus that can be included
 in manuscripts. The block documents the number of works, sources queried,
 date range, scimapR version, and corpus hash for reproducibility.
+
+The build date is the UTC date of \code{metadata$build_date}, which may be a
+POSIXct, a Date, numeric seconds since 1970-01-01 UTC or ISO 8601 text;
+a missing or implausible value is shown as \code{unknown}.
 }
 \examples{
 corpus <- sm_example_corpus()

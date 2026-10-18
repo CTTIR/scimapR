@@ -7,6 +7,8 @@
 sm_metric_fnci(
   corpus,
   classification = c("openalex_concepts", "mesh", "manual"),
+  min_cell = NULL,
+  by_type = FALSE,
   call = rlang::caller_env()
 )
 }
@@ -17,11 +19,28 @@ sm_metric_fnci(
 works to fields. One of \code{"openalex_concepts"} (default), \code{"mesh"}, or
 \code{"manual"}.}
 
+\item{min_cell}{\code{NULL} (default) or a positive integer. When set, a
+baseline needs at least \code{min_cell} works with a known citation count;
+works in smaller cells fall back to larger baselines (see Details), and
+the result gains the columns \code{n_cell} and \code{baseline}.}
+
+\item{by_type}{Logical. If \code{TRUE}, baseline cells are also split by
+document type, normalised from \code{works$type}: articles and reviews get
+cells of their own and all other types get \code{fnci = NA}. Adds the column
+\code{doc_type}. Default \code{FALSE}.}
+
 \item{call}{Caller environment for error reporting.}
 }
 \value{
-A tibble with columns \code{work_id}, \code{field}, \code{year},
-\code{cited_by_count}, \code{field_mean}, and \code{fnci}.
+A tibble with one row per work and the columns \code{work_id}, \code{field},
+\code{year}, \code{cited_by_count}, \code{field_mean} (the baseline: the mean citation
+count of the work's cell) and \code{fnci}. The column set depends on the
+arguments: \code{by_type = TRUE} adds \code{doc_type} (\code{"article"}, \code{"review"} or
+\code{NA}), and \code{min_cell} adds \code{n_cell} (integer; the number of works with a
+known citation count in the baseline cell) and \code{baseline} (a factor with
+the levels \code{field_year}, \code{field_year_pm1}, \code{year} and \code{none}; the level
+the baseline comes from). An empty corpus gives a 0-row tibble with the
+same columns.
 }
 \description{
 Computes the Field-Normalized Citation Impact (FNCI) for each work in the
@@ -37,18 +56,95 @@ Where \eqn{C_i} is the citation count of work \emph{i} and
 \eqn{\bar{C}_{f,y}} is the mean citation count of all works in field \emph{f}
 published in year \emph{y}.
 
-An FNCI of 1.0 means the work is cited at the world average for its
-field-year. Values > 1.0 indicate above-average impact.
+An FNCI of 1.0 means the work is cited at the corpus average of its
+baseline cell (by default its field and year). Values > 1.0 indicate
+above-average impact.
 
 For \code{"openalex_concepts"}, the highest-scoring level-0 concept from the
-concepts table is used. For \code{"mesh"}, MeSH terms are used (requires MeSH
-data in concepts). For \code{"manual"}, a \code{field} column must already exist
-in \code{corpus$works}.
+concepts table is used. For \code{"mesh"}, MeSH headings are used (requires
+MeSH data in concepts; see below). For \code{"manual"}, a \code{field} column must
+already exist in \code{corpus$works}.
 }
+\section{Small cells}{
+
+A cell with few works gives an unstable baseline, and a work alone in its
+cell gets FNCI = 1 by construction. When \code{min_cell} is \code{NULL} and more
+than 25\% of the works with a citation count sit in cells with fewer than
+10 such works, a message (class \code{scimapR_fnci_small_cells}) gives that
+share. \code{\link[=sm_its]{sm_its()}} (\code{outcome = "cnci"}) and \code{\link[=sm_metric_summary]{sm_metric_summary()}}
+(\code{metric = "cnci"}) show it too when they derive impact from citation
+counts.
+}
+
+\section{Fallback baselines}{
+
+With \code{min_cell} set, each work gets the most specific baseline that has at
+least \code{min_cell} works with a known citation count, the work itself
+included:
+\enumerate{
+\item \code{field_year}: its field and publication year;
+\item \code{field_year_pm1}: its field in the pooled years y - 1 to y + 1
+(truncated at the edges of the corpus);
+\item \code{year}: all works of its publication year.
+}
+
+If even the year has fewer than \code{min_cell} such works, \code{fnci} and
+\code{field_mean} are \code{NA}, \code{baseline} is \code{"none"} and \code{n_cell} gives the size
+of the year cell. Works without a field (\code{"unclassified"}) start at the
+\code{year} level, and works without a year get \code{NA} throughout.
+
+In this mode \code{field} may list several categories separated by \verb{;}, as
+the Web of Science WC field does. A work belongs to the cell of each of its
+categories. For each category the most specific level that reaches
+\code{min_cell} is found, and the work's baseline is the average of the
+category baselines at the most specific level any of them reached:
+\code{baseline} names that level and \code{n_cell} is the smallest of the averaged
+cells. The baselines are averaged (\eqn{C_i / mean(e_k)}), not the ratios
+(\eqn{mean(C_i / e_k)}). \code{field} keeps the original string. Without
+\code{min_cell} the string is one field, as before.
+}
+
+\section{Document types}{
+
+With \code{by_type = TRUE}, \code{works$type} is normalised: lower-cased, its first
+\verb{;}-separated part, trimmed. \code{"article"} covers article, journal-article,
+jour and research-article; \code{"review"} covers review and review article.
+Works of any other or a missing type get \code{fnci = NA} (and \code{baseline = NA}),
+with one message (class \code{scimapR_fnci_other_types}). The type stays part
+of the cell at every fallback level. The PubMed and Semantic Scholar
+fetchers record every work as \code{"journal-article"}, so their reviews count
+as articles.
+}
+
+\section{MeSH fields}{
+
+MeSH check tags (Humans, Animals, Male, Female, Pregnancy, the age groups,
+common laboratory and farm animals, and the historical periods) describe
+who or what was studied, and common descriptors of study design,
+statistics and laboratory material (such as Retrospective Studies, Risk
+Factors, Treatment Outcome or Cells, Cultured) describe how it was
+studied. Neither is ever used as a field.
+
+\code{\link[=sm_fetch_pubmed]{sm_fetch_pubmed()}}, \code{\link[=sm_read_pubmed_xml]{sm_read_pubmed_xml()}} and \code{\link[=sm_enrich_concepts]{sm_enrich_concepts()}}
+(\code{source = "mesh"}) record each heading's major-topic flag as its score:
+1 for a major topic of the article (starred in PubMed) and 0 otherwise.
+A work gets its highest-scoring heading; among several, the one that
+most works of the corpus carry (ties in alphabetical order). A work whose
+headings carry no scores, as with MeSH terms from other sources, gets its
+heading that is most frequent in the corpus, with one message (class
+\code{scimapR_fnci_mesh_unscored}). A work with no other headings is
+unclassified.
+}
+
 \examples{
 corpus <- sm_example_corpus()
 fnci <- sm_metric_fnci(corpus, classification = "openalex_concepts")
 head(fnci)
+
+# Fall back to larger baselines for cells with fewer than 5 works, with
+# articles and reviews normalised separately
+fnci <- sm_metric_fnci(corpus, min_cell = 5, by_type = TRUE)
+table(fnci$baseline, useNA = "ifany")
 }
 \references{
 Waltman, L., van Eck, N. J., van Leeuwen, T. N., Visser, M. S., &

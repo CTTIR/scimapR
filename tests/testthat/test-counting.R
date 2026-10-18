@@ -26,6 +26,28 @@ test_that("sm_citation_maturity uses metadata last_refresh when present", {
   expect_true(all(corpus$works$citation_mature))
 })
 
+test_that("sm_citation_maturity reads a numeric last_refresh as seconds", {
+  corpus <- sm_example_corpus(n_works = 40, year_range = c(2015L, 2026L),
+                              seed = 1)
+  # 2026-10-17 00:00:00 UTC, as a corpus restored from a table stores it
+  corpus$metadata$last_refresh <- 1792195200
+  expect_identical(.maturity_cutoff(corpus, lag = 2L), 2024L)
+  corpus <- sm_citation_maturity(corpus, lag = 2)
+  expect_identical(corpus$works$cnci_provisional,
+                   corpus$works$year > 2024L)
+})
+
+test_that("sm_citation_maturity ignores an implausible last_refresh", {
+  corpus <- sm_example_corpus(n_works = 40, year_range = c(2015L, 2024L),
+                              seed = 1)
+  # milliseconds instead of seconds: falls back to the maximum year
+  corpus$metadata$last_refresh <- 1792195200000
+  expect_message(corpus <- sm_citation_maturity(corpus, lag = 2),
+                 "last_refresh", class = "scimapR_implausible_time")
+  prov_years <- unique(corpus$works$year[corpus$works$cnci_provisional])
+  expect_setequal(prov_years, c(2023L, 2024L))
+})
+
 test_that("sm_citation_maturity is type-stable on empty corpus", {
   corpus <- sm_corpus(works = .empty_works())
   out <- sm_citation_maturity(corpus)

@@ -7,6 +7,10 @@
 #' Uses retmax/retstart pagination to retrieve up to `n_max` records.
 #' Providing an NCBI API key allows up to 10 requests/second instead of 3.
 #'
+#' MeSH headings become concepts in the `"mesh"` vocabulary. Their `score`
+#' is 1 for a major topic of the article (`MajorTopicYN` on the descriptor or
+#' one of its qualifiers) and 0 otherwise.
+#'
 #' @param query PubMed search query string (required).
 #' @param n_max Maximum number of records to return (default 200).
 #' @param api_key NCBI API key. Read from `NCBI_API_KEY` env var by default.
@@ -305,19 +309,44 @@ sm_fetch_pubmed <- function(query,
 .parse_pubmed_mesh <- function(articles, work_ids) {
   rows <- list()
   for (i in seq_along(articles)) {
-    mesh_nodes <- xml2::xml_find_all(articles[[i]], ".//MeshHeading/DescriptorName")
-    if (length(mesh_nodes) == 0) next
+    headings <- .pubmed_mesh_rows(
+      xml2::xml_find_all(articles[[i]], ".//MeshHeading")
+    )
+    if (nrow(headings) == 0) next
     rows[[length(rows) + 1L]] <- tibble::tibble(
       work_id = work_ids[i],
-      concept_id = xml2::xml_attr(mesh_nodes, "UI"),
-      concept_name = xml2::xml_text(mesh_nodes),
+      concept_id = headings$concept_id,
+      concept_name = headings$concept_name,
       level = NA_integer_,
-      score = NA_real_,
+      score = headings$score,
       vocabulary = "mesh"
     )
   }
   if (length(rows) == 0) return(.empty_concepts())
   dplyr::bind_rows(rows)
+}
+
+#' MeSH descriptors of MeshHeading nodes with their major-topic flag
+#'
+#' `score` is 1 when the descriptor or one of its qualifiers has
+#' MajorTopicYN = "Y" (a major topic of the article, starred in PubMed), 0
+#' when it is not a major topic, and NA when the heading carries no flag.
+#' Headings without a descriptor are dropped. Shared by sm_fetch_pubmed(),
+#' sm_read_pubmed_xml() and sm_enrich_concepts(source = "mesh").
+#' @noRd
+.pubmed_mesh_rows <- function(headings) {
+  descriptor <- xml2::xml_find_first(headings, "./DescriptorName")
+  starred <- xml2::xml_find_first(headings,
+                                  "./QualifierName[@MajorTopicYN = 'Y']")
+  # NA | TRUE is TRUE: a starred qualifier makes the heading a major topic
+  major <- toupper(xml2::xml_attr(descriptor, "MajorTopicYN")) == "Y" |
+    !is.na(xml2::xml_attr(starred, "MajorTopicYN"))
+  out <- tibble::tibble(
+    concept_id = xml2::xml_attr(descriptor, "UI"),
+    concept_name = xml2::xml_text(descriptor),
+    score = as.numeric(major)
+  )
+  out[!is.na(out$concept_name), ]
 }
 
 #' @noRd

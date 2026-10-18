@@ -37,6 +37,10 @@ Query \href{https://pubmed.ncbi.nlm.nih.gov/}{PubMed} via the NCBI E-utilities
 
 Uses retmax/retstart pagination to retrieve up to \code{n_max} records.
 Providing an NCBI API key allows up to 10 requests/second instead of 3.
+
+MeSH headings become concepts in the \code{"mesh"} vocabulary. Their \code{score}
+is 1 for a major topic of the article (\code{MajorTopicYN} on the descriptor or
+one of its qualifiers) and 0 otherwise.
 }
 \examples{
 \dontrun{

@@ -27,7 +27,11 @@ years instead of treating their (artificially low) citation counts as final.
 
 Works published within the most recent \code{lag} years -- relative to the
 corpus's "as-of" date (\code{metadata$last_refresh} if present, else the maximum
-publication year) -- are flagged provisional.
+publication year) -- are flagged provisional. \code{last_refresh} may be a
+POSIXct, a Date, numeric seconds since 1970-01-01 UTC (as in corpora
+restored from tables) or ISO 8601 text; its year is taken in UTC. A value
+that is not a plausible date (for example milliseconds stored as seconds)
+is ignored with a message.
 }
 \examples{
 corpus <- sm_example_corpus(n_works = 20, seed = 1)

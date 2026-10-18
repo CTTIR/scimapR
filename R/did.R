@@ -78,8 +78,11 @@ sm_did <- function(corpus,
     ), call = call)
   }
 
-  s_t <- .sm_yearly_outcome(corpus, outcome, treated_works, call = call)
-  s_c <- .sm_yearly_outcome(corpus, outcome, control_works, call = call)
+  # Both series derive the same FNCI: show its small-cell message once.
+  .fnci_inform_once({
+    s_t <- .sm_yearly_outcome(corpus, outcome, treated_works, call = call)
+    s_c <- .sm_yearly_outcome(corpus, outcome, control_works, call = call)
+  })
   s_t$group <- "treated"
   s_c$group <- "control"
   series <- dplyr::bind_rows(s_c, s_t)
@@ -215,12 +218,13 @@ sm_synth <- function(corpus,
   }
 
   units <- c(treated, donors)
-  panels <- lapply(units, function(u) {
+  # Every unit derives the same FNCI: show its small-cell message once.
+  panels <- .fnci_inform_once(lapply(units, function(u) {
     ids <- .resolve_group_works(corpus, u, call = call)
     s <- .sm_yearly_outcome(corpus, outcome, ids, call = call)
     s$unit <- u
     s
-  })
+  }))
   panel <- dplyr::bind_rows(panels)
   panel <- dplyr::select(panel, "unit", "year", "value")
 

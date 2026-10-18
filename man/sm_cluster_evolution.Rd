@@ -8,6 +8,8 @@ sm_cluster_evolution(
   corpus,
   time_windows = NULL,
   link_threshold = 0.3,
+  link_by = c("terms", "cluster_id"),
+  noise = 0L,
   call = rlang::caller_env()
 )
 }
@@ -20,34 +22,63 @@ window, or \code{NULL} (default). If \code{NULL}, windows are created automatica
 by splitting the year range into roughly equal periods.}
 
 \item{link_threshold}{Numeric between 0 and 1; minimum Jaccard similarity
-to link two clusters across time windows. Defaults to \code{0.3}.}
+to link two clusters across time windows. Defaults to \code{0.3}. Not used
+with \code{link_by = "cluster_id"}.}
+
+\item{link_by}{How clusters of consecutive windows are linked. \code{"terms"}
+(default) compares every pair of clusters by the Jaccard similarity of
+their title terms and keeps the pairs that reach \code{link_threshold}; use it
+when each window was clustered on its own. \code{"cluster_id"} follows a
+clustering of the whole corpus (for example from
+\code{\link[=sm_cluster_hdbscan]{sm_cluster_hdbscan()}}): every cluster present in both windows gives one
+transition to itself.}
+
+\item{noise}{The \code{cluster_id} that marks noise, the works no cluster
+claims: \code{0L} by default, as \code{\link[=sm_cluster_hdbscan]{sm_cluster_hdbscan()}} assigns. With
+\code{link_by = "cluster_id"} noise gets no transition. \code{NULL} treats every
+id as a cluster; set it for clusterings that use another noise label or
+a real cluster 0. Not used with \code{link_by = "terms"}.}
 
 \item{call}{Caller environment for error reporting.}
 }
 \value{
-A list with two components:
+A list with two components and the attribute \code{link_by} (the
+linking mode used):
 \describe{
 \item{\code{snapshots}}{A tibble with columns \code{window}, \code{cluster_id},
-\code{n_works}, \code{top_terms} (a character string of representative terms).}
+\code{n_works}, \code{top_terms} (a character string of representative
+terms) and \code{share} (the cluster's share of the window's clustered
+works, noise included, so the shares of a window sum to 1).}
 \item{\code{transitions}}{A tibble with columns \code{from_window}, \code{to_window},
-\code{from_cluster}, \code{to_cluster}, \code{jaccard}, \code{n_shared}.}
+\code{from_cluster}, \code{to_cluster}, \code{jaccard} (the Jaccard similarity of
+the two clusters' title terms, rounded to 4 digits; 0 when neither
+has any) and \code{n_shared} (the number of shared title terms).}
 }
 }
 \description{
 Analyses how research clusters evolve across time windows. For each pair
-of consecutive windows, clusters are linked by measuring the Jaccard
-similarity of their member works (or, more commonly, the overlap of terms).
+of consecutive windows, clusters are linked either by the overlap of the
+terms in their titles (\code{link_by = "terms"}, the default) or, after one
+clustering of the whole corpus, by their shared \code{cluster_id}
+(\code{link_by = "cluster_id"}).
 }
 \details{
 The function:
 \enumerate{
 \item Splits works into time windows.
 \item Within each window, identifies the cluster composition.
-\item Between consecutive windows, computes pairwise Jaccard similarity of
-clusters based on overlapping work IDs or, when works do not persist
-across windows, based on shared terms from titles.
-\item Links clusters exceeding \code{link_threshold}.
+\item Between consecutive windows, links clusters. A work sits in exactly
+one window, so clusters cannot share works; \code{"terms"} therefore
+compares the terms of their titles and links the pairs whose Jaccard
+similarity reaches \code{link_threshold}, while \code{"cluster_id"} links each
+cluster to itself and reports the title-term Jaccard of its two
+windows without filtering.
 }
+
+With one clustering of the whole corpus, the same \code{cluster_id} in two
+windows is the continuity, and large clusters rarely reach the term
+threshold, so \code{"terms"} can report no transition at all. Use
+\code{link_by = "cluster_id"} there.
 }
 \examples{
 \donttest{
@@ -55,6 +86,10 @@ corpus <- sm_example_corpus(with_embeddings = TRUE)
 corpus <- sm_cluster_kmeans(corpus, k = 5)
 evo <- sm_cluster_evolution(corpus)
 evo$snapshots
+evo$transitions
+
+# one clustering for the whole corpus: follow each cluster id
+evo <- sm_cluster_evolution(corpus, link_by = "cluster_id")
 evo$transitions
 }
 }

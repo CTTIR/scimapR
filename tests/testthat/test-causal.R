@@ -99,3 +99,49 @@ test_that("sm_synth errors gracefully without tidysynth", {
     error = TRUE
   )
 })
+
+# ---- small FNCI cells -------------------------------------------------------
+
+count_small_cells <- function(expr) {
+  n <- 0L
+  withCallingHandlers(expr, scimapR_fnci_small_cells = function(cnd) {
+    n <<- n + 1L
+    rlang::cnd_muffle(cnd)
+  })
+  n
+}
+
+test_that("cnci outcomes pass on the small-cell FNCI message once", {
+  corpus <- did_corpus()
+  expect_message(
+    sm_its(corpus, intervention_year = 2019, outcome = "cnci"),
+    class = "scimapR_fnci_small_cells"
+  )
+  # sm_did() derives the FNCI once per group; the message appears once
+  expect_identical(
+    count_small_cells(sm_did(corpus, treated = "Inst A", control = "Inst B",
+                             intervention_year = 2020, outcome = "cnci")),
+    1L
+  )
+  expect_identical(
+    count_small_cells(sm_did(corpus, treated = "Inst A", control = "Inst B",
+                             intervention_year = 2020, outcome = "count")),
+    0L
+  )
+})
+
+test_that("sm_synth passes on the small-cell FNCI message once", {
+  skip_if_not_installed("tidysynth")
+  corpus <- sm_example_corpus(n_works = 150, seed = 1)
+  units <- c("Inst A", "Inst B", "Inst C")
+  n_rows <- nrow(corpus$authorships)
+  corpus$authorships$institution_name <- rep_len(units, n_rows)
+  expect_identical(
+    count_small_cells(suppressMessages(
+      sm_synth(corpus, treated = "Inst A", donors = c("Inst B", "Inst C"),
+               intervention_year = 2020, outcome = "cnci"),
+      classes = "cliMessage"
+    )),
+    1L
+  )
+})

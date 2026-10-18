@@ -100,6 +100,30 @@ test_that("sm_fetch_pubmed native parses esearch+efetch into an sm_corpus", {
   expect_true(all(corpus$provenance$source == "pubmed"))
 })
 
+test_that("sm_fetch_pubmed records major MeSH topics as score 1", {
+  flagged <- sub(
+    '<DescriptorName UI="D000001">Bibliometrics</DescriptorName>',
+    paste0('<DescriptorName UI="D000001" MajorTopicYN="Y">Bibliometrics',
+           "</DescriptorName></MeshHeading><MeshHeading>",
+           '<DescriptorName UI="D000002" MajorTopicYN="N">Humans',
+           "</DescriptorName>"),
+    .pubmed_xml(), fixed = TRUE
+  )
+  local_mocked_bindings(
+    req_perform = function(req, ...) {
+      structure(list(), class = "httr2_response")
+    },
+    resp_body_json = function(resp, ...) .pubmed_esearch_body(),
+    resp_body_string = function(resp, ...) flagged,
+    .package = "httr2"
+  )
+  corpus <- sm_fetch_pubmed(query = "bibliometrics", n_max = 10,
+                            api_key = "", engine = "native", verbose = FALSE)
+  expect_identical(corpus$concepts$concept_name, c("Bibliometrics", "Humans"))
+  expect_identical(corpus$concepts$concept_id, c("D000001", "D000002"))
+  expect_identical(corpus$concepts$score, c(1, 0))
+})
+
 test_that("sm_fetch_pubmed native honours an API key path (higher rate)", {
   local_mocked_bindings(
     req_perform = function(req, ...) structure(list(), class = "httr2_response"),

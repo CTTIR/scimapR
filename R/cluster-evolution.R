@@ -2,8 +2,10 @@
 #'
 #' @description
 #' Analyses how research clusters evolve across time windows. For each pair
-#' of consecutive windows, clusters are linked by measuring the Jaccard
-#' similarity of their member works (or, more commonly, the overlap of terms).
+#' of consecutive windows, clusters are linked either by the overlap of the
+#' terms in their titles (`link_by = "terms"`, the default) or, after one
+#' clustering of the whole corpus, by their shared `cluster_id`
+#' (`link_by = "cluster_id"`).
 #'
 #' @param corpus An [sm_corpus] object with a `cluster_id` column in
 #'   `corpus$works` and a `year` column.
@@ -11,25 +13,50 @@
 #'   window, or `NULL` (default). If `NULL`, windows are created automatically
 #'   by splitting the year range into roughly equal periods.
 #' @param link_threshold Numeric between 0 and 1; minimum Jaccard similarity
-#'   to link two clusters across time windows. Defaults to `0.3`.
+#'   to link two clusters across time windows. Defaults to `0.3`. Not used
+#'   with `link_by = "cluster_id"`.
+#' @param link_by How clusters of consecutive windows are linked. `"terms"`
+#'   (default) compares every pair of clusters by the Jaccard similarity of
+#'   their title terms and keeps the pairs that reach `link_threshold`; use it
+#'   when each window was clustered on its own. `"cluster_id"` follows a
+#'   clustering of the whole corpus (for example from
+#'   [sm_cluster_hdbscan()]): every cluster present in both windows gives one
+#'   transition to itself.
+#' @param noise The `cluster_id` that marks noise, the works no cluster
+#'   claims: `0L` by default, as [sm_cluster_hdbscan()] assigns. With
+#'   `link_by = "cluster_id"` noise gets no transition. `NULL` treats every
+#'   id as a cluster; set it for clusterings that use another noise label or
+#'   a real cluster 0. Not used with `link_by = "terms"`.
 #' @param call Caller environment for error reporting.
 #'
-#' @return A list with two components:
+#' @return A list with two components and the attribute `link_by` (the
+#'   linking mode used):
 #'   \describe{
 #'     \item{`snapshots`}{A tibble with columns `window`, `cluster_id`,
-#'       `n_works`, `top_terms` (a character string of representative terms).}
+#'       `n_works`, `top_terms` (a character string of representative
+#'       terms) and `share` (the cluster's share of the window's clustered
+#'       works, noise included, so the shares of a window sum to 1).}
 #'     \item{`transitions`}{A tibble with columns `from_window`, `to_window`,
-#'       `from_cluster`, `to_cluster`, `jaccard`, `n_shared`.}
+#'       `from_cluster`, `to_cluster`, `jaccard` (the Jaccard similarity of
+#'       the two clusters' title terms, rounded to 4 digits; 0 when neither
+#'       has any) and `n_shared` (the number of shared title terms).}
 #'   }
 #'
 #' @details
 #' The function:
 #' 1. Splits works into time windows.
 #' 2. Within each window, identifies the cluster composition.
-#' 3. Between consecutive windows, computes pairwise Jaccard similarity of
-#'    clusters based on overlapping work IDs or, when works do not persist
-#'    across windows, based on shared terms from titles.
-#' 4. Links clusters exceeding `link_threshold`.
+#' 3. Between consecutive windows, links clusters. A work sits in exactly
+#'    one window, so clusters cannot share works; `"terms"` therefore
+#'    compares the terms of their titles and links the pairs whose Jaccard
+#'    similarity reaches `link_threshold`, while `"cluster_id"` links each
+#'    cluster to itself and reports the title-term Jaccard of its two
+#'    windows without filtering.
+#'
+#' With one clustering of the whole corpus, the same `cluster_id` in two
+#' windows is the continuity, and large clusters rarely reach the term
+#' threshold, so `"terms"` can report no transition at all. Use
+#' `link_by = "cluster_id"` there.
 #'
 #' @family clustering
 #' @export
@@ -40,17 +67,32 @@
 #' evo <- sm_cluster_evolution(corpus)
 #' evo$snapshots
 #' evo$transitions
+#'
+#' # one clustering for the whole corpus: follow each cluster id
+#' evo <- sm_cluster_evolution(corpus, link_by = "cluster_id")
+#' evo$transitions
 #' }
 sm_cluster_evolution <- function(corpus,
                                  time_windows = NULL,
                                  link_threshold = 0.3,
+                                 link_by = c("terms", "cluster_id"),
+                                 noise = 0L,
                                  call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  link_by <- rlang::arg_match(link_by, error_call = call)
 
   if (!is.numeric(link_threshold) || length(link_threshold) != 1L ||
       link_threshold < 0 || link_threshold > 1) {
     cli::cli_abort(
       "{.arg link_threshold} must be a number between 0 and 1.",
+      call = call
+    )
+  }
+  bad_noise <- !is.null(noise) &&
+    (!is.atomic(noise) || length(noise) != 1L || is.na(noise))
+  if (bad_noise) {
+    cli::cli_abort(
+      "{.arg noise} must be a single cluster id or {.code NULL}.",
       call = call
     )
   }
@@ -74,16 +116,13 @@ sm_cluster_evolution <- function(corpus,
 
   works <- dplyr::filter(works, !is.na(.data$cluster_id), !is.na(.data$year))
   if (nrow(works) == 0L) {
-    return(list(
-      snapshots   = tibble::tibble(
+    return(.evolution_result(
+      tibble::tibble(
         window = character(), cluster_id = integer(),
-        n_works = integer(), top_terms = character()
+        n_works = integer(), top_terms = character(), share = double()
       ),
-      transitions = tibble::tibble(
-        from_window = character(), to_window = character(),
-        from_cluster = integer(), to_cluster = integer(),
-        jaccard = double(), n_shared = integer()
-      )
+      .empty_transitions(),
+      link_by
     ))
   }
 
@@ -109,19 +148,15 @@ sm_cluster_evolution <- function(corpus,
       ),
       .groups = "drop"
     )
+  # each cluster's share of its window, noise included
+  snapshots$share <- snapshots$n_works /
+    stats::ave(snapshots$n_works, snapshots$window, FUN = sum)
 
   # --- compute transitions ---
   window_names <- sort(unique(works$window))
 
   if (length(window_names) < 2L) {
-    return(list(
-      snapshots   = snapshots,
-      transitions = tibble::tibble(
-        from_window = character(), to_window = character(),
-        from_cluster = integer(), to_cluster = integer(),
-        jaccard = double(), n_shared = integer()
-      )
-    ))
+    return(.evolution_result(snapshots, .empty_transitions(), link_by))
   }
 
   transitions_list <- list()
@@ -135,43 +170,33 @@ sm_cluster_evolution <- function(corpus,
     clusters_w1 <- unique(works_w1$cluster_id)
     clusters_w2 <- unique(works_w2$cluster_id)
 
+    if (link_by == "cluster_id") {
+      # one clustering of the whole corpus: each cluster continues itself
+      shared <- sort(setdiff(intersect(clusters_w1, clusters_w2), noise))
+      for (cl in shared) {
+        overlap <- .title_term_overlap(
+          works_w1$title[works_w1$cluster_id == cl],
+          works_w2$title[works_w2$cluster_id == cl]
+        )
+        transitions_list <- c(transitions_list, list(
+          .transition_row(w1, w2, cl, cl, overlap)
+        ))
+      }
+      next
+    }
+
+    # A work sits in exactly one window, so clusters of two windows never
+    # share works: compare the terms of their titles instead.
     for (c1 in clusters_w1) {
-      ids1 <- works_w1$work_id[works_w1$cluster_id == c1]
       for (c2 in clusters_w2) {
-        ids2 <- works_w2$work_id[works_w2$cluster_id == c2]
-
-        n_shared <- length(intersect(ids1, ids2))
-        n_union <- length(union(ids1, ids2))
-
-        if (n_union == 0L) next
-
-        jaccard <- n_shared / n_union
-
-        # If no direct work overlap, fall back to term-based similarity
-        if (n_shared == 0L) {
-          terms1 <- .extract_title_terms(
-            works_w1$title[works_w1$cluster_id == c1]
-          )
-          terms2 <- .extract_title_terms(
-            works_w2$title[works_w2$cluster_id == c2]
-          )
-          n_term_shared <- length(intersect(terms1, terms2))
-          n_term_union <- length(union(terms1, terms2))
-          if (n_term_union > 0L) {
-            jaccard <- n_term_shared / n_term_union
-          }
-          n_shared <- n_term_shared
-        }
-
-        if (jaccard >= link_threshold) {
-          transitions_list <- c(transitions_list, list(tibble::tibble(
-            from_window  = w1,
-            to_window    = w2,
-            from_cluster = c1,
-            to_cluster   = c2,
-            jaccard      = round(jaccard, 4),
-            n_shared     = as.integer(n_shared)
-          )))
+        overlap <- .title_term_overlap(
+          works_w1$title[works_w1$cluster_id == c1],
+          works_w2$title[works_w2$cluster_id == c2]
+        )
+        if (overlap$jaccard >= link_threshold) {
+          transitions_list <- c(transitions_list, list(
+            .transition_row(w1, w2, c1, c2, overlap)
+          ))
         }
       }
     }
@@ -180,19 +205,70 @@ sm_cluster_evolution <- function(corpus,
   transitions <- if (length(transitions_list) > 0L) {
     dplyr::bind_rows(transitions_list)
   } else {
-    tibble::tibble(
-      from_window = character(), to_window = character(),
-      from_cluster = integer(), to_cluster = integer(),
-      jaccard = double(), n_shared = integer()
-    )
+    .empty_transitions()
   }
 
+  found <- if (link_by == "terms") {
+    "{nrow(transitions)} transition{?s} found above threshold
+     {link_threshold}."
+  } else {
+    "{nrow(transitions)} transition{?s} link{?s/} the same cluster id in
+     consecutive windows."
+  }
   cli::cli_inform(c(
     "v" = "Cluster evolution computed across {length(window_names)} time windows.",
-    "i" = "{nrow(transitions)} transition{?s} found above threshold {link_threshold}."
+    "i" = found
   ))
 
-  list(snapshots = snapshots, transitions = transitions)
+  .evolution_result(snapshots, transitions, link_by)
+}
+
+
+#' Result list of sm_cluster_evolution(), the same on every return path
+#' @noRd
+.evolution_result <- function(snapshots, transitions, link_by) {
+  structure(list(snapshots = snapshots, transitions = transitions),
+            link_by = link_by)
+}
+
+
+#' Typed 0-row transitions table
+#' @noRd
+.empty_transitions <- function() {
+  tibble::tibble(
+    from_window = character(), to_window = character(),
+    from_cluster = integer(), to_cluster = integer(),
+    jaccard = double(), n_shared = integer()
+  )
+}
+
+
+#' One row of the transitions table
+#' @noRd
+.transition_row <- function(from_window, to_window, from_cluster,
+                            to_cluster, overlap) {
+  tibble::tibble(
+    from_window  = from_window,
+    to_window    = to_window,
+    from_cluster = from_cluster,
+    to_cluster   = to_cluster,
+    jaccard      = round(overlap$jaccard, 4),
+    n_shared     = overlap$n_shared
+  )
+}
+
+
+#' Jaccard similarity and number of shared title terms of two clusters
+#'
+#' 0 and 0L when neither cluster has a title term.
+#' @noRd
+.title_term_overlap <- function(titles1, titles2) {
+  terms1 <- .extract_title_terms(titles1)
+  terms2 <- .extract_title_terms(titles2)
+  n_shared <- length(intersect(terms1, terms2))
+  n_union <- length(union(terms1, terms2))
+  list(jaccard = if (n_union > 0L) n_shared / n_union else 0,
+       n_shared = n_shared)
 }
 
 

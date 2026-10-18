@@ -46,7 +46,9 @@ DTD. Each \code{PubmedArticle} element is processed to extract:
 \item \code{MedlineCitation/Article/Journal/Title} and \verb{/ISSN} for the journal
 \item \code{MedlineCitation/Article/Journal/JournalIssue/PubDate/Year} for year
 \item \code{MedlineCitation/Article/AuthorList/Author} for authors
-\item \code{MedlineCitation/MeshHeadingList/MeshHeading} for MeSH terms
+\item \code{MedlineCitation/MeshHeadingList/MeshHeading} for MeSH terms; the
+concept \code{score} is 1 for a major topic of the article (\code{MajorTopicYN}
+on the descriptor or one of its qualifiers) and 0 otherwise
 \item \verb{PubmedData/ArticleIdList/ArticleId[@IdType='doi']} for DOI
 \item \code{MedlineCitation/Article/PublicationTypeList} for document type
 }

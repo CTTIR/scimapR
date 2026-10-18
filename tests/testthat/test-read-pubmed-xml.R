@@ -90,6 +90,39 @@ test_that("sm_read_pubmed_xml extracts DOI, language, type, MeSH and affiliation
   # MeSH descriptors become concepts in the "mesh" vocabulary
   expect_setequal(corpus$concepts$concept_name, c("Neoplasms", "Genomics"))
   expect_equal(unique(corpus$concepts$vocabulary), "mesh")
+  # without MajorTopicYN flags the headings carry no score
+  expect_true(all(is.na(corpus$concepts$score)))
+})
+
+test_that("sm_read_pubmed_xml records major MeSH topics as score 1", {
+  xml <- paste(
+    '<?xml version="1.0"?>',
+    "<PubmedArticleSet><PubmedArticle><MedlineCitation>",
+    "<PMID>222</PMID><Article><ArticleTitle>Flags</ArticleTitle></Article>",
+    "<MeshHeadingList>",
+    '<MeshHeading><DescriptorName MajorTopicYN="N">Breast Neoplasms',
+    '</DescriptorName><QualifierName MajorTopicYN="Y">drug therapy',
+    "</QualifierName></MeshHeading>",
+    '<MeshHeading><DescriptorName MajorTopicYN="N">Humans</DescriptorName>',
+    "</MeshHeading>",
+    '<MeshHeading><DescriptorName MajorTopicYN="Y">Zoonoses</DescriptorName>',
+    "</MeshHeading>",
+    '<MeshHeading><DescriptorName MajorTopicYN="N">Retrospective Studies',
+    '</DescriptorName><QualifierName MajorTopicYN="N">statistics',
+    "</QualifierName></MeshHeading>",
+    "</MeshHeadingList></MedlineCitation></PubmedArticle>",
+    "</PubmedArticleSet>",
+    sep = ""
+  )
+  path <- withr::local_tempfile(fileext = ".xml")
+  writeLines(xml, path)
+  corpus <- sm_read_pubmed_xml(path, verbose = FALSE)
+  concepts <- corpus$concepts
+  expect_identical(concepts$concept_name,
+                   c("Breast Neoplasms", "Humans", "Zoonoses",
+                     "Retrospective Studies"))
+  # a starred qualifier makes its descriptor a major topic
+  expect_identical(concepts$score, c(1, 0, 1, 0))
 })
 
 test_that("sm_read_pubmed_xml returns an empty corpus when no articles", {

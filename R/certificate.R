@@ -11,6 +11,17 @@
 #' the corpus. `sm_verify_certificate()` compares a live corpus against
 #' a certificate to detect divergence.
 #'
+#' @details
+#' Certificates write their timestamps (`created` and the corpus's
+#' `build_date` and `last_refresh`) in UTC as ISO 8601 text, for example
+#' `2026-10-17T11:45:00Z`, and read back both this form and the older one
+#' with a numeric offset. Printing a certificate shows `created` in UTC as
+#' well, so a certificate read back from YAML prints the same time as the
+#' one it was written from. The corpus timestamps may be stored as POSIXct, a
+#' Date, numeric seconds since 1970-01-01 UTC (as in corpora restored from
+#' tables) or ISO 8601 text. A missing or implausible value is written as
+#' `NA`.
+#'
 #' @param corpus An `sm_corpus` object.
 #' @param path Character. Optional file path to write the certificate YAML.
 #'   If `NULL`, the certificate is returned but not written to disk.
@@ -124,13 +135,10 @@ sm_certificate <- function(corpus,
       embedding_info = embedding_info,
       is_locked = isTRUE(corpus$metadata$is_locked),
       metadata = list(
-        build_date = format(corpus$metadata$build_date,
-                            "%Y-%m-%dT%H:%M:%S%z"),
-        last_refresh = if (!is.na(corpus$metadata$last_refresh %||% NA)) {
-          format(corpus$metadata$last_refresh, "%Y-%m-%dT%H:%M:%S%z")
-        } else {
-          NA_character_
-        }
+        build_date = .format_utc_time(corpus$metadata$build_date,
+                                      what = "metadata$build_date"),
+        last_refresh = .format_utc_time(corpus$metadata$last_refresh,
+                                        what = "metadata$last_refresh")
       )
     ),
     class = "sm_certificate"
@@ -364,9 +372,13 @@ sm_verify_certificate <- function(corpus,
 #' @return `x` invisibly (print methods).
 #' @export
 print.sm_certificate <- function(x, ...) {
+  # UTC, as written to YAML, so that a certificate read back prints the same
+  created <- .format_utc_time(x$created, "%Y-%m-%d %H:%M:%S UTC",
+                              what = "certificate created")
+  if (is.na(created)) created <- "unknown"
   cli::cli_h1("<sm_certificate>")
   cli::cli_text("{.strong Version:} {x$certificate_version}")
-  cli::cli_text("{.strong Created:} {format(x$created, '%Y-%m-%d %H:%M:%S')}")
+  cli::cli_text("{.strong Created:} {created}")
   cli::cli_text("{.strong scimapR:} v{x$scimapR_version}")
   cli::cli_text("{.strong R:} {x$r_version} ({x$platform})")
   cli::cli_text("")
@@ -412,7 +424,7 @@ print.sm_cert_verification <- function(x, ...) {
 #' @noRd
 .cert_to_list <- function(cert) {
   out <- unclass(cert)
-  out$created <- format(out$created, "%Y-%m-%dT%H:%M:%S%z")
+  out$created <- .format_utc_time(out$created, what = "certificate created")
   out
 }
 
@@ -420,7 +432,7 @@ print.sm_cert_verification <- function(x, ...) {
 #' @noRd
 .list_to_cert <- function(x) {
   if (!is.null(x$created) && is.character(x$created)) {
-    x$created <- as.POSIXct(x$created, format = "%Y-%m-%dT%H:%M:%S%z")
+    x$created <- .as_utc_time(x$created, what = "certificate created")
   }
   structure(x, class = "sm_certificate")
 }
