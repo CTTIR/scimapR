@@ -59,7 +59,13 @@ sm_corpus(
 
 \item{references}{A tibble of cited references. If \code{NULL}, empty.}
 
-\item{concepts}{A tibble of concepts/keywords. If \code{NULL}, empty.}
+\item{concepts}{A tibble of concepts/keywords. If \code{NULL}, empty. Legacy
+and common spellings in its \code{vocabulary} column (such as
+\code{"keywords-author"}) are renamed to the names of
+\code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}}, with a message. Values that name no known
+vocabulary are kept as written and listed in the same message, each
+time a corpus is built from them; name a vocabulary of your own
+\code{"custom"}.}
 
 \item{embeddings}{A numeric matrix of work embeddings, or \code{NULL}.}
 
@@ -131,6 +137,7 @@ Other corpus:
 \code{\link[=is_sm_corpus]{is_sm_corpus()}},
 \code{\link[=sm_bind_corpora]{sm_bind_corpora()}},
 \code{\link[=sm_build_corpus]{sm_build_corpus()}},
+\code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}},
 \code{\link[=sm_corpus_from_tables]{sm_corpus_from_tables()}},
 \code{\link[=sm_dedupe]{sm_dedupe()}},
 \code{\link[=sm_materialise]{sm_materialise()}},

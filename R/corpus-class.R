@@ -12,7 +12,13 @@
 #' @param institutions A tibble of institutions. If `NULL`, empty.
 #' @param sources A tibble of publication sources/journals. If `NULL`, empty.
 #' @param references A tibble of cited references. If `NULL`, empty.
-#' @param concepts A tibble of concepts/keywords. If `NULL`, empty.
+#' @param concepts A tibble of concepts/keywords. If `NULL`, empty. Legacy
+#'   and common spellings in its `vocabulary` column (such as
+#'   `"keywords-author"`) are renamed to the names of
+#'   [sm_concept_vocabularies()], with a message. Values that name no known
+#'   vocabulary are kept as written and listed in the same message, each
+#'   time a corpus is built from them; name a vocabulary of your own
+#'   `"custom"`.
 #' @param embeddings A numeric matrix of work embeddings, or `NULL`.
 #' @param provenance A tibble tracking data lineage. If `NULL`, empty.
 #' @param screening A tibble of screening decisions. If `NULL`, empty.
@@ -70,7 +76,7 @@ sm_corpus <- function(works,
     institutions = institutions,
     sources = sources,
     references = references,
-    concepts = concepts,
+    concepts = .normalize_corpus_concepts(concepts),
     embeddings = embeddings,
     provenance = provenance,
     screening = screening,

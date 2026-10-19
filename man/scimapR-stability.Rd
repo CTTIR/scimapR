@@ -47,6 +47,14 @@ Free-text controlled columns are emitted as factors with exported level
 sets, so downstream filtering is reliable: see \code{\link[=sm_affiliation_signals]{sm_affiliation_signals()}}
 (\code{match_signal}), \code{\link[=sm_affiliation_methods]{sm_affiliation_methods()}} (\code{match_method}), and
 \code{\link[=sm_match_types]{sm_match_types()}} (coverage \code{match_type}).
+
+The \code{vocabulary} column of \code{corpus$concepts} is the exception: it stays
+character, so concept tables bind and hash as before, and its values are
+the names returned by \code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}}. Readers write these
+names, and \code{\link[=sm_corpus]{sm_corpus()}} and \code{\link[=sm_corpus_from_tables]{sm_corpus_from_tables()}} rename legacy
+spellings to them. \code{sm_concept_vocabularies(describe = TRUE)} returns a
+tibble with the factor columns \code{level} and \code{family} and a character
+\code{description}.
 }
 
 \concept{reference}

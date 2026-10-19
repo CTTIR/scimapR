@@ -58,6 +58,7 @@ test_that("sm_read_zotero builds concepts from manual and automatic tags", {
   expect_true("auto one" %in% corpus$concepts$concept_name)
   expect_true("manual-tags" %in% corpus$concepts$vocabulary)
   expect_true("automatic-tags" %in% corpus$concepts$vocabulary)
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
 
   expect_true("Nature Methods" %in% corpus$sources$display_name)
   expect_equal(corpus$provenance$source[1], "zotero")

@@ -86,8 +86,108 @@ test_that("custom stopwords are removed from free-text fields", {
 test_that("keywords field with no keyword-vocab concepts returns empty graph", {
   corpus <- sm_example_corpus(n_works = 30, n_authors = 10,
                               with_embeddings = FALSE, seed = 4)
-  # Example concepts use vocabulary "openalex", never "keyword".
-  g <- sm_network_coword(corpus, field = "keywords", min_freq = 1L)
+  # Example concepts are OpenAlex concepts only, neither author nor indexer
+  # keywords, so the default keyword network is empty, with a message.
+  expect_message(
+    g <- sm_network_coword(corpus, field = "keywords", min_freq = 1L),
+    class = "scimapR_coword_no_keywords"
+  )
   expect_s3_class(g, "tbl_graph")
   expect_equal(nrow(tibble::as_tibble(tidygraph::activate(g, "nodes"))), 0L)
+})
+
+# ---- keyword vocabularies ------------------------------------------------
+
+node_names <- function(g) {
+  tibble::as_tibble(tidygraph::activate(g, "nodes"))$name
+}
+
+terms_of <- function(corpus, vocabulary) {
+  concepts <- corpus$concepts
+  unique(tolower(concepts$concept_name[concepts$vocabulary %in% vocabulary]))
+}
+
+test_that("keywords field uses the author keywords by default", {
+  fix <- realuse_corpus()
+  expect_silent(g <- sm_network_coword(fix, field = "keywords",
+                                       min_freq = 3L))
+  nodes <- node_names(g)
+  expect_gt(length(nodes), 0L)
+  expect_true(all(nodes %in% terms_of(fix, "author-keywords")))
+  expect_true(all(c("orthohantavirus", "hemorrhage control",
+                    "exertional heat illness") %in% nodes))
+})
+
+test_that("vocabulary = 'indexer_keyword' builds a Keywords Plus network", {
+  fix <- realuse_corpus()
+  g <- sm_network_coword(fix, field = "keywords",
+                         vocabulary = "indexer_keyword", min_freq = 3L)
+  nodes <- node_names(g)
+  expect_gt(length(nodes), 0L)
+  expect_true(all(nodes %in% terms_of(fix, "keywords-plus")))
+  expect_false(any(nodes %in% terms_of(fix, "author-keywords")))
+
+  # The argument shares its name with the concepts column; a single
+  # vocabulary must select only its own rows.
+  g_plus <- sm_network_coword(fix, field = "keywords",
+                              vocabulary = "Keywords Plus", min_freq = 3L)
+  expect_setequal(node_names(g_plus), nodes)
+  g_both <- sm_network_coword(fix, field = "keywords",
+                              vocabulary = c("author_keyword", "keywords-plus"),
+                              min_freq = 3L)
+  expect_gt(length(node_names(g_both)), length(nodes))
+})
+
+test_that("keywords fall back to indexer keywords with a message", {
+  fix <- realuse_corpus()
+  fix$concepts <- fix$concepts[fix$concepts$vocabulary != "author-keywords", ]
+  expect_message(
+    g <- sm_network_coword(fix, field = "keywords", min_freq = 3L),
+    class = "scimapR_coword_keyword_fallback"
+  )
+  nodes <- node_names(g)
+  expect_gt(length(nodes), 0L)
+  expect_true(all(nodes %in% terms_of(fix, "keywords-plus")))
+})
+
+test_that("keywords stored under a legacy name are still found", {
+  fix <- realuse_corpus()
+  canonical <- node_names(sm_network_coword(fix, field = "keywords",
+                                            min_freq = 3L))
+  is_kw <- fix$concepts$vocabulary == "author-keywords"
+  fix$concepts$vocabulary[is_kw] <- "keyword"
+  legacy <- node_names(sm_network_coword(fix, field = "keywords",
+                                         min_freq = 3L))
+  expect_setequal(legacy, canonical)
+})
+
+test_that("vocabulary restricts the concepts field", {
+  fix <- realuse_corpus()
+  g <- sm_network_coword(fix, field = "concepts", vocabulary = "category",
+                         min_freq = 3L)
+  nodes <- node_names(g)
+  expect_gt(length(nodes), 0L)
+  expect_true(all(nodes %in% terms_of(fix, c("wos-category",
+                                             "wos-subject-category"))))
+  # NULL keeps every vocabulary, as before.
+  all_terms <- node_names(sm_network_coword(fix, field = "concepts",
+                                            min_freq = 3L))
+  expect_true(all(nodes %in% all_terms))
+  expect_true(any(terms_of(fix, "author-keywords") %in% all_terms))
+})
+
+test_that("unknown vocabularies give an error listing the vocabularies", {
+  fix <- realuse_corpus()
+  expect_error(
+    sm_network_coword(fix, field = "keywords", vocabulary = "nope"),
+    "sm_concept_vocabularies"
+  )
+  expect_error(
+    sm_network_coword(fix, field = "keywords", vocabulary = NA_character_),
+    class = "rlang_error"
+  )
+  expect_error(
+    sm_network_coword(fix, field = "title", vocabulary = "author_keyword"),
+    "vocabulary"
+  )
 })

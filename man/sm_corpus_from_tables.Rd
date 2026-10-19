@@ -24,7 +24,8 @@ schema.}
 
 \item{.coerce}{Logical (default \code{TRUE}); coerce supplied columns to the
 schema's types. When \code{FALSE}, columns are used as-is (missing columns are
-still filled with typed \code{NA}).}
+still filled with typed \code{NA}, and concept vocabularies are still
+renamed).}
 
 \item{metadata}{Optional list of corpus-level metadata.}
 
@@ -39,7 +40,12 @@ list of data frames -- making non-OpenAlex/WoS tabular sources first-class
 and side-stepping format-specific parsers. Required columns are validated
 against the \code{sm_corpus} schema, column types are coerced (with informative
 messages), absent optional tables are filled with correctly-typed 0-row
-tibbles, and the result is validated before being returned.
+tibbles, and the result is validated before being returned. Legacy and
+common spellings of concept vocabularies (such as \code{"keywords-author"} or
+\code{"Author Keywords"}) are renamed to the names of
+\code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}}, with a message. Values that name no known
+vocabulary are kept as written and listed in the same message, each time
+a corpus is built from them; name a vocabulary of your own \code{"custom"}.
 
 This is the recommended ingestion path for arbitrary tabular sources.
 }
@@ -70,6 +76,7 @@ Other corpus:
 \code{\link[=is_sm_corpus]{is_sm_corpus()}},
 \code{\link[=sm_bind_corpora]{sm_bind_corpora()}},
 \code{\link[=sm_build_corpus]{sm_build_corpus()}},
+\code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}},
 \code{\link[=sm_corpus]{sm_corpus()}},
 \code{\link[=sm_dedupe]{sm_dedupe()}},
 \code{\link[=sm_materialise]{sm_materialise()}},

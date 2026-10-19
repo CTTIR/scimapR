@@ -54,6 +54,7 @@ test_that("sm_read_wos parses keywords, keywords-plus and subject categories", {
     "SO SOME JOURNAL",
     "DE keyword one; keyword two",
     "ID PLUS ONE; PLUS TWO",
+    "WC Oncology; Genetics & Heredity",
     "SC Oncology; Genetics",
     "DI 10.1/ABC",
     "PY 2021",
@@ -70,6 +71,58 @@ test_that("sm_read_wos parses keywords, keywords-plus and subject categories", {
   expect_true("author-keywords" %in% corpus$concepts$vocabulary)
   expect_true("keywords-plus" %in% corpus$concepts$vocabulary)
   expect_true("wos-subject-category" %in% corpus$concepts$vocabulary)
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
+
+  # WC holds the Web of Science categories, SC the research areas.
+  concepts <- corpus$concepts
+  expect_identical(concepts$concept_name[concepts$vocabulary == "wos-category"],
+                   c("Oncology", "Genetics & Heredity"))
+  expect_identical(
+    concepts$concept_name[concepts$vocabulary == "wos-subject-category"],
+    c("Oncology", "Genetics")
+  )
+})
+
+test_that("sm_read_wos reads WC categories across continuation lines", {
+  path <- withr::local_tempfile(fileext = ".txt")
+  writeLines(c(
+    "PT J",
+    "AU Smith, J",
+    "TI A Long Category List",
+    "WC Public, Environmental & Occupational Health; Infectious",
+    "   Diseases; Microbiology",
+    "PY 2022",
+    "UT WOS:000000000000003",
+    "ER",
+    "",
+    "EF"
+  ), path)
+  # Readers write canonical names and stay silent.
+  expect_silent(corpus <- sm_read_wos(path, verbose = FALSE))
+  expect_identical(corpus$concepts$vocabulary, rep("wos-category", 3L))
+  expect_identical(corpus$concepts$concept_name,
+                   c("Public, Environmental & Occupational Health",
+                     "Infectious Diseases", "Microbiology"))
+})
+
+test_that("sm_read_wos reads the WC categories of the real-use twin", {
+  fix <- realuse_corpus()
+  twin <- sm_read_wos(realuse_wos_sample(), verbose = FALSE)
+  expect_true(all(twin$concepts$vocabulary %in% sm_concept_vocabularies()))
+  for (vocab in c("author-keywords", "keywords-plus", "wos-category",
+                  "wos-subject-category")) {
+    for (i in seq_len(nrow(twin$works))) {
+      fix_id <- fix$works$work_id[match(twin$works$doi[i], fix$works$doi)]
+      expect_identical(
+        twin$concepts$concept_name[twin$concepts$work_id ==
+                                     twin$works$work_id[i] &
+                                     twin$concepts$vocabulary == vocab],
+        fix$concepts$concept_name[fix$concepts$work_id == fix_id &
+                                    fix$concepts$vocabulary == vocab],
+        info = paste(vocab, twin$works$doi[i])
+      )
+    }
+  }
 })
 
 test_that("sm_read_wos extracts cited references with DOIs", {

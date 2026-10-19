@@ -82,6 +82,7 @@ test_that("sm_read_dimensions extracts keyword + MeSH concepts", {
                   c("spatial", "cancer", "Neoplasms", "Genes"))
   expect_setequal(unique(corpus$concepts$vocabulary),
                   c("author-keywords", "mesh"))
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
 })
 
 test_that("sm_read_dimensions returns an empty corpus for header-only files", {

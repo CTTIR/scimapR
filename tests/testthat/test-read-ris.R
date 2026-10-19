@@ -96,6 +96,7 @@ test_that("sm_read_ris parses keywords into concepts and normalizes DOI case", {
   expect_equal(corpus$works$doi[1], "10.1000/xyz")
   expect_setequal(corpus$concepts$concept_name, c("alpha", "beta"))
   expect_true(all(corpus$concepts$vocabulary == "author-keywords"))
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
 })
 
 test_that("sm_read_ris errors on missing file", {

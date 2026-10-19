@@ -116,7 +116,9 @@
 #' @details
 #' Missing keys produce a `cli::cli_warn` and skip that source rather than
 #' erroring. Internally, row-binds use a type-safe helper so a `NULL`/empty
-#' source never corrupts a column's type.
+#' source never corrupts a column's type. After a merge into `concepts`,
+#' legacy spellings in its `vocabulary` column are renamed to the names of
+#' [sm_concept_vocabularies()], without a message.
 #'
 #' @family corpus
 #' @seealso [sm_corpus_from_tables()]
@@ -163,6 +165,10 @@ sm_materialise <- function(corpus, sources, .by = NULL, overwrite = FALSE,
     corpus[[tbl]] <- .sm_merge_enrichment(corpus[[tbl]], new, key, tbl,
                                           overwrite, call = call)
     added <- ncol(corpus[[tbl]]) - before
+    if (tbl == "concepts" && "vocabulary" %in% names(corpus$concepts)) {
+      corpus$concepts$vocabulary <-
+        .normalize_concept_vocab(corpus$concepts$vocabulary)
+    }
     cli::cli_inform(c(
       "v" = "Materialised {nrow(new)} enrichment row{?s} into {.field {tbl}} (+{added} column{?s})."
     ))

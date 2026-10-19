@@ -42,6 +42,14 @@
 #' (`match_signal`), [sm_affiliation_methods()] (`match_method`), and
 #' [sm_match_types()] (coverage `match_type`).
 #'
+#' The `vocabulary` column of `corpus$concepts` is the exception: it stays
+#' character, so concept tables bind and hash as before, and its values are
+#' the names returned by [sm_concept_vocabularies()]. Readers write these
+#' names, and [sm_corpus()] and [sm_corpus_from_tables()] rename legacy
+#' spellings to them. `sm_concept_vocabularies(describe = TRUE)` returns a
+#' tibble with the factor columns `level` and `family` and a character
+#' `description`.
+#'
 #' @name scimapR-stability
 #' @family reference
 #' @keywords internal

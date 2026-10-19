@@ -19,6 +19,15 @@ Converts an \code{sm_corpus} to the data frame format used by
 \code{bibliometrix::biblioAnalysis()}. This enables using bibliometrix's
 analysis functions on corpora built with scimapR.
 }
+\details{
+\code{DE} holds the author keywords of each work: the concepts of the
+\code{author_keyword} family of \code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}} (\code{author-keywords},
+\code{manual-tags}), separated by \verb{;}. A work without author keywords gets its
+OpenAlex concepts (\code{openalex}) instead, so corpora built from OpenAlex
+keep their \code{DE}; other vocabularies (Keywords Plus, MeSH, categories,
+arXiv and bioRxiv subjects) never enter \code{DE}. A work with neither has
+\code{DE = NA}.
+}
 \examples{
 \dontshow{if (requireNamespace("bibliometrix", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 corpus <- sm_example_corpus(n_works = 10, n_authors = 5)

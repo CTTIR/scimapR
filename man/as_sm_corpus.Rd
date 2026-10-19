@@ -42,6 +42,7 @@ Other corpus:
 \code{\link[=is_sm_corpus]{is_sm_corpus()}},
 \code{\link[=sm_bind_corpora]{sm_bind_corpora()}},
 \code{\link[=sm_build_corpus]{sm_build_corpus()}},
+\code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}},
 \code{\link[=sm_corpus]{sm_corpus()}},
 \code{\link[=sm_corpus_from_tables]{sm_corpus_from_tables()}},
 \code{\link[=sm_dedupe]{sm_dedupe()}},

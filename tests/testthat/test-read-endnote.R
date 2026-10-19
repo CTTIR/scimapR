@@ -78,6 +78,7 @@ test_that("sm_read_endnote extracts journals and keywords", {
   expect_true("Nature Methods" %in% corpus$sources$display_name)
   expect_true("deep learning" %in% corpus$concepts$concept_name)
   expect_true(all(corpus$concepts$vocabulary == "author-keywords"))
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
   expect_equal(corpus$metadata$reader, "sm_read_endnote")
 })
 

@@ -68,6 +68,7 @@ test_that("sm_fetch_arxiv parses an Atom feed into an sm_corpus", {
   # categories -> concepts
   expect_true(all(c("physics.gen-ph", "math.PR") %in% corpus$concepts$concept_id))
   expect_true(all(corpus$concepts$vocabulary == "arxiv"))
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
   # provenance
   expect_true(all(corpus$provenance$source == "arxiv"))
 })

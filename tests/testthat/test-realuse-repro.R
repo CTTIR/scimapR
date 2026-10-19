@@ -35,7 +35,6 @@ test_that("H1: years without a finite outcome are dropped, not fatal", {
 })
 
 test_that("H2: keyword consumers read the vocabularies readers write", {
-  skip("H2 pending - prompt A03")
   # Intent: the fixture's concepts use the vocabularies sm_read_wos()
   # writes ("author-keywords", "keywords-plus", ...). The bibliometrix
   # export fills DE from the author keywords, the keyword co-word network

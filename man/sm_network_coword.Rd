@@ -10,6 +10,7 @@ sm_network_coword(
   ngram = 1L,
   min_freq = 5L,
   stopwords = NULL,
+  vocabulary = NULL,
   call = rlang::caller_env()
 )
 }
@@ -30,6 +31,14 @@ included. Defaults to \code{5L}.}
 tokenising free text. Combined with \link[tidytext:stop_words]{tidytext::stop_words}. Set to
 \code{NULL} (default) for no additional stopwords.}
 
+\item{vocabulary}{For \code{field = "keywords"} or \code{"concepts"}, the concept
+vocabularies to take terms from: names of vocabularies or of families
+of \code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}}, such as \code{"author-keywords"} or
+\code{"indexer_keyword"}. \code{NULL} (default) means the author keywords for
+\code{"keywords"} (see Details) and every vocabulary for \code{"concepts"}. Must
+be \code{NULL} for \code{"title"} and \code{"abstract"}, whose terms come from the
+text.}
+
 \item{call}{Caller environment for error reporting.}
 }
 \value{
@@ -44,18 +53,44 @@ the number of works in which both terms appear.
 }
 \details{
 When \code{field = "concepts"}, terms come from the \code{concept_name} column in
-\code{corpus$concepts} (no tokenisation needed).
+\code{corpus$concepts} (no tokenisation needed), of every vocabulary or of
+those named in \code{vocabulary}.
 
-When \code{field} is \code{"title"}, \code{"abstract"}, or \code{"keywords"}, the text is
-tokenised with \code{\link[tidytext:unnest_tokens]{tidytext::unnest_tokens()}} using the chosen \code{ngram} size,
-stopwords are removed, and terms below \code{min_freq} are dropped.
+When \code{field = "keywords"}, terms are whole keywords from
+\code{corpus$concepts}, not tokenised. By default these are the author
+keywords (the \code{author_keyword} family: \code{author-keywords},
+\code{manual-tags}); a corpus without any falls back to the indexer keywords
+(the \code{indexer_keyword} family: Keywords Plus, Scopus index keywords,
+Zotero automatic tags and MeSH) with a message, and a corpus with
+neither gives an empty network with a message. The fallback applies to
+the whole corpus, not per work.
 
-Empty input returns an empty undirected \code{tbl_graph}.
+When \code{field} is \code{"title"} or \code{"abstract"}, the text is tokenised with
+\code{\link[tidytext:unnest_tokens]{tidytext::unnest_tokens()}} using the chosen \code{ngram} size and stopwords
+are removed.
+
+Terms are lower-cased, and terms below \code{min_freq} are dropped. Empty
+input returns an empty undirected \code{tbl_graph}.
 }
 \examples{
 corpus <- sm_example_corpus()
 g <- sm_network_coword(corpus, field = "concepts", min_freq = 5L)
 g
+
+# Keyword networks from a Web of Science file
+path <- tempfile(fileext = ".txt")
+writeLines(c(
+  "PT J", "AU Doe, J", "TI First work",
+  "DE heat illness; recruits; cooling", "ID HYPERTHERMIA; EXERCISE",
+  "PY 2021", "UT WOS:000000000000001", "ER",
+  "PT J", "AU Roe, R", "TI Second work",
+  "DE heat illness; recruits", "ID HYPERTHERMIA; EXERCISE",
+  "PY 2022", "UT WOS:000000000000002", "ER", "EF"
+), path)
+wos <- sm_read_wos(path, verbose = FALSE)
+sm_network_coword(wos, field = "keywords", min_freq = 2L)
+sm_network_coword(wos, field = "keywords", vocabulary = "keywords-plus",
+                  min_freq = 2L)
 }
 \seealso{
 Other networks:
