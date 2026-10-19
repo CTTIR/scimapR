@@ -25,26 +25,31 @@ sm_its(
 \arguments{
 \item{corpus}{An \code{sm_corpus}.}
 
-\item{intervention_year}{Integer year at which the intervention takes effect.}
+\item{intervention_year}{Year at which the intervention takes effect: one
+whole number such as \code{2020}, or text holding one.}
 
 \item{outcome}{One of \code{"count"}, \code{"share_q1"}, \code{"cnci"}, \code{"leadership"}.
 The expected source columns are:
 \describe{
 \item{\code{"count"}}{Works per year (uses \code{works$year}).}
-\item{\code{"share_q1"}}{Share of Q1-journal works; needs a journal-quartile
-column on \code{works} (\code{quartile}, \code{jif_quartile}, or \code{sjr_quartile}).}
+\item{\code{"share_q1"}}{Share of Q1-journal works among the works with a
+quartile; needs a journal-quartile column on \code{works} (\code{quartile},
+\code{jif_quartile}, or \code{sjr_quartile}).}
 \item{\code{"cnci"}}{Mean field-normalised citation impact per year. Impact is
 resolved from the first populated of \code{works$cnci}, a \code{corpus$metrics}
-table (\code{cnci}/\code{fnci}/\code{value} keyed by \code{work_id}), or \code{works$cited_by_count}
-(from which FNCI is derived via \code{\link[=sm_metric_fnci]{sm_metric_fnci()}}). If none is
-populated, an informative error names the columns inspected.}
+table (\code{cnci}/\code{fnci}/\code{value} keyed by \code{work_id}), or
+\code{works$cited_by_count} (from which FNCI is derived via
+\code{\link[=sm_metric_fnci]{sm_metric_fnci()}}). If none is populated, an informative error names
+the columns inspected. Works without a finite impact value are left
+out of the yearly mean.}
 \item{\code{"leadership"}}{Share of works with a corresponding/leadership
 author (uses \code{authorships$is_corresponding}).}
 }}
 
 \item{family}{Optional GLM family (a \code{family} object, generator function, or
 name). Defaults to Poisson for \code{"count"} and Gaussian otherwise; document
-your choice when overriding.}
+your choice when overriding. A Poisson fit warns when the counts are
+overdispersed; \code{"quasipoisson"} then scales the standard errors.}
 
 \item{lag}{Citation-maturity lag in years (default \code{2}). For citation-based
 outcomes (\code{"cnci"}), the most recent \code{lag} years are citation-immature and
@@ -63,7 +68,10 @@ An \code{sm_its} S3 object with components: \code{model} (the fitted \code{glm})
 \code{coefficients} (tidy tibble: \code{term}, \code{estimate}, \code{std.error}, \code{conf.low},
 \code{conf.high}, \code{statistic}, \code{p.value}), \code{series} (tibble: \code{year},
 \code{observed}, \code{fitted}, \code{counterfactual}), and metadata (\code{outcome},
-\code{intervention_year}, \code{family}, \code{lag}, \code{provisional_years}).
+\code{intervention_year}, \code{family}, \code{lag}, \code{provisional_years},
+\code{dropped_years}). \code{dropped_years} (integer) lists the years left out for
+lack of a usable value, \code{provisional_years} (integer) the
+citation-immature years excluded after them.
 
 \code{print} returns \code{x} invisibly.
 
@@ -76,6 +84,32 @@ A turnkey interrupted time series (ITS): aggregates the chosen \code{outcome} to
 yearly series, fits a segmented regression with a level shift and a slope
 change at \code{intervention_year}, and derives the counterfactual (the
 pre-intervention trend projected forward).
+}
+\details{
+The yearly series is built first. For \code{"count"} it runs over every year
+from the first to the last publication year of the corpus, and a year
+without works counts 0, so filter the corpus to the analysis window
+beforehand. For the other outcomes a year with works but no usable value
+is dropped with a warning and listed in \code{dropped_years}: no work of the
+year has a journal quartile (\code{"share_q1"}) or a finite impact value
+(\code{"cnci"}). For \code{"cnci"} the citation-immature years are excluded after
+that and listed in \code{provisional_years}, so no year is in both.
+
+At least 4 years must remain after these exclusions, with 2 or more before
+\code{intervention_year} and 2 or more from it on, so that the pre-trend, the
+level change and the slope change can all be estimated; otherwise
+\code{sm_its()} aborts. With only 4 years the 4 coefficients fit the series
+exactly: a family that estimates its dispersion (Gaussian, quasi
+families) then has no residual degrees of freedom, so its standard
+errors, intervals and p-values are \code{NaN} and \code{sm_its()} warns. Families
+that fix the dispersion, such as the Poisson default for \code{"count"}, keep
+their standard errors.
+
+The confidence intervals are Wald intervals on the reference distribution
+of the p-values: t with the residual degrees of freedom when the family
+estimates its dispersion (Gaussian and quasi families), normal when the
+family fixes it (Poisson, binomial). The standard errors treat the yearly
+values as independent; no correction for autocorrelation is applied.
 }
 \examples{
 corpus <- sm_example_corpus(n_works = 200, seed = 1)
