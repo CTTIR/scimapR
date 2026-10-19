@@ -42,7 +42,8 @@ AU or AF (authors), TI (title), SO (source), SN and EI (ISSN and
 electronic ISSN), J9 and JI (source abbreviations), AB (abstract),
 DI (DOI), PY (year), DT (document type), LA (language), TC (times
 cited), UT (accession number, kept in \code{provenance}), PM (PubMed ID),
-C1 (addresses), CR (cited references), DE (author keywords),
+C1 (addresses), RP (corresponding authors), CR (cited references),
+DE (author keywords),
 ID (Keywords Plus), WC (Web of Science categories) and SC (research
 areas). Other tags are not read.
 
@@ -58,17 +59,36 @@ the case of the file.
 Author names are stored in the AU form, such as "J Smith" for
 "Smith, J", and \code{authors$display_name_alternatives} keeps the name as
 the file writes it, which tells a surname of several words such as
-"Garcia Lopez" from the initials. The native parser gives each author
-one authorship row, with the first C1 address whose bracket contains the
-author's surname. Both parsers flag the first author of each work as
-corresponding.
+"Garcia Lopez" from the initials.
+
+Both parsers write one authorship row per author and address. The names
+in the brackets of C1 link authors to addresses: each name belongs to
+the author with the same full name (from AF), else to the one with the
+same surname and initials, else to the one with the same surname and
+first initial, so a short surname such as "He" never takes the address
+of "Chen". An address that C1 lists without names, as older records do,
+belongs to every author of the record, so each of them gets a row for
+it. An address whose names designate none of the authors belongs to the
+author of a single-author record and else to nobody.
+
+The corresponding authors come from RP, which names them before
+"(corresponding author)" ("(reprint author)" in older files), in any
+case, with each name and its address on a line of its own or on one
+line. The authors these names designate, matched like the names of C1,
+get \code{is_corresponding = TRUE} on all their rows and the other authors
+\code{FALSE}. When a name fits several authors equally (namesakes with the
+same surname and initials), the one whose C1 addresses include the
+address RP gives with the name is meant; if that does not tell them
+apart, they get \code{NA}. A record without RP, or whose RP designates none
+of its authors for certain, gets \code{NA} (unknown) for all its authors;
+the native parser reports the number of such records when
+\code{verbose = TRUE}.
 
 The \code{"bibliometrix"} engine (also used by \code{"auto"} when bibliometrix can
 read the file) converts the data frame of \code{bibliometrix::convert2df()}
 as \code{\link[=as_sm_corpus]{as_sm_corpus()}} does: it reads the same tags into \code{sources},
 \code{references} and \code{concepts}, tells authors apart by the full names of AF
-and writes one authorship row per author and address, linked through
-the names in the brackets of C1.
+and links C1 and RP to the authors by the same rule.
 }
 
 \examples{

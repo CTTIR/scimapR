@@ -113,3 +113,32 @@ test_that("sm_read_dimensions emits a progress message only when verbose", {
   expect_message(sm_read_dimensions(path, verbose = TRUE), "Dimensions")
   expect_silent(sm_read_dimensions(path, verbose = FALSE))
 })
+
+test_that("sm_read_dimensions reads the Corresponding Authors column", {
+  # the bundled file has no such column: every author is unknown (NA)
+  a <- sm_read_dimensions(.dimensions_fixture(), verbose = FALSE)$authorships
+  expect_true(all(is.na(a$is_corresponding)))
+
+  path <- withr::local_tempfile(fileext = ".csv")
+  writeLines(c(
+    "Title,DOI,Authors,Corresponding Authors,PubYear",
+    paste0("First,10.9999/dim.1,\"Chen, Wei; Smith, Sarah; Tanaka, Yuki\",",
+           "\"Sarah Smith (Univ of Westhaven)\",2023"),
+    "Second,10.9999/dim.2,\"Patel, Priya; Mueller, Anna\",,2022",
+    "Third,10.9999/dim.3,\"Zhang, Wei; Johnson, James\",\"Doe, Jane\",2024",
+    paste0("Fourth,10.9999/dim.4,\"Wang, Yan; Li, Xin; Wang, Yu\",",
+           "\"Wang, Yu\",2024"),
+    paste0("Fifth,10.9999/dim.5,\"Wang, Yan; Li, Xin; Wang, Yu\",",
+           "\"Wang, Y\",2024")
+  ), path)
+  corpus <- sm_read_dimensions(path, verbose = FALSE)
+  a <- corpus$authorships
+  w <- match(a$work_id, corpus$works$work_id)
+  expect_identical(a$is_corresponding[w == 1L], c(FALSE, TRUE, FALSE))
+  # no corresponding author, or one who is not an author of the record
+  expect_identical(a$is_corresponding[w %in% 2:3], rep(NA, 4))
+  # a full name tells namesakes apart; "Wang, Y" does not, so the work
+  # stays unknown instead of flagging the first Wang
+  expect_identical(a$is_corresponding[w == 4L], c(FALSE, FALSE, TRUE))
+  expect_identical(a$is_corresponding[w == 5L], rep(NA, 3))
+})

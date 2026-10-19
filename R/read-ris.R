@@ -287,7 +287,7 @@ sm_read_ris <- function(path,
       work_id = work_ids[i],
       author_name = names,
       position = seq_along(names),
-      is_corresponding = c(TRUE, rep(FALSE, max(0L, length(names) - 1L)))
+      is_corresponding = .corresponding_flags(length(names))
     )
   }
 

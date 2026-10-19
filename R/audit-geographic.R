@@ -54,7 +54,8 @@ sm_audit_geographic <- function(corpus,
   if (weight == "first-author") {
     aships <- dplyr::filter(aships, .data$position == 1L)
   } else if (weight == "corresponding") {
-    aships <- dplyr::filter(aships, isTRUE(.data$is_corresponding))
+    # unknown (NA) corresponding authors are left out with the others
+    aships <- dplyr::filter(aships, .data$is_corresponding %in% TRUE)
   }
 
   # Determine grouping column

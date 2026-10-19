@@ -115,3 +115,23 @@ test_that("sm_fetch_orcid aborts on request failure", {
     "ORCID API request failed"
   )
 })
+
+test_that("sm_fetch_orcid leaves position and corresponding author unknown", {
+  # ORCID lists the holder's works, not where the holder stands among
+  # their authors; before, every work had the holder first and
+  # corresponding
+  local_mocked_bindings(
+    req_perform = function(req, ...) {
+      structure(list(), class = "httr2_response")
+    },
+    resp_body_json = function(resp, ...) {
+      .orcid_body(list(.orcid_group(),
+                       .orcid_group(doi = "10.1234/other", put_code = 7L)))
+    },
+    .package = "httr2"
+  )
+  corpus <- sm_fetch_orcid("0000-0001-8006-9742", verbose = FALSE)
+  a <- corpus$authorships
+  expect_identical(a$position, c(NA_integer_, NA_integer_))
+  expect_identical(a$is_corresponding, c(NA, NA))
+})

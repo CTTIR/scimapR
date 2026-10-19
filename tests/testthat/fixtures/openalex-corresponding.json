@@ -1,0 +1,75 @@
+[
+  {
+    "id": "https://openalex.org/W9990000001",
+    "doi": "https://doi.org/10.9999/oa.corr.1",
+    "title": "The second author is corresponding",
+    "publication_year": 2023,
+    "type": "article",
+    "authorships": [
+      {"author_position": "first",
+       "author": {"id": "https://openalex.org/A9990000001", "display_name": "Mira Feldkamp"},
+       "institutions": [{"id": "https://openalex.org/I9990000001", "display_name": "Univ of Westhaven", "country_code": "DE"}],
+       "is_corresponding": false},
+      {"author_position": "middle",
+       "author": {"id": "https://openalex.org/A9990000002", "display_name": "Tomas Lindqvist"},
+       "institutions": [{"id": "https://openalex.org/I9990000002", "display_name": "Northbay Institute", "country_code": "SE"}],
+       "is_corresponding": true},
+      {"author_position": "last",
+       "author": {"id": "https://openalex.org/A9990000003", "display_name": "Ines Carvalho"},
+       "institutions": [],
+       "is_corresponding": false}
+    ],
+    "corresponding_author_ids": ["https://openalex.org/A9990000002"]
+  },
+  {
+    "id": "https://openalex.org/W9990000002",
+    "doi": "https://doi.org/10.9999/oa.corr.2",
+    "title": "Every author is marked false",
+    "publication_year": 2023,
+    "type": "article",
+    "authorships": [
+      {"author_position": "first",
+       "author": {"id": "https://openalex.org/A9990000001", "display_name": "Mira Feldkamp"},
+       "institutions": [],
+       "is_corresponding": false},
+      {"author_position": "last",
+       "author": {"id": "https://openalex.org/A9990000003", "display_name": "Ines Carvalho"},
+       "institutions": [],
+       "is_corresponding": false}
+    ],
+    "corresponding_author_ids": []
+  },
+  {
+    "id": "https://openalex.org/W9990000003",
+    "doi": "https://doi.org/10.9999/oa.corr.3",
+    "title": "No flag at all",
+    "publication_year": 2024,
+    "type": "article",
+    "authorships": [
+      {"author_position": "first",
+       "author": {"id": "https://openalex.org/A9990000002", "display_name": "Tomas Lindqvist"},
+       "institutions": []},
+      {"author_position": "last",
+       "author": {"id": "https://openalex.org/A9990000003", "display_name": "Ines Carvalho"},
+       "institutions": []}
+    ]
+  },
+  {
+    "id": "https://openalex.org/W9990000004",
+    "doi": "https://doi.org/10.9999/oa.corr.4",
+    "title": "Listed only among the corresponding author ids",
+    "publication_year": 2024,
+    "type": "article",
+    "authorships": [
+      {"author_position": "first",
+       "author": {"id": "https://openalex.org/A9990000001", "display_name": "Mira Feldkamp"},
+       "institutions": [],
+       "is_corresponding": false},
+      {"author_position": "last",
+       "author": {"id": "https://openalex.org/A9990000003", "display_name": "Ines Carvalho"},
+       "institutions": [],
+       "is_corresponding": false}
+    ],
+    "corresponding_author_ids": ["https://openalex.org/A9990000003"]
+  }
+]

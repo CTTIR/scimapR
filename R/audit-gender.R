@@ -27,7 +27,13 @@
 #' \describe{
 #'   \item{distribution}{Tibble with columns `inferred_gender`, `count`,
 #'     `pct`.}
-#'   \item{by_position}{Tibble breaking down gender by authorship position.}
+#'   \item{by_position}{Tibble breaking down gender by authorship position:
+#'     `position_type` (`"first"`, `"corresponding"` for a corresponding
+#'     author who is not first, else `"middle/last"`), `inferred_gender`,
+#'     `count` and `pct`. Each work and author counts once, however many
+#'     address rows the author has; corresponding authors are those with
+#'     `authorships$is_corresponding = TRUE` (`NA` counts as not
+#'     corresponding).}
 #'   \item{coverage}{Proportion of authors with an inferred gender.}
 #'   \item{method}{The method used.}
 #'   \item{confidence_summary}{Summary statistics for gender confidence
@@ -169,12 +175,23 @@ sm_audit_gender <- function(corpus,
     ))
   }
 
-  # Label positions
-  aships <- authorships %>%
+  # One row per authorship (work and author), so an author with several
+  # address rows counts once; then label positions
+  aships <- authorships |>
+    dplyr::group_by(.data$work_id, .data$author_id) |>
+    dplyr::summarise(
+      position = if (all(is.na(.data$position))) {
+        NA_integer_
+      } else {
+        as.integer(min(.data$position, na.rm = TRUE))
+      },
+      is_corresponding = any(.data$is_corresponding %in% TRUE),
+      .groups = "drop"
+    ) |>
     dplyr::mutate(
       position_type = dplyr::case_when(
         .data$position == 1L ~ "first",
-        isTRUE(.data$is_corresponding) ~ "corresponding",
+        .data$is_corresponding ~ "corresponding",
         TRUE ~ "middle/last"
       )
     )

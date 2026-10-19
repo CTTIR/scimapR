@@ -506,3 +506,391 @@ test_that("sm_synth passes on the small-cell FNCI message once", {
     1L
   )
 })
+
+# ---- leadership: focal institutions and lead roles ---------------------------
+
+lead_unit <- "Armed Forces Hospital Northtown"
+lead_control <- "Federal Armed Forces Institute of Microbiology"
+
+# A corpus by hand: per work its year, and per authorship row the work,
+# author, position, corresponding flag and institution label
+lead_corpus <- function(rows) {
+  works <- unique(rows[c("work_id", "year")])
+  sm_corpus(
+    works = tibble::as_tibble(works),
+    authors = tibble::tibble(author_id = unique(rows$author_id),
+                             orcid = NA_character_,
+                             display_name = unique(rows$author_id)),
+    authorships = tibble::tibble(
+      work_id = rows$work_id, author_id = rows$author_id,
+      position = rows$position, is_corresponding = rows$corr,
+      institution_id = rows$institution_id %||% NA_character_,
+      raw_affiliation = NA_character_, country_code = NA_character_,
+      institution_match = rows$label
+    )
+  )
+}
+
+test_that("the default leadership series equals the earlier formula", {
+  # Every fixture work has a known corresponding author, so the default
+  # series is unchanged: per year the share of works with a flagged
+  # author, over all works (works without authorships counted as not led).
+  fix <- realuse_corpus()
+  a <- fix$authorships
+  has <- tapply(a$is_corresponding %in% TRUE, a$work_id, any)
+  has <- unname(has[fix$works$work_id])
+  has[is.na(has)] <- FALSE
+  old_value <- tapply(has, fix$works$year, mean)
+  old_n <- tapply(has, fix$works$year, length)
+  res <- .sm_yearly_outcome(fix, "leadership")
+  expect_identical(res$series$year, as.integer(names(old_value)))
+  expect_equal(res$series$value, as.vector(old_value))
+  expect_identical(res$series$n_works, as.vector(old_n))
+  expect_identical(res$dropped_years, integer())
+  its <- sm_its(fix, 2021, "leadership")
+  expect_equal(its$series$observed, as.vector(old_value))
+})
+
+test_that("works with an unknown corresponding author leave the denominator", {
+  fix <- realuse_corpus()
+  unknown <- fix$works$work_id[fix$works$year == 2020L][1:5]
+  fix$authorships$is_corresponding[fix$authorships$work_id %in% unknown] <- NA
+  n_2020 <- sum(fix$works$year == 2020L)
+  res <- .sm_yearly_outcome(fix, "leadership")$series
+  expect_identical(res$n_works[res$year == 2020L], n_2020 - 5L)
+  expect_identical(res$value[res$year == 2020L], 1)
+  # with a focal institution as well, and in each DiD series
+  m <- suppressMessages(sm_affiliation_match(fix, realuse_dict()))
+  res <- .sm_yearly_outcome(m, "leadership", institutions = lead_unit)$series
+  expect_identical(res$n_works[res$year == 2020L], n_2020 - 5L)
+  did <- sm_did(m, lead_unit, lead_control, 2021, "leadership")
+  a <- m$authorships
+  group <- unique(a$work_id[a$institution_match %in% lead_unit])
+  known <- setdiff(group, unknown)
+  n_known <- table(m$works$year[m$works$work_id %in% known])
+  treated <- did$series[did$series$group == "treated", ]
+  expect_identical(treated$n_works, as.vector(n_known))
+  # any_lead keeps them: an unknown corresponding author does not lead
+  res <- .sm_yearly_outcome(m, "leadership", institutions = lead_unit,
+                            lead_role = "any_lead")$series
+  expect_identical(res$n_works[res$year == 2020L], n_2020)
+})
+
+test_that("a year without a known corresponding author is dropped", {
+  fix <- realuse_corpus()
+  y2017 <- fix$works$work_id[fix$works$year == 2017L]
+  fix$authorships$is_corresponding[fix$authorships$work_id %in% y2017] <- NA
+  expect_warning(its <- sm_its(fix, 2021, "leadership"), "2017",
+                 class = "scimapR_dropped_years")
+  expect_identical(its$dropped_years, 2017L)
+  expect_false(2017L %in% its$series$year)
+})
+
+test_that("leadership aborts when no work has a known lead", {
+  # as for corpora from readers without corresponding-author data, instead
+  # of dropping every year and reporting too few yearly observations
+  m <- realuse_matched()
+  m$authorships$is_corresponding <- NA
+  expect_error(sm_its(m, 2021, "leadership"), "lead_role = \"first\"",
+               class = "scimapR_leadership_unknown")
+  expect_error(sm_its(m, 2021, "leadership", institutions = lead_unit),
+               class = "scimapR_leadership_unknown")
+  expect_error(sm_did(m, lead_unit, lead_control, 2021, "leadership"),
+               class = "scimapR_leadership_unknown")
+  # the position roles still know who leads
+  its <- sm_its(m, 2021, "leadership", institutions = lead_unit,
+                lead_role = "first")
+  expect_s3_class(its, "sm_its")
+  m$authorships$position <- NA_integer_
+  expect_error(sm_its(m, 2021, "leadership", institutions = lead_unit,
+                      lead_role = "first"),
+               "known author position", class = "scimapR_leadership_unknown")
+})
+
+test_that("leadership counts the works led from the focal institution", {
+  # hand computation on the matched fixture: per year, the works with an
+  # authorship row in the role at the focal unit, over all works
+  m <- realuse_matched()
+  a <- m$authorships
+  at_unit <- a$institution_match %in% lead_unit
+  first <- a$position == stats::ave(a$position, a$work_id, FUN = min)
+  last <- a$position == stats::ave(a$position, a$work_id, FUN = max)
+  rows <- list(corresponding = a$is_corresponding, first = first,
+               last = last, first_or_last = first | last,
+               any_lead = first | last | a$is_corresponding)
+  value <- list()
+  for (role in names(rows)) {
+    led <- unique(a$work_id[rows[[role]] & at_unit])
+    hand <- tapply(m$works$work_id %in% led, m$works$year, mean)
+    res <- .sm_yearly_outcome(m, "leadership", institutions = lead_unit,
+                              lead_role = role)$series
+    expect_equal(res$value, as.vector(hand), info = role)
+    expect_identical(res$n_works, as.vector(table(m$works$year)),
+                     info = role)
+    value[[role]] <- res$value
+  }
+  expect_true(all(value$first <= value$first_or_last))
+  expect_true(all(value$last <= value$first_or_last))
+  expect_true(all(value$first_or_last <= value$any_lead))
+  expect_true(all(value$corresponding <= value$any_lead))
+})
+
+test_that("an author leads from any of their affiliation rows", {
+  # W1: the first author has a focal and another row; W2: the second,
+  # corresponding author is focal
+  rows <- data.frame(
+    work_id = c("W1", "W1", "W1", "W2", "W2"), year = 2020L,
+    author_id = c("A1", "A1", "A2", "A1", "A2"),
+    position = c(1L, 1L, 2L, 1L, 2L),
+    corr = c(TRUE, TRUE, FALSE, FALSE, TRUE),
+    label = c("Other", "Focal", "Other", "Other", "Focal"),
+    stringsAsFactors = FALSE
+  )
+  corpus <- lead_corpus(rows)
+  share <- function(role) {
+    .sm_yearly_outcome(corpus, "leadership", institutions = "Focal",
+                       lead_role = role)$series$value
+  }
+  expect_identical(share("first"), 0.5)
+  expect_identical(share("last"), 0.5)
+  expect_identical(share("corresponding"), 1)
+})
+
+test_that("focal labels match any institution label column", {
+  # institution_match labels only some rows; the focal label is the name
+  # of an institution id, as group membership in sm_did() finds it
+  rows <- data.frame(
+    work_id = c("W1", "W1", "W2"), year = 2020L,
+    author_id = c("A1", "A2", "A1"), position = c(1L, 2L, 1L),
+    corr = c(FALSE, TRUE, TRUE), label = c("Matched Unit", NA, NA),
+    institution_id = c(NA, "I1", "I2"), stringsAsFactors = FALSE
+  )
+  corpus <- lead_corpus(rows)
+  corpus$institutions <- tibble::tibble(
+    institution_id = c("I1", "I2"), ror = NA_character_,
+    display_name = c("Named Univ", "Other Univ"), country_code = NA,
+    region = NA, income_tier = NA, type = NA
+  )
+  share <- function(inst) {
+    .sm_yearly_outcome(corpus, "leadership", institutions = inst)$series$value
+  }
+  expect_identical(share("Named Univ"), 0.5)
+  expect_identical(share("I1"), 0.5)
+  expect_identical(share(c("Named Univ", "Other Univ")), 1)
+  its_def <- .sm_leadership_def(corpus, "corresponding", "Named Univ")
+  expect_identical(its_def$label_column, "institution_match")
+})
+
+test_that("the leadership arguments are checked", {
+  m <- realuse_matched()
+  expect_error(sm_its(m, 2021, "leadership", lead_role = "last"),
+               "needs focal institutions")
+  expect_error(sm_did(m, lead_unit, lead_control, 2021, "leadership",
+                      lead_role = "first"),
+               "institution_aware")
+  expect_warning(sm_its(m, 2021, "count", institutions = lead_unit),
+                 class = "scimapR_leadership_ignored")
+  expect_warning(sm_its(m, 2021, "count", lead_role = "first"),
+                 class = "scimapR_leadership_ignored")
+  expect_warning(sm_did(m, lead_unit, lead_control, 2021, "count",
+                        institution_aware = TRUE),
+                 class = "scimapR_leadership_ignored")
+  expect_error(sm_its(m, 2021, "leadership", institutions = NA_character_),
+               "character vector")
+  # a label that no authorship carries: warning with the nearest labels
+  expect_warning(
+    sm_its(m, 2021, "leadership",
+           institutions = c(lead_unit, "Armed Forces Hospital Nortown")),
+    "nearest labels Armed Forces Hospital Northtown",
+    class = "scimapR_unknown_institutions"
+  )
+  expect_error(
+    suppressWarnings(sm_its(m, 2021, "leadership", institutions = "Nowhere"),
+                     classes = "scimapR_unknown_institutions"),
+    class = "scimapR_no_focal_works"
+  )
+  # positional calls keep their meaning: family is still the 4th argument
+  expect_identical(sm_its(m, 2021, "count", "quasipoisson")$family,
+                   "quasipoisson")
+})
+
+test_that("print methods state the leadership definition", {
+  m <- realuse_matched()
+  text <- function(x) paste(cli::cli_fmt(print(x)), collapse = " ")
+  its <- sm_its(m, 2021, "leadership", institutions = lead_unit,
+                lead_role = "first")
+  expect_identical(its$leadership$lead_role, "first")
+  expect_identical(its$leadership$institutions, lead_unit)
+  expect_identical(its$leadership$label_column, "institution_match")
+  expect_match(text(its), paste("Leadership: works whose first author is",
+                                "at Armed Forces Hospital Northtown"))
+  expect_match(text(sm_its(m, 2021, "leadership")),
+               "among the works whose corresponding author is known")
+  expect_null(sm_its(m, 2021, "count")$leadership)
+  did <- sm_did(m, lead_unit, lead_control, 2021, "leadership",
+                institution_aware = TRUE)
+  expect_match(text(did), "one of the group's own institutions")
+})
+
+# ---- DiD and synthetic control: institution-aware series --------------------
+
+test_that("institution-aware DiD series use each group's own labels", {
+  m <- realuse_matched()
+  a <- m$authorships
+  share <- function(label) {
+    works <- unique(a$work_id[a$institution_match %in% label])
+    led <- unique(a$work_id[a$is_corresponding &
+                              a$institution_match %in% label])
+    year <- m$works$year[match(works, m$works$work_id)]
+    as.vector(tapply(works %in% led, year, mean))
+  }
+  did <- sm_did(m, lead_unit, lead_control, 2021, "leadership",
+                institution_aware = TRUE)
+  s <- did$series
+  expect_equal(s$value[s$group == "treated"], share(lead_unit))
+  expect_equal(s$value[s$group == "control"], share(lead_control))
+  expect_identical(did$leadership$institutions,
+                   list(treated = lead_unit, control = lead_control))
+  # without institution_aware every group work has a corresponding author
+  plain <- sm_did(m, lead_unit, lead_control, 2021, "leadership")
+  expect_true(all(plain$series$value == 1))
+  expect_false(plain$leadership$institution_aware)
+})
+
+test_that("institution-aware synthetic-control units use their own label", {
+  m <- realuse_matched()
+  units <- c(lead_unit, lead_control)
+  res <- suppressWarnings(
+    .sm_synth_panel(m, units, "leadership", 2021L, institution_aware = TRUE),
+    classes = "scimapR_dropped_years"
+  )
+  a <- m$authorships
+  for (u in units) {
+    works <- unique(a$work_id[a$institution_match %in% u])
+    led <- unique(a$work_id[a$is_corresponding & a$institution_match %in% u])
+    year <- m$works$year[match(works, m$works$work_id)]
+    hand <- tapply(works %in% led, year, mean)
+    p <- res$panel[res$panel$unit == u, ]
+    expect_equal(p$value, as.vector(hand[as.character(p$year)]), info = u)
+  }
+  skip_if_not_installed("tidysynth")
+  synth <- suppressWarnings(suppressMessages(
+    sm_synth(m, lead_unit, lead_control, 2021, "leadership",
+             institution_aware = TRUE),
+    classes = "cliMessage"
+  ), classes = "scimapR_dropped_years")
+  expect_identical(synth$leadership$institutions, units)
+  out <- paste(cli::cli_fmt(print(synth)), collapse = " ")
+  expect_match(out, "the unit's own institution")
+})
+
+# ---- DiD: works of both groups ----------------------------------------------
+
+test_that("sm_did reports the works of both groups", {
+  # did_corpus() alternates the labels across authorship rows, so most
+  # works belong to both groups
+  corpus <- did_corpus()
+  a <- corpus$authorships
+  in_a <- unique(a$work_id[a$institution_name == "Inst A"])
+  in_b <- unique(a$work_id[a$institution_name == "Inst B"])
+  shared <- intersect(in_a, in_b)
+  expect_gt(length(shared), 100L)
+  expect_warning(
+    did <- sm_did(corpus, "Inst A", "Inst B", 2020, "count"),
+    "belong to both", class = "scimapR_did_shared_works"
+  )
+  expect_setequal(did$shared_works$work_id, shared)
+  expect_true(all(did$shared_works$series == "both"))
+  expect_identical(did$shared, "keep")
+  # an explicit policy does not warn; "keep" gives the same estimate
+  expect_no_warning(
+    keep <- sm_did(corpus, "Inst A", "Inst B", 2020, "count", shared = "keep")
+  )
+  expect_equal(keep$did_estimate, did$did_estimate)
+  out <- paste(cli::cli_fmt(print(keep)), collapse = " ")
+  expect_match(out, paste0("Shared works: ", length(shared),
+                           " \\(", length(shared), " in both series\\)"))
+})
+
+test_that("sm_did can leave shared works out or give them to their lead", {
+  corpus <- did_corpus()
+  a <- corpus$authorships
+  in_a <- unique(a$work_id[a$institution_name == "Inst A"])
+  in_b <- unique(a$work_id[a$institution_name == "Inst B"])
+  shared <- intersect(in_a, in_b)
+  n_series <- function(did, g) sum(did$series$value[did$series$group == g])
+
+  ex <- sm_did(corpus, "Inst A", "Inst B", 2020, "count", shared = "exclude")
+  expect_identical(n_series(ex, "treated"), as.double(length(in_a) -
+                                                        length(shared)))
+  expect_identical(n_series(ex, "control"), as.double(length(in_b) -
+                                                        length(shared)))
+  expect_true(all(ex$shared_works$series == "none"))
+
+  # by the first author: a shared work goes to the group of its first
+  # author's rows, and leaves both series when they are in both groups
+  lead <- sm_did(corpus, "Inst A", "Inst B", 2020, "count", shared = "lead",
+                 lead_role = "first")
+  pos1 <- stats::ave(a$position, a$work_id, FUN = min)
+  first <- a[a$work_id %in% shared & a$position == pos1, ]
+  by_a <- unique(first$work_id[first$institution_name == "Inst A"])
+  by_b <- unique(first$work_id[first$institution_name == "Inst B"])
+  to_a <- setdiff(by_a, by_b)
+  to_b <- setdiff(by_b, by_a)
+  got <- lead$shared_works
+  expect_setequal(got$work_id[got$series == "treated"], to_a)
+  expect_setequal(got$work_id[got$series == "control"], to_b)
+  expect_identical(n_series(lead, "treated"),
+                   as.double(length(in_a) - length(shared) + length(to_a)))
+  expect_identical(n_series(lead, "control"),
+                   as.double(length(in_b) - length(shared) + length(to_b)))
+})
+
+test_that("sm_did aborts when the groups share a label", {
+  corpus <- did_corpus()
+  expect_error(
+    sm_did(corpus, c("Inst A", "Inst B"), "Inst B", 2020, "count"),
+    "share the label"
+  )
+})
+
+# ---- DiD and synthetic control: citation-immature years ---------------------
+
+test_that("sm_did and sm_synth leave out citation-immature cnci years", {
+  # as sm_its() does: with last_refresh in 2024 and lag 2, 2023 and 2024
+  # are citation-immature; before, sm_did() and sm_synth() kept them
+  corpus <- did_corpus()
+  corpus$metadata$last_refresh <- as.POSIXct("2024-06-30", tz = "UTC")
+  did <- suppressMessages(
+    sm_did(corpus, "Inst A", "Inst B", 2020, "cnci", shared = "keep"),
+    classes = "scimapR_fnci_small_cells"
+  )
+  expect_identical(did$provisional_years, c(2023L, 2024L))
+  expect_false(any(did$series$year %in% c(2023L, 2024L)))
+  expect_identical(did$lag, 2L)
+  out <- paste(cli::cli_fmt(print(did)), collapse = " ")
+  expect_match(out, "Excluded (citation-immature): 2023 and 2024",
+               fixed = TRUE)
+  did0 <- suppressMessages(
+    sm_did(corpus, "Inst A", "Inst B", 2020, "cnci", lag = 0,
+           shared = "keep"),
+    classes = "scimapR_fnci_small_cells"
+  )
+  expect_identical(did0$provisional_years, integer())
+  expect_true(2024L %in% did0$series$year)
+  # other outcomes keep every year
+  expect_identical(
+    sm_did(corpus, "Inst A", "Inst B", 2020, "count",
+           shared = "keep")$provisional_years,
+    integer()
+  )
+
+  synth <- synth_corpus()
+  synth$metadata$last_refresh <- as.POSIXct("2024-06-30", tz = "UTC")
+  res <- suppressMessages(
+    .sm_synth_panel(synth, synth_units, "cnci", 2020L, lag = 2L),
+    classes = "scimapR_fnci_small_cells"
+  )
+  expect_identical(res$provisional_years, c(2023L, 2024L))
+  expect_false(any(res$panel$year %in% c(2023L, 2024L)))
+})

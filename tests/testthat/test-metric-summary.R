@@ -104,6 +104,35 @@ test_that("sm_summary_period falls back when there are no authorships", {
   expect_true(all(is.na(out$mean_authors_per_work)))
 })
 
+test_that("author summaries count an author with two addresses once", {
+  # W1 has one author with two address rows, W2 two authors: one
+  # single-author work of two, 1.5 authors per work as in
+  # sm_metric_collab_index(); counting rows gave 2 authors for W1
+  corpus <- sm_corpus(
+    works = tibble::tibble(work_id = c("W1", "W2"), year = c(2020L, 2021L)),
+    authors = tibble::tibble(author_id = c("A1", "A2"),
+                             orcid = NA_character_,
+                             display_name = c("Ann Roe", "Bo Doe")),
+    authorships = tibble::tibble(
+      work_id = c("W1", "W1", "W2", "W2"),
+      author_id = c("A1", "A1", "A1", "A2"),
+      position = c(1L, 1L, 1L, 2L),
+      is_corresponding = NA,
+      institution_id = NA_character_,
+      raw_affiliation = c("Univ A", "Inst B", "Univ A", "Univ C"),
+      country_code = c("DE", "DE", "DE", "NL")
+    )
+  )
+  out <- sm_summary_authors(corpus)
+  expect_identical(out$single_author_pct, 50)
+  expect_identical(out$mean_authors_per_work, 1.5)
+  expect_equal(out$mean_authors_per_work,
+               mean(sm_metric_collab_index(corpus)$n_authors))
+  expect_identical(out$max_works_per_author, 2L)
+  period <- sm_summary_period(corpus)
+  expect_identical(period$mean_authors_per_work, c(1, 2))
+})
+
 # --- sm_metric_summary --------------------------------------------------
 
 test_that("sm_metric_summary rejects a non-corpus", {

@@ -15,7 +15,8 @@ sm_summary_period(corpus, call = rlang::caller_env())
 A tibble with one row per year and columns:
 \code{year}, \code{n_works}, \code{mean_citations}, \code{median_citations},
 \code{total_citations}, \code{n_oa}, \code{pct_oa}, \code{n_authors} (unique authors
-active in that year), \code{mean_authors_per_work}.
+active in that year), \code{mean_authors_per_work} (distinct authors per
+work, so an author with several address rows counts once).
 }
 \description{
 Computes per-year summary statistics for works in the corpus.

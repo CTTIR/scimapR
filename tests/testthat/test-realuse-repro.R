@@ -117,7 +117,6 @@ test_that("H4: coverage breaks down by tracker columns and institutions", {
 })
 
 test_that("H5: leadership can be restricted to a focal institution", {
-  skip("H5 pending - prompt A06")
   # Intent: every fixture work has a corresponding author, so the default
   # leadership share is 1 in every year. With `institutions`, a work counts
   # only when its corresponding author is affiliated with the focal unit;
@@ -369,7 +368,6 @@ test_that("H15: one paper cannot name a cluster; keyword labels; noise", {
 })
 
 test_that("H16: the WoS reader takes the corresponding author from RP", {
-  skip("H16 pending - prompt A06")
   # Intent: in the plaintext twin, four records name a corresponding author
   # who is not the first author, five name the first author and one has no
   # RP field. The reader flags the RP author and leaves the record without

@@ -309,6 +309,9 @@ sm_fetch_openalex <- function(query = NULL,
 
   for (i in seq_along(results)) {
     aships <- results[[i]][["authorships"]] %||% list()
+    work_rows <- list()
+    flags <- logical()
+    oa_ids <- character()
     for (j in seq_along(aships)) {
       a <- aships[[j]]
       au <- a[["author"]] %||% list()
@@ -334,16 +337,25 @@ sm_fetch_openalex <- function(query = NULL,
         cc <- inst[[1]][["country_code"]] %||% NA_character_
       }
 
-      authorship_rows[[length(authorship_rows) + 1L]] <- tibble::tibble(
+      flags <- c(flags, isTRUE(a[["is_corresponding"]]))
+      oa_ids <- c(oa_ids, oa_author_id)
+      work_rows[[length(work_rows) + 1L]] <- tibble::tibble(
         work_id = work_ids[i],
         author_id = author_map[[oa_author_id]]$author_id,
         position = as.integer(j),
-        is_corresponding = identical(a[["author_position"]], "first") && j == 1L,
+        is_corresponding = NA,
         institution_id = inst_id,
         raw_affiliation = raw_aff,
         country_code = cc
       )
     }
+    corresponding <- .openalex_corresponding(
+      flags, oa_ids, results[[i]][["corresponding_author_ids"]]
+    )
+    for (k in seq_along(work_rows)) {
+      work_rows[[k]]$is_corresponding <- corresponding[k]
+    }
+    authorship_rows <- c(authorship_rows, work_rows)
   }
 
   authors_tbl <- if (length(author_map) > 0) {

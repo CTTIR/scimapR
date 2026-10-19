@@ -447,10 +447,13 @@ sm_affiliation_unmatched <- function(corpus, n = 25L,
 #'   ships at `system.file("extdata", "example_ror.csv", package = "scimapR")`.
 #' @param call Caller environment for error reporting.
 #'
-#' @return The `corpus` with its `authorships` table gaining `institution_id`
-#'   and `institution_name` columns (for `"ror"`, `institution_id` holds the
-#'   ROR id). Unmatched rows keep `NA` -- the function never errors on
-#'   unmatched affiliations. Type-stable.
+#' @return The `corpus` with `institution_id` and `institution_name` set on
+#'   the `authorships` rows that match the vocabulary (for `"ror"`,
+#'   `institution_id` holds the ROR id; for `"custom"`, `CUST:` and the
+#'   matched name). Unmatched rows keep the `institution_id` and
+#'   `institution_name` they had, such as the OpenAlex institution ids of
+#'   a fetched corpus, or `NA` -- the function never errors on unmatched
+#'   affiliations. Type-stable.
 #'
 #' @details
 #' The `institution_match` column stays as it is.
@@ -468,6 +471,13 @@ sm_affiliation_unmatched <- function(corpus, n = 25L,
 #' corpus$authorships$institution_match <-
 #'   dplyr::coalesce(a$institution_name, a$institution_match)
 #' ```
+#'
+#' The ids written to matched rows are ROR ids or `CUST:` ids, which join
+#' `corpus$institutions` only where that table lists them, so functions
+#' that read the institutions table for these rows (such as
+#' `sm_audit_geographic(by = "region")`) find no entry for them. Unmatched
+#' rows keep their earlier ids and so their entries. Up to scimapR 0.4.0,
+#' unmatched rows lost their `institution_id`.
 #'
 #' @family affiliation
 #' @seealso [sm_affiliation_match()]
@@ -507,15 +517,23 @@ sm_attribute_institution <- function(corpus,
     !is.na(a$institution_match), a$institution_match,
     if ("raw_affiliation" %in% names(a)) as.character(a$raw_affiliation) else NA_character_
   )
+  # unmatched rows keep the institution they had, such as an OpenAlex id
+  previous <- function(col) {
+    if (!col %in% names(a)) return(rep(NA_character_, nrow(a)))
+    as.character(a[[col]])
+  }
+  prev_id <- previous("institution_id")
+  prev_name <- previous("institution_name")
 
   if (vocabulary == "custom") {
     inst_name <- a$institution_match
-    inst_id <- ifelse(
-      is.na(inst_name), NA_character_,
-      paste0("CUST:", gsub("[^a-z0-9]+", "-", tolower(inst_name), perl = TRUE))
+    matched <- !is.na(inst_name)
+    a$institution_id <- ifelse(
+      matched,
+      paste0("CUST:", gsub("[^a-z0-9]+", "-", tolower(inst_name), perl = TRUE)),
+      prev_id
     )
-    a$institution_id <- inst_id
-    a$institution_name <- inst_name
+    a$institution_name <- ifelse(matched, inst_name, prev_name)
     corpus$authorships <- a
     return(corpus)
   }
@@ -532,8 +550,8 @@ sm_attribute_institution <- function(corpus,
 
   key <- .norm_title(base_text)
   hit <- match(key, lookup$key)
-  a$institution_id <- ifelse(is.na(hit), NA_character_, lookup$ror_id[hit])
-  a$institution_name <- ifelse(is.na(hit), NA_character_, lookup$name[hit])
+  a$institution_id <- ifelse(is.na(hit), prev_id, lookup$ror_id[hit])
+  a$institution_name <- ifelse(is.na(hit), prev_name, lookup$name[hit])
 
   corpus$authorships <- a
   corpus

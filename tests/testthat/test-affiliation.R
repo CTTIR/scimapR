@@ -402,3 +402,31 @@ test_that("sm_affiliation_unmatched is type-stable", {
   expect_error(sm_affiliation_unmatched(matched, n = NA), "n")
   expect_error(sm_affiliation_unmatched(list()), "sm_corpus")
 })
+
+test_that("sm_attribute_institution keeps the ids of unmatched rows", {
+  # As after an OpenAlex fetch, every row has an institution id; only the
+  # first row matches the dictionary. The other rows used to lose their id
+  # and name, and with them their entries in corpus$institutions.
+  corpus <- sm_example_corpus(n_works = 5, n_authors = 5)
+  n <- nrow(corpus$authorships)
+  ids <- sprintf("https://openalex.org/I99900%04d", seq_len(n))
+  corpus$authorships$institution_id <- ids
+  corpus$authorships$raw_affiliation[1] <- "Bundeswehrkrankenhaus Berlin"
+  corpus <- sm_affiliation_match(corpus)
+  out <- sm_attribute_institution(corpus, vocabulary = "ror",
+                                  ror_table = ror_tbl())
+  expect_identical(out$authorships$institution_id,
+                   c("https://ror.org/00897frq8", ids[-1]))
+  expect_identical(out$authorships$institution_name,
+                   c("Bundeswehr Hospital", rep(NA, n - 1L)))
+
+  custom <- sm_attribute_institution(corpus, vocabulary = "custom")
+  expect_identical(custom$authorships$institution_id[-1], ids[-1])
+  expect_match(custom$authorships$institution_id[1], "^CUST:")
+  # a name set earlier stays on a row the vocabulary does not match
+  corpus$authorships$institution_name <- "Earlier Name"
+  out <- sm_attribute_institution(corpus, vocabulary = "ror",
+                                  ror_table = ror_tbl())
+  expect_identical(out$authorships$institution_name,
+                   c("Bundeswehr Hospital", rep("Earlier Name", n - 1L)))
+})

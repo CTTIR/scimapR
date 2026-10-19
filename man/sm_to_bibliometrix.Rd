@@ -131,15 +131,19 @@ Other corpora get \code{"scimapR"}, because bibliometrix reads \code{"ISI"} data
 as Web of Science records; \code{db = "ISI"} declares a corpus whose \code{CR}
 items are in Web of Science form anyway.
 
-\code{RP} follows \code{authorships$is_corresponding}. \code{\link[=sm_read_openalex_json]{sm_read_openalex_json()}}
-reads the corresponding authors of OpenAlex records; the other file
-readers, the \verb{sm_fetch_*()} functions and \code{\link[=as_sm_corpus]{as_sm_corpus()}} flag the
-first author of each work (\code{\link[=sm_fetch_orcid]{sm_fetch_orcid()}} flags the ORCID holder),
-so for their corpora \code{RP} names that author. Corpora built from tables
-keep the flags of their tables.
+\code{RP} follows \code{authorships$is_corresponding}: it names the authors
+flagged \code{TRUE} and is \code{NA} for a work without one. \code{\link[=sm_read_wos]{sm_read_wos()}} takes
+the corresponding authors from the RP field of the file,
+\code{\link[=sm_read_openalex_json]{sm_read_openalex_json()}} and \code{\link[=sm_fetch_openalex]{sm_fetch_openalex()}} from the OpenAlex
+records, \code{\link[=sm_read_dimensions]{sm_read_dimensions()}} from the Corresponding Authors column,
+\code{\link[=sm_fetch_biorxiv]{sm_fetch_biorxiv()}} from the bioRxiv API and \code{\link[=as_sm_corpus]{as_sm_corpus()}} from
+\code{RP}. The other readers and fetchers record the corresponding author as
+unknown (\code{NA}), so their corpora export \code{RP = NA}. Corpora built from
+tables keep the flags of their tables.
 
 \code{\link[=as_sm_corpus]{as_sm_corpus()}} reads the result back: the round trip keeps the works,
-their DOIs and years, the authors of each work and their addresses.
+their DOIs and years, the authors of each work, their addresses and the
+corresponding authors.
 }
 }
 \examples{

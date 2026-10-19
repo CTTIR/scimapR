@@ -23,7 +23,8 @@
 #' electronic ISSN), J9 and JI (source abbreviations), AB (abstract),
 #' DI (DOI), PY (year), DT (document type), LA (language), TC (times
 #' cited), UT (accession number, kept in `provenance`), PM (PubMed ID),
-#' C1 (addresses), CR (cited references), DE (author keywords),
+#' C1 (addresses), RP (corresponding authors), CR (cited references),
+#' DE (author keywords),
 #' ID (Keywords Plus), WC (Web of Science categories) and SC (research
 #' areas). Other tags are not read.
 #'
@@ -39,17 +40,36 @@
 #' Author names are stored in the AU form, such as "J Smith" for
 #' "Smith, J", and `authors$display_name_alternatives` keeps the name as
 #' the file writes it, which tells a surname of several words such as
-#' "Garcia Lopez" from the initials. The native parser gives each author
-#' one authorship row, with the first C1 address whose bracket contains the
-#' author's surname. Both parsers flag the first author of each work as
-#' corresponding.
+#' "Garcia Lopez" from the initials.
+#'
+#' Both parsers write one authorship row per author and address. The names
+#' in the brackets of C1 link authors to addresses: each name belongs to
+#' the author with the same full name (from AF), else to the one with the
+#' same surname and initials, else to the one with the same surname and
+#' first initial, so a short surname such as "He" never takes the address
+#' of "Chen". An address that C1 lists without names, as older records do,
+#' belongs to every author of the record, so each of them gets a row for
+#' it. An address whose names designate none of the authors belongs to the
+#' author of a single-author record and else to nobody.
+#'
+#' The corresponding authors come from RP, which names them before
+#' "(corresponding author)" ("(reprint author)" in older files), in any
+#' case, with each name and its address on a line of its own or on one
+#' line. The authors these names designate, matched like the names of C1,
+#' get `is_corresponding = TRUE` on all their rows and the other authors
+#' `FALSE`. When a name fits several authors equally (namesakes with the
+#' same surname and initials), the one whose C1 addresses include the
+#' address RP gives with the name is meant; if that does not tell them
+#' apart, they get `NA`. A record without RP, or whose RP designates none
+#' of its authors for certain, gets `NA` (unknown) for all its authors;
+#' the native parser reports the number of such records when
+#' `verbose = TRUE`.
 #'
 #' The `"bibliometrix"` engine (also used by `"auto"` when bibliometrix can
 #' read the file) converts the data frame of `bibliometrix::convert2df()`
 #' as [as_sm_corpus()] does: it reads the same tags into `sources`,
 #' `references` and `concepts`, tells authors apart by the full names of AF
-#' and writes one authorship row per author and address, linked through
-#' the names in the brackets of C1.
+#' and links C1 and RP to the authors by the same rule.
 #'
 #' @references
 #' Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for
@@ -146,9 +166,15 @@ sm_read_wos <- function(path,
   works <- .ensure_works_schema(works)
 
   # --- authors & authorships -----------------------------------------------
-  author_lists <- lapply(parsed, function(r) r$authors)
-  aff_lists <- lapply(parsed, function(r) r$affiliations)
-  auth_result <- .wos_build_authors(author_lists, aff_lists, work_ids)
+  auth_result <- .wos_build_authors(parsed, work_ids)
+  n_unknown <- auth_result$n_unknown
+  if (n_unknown > 0L) {
+    .sm_verbose(paste0(
+      "The corresponding author of {n_unknown} record{?s} is unknown ",
+      "({.field is_corresponding} is {.code NA}): no RP field, or its ",
+      "names designate none of the authors for certain."
+    ), verbose)
+  }
 
   # --- sources -------------------------------------------------------------
   source_names <- vapply(parsed, function(r) r$source, character(1))
@@ -271,7 +297,7 @@ sm_read_wos <- function(path,
       value <- trimws(line)
       n_vals <- length(tags[[current_tag]])
       # For multi-value tags like AU, add as new; for text tags, append
-      if (current_tag %in% c("AU", "AF", "CR", "C1")) {
+      if (current_tag %in% c("AU", "AF", "CR", "C1", "RP")) {
         tags[[current_tag]] <- c(tags[[current_tag]], value)
       } else {
         tags[[current_tag]][n_vals] <- paste(
@@ -300,6 +326,8 @@ sm_read_wos <- function(path,
   list(
     pub_type    = .get_single("PT"),
     authors     = tags[["AU"]] %||% tags[["AF"]] %||% character(),
+    full_names  = tags[["AF"]] %||% character(),
+    reprint     = tags[["RP"]] %||% character(),
     title       = .get_single("TI"),
     source      = .get_single("SO"),
     sn          = .get_single("SN"),
@@ -323,90 +351,88 @@ sm_read_wos <- function(path,
   )
 }
 
-#' Build authors from WoS author lists
+#' Build authors and authorships from WoS AU, AF, C1 and RP
+#'
+#' One authorship row per author and address, as in the bibliometrix
+#' conversion: the names in the brackets of C1 link authors to addresses
+#' (`.bx_link_addresses()`), with AF giving the full names, and the names
+#' of RP mark the corresponding authors (`.bx_rp_flags()`).
+#' @return A list: `authors`, `authorships` and `n_unknown`, the number of
+#'   records with authors whose corresponding author is unknown.
 #' @noRd
-.wos_build_authors <- function(author_lists, aff_lists, work_ids) {
-  all_authors <- character()
-  all_spelled <- character()
-  authorship_rows <- list()
+.wos_build_authors <- function(parsed, work_ids) {
+  n <- length(parsed)
+  entries <- function(nm) {
+    lapply(parsed, function(r) {
+      x <- trimws(r[[nm]])
+      x[nzchar(x)]
+    })
+  }
+  spelled <- entries("authors")
+  k <- lengths(spelled)
+  if (sum(k) == 0L) {
+    return(list(authors = .empty_authors(),
+                authorships = .empty_authorships(), n_unknown = 0L))
+  }
+  row <- rep(seq_len(n), k)
+  all_spelled <- unlist(spelled, use.names = FALSE)
 
-  for (i in seq_along(author_lists)) {
-    names <- trimws(author_lists[[i]])
-    names <- names[nzchar(names)]
-    if (length(names) == 0L) next
-    all_spelled <- c(all_spelled, names)
-
-    # Normalize "Last, First" -> "First Last"
-    names <- vapply(names, function(nm) {
-      if (grepl(",", nm, fixed = TRUE)) {
-        parts <- trimws(strsplit(nm, ",", fixed = TRUE)[[1]])
-        if (length(parts) >= 2L) paste(parts[2], parts[1]) else nm
-      } else {
-        nm
-      }
-    }, character(1), USE.NAMES = FALSE)
-
-    all_authors <- c(all_authors, names)
-
-    # Try to extract affiliations
-    affs <- aff_lists[[i]]
-    raw_aff <- rep(NA_character_, length(names))
-    if (length(affs) > 0L) {
-      # C1 lines often look like: [AuthorName] Institution, ...
-      for (j in seq_along(names)) {
-        pattern <- paste0("\\[.*", gsub("([[:punct:]])", "\\\\\\1",
-                    strsplit(names[j], " ")[[1]][length(strsplit(names[j], " ")[[1]])]),
-                    ".*\\]\\s*(.*)")
-        matches <- grep(pattern, affs, value = TRUE, ignore.case = TRUE)
-        if (length(matches) > 0L) {
-          raw_aff[j] <- sub("^\\[.*?\\]\\s*", "", matches[1])
-        }
-      }
+  # Normalize "Last, First" -> "First Last"
+  all_authors <- vapply(all_spelled, function(nm) {
+    if (grepl(",", nm, fixed = TRUE)) {
+      parts <- trimws(strsplit(nm, ",", fixed = TRUE)[[1]])
+      if (length(parts) >= 2L) paste(parts[2], parts[1]) else nm
+    } else {
+      nm
     }
+  }, character(1), USE.NAMES = FALSE)
 
-    authorship_rows[[length(authorship_rows) + 1L]] <- tibble::tibble(
-      work_id = work_ids[i],
-      author_name = names,
-      position = seq_along(names),
-      is_corresponding = c(TRUE, rep(FALSE, max(0L, length(names) - 1L))),
-      raw_affiliation = raw_aff
-    )
+  # AF entries belong to the AU entries when a record has as many of each
+  af <- entries("full_names")
+  same <- lengths(af) == k
+  af_item <- rep(NA_character_, length(all_spelled))
+  af_item[same[row]] <- unlist(af[same], use.names = FALSE)
+  who <- .bx_parse_authors(all_spelled, af_item)
+
+  joined <- function(nm) {
+    vapply(entries(nm), function(x) {
+      if (length(x) > 0L) paste(x, collapse = "; ") else NA_character_
+    }, character(1))
   }
+  segments <- .bx_c1_segments(joined("affiliations"))
+  linked <- .bx_link_addresses(who, row, segments, n)
+  corresponding <- .bx_rp_flags(who, row, joined("reprint"), n, linked)
+  n_unknown <- sum(tapply(is.na(corresponding), row, all))
 
-  if (length(authorship_rows) == 0L) {
-    return(list(authors = .empty_authors(), authorships = .empty_authorships()))
-  }
-
-  aships_df <- dplyr::bind_rows(authorship_rows)
   unique_names <- unique(all_authors)
   author_ids <- .generate_author_id(length(unique_names))
   # the names as the file writes them ("Garcia Lopez, M"), which tell the
   # surname from the initials
-  spelled <- split(all_spelled, factor(all_authors, levels = unique_names))
+  by_name <- split(all_spelled, factor(all_authors, levels = unique_names))
 
   authors <- tibble::tibble(
     author_id = author_ids,
     orcid = NA_character_,
     display_name = unique_names,
-    display_name_alternatives = unname(Map(setdiff, spelled, unique_names)),
+    display_name_alternatives = unname(Map(setdiff, by_name, unique_names)),
     inferred_gender = NA_character_,
     gender_confidence = NA_real_,
     gender_method = NA_character_
   )
 
-  name_to_id <- stats::setNames(author_ids, unique_names)
-
+  m <- lengths(linked)
+  position <- sequence(k)
   authorships <- tibble::tibble(
-    work_id = aships_df$work_id,
-    author_id = unname(name_to_id[aships_df$author_name]),
-    position = aships_df$position,
-    is_corresponding = aships_df$is_corresponding,
+    work_id = rep(work_ids[row], m),
+    author_id = rep(author_ids[match(all_authors, unique_names)], m),
+    position = rep(position, m),
+    is_corresponding = rep(corresponding, m),
     institution_id = NA_character_,
-    raw_affiliation = aships_df$raw_affiliation,
+    raw_affiliation = unlist(linked, use.names = FALSE),
     country_code = NA_character_
   )
 
-  list(authors = authors, authorships = authorships)
+  list(authors = authors, authorships = authorships, n_unknown = n_unknown)
 }
 
 #' Build references from WoS CR tag

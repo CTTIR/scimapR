@@ -598,10 +598,14 @@ test_that("as_sm_corpus() links authors to addresses through C1", {
     "2 1 ADA SOLO UNIV SOLO, S CITY.",
     # Li and Lin are told apart by their full names
     "3 1 WEI LI UNIV K, K CITY.", "3 2 QIAO LIN UNIV L, L CITY.",
-    # several authors and addresses without names: not linked
-    "4 1 R ROE NA", "4 2 J DOE NA"
+    # several authors and addresses without names: every author's (before,
+    # nobody's)
+    "4 1 R ROE UNIV R, R CITY.", "4 1 R ROE UNIV D, D CITY.",
+    "4 2 J DOE UNIV R, R CITY.", "4 2 J DOE UNIV D, D CITY."
   ))
-  expect_identical(a$is_corresponding, a$position == 1L)
+  # the frame has no RP, so the corresponding authors are unknown (the
+  # first author was flagged before)
+  expect_identical(a$is_corresponding, rep(NA, nrow(a)))
   expect_true("VALDEZ, PIETER" %in%
                 unlist(x$authors$display_name_alternatives))
 })
@@ -794,4 +798,104 @@ test_that("the export matches convert2df() on the Web of Science twin", {
   expect_equal(m$PY, ref$PY)
   expect_equal(m$TC, ref$TC)
   expect_equal(m$NR, as.integer(ref$NR))
+})
+
+test_that("as_sm_corpus() takes the corresponding authors from RP", {
+  # Upper case as convert2df() writes it; work 3 has the older "(reprint
+  # author)" next to a corresponding author; work 4 names nobody of the
+  # work and work 2 has no RP: both unknown. Valdez has two address rows.
+  m <- bx_frame()
+  m$RP <- c("MERTENS, C (CORRESPONDING AUTHOR), INST B, B CITY.", NA,
+            paste("LIN, Q (REPRINT AUTHOR), UNIV L, L CITY.;",
+                  "LI, W (CORRESPONDING AUTHOR), UNIV K, K CITY."),
+            "SMITH, Q (CORRESPONDING AUTHOR), UNIV Q, Q CITY.")
+  x <- as_sm_corpus(m)
+  a <- x$authorships
+  w <- match(a$work_id, x$works$work_id)
+  expect_identical(paste(w, a$position, a$is_corresponding), c(
+    "1 1 FALSE", "1 1 FALSE", "1 2 TRUE", "2 1 NA", "3 1 TRUE", "3 2 TRUE",
+    "4 1 NA", "4 1 NA", "4 2 NA", "4 2 NA"
+  ))
+})
+
+test_that("RP segments are read whether joined by '; ' or by a space", {
+  # the native reader joins the lines of RP with "; ", convert2df() with a
+  # space, so that the next names follow the period ending an address;
+  # before, the names after the first line of that form were lost
+  native <- paste("Mertens, C; Pieper, C (corresponding author), Univ A,",
+                  "A City.; Uhlig, L (Corresponding Author), Inst B, B City.")
+  spaced <- toupper(sub(".; ", ". ", native, fixed = TRUE))
+  shared <- paste("ROE, R (CORRESPONDING AUTHOR), WASHINGTON UNIV, ST. LOUIS,",
+                  "MO 63110 USA. MERTENS, C; PIEPER, C (CORRESPONDING",
+                  "AUTHOR), INST B.")
+  e <- .rp_entries(c(native, spaced, shared, "DOE, J; UNIV X", NA))
+  expect_identical(e[[1]]$name, c("Mertens, C", "Pieper, C", "Uhlig, L"))
+  expect_identical(e[[1]]$address,
+                   c("Univ A, A City.", "Univ A, A City.", "Inst B, B City."))
+  expect_identical(e[[2]]$name, toupper(e[[1]]$name))
+  expect_identical(e[[2]]$address, toupper(e[[1]]$address))
+  expect_identical(e[[3]]$name, c("ROE, R", "MERTENS, C", "PIEPER, C"))
+  expect_identical(e[[3]]$address,
+                   c("WASHINGTON UNIV, ST. LOUIS, MO 63110 USA.", "INST B.",
+                     "INST B."))
+  # no marker, no RP: nobody
+  expect_identical(lengths(e[[4]]), c(name = 0L, address = 0L))
+  expect_identical(lengths(e[[5]]), c(name = 0L, address = 0L))
+})
+
+test_that("as_sm_corpus() reads RP and C1raw as convert2df() writes them", {
+  # Work 1: convert2df() joins the lines of RP, and those of C1 in C1raw,
+  # with a space; C1 keeps the lines apart with ";" but drops the names.
+  # Before, Uhlig on the second RP line was flagged FALSE, and the line of
+  # Inst X without names was merged into the address of Uhlig.
+  # Work 2: "WANG, Y" is Wang Yan and Wang Yu; the RP address is Wang Yu's.
+  # Before, Wang Yan was flagged.
+  m <- bx_frame()[1:2, c("AU", "AF", "TI", "PY", "DB")]
+  m$AU <- c("VALDEZ P;MERTENS C;UHLIG L", "WANG Y;LI X;WANG Y")
+  m$AF <- c("VALDEZ, PIETER;MERTENS, CLARA;UHLIG, LEA",
+            "WANG, YAN;LI, XIN;WANG, YU")
+  m$C1raw <- c(
+    paste("[VALDEZ, PIETER; MERTENS, CLARA] UNIV A, A CITY.",
+          "[UHLIG, LEA] INST B, B CITY. INST X, X CITY."),
+    "[WANG, YAN; LI, XIN] UNIV A, A CITY. [WANG, YU] UNIV B, B CITY."
+  )
+  m$C1 <- c("UNIV A, A CITY.; INST B, B CITY.; INST X, X CITY.;",
+            "UNIV A, A CITY.; UNIV B, B CITY.;")
+  m$RP <- c(paste("MERTENS, C (CORRESPONDING AUTHOR), UNIV A, A CITY.",
+                  "UHLIG, L (CORRESPONDING AUTHOR), INST B, B CITY."),
+            "WANG, Y (CORRESPONDING AUTHOR), UNIV B, B CITY.")
+  x <- as_sm_corpus(m)
+  a <- x$authorships
+  w <- match(a$work_id, x$works$work_id)
+  got <- paste(w, a$position, a$raw_affiliation, a$is_corresponding)
+  expect_identical(got, c(
+    "1 1 UNIV A, A CITY. FALSE", "1 1 INST X, X CITY. FALSE",
+    "1 2 UNIV A, A CITY. TRUE", "1 2 INST X, X CITY. TRUE",
+    "1 3 INST B, B CITY. TRUE", "1 3 INST X, X CITY. TRUE",
+    "2 1 UNIV A, A CITY. FALSE", "2 2 UNIV A, A CITY. FALSE",
+    "2 3 UNIV B, B CITY. TRUE"
+  ))
+  # an RP address of neither namesake leaves both, and the work, unknown
+  m$RP[2] <- "WANG, Y (CORRESPONDING AUTHOR), UNIV C, C CITY."
+  a <- as_sm_corpus(m)$authorships
+  expect_identical(a$is_corresponding[7:9], c(NA, NA, NA))
+})
+
+test_that("the round trip keeps the corresponding authors", {
+  fix <- realuse_corpus()
+  rt <- as_sm_corpus(sm_to_bibliometrix(fix))
+  corr <- function(corpus) {
+    a <- corpus$authorships
+    w <- match(a$work_id, corpus$works$work_id)
+    sort(unique(paste(w, a$position, a$is_corresponding)))
+  }
+  expect_identical(corr(rt), corr(fix))
+  # a work without a flagged author exports RP = NA and reads back unknown
+  fix$authorships$is_corresponding[fix$authorships$work_id ==
+                                     fix$works$work_id[1]] <- NA
+  m <- sm_to_bibliometrix(fix)
+  expect_true(is.na(m$RP[1]))
+  rt <- as_sm_corpus(m)
+  first <- rt$authorships$work_id == rt$works$work_id[1]
+  expect_true(all(is.na(rt$authorships$is_corresponding[first])))
 })

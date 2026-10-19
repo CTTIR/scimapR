@@ -154,3 +154,34 @@ test_that("sm_fetch_biorxiv aborts on request failure", {
     "API request failed"
   )
 })
+
+test_that("sm_fetch_biorxiv takes the corresponding author from the API", {
+  # author_corresponding names the second author in another name form; a
+  # preprint without it gets NA (unknown) for every author
+  call_n <- 0L
+  named <- .biorxiv_item(doi = "10.1101/c")
+  named$authors <- "Franklin, R.; Watson, J. D."
+  named$author_corresponding <- "James Watson"
+  local_mocked_bindings(
+    req_perform = function(req, ...) {
+      structure(list(), class = "httr2_response")
+    },
+    resp_body_json = function(resp, ...) {
+      call_n <<- call_n + 1L
+      if (call_n == 1L) {
+        .biorxiv_body(list(named, .biorxiv_item(doi = "10.1101/d")),
+                      total = 2L)
+      } else {
+        .biorxiv_body(list())
+      }
+    },
+    .package = "httr2"
+  )
+  corpus <- sm_fetch_biorxiv(server = "biorxiv", from_date = "2024-01-01",
+                             to_date = "2024-01-07", n_max = 10,
+                             verbose = FALSE)
+  a <- corpus$authorships
+  w <- match(a$work_id, corpus$works$work_id)
+  expect_identical(a$is_corresponding[w == 1L], c(FALSE, TRUE))
+  expect_identical(a$is_corresponding[w == 2L], c(NA, NA))
+})

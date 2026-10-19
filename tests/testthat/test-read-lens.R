@@ -34,9 +34,10 @@ test_that("sm_read_lens builds authors from semicolon-separated strings", {
   expect_true("Chen Wei" %in% corpus$authors$display_name)
   expect_true("Tanaka Yuki" %in% corpus$authors$display_name)
 
-  # First author of each work is flagged corresponding
-  first_pos <- corpus$authorships[corpus$authorships$position == 1L, ]
-  expect_true(all(first_pos$is_corresponding))
+  # Lens exports name no corresponding author: unknown (NA) for every
+  # author; the first author was flagged before
+  expect_true(all(is.na(corpus$authorships$is_corresponding)))
+  expect_type(corpus$authorships$is_corresponding, "logical")
 })
 
 test_that("sm_read_lens records sources and provenance", {

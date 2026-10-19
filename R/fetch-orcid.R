@@ -143,11 +143,13 @@ sm_fetch_orcid <- function(orcid,
     gender_method = NA_character_
   )
 
+  # ORCID lists the holder's works, not the holder's place among the
+  # authors: position and corresponding author are unknown
   authorships <- tibble::tibble(
     work_id = work_ids,
     author_id = "A000000001",
-    position = 1L,
-    is_corresponding = TRUE,
+    position = NA_integer_,
+    is_corresponding = .corresponding_flags(length(work_ids)),
     institution_id = NA_character_,
     raw_affiliation = NA_character_,
     country_code = NA_character_

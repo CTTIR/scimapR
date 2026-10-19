@@ -166,17 +166,28 @@ For citation-based outcomes, citation-immature recent years are excluded
 automatically (`sm_citation_maturity()` exposes the same flags on `works`).
 
 A treated-vs-control comparison uses difference-in-differences. Here we tag two
-illustrative institution groups.
+illustrative institution groups, giving each work to one of them.
 
 ```{r did}
-corpus$authorships$institution_name <- rep(
-  c("Treated Inst", "Control Inst"),
-  length.out = nrow(corpus$authorships))
+group <- rep(c("Treated Inst", "Control Inst"),
+             length.out = nrow(corpus$works))
+corpus$authorships$institution_name <-
+  group[match(corpus$authorships$work_id, corpus$works$work_id)]
 
 did <- sm_did(corpus, treated = "Treated Inst", control = "Control Inst",
               intervention_year = 2020, outcome = "count")
 did
 ```
+
+A work co-authored by both groups belongs to both series and pulls them
+together. `sm_did()` warns about such works and lists them in
+`did$shared_works`; `shared = "exclude"` leaves them out of both series and
+`shared = "lead"` gives each to the group of its lead author.
+
+For `outcome = "leadership"`, `institutions` (in `sm_its()`) or
+`institution_aware = TRUE` (in `sm_did()` and `sm_synth()`) count only the
+works whose corresponding author, or the author in another `lead_role` such
+as `"first"`, belongs to the focal institutions.
 
 ## 4. Counting and robust impact
 

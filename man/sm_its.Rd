@@ -13,6 +13,8 @@ sm_its(
   outcome = c("count", "share_q1", "cnci", "leadership"),
   family = NULL,
   lag = NULL,
+  institutions = NULL,
+  lead_role = c("corresponding", "first", "last", "first_or_last", "any_lead"),
   call = rlang::caller_env()
 )
 
@@ -42,8 +44,10 @@ table (\code{cnci}/\code{fnci}/\code{value} keyed by \code{work_id}), or
 \code{\link[=sm_metric_fnci]{sm_metric_fnci()}}). If none is populated, an informative error names
 the columns inspected. Works without a finite impact value are left
 out of the yearly mean.}
-\item{\code{"leadership"}}{Share of works with a corresponding/leadership
-author (uses \code{authorships$is_corresponding}).}
+\item{\code{"leadership"}}{Share of works led through the author role
+\code{lead_role} (by default the corresponding author,
+\code{authorships$is_corresponding}), by one of \code{institutions} when
+they are given; see Details.}
 }}
 
 \item{family}{Optional GLM family (a \code{family} object, generator function, or
@@ -54,6 +58,22 @@ overdispersed; \code{"quasipoisson"} then scales the standard errors.}
 \item{lag}{Citation-maturity lag in years (default \code{2}). For citation-based
 outcomes (\code{"cnci"}), the most recent \code{lag} years are citation-immature and
 are excluded from the fit; this is reported in the print method.}
+
+\item{institutions}{For \code{outcome = "leadership"}: \code{NULL} (default) or a
+character vector of focal institution labels. A work then counts as
+led when an authorship in the role \code{lead_role} belongs to one of them,
+that is when its \code{institution_match}, \code{institution_name} or
+\code{institution_id}, or the name of that id in \code{corpus$institutions}, is
+one of the labels (run \code{\link[=sm_affiliation_match]{sm_affiliation_match()}} first). A label that
+no authorship carries gives a warning naming the nearest labels; when
+none is found, \code{sm_its()} aborts.}
+
+\item{lead_role}{For \code{outcome = "leadership"}: the author role that leads
+a work. \code{"corresponding"} (default) is an author with
+\code{is_corresponding = TRUE}, \code{"first"} and \code{"last"} are the authors with
+the lowest and the highest \code{position} of the work, \code{"first_or_last"}
+either, and \code{"any_lead"} the first, last or corresponding author.
+Roles other than \code{"corresponding"} need \code{institutions}.}
 
 \item{call}{Caller environment for error reporting.}
 
@@ -69,9 +89,15 @@ An \code{sm_its} S3 object with components: \code{model} (the fitted \code{glm})
 \code{conf.high}, \code{statistic}, \code{p.value}), \code{series} (tibble: \code{year},
 \code{observed}, \code{fitted}, \code{counterfactual}), and metadata (\code{outcome},
 \code{intervention_year}, \code{family}, \code{lag}, \code{provisional_years},
-\code{dropped_years}). \code{dropped_years} (integer) lists the years left out for
-lack of a usable value, \code{provisional_years} (integer) the
-citation-immature years excluded after them.
+\code{dropped_years}, \code{leadership}). \code{dropped_years} (integer) lists the
+years left out for lack of a usable value, \code{provisional_years}
+(integer) the citation-immature years excluded after them.
+\code{leadership} holds the definition used for \code{outcome = "leadership"}, a
+list of \code{lead_role}, \code{institution_aware} (\code{FALSE}), \code{institutions}
+(the focal labels or \code{NULL}) and \code{label_column} (the column that
+labels the institutions of the corpus, \code{institution_match},
+\code{institution_name} or \code{institution_id}, the first with a value; \code{NA}
+without \code{institutions}), and is \code{NULL} for the other outcomes.
 
 \code{print} returns \code{x} invisibly.
 
@@ -94,6 +120,29 @@ is dropped with a warning and listed in \code{dropped_years}: no work of the
 year has a journal quartile (\code{"share_q1"}) or a finite impact value
 (\code{"cnci"}). For \code{"cnci"} the citation-immature years are excluded after
 that and listed in \code{provisional_years}, so no year is in both.
+
+For \code{"leadership"} the share of a year is over the works whose lead is
+known, and that number of works weights the year in the fit. A work
+whose authorships all have \code{is_corresponding = NA} (unknown, as the
+readers of sources without corresponding-author data record it; see
+\code{\link[=sm_corpus]{sm_corpus()}}) leaves the denominator for
+\code{lead_role = "corresponding"}, with or without \code{institutions}; up to
+scimapR 0.4.0 it counted as not led. So does a work without
+authorships, and for the position roles a work whose positions are all
+\code{NA}. For \code{"any_lead"} an unknown corresponding author counts as not
+leading, so the work stays in the denominator. A year in which no work
+has a known lead is dropped with a warning, and \code{sm_its()} aborts when
+no work has one. With \code{institutions} the denominator is every work of
+the year with a known lead, not only the works with an authorship at
+the focal institutions.
+
+A focal label is compared with every label column of an authorship row
+(\code{institution_match}, \code{institution_name}, \code{institution_id} and the name
+of that id), as group membership in \code{\link[=sm_did]{sm_did()}} and \code{\link[=sm_synth]{sm_synth()}} is, so
+a row with \code{institution_match} "A" and \code{institution_name} "B" belongs to
+both "A" and "B". \code{\link[=sm_count]{sm_count()}} instead labels each row by the first of
+these columns with a value. The print method names the column that
+labels the institutions of the corpus (\code{leadership$label_column}).
 
 At least 4 years must remain after these exclusions, with 2 or more before
 \code{intervention_year} and 2 or more from it on, so that the pre-trend, the
@@ -118,6 +167,17 @@ its
 \donttest{
 ggplot2::autoplot(its)
 }
+
+# share of works whose corresponding author is at a focal unit
+fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
+dict <- readr::read_csv(
+  sm_example_files("example_realuse_affiliation_dict.csv"),
+  col_types = "ccc"
+)
+fix <- sm_affiliation_match(fix, dict)
+lead <- sm_its(fix, intervention_year = 2021, outcome = "leadership",
+               institutions = "Armed Forces Hospital Northtown")
+lead$series
 }
 \seealso{
 \code{\link[=sm_did]{sm_did()}}, \code{\link[=sm_citation_maturity]{sm_citation_maturity()}}

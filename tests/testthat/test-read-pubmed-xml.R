@@ -154,3 +154,14 @@ test_that("sm_read_pubmed_xml emits a progress message only when verbose", {
   expect_message(sm_read_pubmed_xml(path, verbose = TRUE), "PubMed")
   expect_silent(sm_read_pubmed_xml(path, verbose = FALSE))
 })
+
+test_that("sm_read_pubmed_xml records the corresponding author as unknown", {
+  path <- system.file("extdata", "example_pubmed.xml", package = "scimapR")
+  if (!nzchar(path)) {
+    path <- testthat::test_path("../../inst/extdata", "example_pubmed.xml")
+  }
+  a <- sm_read_pubmed_xml(path, verbose = FALSE)$authorships
+  expect_gt(nrow(a), 0L)
+  expect_type(a$is_corresponding, "logical")
+  expect_true(all(is.na(a$is_corresponding)))
+})

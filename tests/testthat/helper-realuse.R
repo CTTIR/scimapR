@@ -23,6 +23,13 @@ realuse_wos_sample <- function() {
   testthat::test_path("fixtures", "realuse-wos-sample.txt")
 }
 
+# The fixture matched with its affiliation dictionary, so its authorships
+# carry institution_match
+realuse_matched <- function() {
+  suppressMessages(scimapR::sm_affiliation_match(realuse_corpus(),
+                                                 realuse_dict()))
+}
+
 # One cluster per planted keyword theme (the anchor author keyword every
 # work of the theme carries), the same id in every time window; works
 # without an anchor (editorials and letters) are noise, cluster 0.

@@ -251,6 +251,89 @@
   `sm_attribute_institution()` on a corpus that was not matched first,
   leave other military hospitals unmatched; an English name with
   "Bundeswehr", such as "Bundeswehr Hospital", now matches as well.
+- The WoS reader (both engines), the bibliometrix import and both OpenAlex
+  readers take the corresponding author from the RP field or the OpenAlex
+  `is_corresponding` flag instead of assuming the first author; the
+  readers of sources without this information record it as unknown
+  (`NA`). `sm_audit_geographic(weight = "corresponding")` and the gender
+  audit now find corresponding authors (they used `isTRUE()` on a
+  column). RP is read in any case, with the older "(reprint author)" and
+  with its names on one line or several, in both engines; namesakes with
+  the same surname and initials are told apart by the address RP gives,
+  and stay unknown when it does not tell them apart. A work whose RP
+  names none of its authors counts as unknown, and so does an OpenAlex
+  work whose authors are all marked `false` unless its
+  `corresponding_author_ids` lists one of them. This changes default
+  results: `sm_read_lens()`, `sm_read_ris()`, `sm_read_scopus()`,
+  `sm_read_bib()`, `sm_read_pubmed_xml()`, `sm_fetch_pubmed()`,
+  `sm_fetch_crossref()` and the other readers and fetchers without
+  corresponding-author data now give `NA` instead of `TRUE` for the first
+  author, so `sm_to_bibliometrix()` exports `RP = NA` for their corpora,
+  and `sm_audit_geographic(weight = "corresponding")` reports the
+  countries of the corresponding authors instead of an empty table with
+  coverage 0.
+- Leadership outcomes can be restricted to focal institutions and author
+  roles (`institutions`, `lead_role`; `institution_aware` in `sm_did()` and
+  `sm_synth()`); works with an unknown corresponding author, and works
+  without any authorship rows (before counted as not led), leave the
+  default leadership denominator. A work counts as led when an authorship
+  in the role (`"corresponding"`, `"first"`, `"last"`, `"first_or_last"` or
+  `"any_lead"`) carries one of the institution labels in
+  `institution_match`, `institution_name` or `institution_id`, or the name
+  of that id in `corpus$institutions`; a label that no authorship carries
+  gives a warning naming the nearest labels. The denominator change
+  applies to `sm_its()`, `sm_did()` and `sm_synth()` alike and changes
+  their default `"leadership"` results for corpora with unknown
+  corresponding authors, which now include most corpora from readers
+  other than the WoS and OpenAlex readers: a year without a known
+  corresponding author is dropped with a warning, and when no work has
+  one the functions abort and suggest `lead_role = "first"` or `"last"`
+  with focal institutions. The print methods state the definition used,
+  which the results keep in `leadership`.
+- `sm_read_wos()` links the addresses of C1 to the authors by their whole
+  names, as the bibliometrix engine does: the full name of AF, else the
+  surname and initials, else the surname and first initial. It now writes
+  one authorship row per author and address. Before, it gave each author
+  the first C1 line whose bracket contained the author's surname anywhere,
+  so a short surname such as "He" or "Li" took the address of "Chen" or
+  "Lin", an author with several addresses kept only the first, and lines
+  without names linked nobody. In both engines and in `as_sm_corpus()`,
+  an address that C1 lists without names, as older records do, now
+  belongs to every author of the record, and the bibliometrix engine keeps
+  such a line apart from the address before it. Authorship rows,
+  address-based counts and the corpus hash of corpora read from Web of
+  Science files change.
+- `sm_fetch_biorxiv()` takes the corresponding author from the
+  `author_corresponding` field of the bioRxiv API, and
+  `sm_read_dimensions()` from a Corresponding Authors column, matching the
+  names to the authors by surname and given names or initials; a name
+  that fits two authors equally leaves both unknown.
+  `sm_fetch_orcid()` records the ORCID holder's `position` and
+  corresponding-author flag as unknown (`NA`); before, the holder was
+  first and corresponding author of every work, which counted as first
+  authorship in the geographic and gender audits.
+- `sm_did()` reports the works that belong to both the treated and the
+  control group, such as works co-authored by both, which pull the two
+  series together and the estimate toward 0: with a warning when the new
+  argument `shared` is not set, and in the new element `shared_works`.
+  `shared = "exclude"` leaves them out of both series and `"lead"` gives
+  each to the group of its lead author (`lead_role`); the default
+  `"keep"` keeps them in both, as before. `sm_did()` aborts when `treated`
+  and `control` share a label. `sm_did()` and `sm_synth()` gain `lag` and,
+  for `outcome = "cnci"`, now leave out the citation-immature years as
+  `sm_its()` does and list them in `provisional_years`, which changes
+  their default `"cnci"` results.
+- `sm_attribute_institution()` keeps the `institution_id` and
+  `institution_name` of the authorships it does not match, such as the
+  OpenAlex institution ids of a fetched corpus. Before, it set them to
+  `NA`, so institution counts, the institution h-index and the regional
+  audit lost every institution outside the vocabulary.
+- `sm_summary_authors()`, `sm_summary_period()` and the position breakdown
+  of `sm_audit_gender()` count each author once per work, however many
+  address rows the author has in it, as `sm_metric_collab_index()` does.
+  Before, an author with two address rows counted twice, so a
+  single-author work did not count as single-authored and the authors per
+  work disagreed with `sm_metric_collab_index()`.
 
 # scimapR 0.4.0
 

@@ -462,7 +462,7 @@ sm_read_bib <- function(path,
     wid_chunks[[k]] <- rep(work_ids[i], length(names))
     name_chunks[[k]] <- names
     pos_chunks[[k]] <- seq_along(names)
-    corr_chunks[[k]] <- c(TRUE, rep(FALSE, max(0L, length(names) - 1L)))
+    corr_chunks[[k]] <- .corresponding_flags(length(names))
   }
 
   if (k == 0L) {

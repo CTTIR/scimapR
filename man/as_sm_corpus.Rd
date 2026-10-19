@@ -44,12 +44,19 @@ keep the case of the file), \code{PY}, \code{DT}, \code{TC}, \code{LA}, \code{DI
 \item \code{authors} and \code{authorships} from \code{AU} and \code{AF}, with one authorship
 row per author and address: the names in the brackets of \code{C1}
 (\code{C1raw} where present) link authors to addresses. An address
-without names is linked only in a work with one author, otherwise
-the authors keep \code{raw_affiliation = NA}. Authors are told apart by
-the full names of \code{AF}; an entry whose given names are only initials,
-or that has no \code{AF}, belongs to the author with that surname and
-those initials when there is just one such author with a full name.
-The first author of each work is flagged as corresponding;
+without names, as in older records, belongs to every author of the
+work; one whose names designate none of the authors belongs to the
+author of a single-author work and else to nobody. Authors are told
+apart by the full names of \code{AF}; an entry whose given names are only
+initials, or that has no \code{AF}, belongs to the author with that
+surname and those initials when there is just one such author with a
+full name. \code{RP} gives \code{is_corresponding}: the authors it names before
+"(corresponding author)" or "(reprint author)", in any case, are
+\code{TRUE} on all their rows and the other authors of the work \code{FALSE}.
+Namesakes (the same surname and initials) are told apart by the
+address that \code{RP} gives with the name, and stay \code{NA} when it does not
+tell them apart; a work without \code{RP}, or whose \code{RP} designates none
+of its authors for certain, gets \code{NA} (unknown);
 \item \code{sources} from \code{SO}, \code{SN}, \code{EI}, \code{J9} and \code{JI} (\code{issn_l}, \code{issn},
 \code{abbreviation}, \code{iso_abbreviation});
 \item \code{references} from \code{CR}, with the DOI of each item that has one;

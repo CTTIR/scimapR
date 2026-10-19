@@ -11,6 +11,9 @@ sm_synth(
   donors,
   intervention_year,
   outcome = c("count", "share_q1", "cnci", "leadership"),
+  lag = NULL,
+  institution_aware = FALSE,
+  lead_role = c("corresponding", "first", "last", "first_or_last", "any_lead"),
   call = rlang::caller_env()
 )
 
@@ -28,6 +31,21 @@ number such as \code{2020}, or text holding one.}
 
 \item{outcome}{One of \code{"count"}, \code{"share_q1"}, \code{"cnci"}, \code{"leadership"}.}
 
+\item{lag}{Citation-maturity lag in years (default \code{2}), as in
+\code{\link[=sm_its]{sm_its()}}: for \code{"cnci"} the most recent \code{lag} years are
+citation-immature and excluded from the panel.}
+
+\item{institution_aware}{For \code{outcome = "leadership"}: if \code{TRUE}, each
+unit's share counts the works whose author in the role \code{lead_role}
+belongs to the unit itself (its label is the focal institution, as
+\code{institutions} in \code{\link[=sm_its]{sm_its()}}); the treated unit and every donor use
+their own label. \code{FALSE} (default) counts the works with a
+corresponding author.}
+
+\item{lead_role}{For \code{outcome = "leadership"}: the author role that leads
+a work, as in \code{\link[=sm_its]{sm_its()}}. Roles other than \code{"corresponding"} need
+\code{institution_aware = TRUE}.}
+
 \item{call}{Caller environment for error reporting.}
 
 \item{x}{An \code{sm_synth} object.}
@@ -38,7 +56,11 @@ number such as \code{2020}, or text holding one.}
 An \code{sm_synth} S3 object wrapping the initialised \code{tidysynth}
 object (\code{synth}), the long panel (\code{panel}: \code{unit}, \code{year}, \code{value}),
 \code{dropped_years} (tibble: \code{unit}, \code{year}; the unit-years without a usable
-value, whose years were dropped for every unit), and metadata.
+value, whose years were dropped for every unit), \code{provisional_years}
+(integer; the citation-immature years excluded for \code{"cnci"}),
+\code{leadership} (the leadership definition, as in \code{\link[=sm_its]{sm_its()}}, with
+\code{institutions} the unit labels when \code{institution_aware}; \code{NULL} for
+the other outcomes), and metadata.
 
 \code{print} returns \code{x} invisibly.
 }
@@ -54,9 +76,13 @@ contain works. For \code{"count"} a unit's years without works count 0, over
 every year from the first to the last publication year of the corpus, so
 no year is dropped. For the other outcomes the panel stays balanced: a
 year in which any unit has no works or no usable value is dropped for
-every unit, with a warning, and listed in \code{dropped_years}. At least 4
-panel years must remain, 2 or more before \code{intervention_year} and 1 or
-more from it on; otherwise \code{sm_synth()} aborts.
+every unit, with a warning, and listed in \code{dropped_years}. For \code{"cnci"}
+the citation-immature years are then excluded for every unit, by the
+same rule as in \code{\link[=sm_its]{sm_its()}}, and listed in \code{provisional_years}; up to
+scimapR 0.4.0 \code{sm_synth()} kept them. At least 4 panel years must
+remain, 2 or more before \code{intervention_year} and 1 or more from it on;
+otherwise \code{sm_synth()} aborts. For \code{"leadership"} the shares leave out
+the works whose lead is unknown, as in \code{\link[=sm_its]{sm_its()}}.
 }
 \examples{
 \dontshow{if (rlang::is_installed("tidysynth")) withAutoprint(\{ # examplesIf}

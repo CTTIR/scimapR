@@ -13,14 +13,21 @@
 #' `.sm_drop_unusable_years()`). The helper never warns: its callers warn
 #' once each, naming the group or unit.
 #'
+#' For `"leadership"` (`.sm_leadership_series()`), `n_works` counts the
+#' works with a known lead status, the denominator of the share.
+#'
 #' @param corpus An `sm_corpus`.
 #' @param outcome One of `"count"`, `"share_q1"`, `"cnci"`, `"leadership"`.
 #' @param work_ids Optional character vector restricting to a subset of works.
+#' @param institutions,lead_role Focal institutions (or `NULL`) and the
+#'   author role that leads a work, for `"leadership"`.
 #' @param call Caller environment.
 #' @return A list: `series` (a tibble with columns `year` (integer), `value`,
 #'   `n_works`) and `dropped_years` (sorted integer vector).
 #' @noRd
 .sm_yearly_outcome <- function(corpus, outcome, work_ids = NULL,
+                               institutions = NULL,
+                               lead_role = "corresponding",
                                call = rlang::caller_env()) {
   works <- corpus$works
   corpus_years <- as.integer(works$year[!is.na(works$year)])
@@ -84,28 +91,8 @@
         ) %>%
         dplyr::arrange(.data$year)
     },
-    leadership = {
-      a <- corpus$authorships
-      a <- dplyr::filter(a, .data$work_id %in% works$work_id)
-      lead <- a %>%
-        dplyr::group_by(.data$work_id) %>%
-        dplyr::summarise(
-          has_lead = any(.data$is_corresponding %in% TRUE),
-          .groups = "drop"
-        )
-      works %>%
-        dplyr::select("work_id", "year") %>%
-        dplyr::left_join(lead, by = "work_id") %>%
-        dplyr::mutate(has_lead = ifelse(is.na(.data$has_lead), FALSE,
-                                        .data$has_lead)) %>%
-        dplyr::group_by(.data$year) %>%
-        dplyr::summarise(
-          n_works = dplyr::n(),
-          value = mean(.data$has_lead),
-          .groups = "drop"
-        ) %>%
-        dplyr::arrange(.data$year)
-    }
+    leadership = .sm_leadership_series(corpus, works, institutions,
+                                       lead_role, call = call)
   )
   .sm_drop_unusable_years(series, works$year)
 }
@@ -376,8 +363,10 @@
 #'       [sm_metric_fnci()]). If none is populated, an informative error names
 #'       the columns inspected. Works without a finite impact value are left
 #'       out of the yearly mean.}
-#'     \item{`"leadership"`}{Share of works with a corresponding/leadership
-#'       author (uses `authorships$is_corresponding`).}
+#'     \item{`"leadership"`}{Share of works led through the author role
+#'       `lead_role` (by default the corresponding author,
+#'       `authorships$is_corresponding`), by one of `institutions` when
+#'       they are given; see Details.}
 #'   }
 #' @param family Optional GLM family (a `family` object, generator function, or
 #'   name). Defaults to Poisson for `"count"` and Gaussian otherwise; document
@@ -386,6 +375,20 @@
 #' @param lag Citation-maturity lag in years (default `2`). For citation-based
 #'   outcomes (`"cnci"`), the most recent `lag` years are citation-immature and
 #'   are excluded from the fit; this is reported in the print method.
+#' @param institutions For `outcome = "leadership"`: `NULL` (default) or a
+#'   character vector of focal institution labels. A work then counts as
+#'   led when an authorship in the role `lead_role` belongs to one of them,
+#'   that is when its `institution_match`, `institution_name` or
+#'   `institution_id`, or the name of that id in `corpus$institutions`, is
+#'   one of the labels (run [sm_affiliation_match()] first). A label that
+#'   no authorship carries gives a warning naming the nearest labels; when
+#'   none is found, `sm_its()` aborts.
+#' @param lead_role For `outcome = "leadership"`: the author role that leads
+#'   a work. `"corresponding"` (default) is an author with
+#'   `is_corresponding = TRUE`, `"first"` and `"last"` are the authors with
+#'   the lowest and the highest `position` of the work, `"first_or_last"`
+#'   either, and `"any_lead"` the first, last or corresponding author.
+#'   Roles other than `"corresponding"` need `institutions`.
 #' @param call Caller environment for error reporting.
 #'
 #' @details
@@ -397,6 +400,29 @@
 #' year has a journal quartile (`"share_q1"`) or a finite impact value
 #' (`"cnci"`). For `"cnci"` the citation-immature years are excluded after
 #' that and listed in `provisional_years`, so no year is in both.
+#'
+#' For `"leadership"` the share of a year is over the works whose lead is
+#' known, and that number of works weights the year in the fit. A work
+#' whose authorships all have `is_corresponding = NA` (unknown, as the
+#' readers of sources without corresponding-author data record it; see
+#' [sm_corpus()]) leaves the denominator for
+#' `lead_role = "corresponding"`, with or without `institutions`; up to
+#' scimapR 0.4.0 it counted as not led. So does a work without
+#' authorships, and for the position roles a work whose positions are all
+#' `NA`. For `"any_lead"` an unknown corresponding author counts as not
+#' leading, so the work stays in the denominator. A year in which no work
+#' has a known lead is dropped with a warning, and `sm_its()` aborts when
+#' no work has one. With `institutions` the denominator is every work of
+#' the year with a known lead, not only the works with an authorship at
+#' the focal institutions.
+#'
+#' A focal label is compared with every label column of an authorship row
+#' (`institution_match`, `institution_name`, `institution_id` and the name
+#' of that id), as group membership in [sm_did()] and [sm_synth()] is, so
+#' a row with `institution_match` "A" and `institution_name` "B" belongs to
+#' both "A" and "B". [sm_count()] instead labels each row by the first of
+#' these columns with a value. The print method names the column that
+#' labels the institutions of the corpus (`leadership$label_column`).
 #'
 #' At least 4 years must remain after these exclusions, with 2 or more before
 #' `intervention_year` and 2 or more from it on, so that the pre-trend, the
@@ -419,9 +445,15 @@
 #'   `conf.high`, `statistic`, `p.value`), `series` (tibble: `year`,
 #'   `observed`, `fitted`, `counterfactual`), and metadata (`outcome`,
 #'   `intervention_year`, `family`, `lag`, `provisional_years`,
-#'   `dropped_years`). `dropped_years` (integer) lists the years left out for
-#'   lack of a usable value, `provisional_years` (integer) the
-#'   citation-immature years excluded after them.
+#'   `dropped_years`, `leadership`). `dropped_years` (integer) lists the
+#'   years left out for lack of a usable value, `provisional_years`
+#'   (integer) the citation-immature years excluded after them.
+#'   `leadership` holds the definition used for `outcome = "leadership"`, a
+#'   list of `lead_role`, `institution_aware` (`FALSE`), `institutions`
+#'   (the focal labels or `NULL`) and `label_column` (the column that
+#'   labels the institutions of the corpus, `institution_match`,
+#'   `institution_name` or `institution_id`, the first with a value; `NA`
+#'   without `institutions`), and is `NULL` for the other outcomes.
 #'
 #' @family causal
 #' @seealso [sm_did()], [sm_citation_maturity()]
@@ -433,18 +465,44 @@
 #' \donttest{
 #' ggplot2::autoplot(its)
 #' }
+#'
+#' # share of works whose corresponding author is at a focal unit
+#' fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
+#' dict <- readr::read_csv(
+#'   sm_example_files("example_realuse_affiliation_dict.csv"),
+#'   col_types = "ccc"
+#' )
+#' fix <- sm_affiliation_match(fix, dict)
+#' lead <- sm_its(fix, intervention_year = 2021, outcome = "leadership",
+#'                institutions = "Armed Forces Hospital Northtown")
+#' lead$series
 sm_its <- function(corpus,
                    intervention_year,
                    outcome = c("count", "share_q1", "cnci", "leadership"),
                    family = NULL,
                    lag = NULL,
+                   institutions = NULL,
+                   lead_role = c("corresponding", "first", "last",
+                                 "first_or_last", "any_lead"),
                    call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   outcome <- rlang::arg_match(outcome, error_call = call)
+  given <- c("institutions", "lead_role")[c(!is.null(institutions),
+                                            !missing(lead_role))]
+  lead_role <- rlang::arg_match(lead_role, error_call = call)
   intervention_year <- .sm_intervention_year(intervention_year, call = call)
   lag <- as.integer(lag %||% 2L)
+  leadership <- NULL
+  if (.sm_check_leadership_args(outcome, lead_role, given,
+                                focal = !is.null(institutions),
+                                focal_arg = "institutions", call = call)) {
+    leadership <- .sm_leadership_def(corpus, lead_role, institutions)
+  } else {
+    institutions <- NULL
+  }
 
-  yearly <- .sm_yearly_outcome(corpus, outcome, call = call)
+  yearly <- .sm_yearly_outcome(corpus, outcome, institutions = institutions,
+                               lead_role = lead_role, call = call)
   series <- yearly$series
   dropped_years <- yearly$dropped_years
 
@@ -528,7 +586,8 @@ sm_its <- function(corpus,
       family = fam$family,
       lag = lag,
       provisional_years = provisional_years,
-      dropped_years = dropped_years
+      dropped_years = dropped_years,
+      leadership = leadership
     ),
     class = "sm_its"
   )
@@ -574,6 +633,10 @@ print.sm_its <- function(x, ...) {
   cli::cli_h1("<sm_its>")
   cli::cli_text("{.strong Outcome:} {x$outcome}   {.strong Family:} {x$family}")
   cli::cli_text("{.strong Intervention year:} {x$intervention_year}")
+  if (!is.null(x$leadership)) {
+    cli::cli_text("{.strong Leadership:} ",
+                  .sm_cli_escape(.sm_leadership_text(x$leadership)))
+  }
   if (length(x$dropped_years) > 0L) {
     cli::cli_text("{.strong Dropped (no usable data):} {x$dropped_years}")
   }
