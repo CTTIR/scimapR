@@ -6,11 +6,11 @@
 # intent written next to the skip().
 
 test_that("H1: years without a finite outcome are dropped, not fatal", {
-  skip("H1 pending - prompt A02")
   # Intent: no 2026 work has a journal quartile, so share_q1 has no value
   # for 2026. sm_its() drops that year with a warning naming it instead of
   # failing on mismatched fitted values; sm_did() drops it as well instead
-  # of fitting on fewer years and keeping NaN in its series.
+  # of fitting on fewer years and keeping NaN in its series, and reports
+  # it per group.
   fix <- realuse_corpus()
   expect_warning(its <- sm_its(fix, 2021, "share_q1"), "2026")
   expect_s3_class(its, "sm_its")
@@ -29,6 +29,9 @@ test_that("H1: years without a finite outcome are dropped, not fatal", {
   )
   expect_false(any(is.nan(did$series$value)))
   expect_false(2026L %in% did$series$year)
+  expect_identical(did$dropped_years$year, c(2026L, 2026L))
+  expect_identical(as.character(did$dropped_years$group),
+                   c("control", "treated"))
 })
 
 test_that("H2: keyword consumers read the vocabularies readers write", {

@@ -23,7 +23,8 @@ sm_synth(
 
 \item{donors}{Character vector of donor-pool institution labels.}
 
-\item{intervention_year}{Integer year the intervention takes effect.}
+\item{intervention_year}{Year the intervention takes effect: one whole
+number such as \code{2020}, or text holding one.}
 
 \item{outcome}{One of \code{"count"}, \code{"share_q1"}, \code{"cnci"}, \code{"leadership"}.}
 
@@ -34,8 +35,10 @@ sm_synth(
 \item{...}{Ignored.}
 }
 \value{
-An \code{sm_synth} S3 object wrapping the fitted \code{tidysynth} object
-(\code{synth}), the long panel (\code{panel}), and metadata.
+An \code{sm_synth} S3 object wrapping the initialised \code{tidysynth}
+object (\code{synth}), the long panel (\code{panel}: \code{unit}, \code{year}, \code{value}),
+\code{dropped_years} (tibble: \code{unit}, \code{year}; the unit-years without a usable
+value, whose years were dropped for every unit), and metadata.
 
 \code{print} returns \code{x} invisibly.
 }
@@ -44,6 +47,16 @@ Builds the unit-by-time outcome panel for a treated institution against a
 donor pool and estimates a synthetic control using the optional
 \pkg{tidysynth} package. The dependency is kept in \code{Suggests}; when it is not
 installed an informative error explains how to install it.
+}
+\details{
+Each unit's yearly series is built as in \code{\link[=sm_its]{sm_its()}}, and every unit must
+contain works. For \code{"count"} a unit's years without works count 0, over
+every year from the first to the last publication year of the corpus, so
+no year is dropped. For the other outcomes the panel stays balanced: a
+year in which any unit has no works or no usable value is dropped for
+every unit, with a warning, and listed in \code{dropped_years}. At least 4
+panel years must remain, 2 or more before \code{intervention_year} and 1 or
+more from it on; otherwise \code{sm_synth()} aborts.
 }
 \examples{
 \dontshow{if (rlang::is_installed("tidysynth")) withAutoprint(\{ # examplesIf}

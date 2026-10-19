@@ -4,34 +4,51 @@
 #'
 #' @description
 #' Aggregates one of several outcomes to a per-year series. Shared by
-#' [sm_its()] and [sm_did()].
+#' [sm_its()], [sm_did()] and [sm_synth()].
+#'
+#' For `"count"` the series runs over every year from the first to the last
+#' publication year of the whole corpus, and a year without works counts 0.
+#' For the other outcomes, a year with works but without a usable value is
+#' dropped and returned in `dropped_years` (see
+#' `.sm_drop_unusable_years()`). The helper never warns: its callers warn
+#' once each, naming the group or unit.
 #'
 #' @param corpus An `sm_corpus`.
 #' @param outcome One of `"count"`, `"share_q1"`, `"cnci"`, `"leadership"`.
 #' @param work_ids Optional character vector restricting to a subset of works.
 #' @param call Caller environment.
-#' @return A tibble with columns `year`, `value`, `n_works`.
+#' @return A list: `series` (a tibble with columns `year` (integer), `value`,
+#'   `n_works`) and `dropped_years` (sorted integer vector).
 #' @noRd
 .sm_yearly_outcome <- function(corpus, outcome, work_ids = NULL,
                                call = rlang::caller_env()) {
   works <- corpus$works
+  corpus_years <- as.integer(works$year[!is.na(works$year)])
   if (!is.null(work_ids)) {
     works <- dplyr::filter(works, .data$work_id %in% work_ids)
   }
   works <- dplyr::filter(works, !is.na(.data$year))
+  works$year <- as.integer(works$year)
+
+  if (outcome == "count") {
+    # Every corpus year is observed, so a year without works is a real 0.
+    grid <- if (length(corpus_years) == 0L) {
+      integer()
+    } else {
+      seq.int(min(corpus_years), max(corpus_years))
+    }
+    n <- tabulate(match(works$year, grid), nbins = length(grid))
+    series <- tibble::tibble(year = grid, value = as.double(n), n_works = n)
+    return(list(series = series, dropped_years = integer()))
+  }
 
   empty <- tibble::tibble(year = integer(), value = double(),
                           n_works = integer())
-  if (nrow(works) == 0L) return(empty)
+  if (nrow(works) == 0L) {
+    return(list(series = empty, dropped_years = integer()))
+  }
 
-  switch(outcome,
-    count = {
-      works %>%
-        dplyr::count(.data$year, name = "n_works") %>%
-        dplyr::mutate(value = as.double(.data$n_works)) %>%
-        dplyr::arrange(.data$year) %>%
-        dplyr::select("year", "value", "n_works")
-    },
+  series <- switch(outcome,
     share_q1 = {
       qcol <- intersect(c("quartile", "jif_quartile", "sjr_quartile"),
                         names(works))
@@ -53,6 +70,8 @@
     },
     cnci = {
       res <- .resolve_impact_values(corpus, call = call)
+      # works without a finite impact value stay out of the yearly mean
+      res$values$value[!is.finite(res$values$value)] <- NA_real_
       works %>%
         dplyr::select("work_id", "year") %>%
         dplyr::inner_join(res$values, by = "work_id") %>%
@@ -88,6 +107,163 @@
         dplyr::arrange(.data$year)
     }
   )
+  .sm_drop_unusable_years(series, works$year)
+}
+
+#' Drop the years of a yearly series that have no usable outcome
+#'
+#' A year is unusable when its `value` is missing or not finite (a share over
+#' works that all lack the information) or when no work enters it
+#' (`n_works == 0`). A year in `years` (the years with works) that is absent
+#' from `series` is unusable too: the impact outcome leaves works without a
+#' value out before it aggregates. Not for the count outcome, whose years
+#' without works are real zeros.
+#'
+#' @param series A yearly tibble with `year`, `value` and `n_works`.
+#' @param years Years with at least one work.
+#' @return A list: `series` without the unusable years and `dropped_years`
+#'   (sorted integer vector).
+#' @noRd
+.sm_drop_unusable_years <- function(series, years) {
+  series$year <- as.integer(series$year)
+  unusable <- !is.finite(series$value) | series$n_works %in% 0L
+  dropped <- union(setdiff(as.integer(years), series$year),
+                   series$year[unusable])
+  list(
+    series = series[!unusable, , drop = FALSE],
+    dropped_years = sort(as.integer(dropped))
+  )
+}
+
+#' Check `intervention_year` and return it as one integer year
+#'
+#' Shared by [sm_its()], [sm_did()] and [sm_synth()]. Accepts one whole
+#' number, or text holding one (such as `"2020"`). Fractional, missing and
+#' infinite years abort, and so do logical values, factors and dates, whose
+#' internal numbers are not years.
+#' @noRd
+.sm_intervention_year <- function(x, call = rlang::caller_env()) {
+  year <- if (is.character(x)) suppressWarnings(as.numeric(x)) else x
+  ok <- is.numeric(year) && rlang::is_integerish(year, n = 1, finite = TRUE)
+  # a whole number beyond the integer range becomes NA here
+  year <- if (ok) suppressWarnings(as.integer(year)) else NA_integer_
+  if (is.na(year)) {
+    cli::cli_abort(c(
+      "{.arg intervention_year} must be a single year.",
+      "i" = "Give it as one whole number, such as {.code 2020}."
+    ), call = call)
+  }
+  year
+}
+
+#' Abort unless enough years remain to fit a yearly model
+#'
+#' Called after every exclusion. At least 4 distinct years are required,
+#' with `min_pre` of them before `intervention_year` and `min_post` from it
+#' on.
+#'
+#' @param years Years that enter the fit.
+#' @param what Completes "Too few yearly observations ...", for example
+#'   `"to fit an ITS"`. Fixed text, never data.
+#' @param notes Plain-text lines (such as the excluded years) shown as info
+#'   bullets. Their braces are escaped, so labels from the data stay text.
+#' @noRd
+.sm_check_years <- function(years, intervention_year, what, min_pre = 1L,
+                            min_post = 1L, notes = character(),
+                            call = rlang::caller_env()) {
+  years <- unique(years)
+  n <- length(years)
+  n_pre <- sum(years < intervention_year)
+  n_post <- n - n_pre
+  if (n >= 4L && n_pre >= min_pre && n_post >= min_post) {
+    return(invisible(NULL))
+  }
+  cli::cli_abort(c(
+    paste0("Too few yearly observations ", what, ": {n} usable year{?s}, ",
+           "{n_pre} before {intervention_year} and {n_post} from it on."),
+    "i" = paste0("At least 4 distinct years are needed: {min_pre} or more ",
+                 "before {.arg intervention_year} and {min_post} or more ",
+                 "from it on."),
+    stats::setNames(.sm_cli_escape(notes), rep("i", length(notes)))
+  ), call = call)
+}
+
+#' Abort when a fitted model has aliased (inestimable) terms
+#'
+#' `coef(summary(fit))` silently omits aliased terms, so a level or slope
+#' change that the years cannot identify would vanish from the results.
+#' @noRd
+.sm_check_identified <- function(fit, what, call = rlang::caller_env()) {
+  aliased <- names(which(is.na(stats::coef(fit))))
+  if (length(aliased) == 0L) return(invisible(NULL))
+  cli::cli_abort(c(
+    "The {what} model cannot estimate {.field {aliased}}.",
+    "i" = paste0("The years used do not separate these terms; check ",
+                 "{.arg intervention_year} against the years of the series.")
+  ), call = call)
+}
+
+#' Warn when a model with an estimated dispersion has no residual df
+#'
+#' With as many years as coefficients (4 in an ITS), a family that estimates
+#' its dispersion (Gaussian, quasi families) fits the years exactly, and
+#' summary.glm() returns NaN standard errors, so the intervals and p-values
+#' are NaN too. Families that fix the dispersion (Poisson, binomial) keep
+#' their standard errors.
+#' @noRd
+.sm_check_residual_df <- function(fit, what) {
+  fixed <- fit$family$family %in% c("poisson", "binomial")
+  if (fixed || stats::df.residual(fit) > 0) return(invisible(NULL))
+  cli::cli_warn(c(
+    paste0("The {what} model has no residual degrees of freedom: its ",
+           "{length(stats::coef(fit))} coefficients fit the ",
+           "{stats::nobs(fit)} years exactly."),
+    "i" = paste0("Its standard errors, confidence intervals and p-values ",
+                 "are NaN; they need more years than coefficients.")
+  ), class = "scimapR_no_residual_df")
+}
+
+#' Warn when a Poisson count model is overdispersed
+#'
+#' Pearson's statistic over the residual degrees of freedom estimates the
+#' dispersion; when it exceeds 1 significantly (chi-squared test, p < 0.05),
+#' the Poisson standard errors are too small.
+#' @noRd
+.sm_check_overdispersion <- function(fit) {
+  if (!identical(fit$family$family, "poisson")) return(invisible(NULL))
+  rdf <- stats::df.residual(fit)
+  if (rdf < 1) return(invisible(NULL))
+  pearson <- sum(stats::residuals(fit, type = "pearson")^2)
+  p <- stats::pchisq(pearson, rdf, lower.tail = FALSE)
+  if (!is.finite(p) || p >= 0.05) return(invisible(NULL))
+  cli::cli_warn(c(
+    paste0("The Poisson model is overdispersed (dispersion ",
+           "{round(pearson / rdf, 2)}), so its standard errors and ",
+           "confidence intervals are too narrow."),
+    "i" = paste0("Refit with {.code family = \"quasipoisson\"} to scale ",
+                 "them by the estimated dispersion.")
+  ), class = "scimapR_overdispersion")
+}
+
+#' "unit: year, year" lines for grouped series, in order of first appearance
+#' @noRd
+.sm_unit_years <- function(unit, year) {
+  unit <- as.character(unit)
+  keys <- unique(unit)
+  vapply(keys, function(k) {
+    paste0(k, ": ", paste(sort(year[unit == k]), collapse = ", "))
+  }, character(1), USE.NAMES = FALSE)
+}
+
+#' Warn once about years dropped from grouped series (sm_did, sm_synth)
+#' @param header cli template naming the method; may use `{outcome}`.
+#' @noRd
+.sm_warn_dropped_units <- function(unit, year, outcome, header) {
+  lines <- .sm_unit_years(unit, year)
+  cli::cli_warn(c(
+    header,
+    stats::setNames(.sm_cli_escape(lines), rep("*", length(lines)))
+  ), class = "scimapR_dropped_years")
 }
 
 #' Resolve a per-work impact (CNCI) series from common locations
@@ -184,34 +360,68 @@
 #' pre-intervention trend projected forward).
 #'
 #' @param corpus An `sm_corpus`.
-#' @param intervention_year Integer year at which the intervention takes effect.
+#' @param intervention_year Year at which the intervention takes effect: one
+#'   whole number such as `2020`, or text holding one.
 #' @param outcome One of `"count"`, `"share_q1"`, `"cnci"`, `"leadership"`.
 #'   The expected source columns are:
 #'   \describe{
 #'     \item{`"count"`}{Works per year (uses `works$year`).}
-#'     \item{`"share_q1"`}{Share of Q1-journal works; needs a journal-quartile
-#'       column on `works` (`quartile`, `jif_quartile`, or `sjr_quartile`).}
+#'     \item{`"share_q1"`}{Share of Q1-journal works among the works with a
+#'       quartile; needs a journal-quartile column on `works` (`quartile`,
+#'       `jif_quartile`, or `sjr_quartile`).}
 #'     \item{`"cnci"`}{Mean field-normalised citation impact per year. Impact is
 #'       resolved from the first populated of `works$cnci`, a `corpus$metrics`
-#'       table (`cnci`/`fnci`/`value` keyed by `work_id`), or `works$cited_by_count`
-#'       (from which FNCI is derived via [sm_metric_fnci()]). If none is
-#'       populated, an informative error names the columns inspected.}
+#'       table (`cnci`/`fnci`/`value` keyed by `work_id`), or
+#'       `works$cited_by_count` (from which FNCI is derived via
+#'       [sm_metric_fnci()]). If none is populated, an informative error names
+#'       the columns inspected. Works without a finite impact value are left
+#'       out of the yearly mean.}
 #'     \item{`"leadership"`}{Share of works with a corresponding/leadership
 #'       author (uses `authorships$is_corresponding`).}
 #'   }
 #' @param family Optional GLM family (a `family` object, generator function, or
 #'   name). Defaults to Poisson for `"count"` and Gaussian otherwise; document
-#'   your choice when overriding.
+#'   your choice when overriding. A Poisson fit warns when the counts are
+#'   overdispersed; `"quasipoisson"` then scales the standard errors.
 #' @param lag Citation-maturity lag in years (default `2`). For citation-based
 #'   outcomes (`"cnci"`), the most recent `lag` years are citation-immature and
 #'   are excluded from the fit; this is reported in the print method.
 #' @param call Caller environment for error reporting.
 #'
+#' @details
+#' The yearly series is built first. For `"count"` it runs over every year
+#' from the first to the last publication year of the corpus, and a year
+#' without works counts 0, so filter the corpus to the analysis window
+#' beforehand. For the other outcomes a year with works but no usable value
+#' is dropped with a warning and listed in `dropped_years`: no work of the
+#' year has a journal quartile (`"share_q1"`) or a finite impact value
+#' (`"cnci"`). For `"cnci"` the citation-immature years are excluded after
+#' that and listed in `provisional_years`, so no year is in both.
+#'
+#' At least 4 years must remain after these exclusions, with 2 or more before
+#' `intervention_year` and 2 or more from it on, so that the pre-trend, the
+#' level change and the slope change can all be estimated; otherwise
+#' `sm_its()` aborts. With only 4 years the 4 coefficients fit the series
+#' exactly: a family that estimates its dispersion (Gaussian, quasi
+#' families) then has no residual degrees of freedom, so its standard
+#' errors, intervals and p-values are `NaN` and `sm_its()` warns. Families
+#' that fix the dispersion, such as the Poisson default for `"count"`, keep
+#' their standard errors.
+#'
+#' The confidence intervals are Wald intervals on the reference distribution
+#' of the p-values: t with the residual degrees of freedom when the family
+#' estimates its dispersion (Gaussian and quasi families), normal when the
+#' family fixes it (Poisson, binomial). The standard errors treat the yearly
+#' values as independent; no correction for autocorrelation is applied.
+#'
 #' @return An `sm_its` S3 object with components: `model` (the fitted `glm`),
 #'   `coefficients` (tidy tibble: `term`, `estimate`, `std.error`, `conf.low`,
 #'   `conf.high`, `statistic`, `p.value`), `series` (tibble: `year`,
 #'   `observed`, `fitted`, `counterfactual`), and metadata (`outcome`,
-#'   `intervention_year`, `family`, `lag`, `provisional_years`).
+#'   `intervention_year`, `family`, `lag`, `provisional_years`,
+#'   `dropped_years`). `dropped_years` (integer) lists the years left out for
+#'   lack of a usable value, `provisional_years` (integer) the
+#'   citation-immature years excluded after them.
 #'
 #' @family causal
 #' @seealso [sm_did()], [sm_citation_maturity()]
@@ -231,23 +441,16 @@ sm_its <- function(corpus,
                    call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   outcome <- rlang::arg_match(outcome, error_call = call)
-  if (!rlang::is_integerish(intervention_year, n = 1)) {
-    cli::cli_abort("{.arg intervention_year} must be a single year.",
-                   call = call)
-  }
-  intervention_year <- as.integer(intervention_year)
+  intervention_year <- .sm_intervention_year(intervention_year, call = call)
   lag <- as.integer(lag %||% 2L)
 
-  series <- .sm_yearly_outcome(corpus, outcome, call = call)
-  if (nrow(series) < 4L) {
-    cli::cli_abort(c(
-      "Too few yearly observations to fit an ITS ({nrow(series)} found).",
-      "i" = "At least 4 distinct years are required."
-    ), call = call)
-  }
+  yearly <- .sm_yearly_outcome(corpus, outcome, call = call)
+  series <- yearly$series
+  dropped_years <- yearly$dropped_years
 
   # citation-maturity exclusion for citation-based outcomes, using the same
-  # cutoff rule as sm_citation_maturity() (Part D1).
+  # cutoff rule as sm_citation_maturity() (Part D1). It runs after the
+  # unusable years are dropped, so the two sets never share a year.
   provisional_years <- integer()
   if (outcome == "cnci") {
     cutoff <- .maturity_cutoff(corpus, lag)
@@ -257,6 +460,25 @@ sm_its <- function(corpus,
         series <- dplyr::filter(series, !(.data$year %in% provisional_years))
       }
     }
+  }
+
+  notes <- character()
+  if (length(dropped_years) > 0L) {
+    notes <- paste0("Dropped for lack of usable ", outcome, " data: ",
+                    paste(dropped_years, collapse = ", "), ".")
+  }
+  if (length(provisional_years) > 0L) {
+    notes <- c(notes, paste0("Excluded as citation-immature: ",
+                             paste(provisional_years, collapse = ", "), "."))
+  }
+  .sm_check_years(series$year, intervention_year, "to fit an ITS",
+                  min_pre = 2L, min_post = 2L, notes = notes, call = call)
+  if (length(dropped_years) > 0L) {
+    cli::cli_warn(c(
+      paste0("Dropped {length(dropped_years)} year{?s} with no usable ",
+             "{.val {outcome}} data: {dropped_years}."),
+      "i" = "The ITS is fitted on the other years; see {.field dropped_years}."
+    ), class = "scimapR_dropped_years")
   }
 
   df <- series
@@ -273,16 +495,21 @@ sm_its <- function(corpus,
                     } else {
                       NULL
                     })
+  .sm_check_identified(fit, "ITS", call = call)
+  .sm_check_residual_df(fit, "ITS")
+  .sm_check_overdispersion(fit)
 
   coefs <- .sm_tidy_glm(fit)
 
-  # counterfactual: pre-intervention trend projected across all years
+  # counterfactual: pre-intervention trend projected across all years; the
+  # fitted values come from the same modelled rows, so all columns align
   cf_data <- df
   cf_data$intervention <- 0L
   cf_data$time_since <- 0L
   counterfactual <- as.numeric(stats::predict(fit, newdata = cf_data,
                                               type = "response"))
-  fitted_vals <- as.numeric(stats::predict(fit, type = "response"))
+  fitted_vals <- as.numeric(stats::predict(fit, newdata = df,
+                                           type = "response"))
 
   out_series <- tibble::tibble(
     year = df$year,
@@ -300,25 +527,39 @@ sm_its <- function(corpus,
       intervention_year = intervention_year,
       family = fam$family,
       lag = lag,
-      provisional_years = provisional_years
+      provisional_years = provisional_years,
+      dropped_years = dropped_years
     ),
     class = "sm_its"
   )
 }
 
 #' Tidy a glm into a coefficient tibble with Wald CIs (no broom dependency)
+#'
+#' The interval uses the reference distribution of the p-values:
+#' summary.glm() tests with t on the residual degrees of freedom when the
+#' dispersion is estimated (Gaussian, quasi families) and with z when the
+#' family fixes it (Poisson, binomial).
 #' @noRd
 .sm_tidy_glm <- function(fit, conf_level = 0.95) {
   sm <- stats::coef(summary(fit))
   est <- sm[, 1]
   se <- sm[, 2]
-  z <- stats::qnorm(1 - (1 - conf_level) / 2)
+  prob <- 1 - (1 - conf_level) / 2
+  rdf <- stats::df.residual(fit)
+  q <- if (!identical(colnames(sm)[3], "t value")) {
+    stats::qnorm(prob)
+  } else if (rdf > 0) {
+    stats::qt(prob, df = rdf)
+  } else {
+    NaN
+  }
   tibble::tibble(
     term = rownames(sm),
     estimate = unname(est),
     std.error = unname(se),
-    conf.low = unname(est - z * se),
-    conf.high = unname(est + z * se),
+    conf.low = unname(est - q * se),
+    conf.high = unname(est + q * se),
     statistic = unname(sm[, 3]),
     p.value = unname(sm[, 4])
   )
@@ -333,6 +574,9 @@ print.sm_its <- function(x, ...) {
   cli::cli_h1("<sm_its>")
   cli::cli_text("{.strong Outcome:} {x$outcome}   {.strong Family:} {x$family}")
   cli::cli_text("{.strong Intervention year:} {x$intervention_year}")
+  if (length(x$dropped_years) > 0L) {
+    cli::cli_text("{.strong Dropped (no usable data):} {x$dropped_years}")
+  }
   if (length(x$provisional_years) > 0L) {
     cli::cli_text("{.strong Excluded (citation-immature):} {x$provisional_years}")
   }

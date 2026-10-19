@@ -29,13 +29,15 @@ sm_did(
 \item{treated, control}{Character vectors of institution labels (matched
 against \code{institution_name} / \code{institution_match} / \code{institution_id}).}
 
-\item{intervention_year}{Integer year the intervention takes effect.}
+\item{intervention_year}{Year the intervention takes effect: one whole
+number such as \code{2020}, or text holding one.}
 
 \item{outcome}{One of \code{"count"}, \code{"share_q1"}, \code{"cnci"}, \code{"leadership"}
 (see \code{\link[=sm_its]{sm_its()}}).}
 
 \item{family}{Optional GLM family; defaults to Gaussian (DiD is an additive
-contrast). Override for, e.g., a Poisson count model.}
+contrast). Override for, e.g., a Poisson count model; a Poisson fit
+warns when the counts are overdispersed.}
 
 \item{call}{Caller environment for error reporting.}
 
@@ -49,7 +51,9 @@ contrast). Override for, e.g., a Poisson count model.}
 An \code{sm_did} S3 object with components: \code{model}, \code{did_estimate}
 (a one-row tibble: \code{estimate}, \code{std.error}, \code{conf.low}, \code{conf.high},
 \code{p.value}), \code{series} (group-by-year tibble: \code{year}, \code{group}, \code{value},
-\code{n_works}), and metadata (\code{outcome}, \code{intervention_year}, \code{family}).
+\code{n_works}), \code{dropped_years} (tibble: \code{group}, \code{year}; the group-years
+left out for lack of a usable value), and metadata (\code{outcome},
+\code{intervention_year}, \code{family}).
 
 \code{print} returns \code{x} invisibly.
 
@@ -63,6 +67,18 @@ series of a treated institution set against a control set, before and after
 \code{intervention_year}. Group membership is resolved via the
 institution-attribution columns from \code{\link[=sm_affiliation_match]{sm_affiliation_match()}} /
 \code{\link[=sm_attribute_institution]{sm_attribute_institution()}}.
+}
+\details{
+Each group's yearly series is built as in \code{\link[=sm_its]{sm_its()}}. For \code{"count"} a
+group's years without works count 0, over every year from the first to
+the last publication year of the corpus. For the other outcomes a year in
+which a group has works but no usable value is dropped from that group's
+series, with a warning, and listed in \code{dropped_years}. Each group needs 4
+or more years, with at least one before \code{intervention_year} and one from
+it on; otherwise \code{sm_did()} aborts. The confidence interval uses the
+reference distribution of the p-value (t with the residual degrees of
+freedom for the default Gaussian family); no correction for
+autocorrelation is applied.
 }
 \examples{
 \dontshow{if (rlang::is_installed("stringdist")) withAutoprint(\{ # examplesIf}

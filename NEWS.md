@@ -69,6 +69,44 @@
   longer lowercases the patterns, which turned `\W`, `\S`, `\D` and `\B`
   into `\w`, `\s`, `\d` and `\b`, and a corpus with a single work now gets
   one screening row instead of several.
+- `sm_its()` no longer fails when a year has no finite outcome, `sm_did()`
+  no longer fits silently on fewer years, and `sm_synth()` no longer passes
+  such years to tidysynth; these years are dropped with a warning and
+  reported (`dropped_years`). `sm_did()` drops them per group, and
+  `sm_synth()` for every unit so that its panel stays balanced. For
+  `outcome = "cnci"`, works with an infinite impact value are left out of
+  the yearly mean, and a year without usable impact counts as dropped even
+  when it is citation-immature, so `dropped_years` and `provisional_years`
+  never share a year.
+- The confidence intervals of `sm_its()` and `sm_did()` use the t
+  distribution with the residual degrees of freedom when the model
+  estimates its dispersion, as their p-values already did: the default
+  Gaussian fits of `sm_did()` and of `sm_its()` for `"share_q1"`, `"cnci"`
+  and `"leadership"`, and quasi families. These intervals are wider than
+  before and agree with the p-values. Poisson fits (the `sm_its()` default
+  for `"count"`) keep normal intervals and now warn when the counts are
+  overdispersed, suggesting `family = "quasipoisson"`.
+- With `outcome = "count"`, `sm_its()`, `sm_did()` and `sm_synth()` count a
+  year without works as 0, over every year from the first to the last
+  publication year of the corpus, instead of leaving the year out; filter
+  the corpus to the analysis window first. `sm_synth()` aborts when a unit
+  has no works.
+- `sm_its()` checks the years that remain after all exclusions (years
+  without a usable value and, for `"cnci"`, citation-immature years)
+  instead of before the citation-immature cut. It needs at least 4 years, 2
+  or more before `intervention_year` and 2 or more from it on, and aborts
+  otherwise, or when a level or slope change cannot be estimated, instead
+  of silently fitting a model without those terms. On exactly 4 years a
+  Gaussian or quasi-family fit has no residual degrees of freedom, and
+  `sm_its()` now warns that its standard errors, intervals and p-values
+  are `NaN`. `sm_did()` needs 4 years per group, with years before and
+  from `intervention_year`, and `sm_synth()` 4 panel years, 2 of them
+  before it.
+- `sm_its()`, `sm_did()` and `sm_synth()` check `intervention_year` the
+  same way and abort unless it is one whole year, given as a number or as
+  text such as `"2020"`. Before, `sm_did()` and `sm_synth()` truncated a
+  year such as 2020.5 and read `TRUE` as the year 1, and all three read a
+  factor or a date by its internal number.
 
 # scimapR 0.4.0
 

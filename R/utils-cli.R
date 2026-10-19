@@ -17,3 +17,9 @@
     cli::cli_inform(c("i" = msg), .envir = .envir)
   }
 }
+
+# Double the braces of plain text, so cli prints it literally instead of
+# evaluating it as a template (for labels that come from the data).
+.sm_cli_escape <- function(x) {
+  gsub("([{}])", "\\1\\1", x)
+}
