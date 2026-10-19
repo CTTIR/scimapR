@@ -75,6 +75,7 @@ test_that("sm_read_lens extracts MeSH and keyword concepts with vocabularies", {
                   c("TermA", "TermB", "kw1", "kw2"))
   expect_setequal(unique(corpus$concepts$vocabulary),
                   c("mesh", "author-keywords"))
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
 })
 
 test_that("sm_read_lens returns an empty corpus for header-only files", {

@@ -90,6 +90,7 @@ test_that("sm_read_pubmed_xml extracts DOI, language, type, MeSH and affiliation
   # MeSH descriptors become concepts in the "mesh" vocabulary
   expect_setequal(corpus$concepts$concept_name, c("Neoplasms", "Genomics"))
   expect_equal(unique(corpus$concepts$vocabulary), "mesh")
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
   # without MajorTopicYN flags the headings carry no score
   expect_true(all(is.na(corpus$concepts$score)))
 })

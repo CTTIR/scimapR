@@ -101,7 +101,12 @@
 #' and side-stepping format-specific parsers. Required columns are validated
 #' against the `sm_corpus` schema, column types are coerced (with informative
 #' messages), absent optional tables are filled with correctly-typed 0-row
-#' tibbles, and the result is validated before being returned.
+#' tibbles, and the result is validated before being returned. Legacy and
+#' common spellings of concept vocabularies (such as `"keywords-author"` or
+#' `"Author Keywords"`) are renamed to the names of
+#' [sm_concept_vocabularies()], with a message. Values that name no known
+#' vocabulary are kept as written and listed in the same message, each time
+#' a corpus is built from them; name a vocabulary of your own `"custom"`.
 #'
 #' This is the recommended ingestion path for arbitrary tabular sources.
 #'
@@ -114,7 +119,8 @@
 #'   schema.
 #' @param .coerce Logical (default `TRUE`); coerce supplied columns to the
 #'   schema's types. When `FALSE`, columns are used as-is (missing columns are
-#'   still filled with typed `NA`).
+#'   still filled with typed `NA`, and concept vocabularies are still
+#'   renamed).
 #' @param metadata Optional list of corpus-level metadata.
 #' @param call Caller environment for error reporting.
 #'
@@ -185,6 +191,9 @@ sm_corpus_from_tables <- function(tables,
     built$works$work_id <- .generate_work_id(nrow(built$works))
     cli::cli_inform(c("i" = "Generated {.field work_id}s for the {.field works} table."))
   }
+
+  # concept vocabularies get their canonical names, also with .coerce = FALSE
+  built$concepts <- .normalize_corpus_concepts(built$concepts)
 
   corpus <- new_sm_corpus(
     works = built$works,

@@ -187,6 +187,34 @@ test_that("D1: NULL/empty source element does not corrupt types; missing key war
   expect_warning(sm_materialise(corpus, sources = list(works = bad)), "key")
 })
 
+test_that("sm_materialise normalises the concept vocabularies it fills", {
+  corpus <- sm_example_corpus(n_works = 3, seed = 1)
+  corpus$concepts <- tibble::tibble(
+    work_id = corpus$works$work_id,
+    concept_id = c("K1", "K2", "K3"),
+    concept_name = c("alpha", "beta", "gamma"),
+    level = NA_integer_,
+    score = NA_real_,
+    vocabulary = c(NA, NA, "openalex")
+  )
+  enr <- tibble::tibble(work_id = corpus$works$work_id[1:2],
+                        concept_id = c("K1", "K2"),
+                        vocabulary = c("Author Keywords", "keywords-author"))
+  msgs <- character()
+  out <- withCallingHandlers(
+    sm_materialise(corpus, sources = list(concepts = enr)),
+    message = function(m) {
+      msgs <<- c(msgs, conditionMessage(m))
+      invokeRestart("muffleMessage")
+    }
+  )
+  expect_identical(out$concepts$vocabulary,
+                   c("author-keywords", "author-keywords", "openalex"))
+  # Only the materialise report; the renaming is silent here.
+  expect_length(msgs, 1L)
+  expect_match(msgs, "Materialised")
+})
+
 test_that("D1: .sm_bind_rows returns the template instead of a logical degenerate", {
   tmpl <- tibble::tibble(a = integer(), b = character())
   out <- .sm_bind_rows(list(NULL, NULL), template = tmpl)

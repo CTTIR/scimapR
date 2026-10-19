@@ -72,6 +72,7 @@ test_that("sm_read_openalex_json builds authors, sources, concepts, references",
 
   expect_equal(corpus$concepts$concept_name[1], "Biology")
   expect_equal(unique(corpus$concepts$vocabulary), "openalex")
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
 
   expect_equal(nrow(corpus$references), 2L)
   expect_setequal(corpus$references$cited_raw,

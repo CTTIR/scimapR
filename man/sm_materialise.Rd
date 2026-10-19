@@ -44,7 +44,9 @@ e.g. a \code{bind_rows()} that coerces a \code{NULL} element to a logical column
 \details{
 Missing keys produce a \code{cli::cli_warn} and skip that source rather than
 erroring. Internally, row-binds use a type-safe helper so a \code{NULL}/empty
-source never corrupts a column's type.
+source never corrupts a column's type. After a merge into \code{concepts},
+legacy spellings in its \code{vocabulary} column are renamed to the names of
+\code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}}, without a message.
 }
 \examples{
 corpus <- sm_example_corpus(n_works = 10, seed = 1)
@@ -61,6 +63,7 @@ Other corpus:
 \code{\link[=is_sm_corpus]{is_sm_corpus()}},
 \code{\link[=sm_bind_corpora]{sm_bind_corpora()}},
 \code{\link[=sm_build_corpus]{sm_build_corpus()}},
+\code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}},
 \code{\link[=sm_corpus]{sm_corpus()}},
 \code{\link[=sm_corpus_from_tables]{sm_corpus_from_tables()}},
 \code{\link[=sm_dedupe]{sm_dedupe()}},

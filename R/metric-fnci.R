@@ -43,9 +43,10 @@
 #' above-average impact.
 #'
 #' For `"openalex_concepts"`, the highest-scoring level-0 concept from the
-#' concepts table is used. For `"mesh"`, MeSH headings are used (requires
-#' MeSH data in concepts; see below). For `"manual"`, a `field` column must
-#' already exist in `corpus$works`.
+#' concepts table is used. For `"mesh"`, MeSH headings are used: concepts
+#' of the `"mesh"` vocabulary of [sm_concept_vocabularies()], also when
+#' spelled `"MEDLINE"` (requires MeSH data in concepts; see below). For
+#' `"manual"`, a `field` column must already exist in `corpus$works`.
 #'
 #' @section Small cells:
 #' A cell with few works gives an unstable baseline, and a work alone in its
@@ -416,9 +417,8 @@ sm_metric_fnci <- function(corpus,
         return(tibble::tibble(work_id = works$work_id,
                               field = rep(NA_character_, nrow(works))))
       }
-      # Use MeSH vocabulary concepts
-      mesh_concepts <- concepts %>%
-        dplyr::filter(tolower(.data$vocabulary) %in% c("mesh", "medline"))
+      # Use MeSH vocabulary concepts (any spelling, such as "MEDLINE")
+      mesh_concepts <- .concepts_in_family(concepts, "mesh", call = call)
       if (nrow(mesh_concepts) == 0L) {
         cli::cli_inform(c(
           "!" = "No MeSH terms found in concepts table.",

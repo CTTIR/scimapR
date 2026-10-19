@@ -142,6 +142,50 @@ test_that("sm_author_trajectory collapses when all works share a single year", {
   expect_equal(nrow(traj$collaborator_turnover), 0L)
 })
 
+test_that("sm_author_trajectory counts a concept name once per work", {
+  # Web of Science records often give a category (WC) and a research area
+  # (SC) the same name; the name must not count twice in the dominant
+  # topics or the novelty.
+  path <- withr::local_tempfile(fileext = ".txt")
+  record <- function(i, year, de = NULL, wc = NULL) {
+    c("PT J", "AU Doe, J", paste("TI Work", i),
+      if (!is.null(de)) paste("DE", de),
+      if (!is.null(wc)) c(paste("WC", wc), paste("SC", wc)),
+      paste("PY", year), sprintf("UT WOS:%015d", i), "ER")
+  }
+  writeLines(c(
+    record(1, 2018, wc = "Surgery; Oncology"),
+    record(2, 2019, wc = "Surgery"),
+    record(3, 2019, de = "trauma"),
+    record(4, 2019, de = "trauma"),
+    record(5, 2019, de = "trauma"),
+    record(6, 2021, wc = "Surgery; Oncology; Emergency Medicine"),
+    record(7, 2022, wc = "Oncology; Emergency Medicine"),
+    "EF"
+  ), path)
+  wos <- sm_read_wos(path, verbose = FALSE)
+  expect_equal(sum(wos$concepts$vocabulary == "wos-category"), 8L)
+  expect_equal(sum(wos$concepts$vocabulary == "wos-subject-category"), 8L)
+  aid <- wos$authors$author_id[1]
+  traj <- sm_author_trajectory(wos, author_id = aid, n_periods = 2L)
+
+  # Distinct names per work: 2, 1, 1, 1, 1 in 2018-2020; 3 and 2 later.
+  expect_equal(traj$novelty_curve$mean_novelty, c(1.2, 2.5))
+  # "trauma" is in three works, "Surgery" in two (with two rows each).
+  expect_identical(unlist(traj$career_stages$dominant_topics[[1]]),
+                   c("trauma", "Surgery", "Oncology"))
+
+  # Without the research areas of the same name, nothing changes.
+  wc_only <- wos
+  wc_only$concepts <- wos$concepts[
+    wos$concepts$vocabulary != "wos-subject-category",
+  ]
+  traj_wc <- sm_author_trajectory(wc_only, author_id = aid, n_periods = 2L)
+  expect_identical(traj_wc$novelty_curve, traj$novelty_curve)
+  expect_identical(traj_wc$career_stages, traj$career_stages)
+  expect_identical(traj_wc$topic_pivots, traj$topic_pivots)
+})
+
 # --- Internal helpers ---------------------------------------------------
 
 test_that(".compute_h_index implements the h-index correctly", {

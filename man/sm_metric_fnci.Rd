@@ -61,9 +61,10 @@ baseline cell (by default its field and year). Values > 1.0 indicate
 above-average impact.
 
 For \code{"openalex_concepts"}, the highest-scoring level-0 concept from the
-concepts table is used. For \code{"mesh"}, MeSH headings are used (requires
-MeSH data in concepts; see below). For \code{"manual"}, a \code{field} column must
-already exist in \code{corpus$works}.
+concepts table is used. For \code{"mesh"}, MeSH headings are used: concepts
+of the \code{"mesh"} vocabulary of \code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}}, also when
+spelled \code{"MEDLINE"} (requires MeSH data in concepts; see below). For
+\code{"manual"}, a \code{field} column must already exist in \code{corpus$works}.
 }
 \section{Small cells}{
 

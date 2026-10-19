@@ -117,3 +117,48 @@ test_that("sm_corpus_from_tables preserves extra user columns", {
   expect_true("my_custom" %in% names(corpus$works))
   expect_identical(corpus$works$my_custom, "keep me")
 })
+
+test_that("sm_corpus_from_tables normalises concept vocabularies", {
+  works <- data.frame(work_id = c("W1", "W2"), title = c("x", "y"))
+  concepts <- data.frame(
+    work_id = c("W1", "W1", "W2"),
+    concept_name = c("alpha", "BETA", "gamma"),
+    vocabulary = c("Author Keywords", "ID", "author-keywords")
+  )
+  suppressMessages(expect_message(
+    corpus <- sm_corpus_from_tables(list(works = works, concepts = concepts)),
+    class = "scimapR_concept_vocab_renamed"
+  ))
+  expect_identical(corpus$concepts$vocabulary,
+                   c("author-keywords", "keywords-plus", "author-keywords"))
+
+  # A factor column is coerced and normalised too, also with .coerce = FALSE.
+  concepts$vocabulary <- factor(concepts$vocabulary)
+  for (coerce in c(TRUE, FALSE)) {
+    corpus <- suppressMessages(sm_corpus_from_tables(
+      list(works = works, concepts = concepts), .coerce = coerce
+    ))
+    expect_identical(corpus$concepts$vocabulary,
+                     c("author-keywords", "keywords-plus", "author-keywords"))
+  }
+})
+
+test_that("sm_corpus_from_tables does not inform for canonical vocabularies", {
+  works <- data.frame(work_id = "W1", title = "x")
+  concepts <- data.frame(work_id = "W1", concept_name = "alpha",
+                         vocabulary = "wos-category")
+  msgs <- character()
+  corpus <- withCallingHandlers(
+    sm_corpus_from_tables(list(works = works, concepts = concepts)),
+    message = function(m) {
+      vocab_classes <- c("scimapR_concept_vocab_renamed",
+                         "scimapR_concept_vocab_unknown")
+      if (inherits(m, vocab_classes)) {
+        msgs <<- c(msgs, conditionMessage(m))
+      }
+      invokeRestart("muffleMessage")
+    }
+  )
+  expect_length(msgs, 0L)
+  expect_identical(corpus$concepts$vocabulary, "wos-category")
+})

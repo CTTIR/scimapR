@@ -10,6 +10,15 @@
 #'
 #' @return A data frame with class `c("bibliometrixDB", "data.frame")`.
 #'
+#' @details
+#' `DE` holds the author keywords of each work: the concepts of the
+#' `author_keyword` family of [sm_concept_vocabularies()] (`author-keywords`,
+#' `manual-tags`), separated by `;`. A work without author keywords gets its
+#' OpenAlex concepts (`openalex`) instead, so corpora built from OpenAlex
+#' keep their `DE`; other vocabularies (Keywords Plus, MeSH, categories,
+#' arXiv and bioRxiv subjects) never enter `DE`. A work with neither has
+#' `DE = NA`.
+#'
 #' @references
 #' Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for
 #' comprehensive science mapping analysis. *Journal of Informetrics*,
@@ -52,13 +61,20 @@ sm_to_bibliometrix <- function(corpus, ...) {
 
   M <- dplyr::left_join(M, refs_by_work, by = "work_id")
 
-  concepts_by_work <- corpus$concepts %>%
-    dplyr::filter(.data$vocabulary %in% c("keywords-author", "openalex")) %>%
-    dplyr::group_by(.data$work_id) %>%
-    dplyr::summarise(
-      DE = paste(.data$concept_name, collapse = ";"),
-      .groups = "drop"
-    )
+  # DE: author keywords; a work without any falls back to its OpenAlex
+  # concepts (only those, so arXiv and bioRxiv categories stay out).
+  has_name <- function(x) !is.na(x$concept_name) & nzchar(x$concept_name)
+  author_kw <- .concepts_in_family(corpus$concepts, "author_keyword")
+  author_kw <- author_kw[has_name(author_kw), , drop = FALSE]
+  openalex <- .concepts_in_family(corpus$concepts, "openalex")
+  openalex <- openalex[has_name(openalex) &
+                         !openalex$work_id %in% author_kw$work_id, ,
+                       drop = FALSE]
+  concepts_by_work <- dplyr::summarise(
+    dplyr::group_by(dplyr::bind_rows(author_kw, openalex), .data$work_id),
+    DE = paste(.data$concept_name, collapse = ";"),
+    .groups = "drop"
+  )
 
   M <- dplyr::left_join(M, concepts_by_work, by = "work_id")
 

@@ -37,11 +37,20 @@ object. Handles the standard WoS tagged format with two-letter field codes.
 The native parser follows the Web of Science Core Collection export format.
 Each record begins with \code{PT } (publication type) and ends with \code{ER}.
 Field tags are two uppercase letters followed by a single space.
-Continuation lines begin with three spaces. Key tags parsed:
-AU (authors), TI (title), SO (source), AB (abstract), DI (DOI),
-PY (year), DT (document type), C1 (addresses), RP (reprint author),
-CR (cited references), NR (number of references), TC (times cited),
-SC (subject category), UT (unique identifier), LA (language).
+Continuation lines begin with three spaces. Tags parsed:
+AU or AF (authors), TI (title), SO (source), AB (abstract), DI (DOI),
+PY (year), DT (document type), LA (language), TC (times cited),
+UT (accession number, kept in \code{provenance}), PM (PubMed ID),
+C1 (addresses), CR (cited references), DE (author keywords),
+ID (Keywords Plus), WC (Web of Science categories) and SC (research
+areas). Other tags are not read.
+
+DE, ID, WC and SC become \code{concepts}, one row per \verb{;}-separated term, in
+the vocabularies \code{"author-keywords"}, \code{"keywords-plus"}, \code{"wos-category"}
+and \code{"wos-subject-category"} of \code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}}. Terms keep
+the case of the file. The \code{"bibliometrix"} engine (also used by
+\code{"auto"} when bibliometrix can read the file) reads no keywords or
+categories into \code{concepts}.
 }
 
 \examples{

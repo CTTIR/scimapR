@@ -50,6 +50,7 @@ test_that("openalex enrichment adds concepts from mocked responses", {
   expect_gt(nrow(oa), n_before)
   expect_true("Oncology" %in% oa$concept_name)
   expect_true("Genomics" %in% oa$concept_name)
+  expect_true(all(out$concepts$vocabulary %in% sm_concept_vocabularies()))
   # Provenance rows for openalex were appended.
   expect_true("openalex" %in% out$provenance$source)
 })
@@ -133,6 +134,7 @@ test_that("mesh enrichment parses MeSH descriptors from mocked XML", {
                     corpus$works$work_id[1]))
   expect_true("pubmed" %in% out$provenance$source)
   expect_true(all(is.na(mesh$score))) # no MajorTopicYN flags
+  expect_true(all(out$concepts$vocabulary %in% sm_concept_vocabularies()))
 })
 
 test_that("mesh enrichment records major topics as score 1", {
@@ -171,4 +173,31 @@ test_that("mesh enrichment tolerates a request error gracefully", {
   out <- sm_enrich_concepts(corpus, source = "mesh", verbose = FALSE)
   expect_s3_class(out, "sm_corpus")
   expect_equal(nrow(out$concepts[out$concepts$vocabulary == "mesh", ]), 0L)
+})
+
+test_that("enrichment counts concepts stored under another spelling", {
+  corpus <- sm_example_corpus(n_works = 4, n_authors = 3,
+                              with_embeddings = FALSE, seed = 3)
+  # Direct assignment keeps these spellings; the enricher normalises them.
+  corpus$concepts$vocabulary <- "OpenAlex"
+  mock_no_network()
+  expect_message(
+    out <- sm_enrich_concepts(corpus, source = "openalex", verbose = TRUE),
+    "already have OpenAlex"
+  )
+  expect_identical(out$concepts, corpus$concepts)
+
+  corpus$concepts <- tibble::tibble(
+    work_id = corpus$works$work_id,
+    concept_id = NA_character_,
+    concept_name = "Neoplasms",
+    level = NA_integer_,
+    score = NA_real_,
+    vocabulary = "MEDLINE"
+  )
+  expect_message(
+    out <- sm_enrich_concepts(corpus, source = "mesh", verbose = TRUE),
+    "already have MeSH"
+  )
+  expect_identical(out$concepts, corpus$concepts)
 })

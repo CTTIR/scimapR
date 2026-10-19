@@ -93,6 +93,7 @@ test_that("sm_fetch_pubmed native parses esearch+efetch into an sm_corpus", {
   expect_true("0000-0001-2345-6789" %in% corpus$authors$orcid)
   # MeSH concepts
   expect_true("Bibliometrics" %in% corpus$concepts$concept_name)
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
   # sources (journal via ISSNLinking)
   expect_true("Journal of Tests" %in% corpus$sources$display_name)
   # provenance

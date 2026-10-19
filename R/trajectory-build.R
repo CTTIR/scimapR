@@ -5,7 +5,8 @@
 #' partitioning their publication record into `n_periods` career stages.
 #' For each period, the function computes:
 #'
-#' - **Career stages**: dominant topics and publication volume.
+#' - **Career stages**: dominant topics (the three concept names found in
+#'   most of the period's works) and publication volume.
 #' - **Topic pivots**: how much the research focus shifted between periods,
 #'   measured as the Jaccard distance of concept sets.
 #' - **Collaborator turnover**: Jaccard similarity of co-author sets across
@@ -13,7 +14,8 @@
 #' - **Emerging collaborators**: co-authors who first appear in the most
 #'   recent period.
 #' - **H-index curve**: cumulative h-index at the end of each period.
-#' - **Novelty curve**: average concept novelty per period.
+#' - **Novelty curve**: average concept novelty per period, the mean number
+#'   of distinct concept names per work (over the works with concepts).
 #' - **Citation acceleration**: mean citations per period relative to the
 #'   corpus-wide mean for the same years.
 #'
@@ -203,13 +205,16 @@ sm_author_trajectory <- function(corpus,
     yr_hi <- period_breaks[p + 1L]
     yr_label <- paste0(yr_lo, "-", yr_hi)
 
-    # Dominant topics
+    # Dominant topics: the names in most works, each name counted once per
+    # work (a Web of Science category and research area can share a name)
     p_concepts <- dplyr::filter(
       concepts, .data$work_id %in% p_works$work_id
     )
     top_topics <- if (nrow(p_concepts) > 0L) {
-      topic_counts <- dplyr::count(p_concepts, .data$concept_name,
-                                   sort = TRUE)
+      topic_counts <- dplyr::count(
+        dplyr::distinct(p_concepts, .data$work_id, .data$concept_name),
+        .data$concept_name, sort = TRUE
+      )
       as.list(utils::head(topic_counts$concept_name, 3L))
     } else {
       list()
@@ -449,8 +454,11 @@ sm_author_trajectory <- function(corpus,
       ))
     }
 
-    # Novelty per work = number of unique concepts
-    concept_counts <- dplyr::count(p_concepts, .data$work_id)
+    # Novelty per work = number of unique concept names
+    concept_counts <- dplyr::count(
+      dplyr::distinct(p_concepts, .data$work_id, .data$concept_name),
+      .data$work_id
+    )
     mean_nov <- mean(concept_counts$n, na.rm = TRUE)
 
     tibble::tibble(

@@ -70,6 +70,7 @@ test_that("sm_read_scopus handles semicolon-separated authors and DOI case", {
   expect_true("Roe, Richard" %in% corpus$authors$display_name)
   expect_equal(nrow(corpus$authorships), 2L)
   expect_true(any(corpus$concepts$vocabulary == "index-keywords"))
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
 })
 
 test_that("sm_read_scopus errors on missing file", {

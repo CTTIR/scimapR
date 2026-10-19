@@ -16,8 +16,7 @@
 sm_field_pubmed_mesh <- function(corpus, call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
 
-  mesh <- corpus$concepts %>%
-    dplyr::filter(.data$vocabulary == "mesh")
+  mesh <- .concepts_in_family(corpus$concepts, "mesh", call = call)
 
   if (nrow(mesh) == 0) {
     cli::cli_inform(c("i" = "No MeSH terms found. Enrich with {.fn sm_enrich_concepts}."))

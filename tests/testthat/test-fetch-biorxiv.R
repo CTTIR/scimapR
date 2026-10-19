@@ -51,6 +51,7 @@ test_that("sm_fetch_biorxiv parses preprints into an sm_corpus", {
   # category -> concept
   expect_true("genomics" %in% corpus$concepts$concept_name)
   expect_true(all(corpus$concepts$vocabulary == "biorxiv"))
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
   # provenance uses server name as source
   expect_true(all(corpus$provenance$source == "biorxiv"))
 })

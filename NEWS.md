@@ -107,6 +107,33 @@
   text such as `"2020"`. Before, `sm_did()` and `sm_synth()` truncated a
   year such as 2020.5 and read `TRUE` as the year 1, and all three read a
   factor or a date by its internal number.
+- Concept vocabularies are now a controlled set (`sm_concept_vocabularies()`);
+  `sm_to_bibliometrix()` DE and keyword co-word networks work for file-based
+  corpora. `sm_corpus()` and `sm_corpus_from_tables()` rename legacy and
+  common spellings such as `"keywords-author"`, `"keyword"` or `"MEDLINE"`
+  to these names, with a message, and the functions that select concepts by
+  vocabulary read every one of these spellings. Values that name no known
+  vocabulary are kept as written and listed in the same message, so a
+  corpus built from such tables now reports them each time; name a
+  vocabulary of your own `"custom"`. DE holds each work's author keywords;
+  a work without any falls back to its OpenAlex concepts, so corpora built
+  from OpenAlex keep their DE, and arXiv and bioRxiv categories stay out of
+  it as before. `sm_network_coword()` gains `vocabulary`:
+  `field = "keywords"` uses the author keywords by default and, in a corpus
+  without any, the indexer keywords (such as Keywords Plus or MeSH) with a
+  message; a corpus with neither gives an empty network, now with a
+  message. With `field = "concepts"`, `vocabulary` keeps only the
+  vocabularies named.
+- `sm_read_wos()` reads the Web of Science categories (WC) into the new
+  vocabulary `wos-category`; `wos-subject-category` keeps the research areas
+  (SC). Corpora read from Web of Science files therefore have more concept
+  rows, which changes the results of functions that use every concept
+  whatever its vocabulary: `sm_network_coword(field = "concepts")`,
+  `sm_plot_thematic_map()`, `sm_author_trajectory()` and the corpus hash
+  (`sm_hash_corpus()`). `sm_author_trajectory()` now counts a concept name
+  once per work in its dominant topics and novelty (before, a name that a
+  work had in two vocabularies counted twice), so a category with the same
+  name as a research area of the work leaves the trajectory unchanged.
 
 # scimapR 0.4.0
 

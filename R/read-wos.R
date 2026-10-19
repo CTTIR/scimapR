@@ -18,11 +18,20 @@
 #' The native parser follows the Web of Science Core Collection export format.
 #' Each record begins with `PT ` (publication type) and ends with `ER`.
 #' Field tags are two uppercase letters followed by a single space.
-#' Continuation lines begin with three spaces. Key tags parsed:
-#' AU (authors), TI (title), SO (source), AB (abstract), DI (DOI),
-#' PY (year), DT (document type), C1 (addresses), RP (reprint author),
-#' CR (cited references), NR (number of references), TC (times cited),
-#' SC (subject category), UT (unique identifier), LA (language).
+#' Continuation lines begin with three spaces. Tags parsed:
+#' AU or AF (authors), TI (title), SO (source), AB (abstract), DI (DOI),
+#' PY (year), DT (document type), LA (language), TC (times cited),
+#' UT (accession number, kept in `provenance`), PM (PubMed ID),
+#' C1 (addresses), CR (cited references), DE (author keywords),
+#' ID (Keywords Plus), WC (Web of Science categories) and SC (research
+#' areas). Other tags are not read.
+#'
+#' DE, ID, WC and SC become `concepts`, one row per `;`-separated term, in
+#' the vocabularies `"author-keywords"`, `"keywords-plus"`, `"wos-category"`
+#' and `"wos-subject-category"` of [sm_concept_vocabularies()]. Terms keep
+#' the case of the file. The `"bibliometrix"` engine (also used by
+#' `"auto"` when bibliometrix can read the file) reads no keywords or
+#' categories into `concepts`.
 #'
 #' @references
 #' Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for
@@ -143,7 +152,7 @@ sm_read_wos <- function(path,
   # --- references -----------------------------------------------------------
   references <- .wos_build_references(parsed, work_ids)
 
-  # --- concepts (subject categories) ----------------------------------------
+  # --- concepts (keywords and categories) ------------------------------------
   concepts <- .wos_build_concepts(parsed, work_ids)
 
   # --- provenance -----------------------------------------------------------
@@ -272,6 +281,7 @@ sm_read_wos <- function(path,
     affiliations = tags[["C1"]] %||% character(),
     cited_refs  = tags[["CR"]] %||% character(),
     subject_cat = tags[["SC"]] %||% character(),
+    wos_cat     = tags[["WC"]] %||% character(),
     keywords    = tags[["DE"]] %||% character(),
     keywords_plus = tags[["ID"]] %||% character()
   )
@@ -387,7 +397,7 @@ sm_read_wos <- function(path,
   dplyr::bind_rows(rows)
 }
 
-#' Build concepts from WoS DE/ID/SC tags
+#' Build concepts from WoS DE/ID/SC/WC tags
 #' @noRd
 .wos_build_concepts <- function(parsed, work_ids) {
   rows <- list()
@@ -416,13 +426,23 @@ sm_read_wos <- function(path,
       }
     }
 
-    # Subject categories (SC)
+    # Research areas (SC)
     if (length(r$subject_cat) > 0L) {
       sc <- trimws(unlist(strsplit(paste(r$subject_cat, collapse = ";"), ";")))
       sc <- sc[nzchar(sc)]
       if (length(sc) > 0L) {
         terms <- c(terms, sc)
         vocab <- c(vocab, rep("wos-subject-category", length(sc)))
+      }
+    }
+
+    # Web of Science categories (WC)
+    if (length(r$wos_cat) > 0L) {
+      wc <- trimws(unlist(strsplit(paste(r$wos_cat, collapse = ";"), ";")))
+      wc <- wc[nzchar(wc)]
+      if (length(wc) > 0L) {
+        terms <- c(terms, wc)
+        vocab <- c(vocab, rep("wos-category", length(wc)))
       }
     }
 

@@ -52,8 +52,8 @@ sm_enrich_concepts <- function(corpus,
   }
 
   # Only enrich works not already having openalex concepts
-  existing_oa <- corpus$concepts |>
-    dplyr::filter(.data$vocabulary == "openalex") |>
+  existing_oa <- .concepts_in_family(corpus$concepts, "openalex",
+                                     call = call) |>
     dplyr::pull(.data$work_id) |>
     unique()
 
@@ -153,8 +153,8 @@ sm_enrich_concepts <- function(corpus,
   }
 
   # Only enrich works not already having MeSH concepts
-  existing_mesh <- corpus$concepts |>
-    dplyr::filter(.data$vocabulary == "mesh") |>
+  existing_mesh <- .concepts_in_family(corpus$concepts, "mesh",
+                                       call = call) |>
     dplyr::pull(.data$work_id) |>
     unique()
 

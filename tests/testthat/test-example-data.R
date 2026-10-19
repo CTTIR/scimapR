@@ -6,6 +6,7 @@ test_that("sm_example_corpus returns a valid corpus with defaults", {
   expect_equal(nrow(corpus$authors), 80L)
   expect_true(!is.null(corpus$embeddings))
   expect_equal(ncol(corpus$embeddings), 64L)
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
 })
 
 test_that("sm_example_corpus respects custom arguments", {
@@ -105,6 +106,7 @@ test_that("the real-use fixture has the documented shape", {
   expect_equal(anyDuplicated(corresponding$work_id), 0L)
   expect_equal(sum(grepl("[^ -~]", a$raw_affiliation)), 10L)
   expect_true(all(is.na(fix$references$cited_work_id)))
+  expect_true(all(fix$concepts$vocabulary %in% sm_concept_vocabularies()))
 
   ref <- realuse_reference()
   dict <- realuse_dict()

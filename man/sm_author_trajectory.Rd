@@ -49,7 +49,8 @@ Analyses the career trajectory of a single author within a corpus,
 partitioning their publication record into \code{n_periods} career stages.
 For each period, the function computes:
 \itemize{
-\item \strong{Career stages}: dominant topics and publication volume.
+\item \strong{Career stages}: dominant topics (the three concept names found in
+most of the period's works) and publication volume.
 \item \strong{Topic pivots}: how much the research focus shifted between periods,
 measured as the Jaccard distance of concept sets.
 \item \strong{Collaborator turnover}: Jaccard similarity of co-author sets across
@@ -57,7 +58,8 @@ consecutive periods, plus counts of new, kept, and lost collaborators.
 \item \strong{Emerging collaborators}: co-authors who first appear in the most
 recent period.
 \item \strong{H-index curve}: cumulative h-index at the end of each period.
-\item \strong{Novelty curve}: average concept novelty per period.
+\item \strong{Novelty curve}: average concept novelty per period, the mean number
+of distinct concept names per work (over the works with concepts).
 \item \strong{Citation acceleration}: mean citations per period relative to the
 corpus-wide mean for the same years.
 }

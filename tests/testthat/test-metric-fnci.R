@@ -98,6 +98,22 @@ test_that("mesh classification uses MeSH concepts when present", {
   expect_true(all(out$field == "Neoplasms"))
 })
 
+test_that("mesh classification finds MeSH concepts under other spellings", {
+  corpus <- sm_example_corpus(n_works = 4, n_authors = 3,
+                              with_embeddings = FALSE, seed = 8)
+  # Direct assignment bypasses sm_corpus(), so the spelling stays as written.
+  corpus$concepts <- tibble::tibble(
+    work_id = corpus$works$work_id,
+    concept_id = "M1",
+    concept_name = "Neoplasms",
+    level = NA_integer_,
+    score = 1,
+    vocabulary = c("MeSH Terms", "MEDLINE", " mesh", "MeSH")
+  )
+  out <- sm_metric_fnci(corpus, classification = "mesh")
+  expect_true(all(out$field == "Neoplasms"))
+})
+
 test_that("mesh classification with empty concepts gives unclassified field", {
   corpus <- sm_example_corpus(n_works = 5, n_authors = 4,
                               with_embeddings = FALSE, seed = 9)

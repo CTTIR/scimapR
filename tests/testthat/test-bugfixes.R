@@ -121,6 +121,10 @@ test_that("G4: native parser handles multiline values and whitespace", {
   expect_identical(corpus$works$doi, "10.1/x")
   expect_equal(nrow(corpus$authorships), 2L)
   expect_setequal(corpus$authors$display_name, c("Jane Doe", "Richard Roe"))
+  expect_identical(corpus$concepts$concept_name, c("alpha", "beta"))
+  expect_identical(corpus$concepts$vocabulary,
+                   rep("author-keywords", 2L))
+  expect_true(all(corpus$concepts$vocabulary %in% sm_concept_vocabularies()))
 })
 
 test_that("G4: native parser is type-stable on empty input", {
