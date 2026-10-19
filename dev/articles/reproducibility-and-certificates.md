@@ -1,0 +1,138 @@
+# Reproducibility and Corpus Certificates
+
+[![R-CMD-check](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml)
+[![pkgdown](https://github.com/CTTIR/scimapR/actions/workflows/pkgdown.yaml/badge.svg)](https://cttir.github.io/scimapR/)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/scimapR)](https://CRAN.R-project.org/package=scimapR)
+[![Codecov test
+coverage](https://codecov.io/gh/CTTIR/scimapR/branch/main/graph/badge.svg)](https://app.codecov.io/gh/CTTIR/scimapR?branch=main)
+[![CRAN
+downloads](https://cranlogs.r-pkg.org/badges/scimapR)](https://cran.r-project.org/package=scimapR)
+[![CRAN downloads
+total](https://cranlogs.r-pkg.org/badges/grand-total/scimapR)](https://cran.r-project.org/package=scimapR)
+[![License:
+MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+
+## Why certificates?
+
+Every bibliometric analysis starts with a corpus, but most analyses
+don’t document *how* the corpus was built. scimapR’s corpus certificates
+solve this: they are structured YAML documents that another researcher
+can use to re-derive the exact same corpus.
+
+``` r
+
+library(scimapR)
+corpus <- sm_example_corpus(seed = 42)
+```
+
+## Provenance tracking
+
+Every record in a scimapR corpus knows where it came from:
+
+``` r
+
+head(sm_provenance(corpus))
+#> # A tibble: 6 × 8
+#>   work_id    source    source_id_external fetch_date          query       engine
+#>   <chr>      <chr>     <chr>              <dttm>              <chr>       <chr> 
+#> 1 W000000001 synthetic NA                 2026-10-19 15:55:43 sm_example… native
+#> 2 W000000002 synthetic NA                 2026-10-19 15:55:43 sm_example… native
+#> 3 W000000003 synthetic NA                 2026-10-19 15:55:43 sm_example… native
+#> 4 W000000004 synthetic NA                 2026-10-19 15:55:43 sm_example… native
+#> 5 W000000005 synthetic NA                 2026-10-19 15:55:43 sm_example… native
+#> 6 W000000006 synthetic NA                 2026-10-19 15:55:43 sm_example… native
+#> # ℹ 2 more variables: scimapR_version <chr>, prompt_hash <chr>
+```
+
+## Corpus hashing
+
+``` r
+
+sm_hash_corpus(corpus)
+#> [1] "ea446b5f44659ca0804636faa6e2c6cb66dacc49278ed0ffb03b415cac54dee4"
+```
+
+## Creating a certificate
+
+``` r
+
+cert <- sm_certificate(corpus)
+#> ✔ Certificate created. Corpus hash: ea446b5f4465
+str(cert, max.level = 1)
+#> List of 18
+#>  $ certificate_version: chr "1.0"
+#>  $ created            : POSIXct[1:1], format: "2026-10-19 15:55:43"
+#>  $ scimapR_version    : chr "0.4.0.9000"
+#>  $ r_version          : chr "4.6.1"
+#>  $ platform           : chr "unix"
+#>  $ corpus_hash        : chr "ea446b5f44659ca0804636faa6e2c6cb66dacc49278ed0ffb03b415cac54dee4"
+#>  $ n_works            : int 200
+#>  $ n_authors          : int 80
+#>  $ n_institutions     : int 0
+#>  $ n_references       : int 1869
+#>  $ year_range         : int [1:2] 2015 2024
+#>  $ question_id        : chr NA
+#>  $ queries            :List of 1
+#>  $ provenance_summary :List of 1
+#>  $ screening_summary  : list()
+#>  $ embedding_info     :List of 3
+#>  $ is_locked          : logi FALSE
+#>  $ metadata           :List of 2
+#>  - attr(*, "class")= chr "sm_certificate"
+```
+
+## Verifying a certificate
+
+``` r
+
+result <- sm_verify_certificate(corpus, cert)
+result$matches
+#> NULL
+```
+
+## Saving and loading
+
+``` r
+
+tmp <- tempfile(fileext = ".rds")
+sm_save_corpus(corpus, tmp)
+#> ✔ Corpus saved to /tmp/RtmpB3Heax/file2dbd42775936.rds
+loaded <- sm_load_corpus(tmp)
+nrow(loaded$works)
+#> [1] 200
+```
+
+## Snapshot and diff
+
+``` r
+
+snap_path <- tempfile(fileext = ".rds")
+sm_snapshot(corpus, snap_path)
+#> ✔ Corpus snapshot saved to /tmp/RtmpB3Heax/file2dbd641fdb97.rds.
+#> ℹ Size: 122K | Hash: ea446b5f4465
+```
+
+## Citation
+
+``` r
+
+sm_cite_corpus(corpus)
+#> Corpus assembled using scimapR v0.4.0.9000 on 2026-10-19. Contains 200 works by
+#> 80 authors (2015-2024). Data sources: synthetic. Corpus hash: ea446b5f4465.
+```
+
+## Locking a corpus
+
+``` r
+
+locked <- sm_lock(corpus, reason = "Final version for publication")
+#> ✔ Corpus locked.
+#> ℹ Reason: Final version for publication
+locked$metadata$is_locked
+#> [1] TRUE
+
+# sm_refresh(locked)  # This would error -- corpus is locked
+```

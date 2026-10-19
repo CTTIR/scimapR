@@ -1,0 +1,41 @@
+# Test if an object is an sm_corpus
+
+Test if an object is an sm_corpus
+
+## Usage
+
+``` r
+is_sm_corpus(x)
+```
+
+## Arguments
+
+- x:
+
+  An object to test.
+
+## Value
+
+`TRUE` if `x` is an `sm_corpus`, `FALSE` otherwise.
+
+## See also
+
+Other corpus:
+[`as_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/as_sm_corpus.md),
+[`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md),
+[`sm_build_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_build_corpus.md),
+[`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md),
+[`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_from_tables.md),
+[`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md),
+[`sm_materialise()`](https://cttir.github.io/scimapR/dev/reference/sm_materialise.md),
+[`sm_save_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_save_corpus.md),
+[`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md),
+[`validate_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/validate_sm_corpus.md)
+
+## Examples
+
+``` r
+corpus <- sm_example_corpus()
+is_sm_corpus(corpus)
+#> [1] TRUE
+```
