@@ -70,6 +70,53 @@ test_that("sm_screen_regex marks works matching no include term as exclude", {
   expect_true(all(scr$reason == "No include term matched"))
 })
 
+screen_corpus <- function(title) {
+  sm_corpus(works = tibble::tibble(
+    work_id = sprintf("W%02d", seq_along(title)), title = title,
+    abstract = "Short abstract.", year = 2020L
+  ))
+}
+
+test_that("sm_screen_regex keeps upper-case escapes in the terms", {
+  corpus <- screen_corpus(c("Tumour growth in mice and rats",
+                            "Micelle formation in vitro"))
+  out <- suppressMessages(
+    sm_screen_regex(corpus, include_terms = c("growth", "micelle"),
+                    exclude_terms = "\\Wmice\\W")
+  )
+  expect_identical(out$screening$decision, c("exclude", "include"))
+  expect_identical(out$screening$reason[1], "Matched exclude term")
+})
+
+test_that("sm_screen_regex gives one row for a one-work corpus", {
+  corpus <- screen_corpus("A spatial atlas of the tumour")
+  expect_message(
+    out <- sm_screen_regex(corpus,
+                           include_terms = c("spatial", "transcriptom")),
+    "1 included, 0 excluded"
+  )
+  expect_identical(out$screening$decision, "include")
+  out <- suppressMessages(
+    sm_screen_regex(corpus, include_terms = "spatial",
+                    exclude_terms = c("atlas", "mouse"))
+  )
+  expect_identical(out$screening$decision, "exclude")
+})
+
+test_that("sm_screen_regex matches non-ASCII words in Unicode mode", {
+  corpus <- screen_corpus(c("Abt. \u00dcbung im Feld", "Vor\u00fcbung im Feld",
+                            "Gef\u00e4hrdung durch Hitze"))
+  terms <- c("\\b\u00fcbung\\b", "gef\\w+hrdung")
+  out <- suppressMessages(sm_screen_regex(corpus, include_terms = terms))
+  expect_identical(out$screening$decision, c("include", "exclude", "include"))
+  old <- suppressMessages(
+    sm_screen_regex(corpus, include_terms = terms, unicode = FALSE)
+  )
+  expect_identical(old$screening$decision, c("exclude", "include", "exclude"))
+  expect_error(sm_screen_regex(corpus, include_terms = terms, unicode = "yes"),
+               "unicode")
+})
+
 # --- sm_screen_summary --------------------------------------------------
 
 test_that("sm_screen_summary handles a corpus with no screening", {

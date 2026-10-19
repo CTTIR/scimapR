@@ -89,6 +89,7 @@ reference:
     contents:
       - sm_affiliation_match
       - sm_affiliation_summary
+      - sm_affiliation_unmatched
       - sm_affiliation_signals
       - sm_affiliation_methods
       - sm_attribute_institution

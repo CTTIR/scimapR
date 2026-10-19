@@ -285,15 +285,38 @@ sm_screen_against_question <- function(corpus,
 #'   at least one to be included.
 #' @param exclude_terms Character vector of regex patterns. A work matching
 #'   any is excluded. Default `NULL` (no exclusions).
+#' @param unicode Logical (default `TRUE`). Match the terms in Unicode mode,
+#'   so `\w`, `\b`, `\d`, `\s` and POSIX classes know non-ASCII letters,
+#'   digits and spaces, as in German or French titles. `FALSE` gives
+#'   ASCII-only classes.
 #' @param call Caller environment for error reporting.
 #'
 #' @return A modified `sm_corpus` with updated `screening` table.
 #'
+#' @details
+#' Terms are Perl-compatible regular expressions (PCRE), matched as written
+#' and case-insensitively against the title and abstract of each work. In
+#' Unicode mode (the default) each term is prefixed with the PCRE item
+#' `(*UCP)` unless its leading items already include it, so `\b` finds the
+#' edge of a word that starts with an umlaut and `\w` consumes one. A term
+#' can therefore also stop matching: one that used `\W`, `\S`, `\D` or `\B`
+#' to stand for a non-ASCII letter no longer matches it, and `\b` no longer
+#' finds an edge between an ASCII letter and a non-ASCII letter next to it,
+#' as inside a German compound word. Write `[A-Za-z0-9_]` instead of `\w`
+#' for an ASCII-only class.
+#'
 #' @family question
 #' @export
+#' @examples
+#' corpus <- sm_example_corpus(n_works = 20, n_authors = 5)
+#' screened <- sm_screen_regex(corpus,
+#'                             include_terms = c("spatial", "transcriptom"),
+#'                             exclude_terms = "\\bmouse\\b")
+#' sm_screen_summary(screened)
 sm_screen_regex <- function(corpus,
                             include_terms,
                             exclude_terms = NULL,
+                            unicode = TRUE,
                             call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
 
@@ -303,6 +326,7 @@ sm_screen_regex <- function(corpus,
       call = call
     )
   }
+  .check_flag(unicode, call = call)
 
   if (nrow(corpus$works) == 0L) {
     return(corpus)
@@ -317,45 +341,20 @@ sm_screen_regex <- function(corpus,
     works$abstract %||% "",
     sep = " "
   )
-  search_text <- tolower(search_text)
 
-  # Check include terms (OR logic)
-  include_match <- vapply(include_terms, function(term) {
-    grepl(tolower(term), search_text, perl = TRUE)
-  }, logical(nrow(works)))
-
-  if (is.matrix(include_match)) {
-    any_include <- apply(include_match, 1, any)
-  } else {
-    any_include <- include_match
-  }
-
-  # Check exclude terms (OR logic)
-  any_exclude <- rep(FALSE, nrow(works))
-  if (!is.null(exclude_terms) && length(exclude_terms) > 0L) {
-    exclude_match <- vapply(exclude_terms, function(term) {
-      grepl(tolower(term), search_text, perl = TRUE)
-    }, logical(nrow(works)))
-
-    if (is.matrix(exclude_match)) {
-      any_exclude <- apply(exclude_match, 1, any)
-    } else {
-      any_exclude <- exclude_match
-    }
-  }
+  # Any include term, then any exclude term (OR logic). The terms are matched
+  # as written: lowercasing a regex turns \W, \S, \D and \B into \w, \s, \d
+  # and \b.
+  any_include <- .screen_any_match(include_terms, search_text, unicode)
+  any_exclude <- .screen_any_match(exclude_terms, search_text, unicode)
 
   # Decision logic: include if matches include AND not exclude
-  decisions <- dplyr::case_when(
-    any_exclude ~ "exclude",
-    any_include ~ "include",
-    TRUE ~ "exclude"
-  )
+  decisions <- rep("exclude", nrow(works))
+  decisions[any_include & !any_exclude] <- "include"
 
-  reasons <- dplyr::case_when(
-    any_exclude ~ "Matched exclude term",
-    any_include ~ "Matched include term",
-    TRUE ~ "No include term matched"
-  )
+  reasons <- rep("No include term matched", nrow(works))
+  reasons[any_include] <- "Matched include term"
+  reasons[any_exclude] <- "Matched exclude term"
 
   new_screening <- tibble::tibble(
     work_id = works$work_id,
@@ -376,6 +375,19 @@ sm_screen_regex <- function(corpus,
   ))
 
   corpus
+}
+
+#' Which texts match at least one regex term
+#'
+#' Case-insensitive PCRE matching of each term against `text`, in Unicode
+#' mode unless `unicode = FALSE`. Returns one `TRUE` or `FALSE` per text
+#' (all `FALSE` for no terms), also when `text` has length 1; an `NA` term
+#' matches nothing.
+#' @noRd
+.screen_any_match <- function(terms, text, unicode = TRUE) {
+  hits <- lapply(.ucp_regex(as.character(terms), unicode), grepl, x = text,
+                 ignore.case = TRUE, perl = TRUE)
+  Reduce(`|`, hits, rep(FALSE, length(text))) %in% TRUE
 }
 
 #' Summarise screening decisions

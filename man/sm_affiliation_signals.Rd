@@ -33,6 +33,7 @@ Other affiliation:
 \code{\link[=sm_affiliation_match]{sm_affiliation_match()}},
 \code{\link[=sm_affiliation_methods]{sm_affiliation_methods()}},
 \code{\link[=sm_affiliation_summary]{sm_affiliation_summary()}},
+\code{\link[=sm_affiliation_unmatched]{sm_affiliation_unmatched()}},
 \code{\link[=sm_attribute_institution]{sm_attribute_institution()}}
 }
 \concept{affiliation}
