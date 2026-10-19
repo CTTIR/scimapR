@@ -10,6 +10,7 @@ sm_affiliation_match(
   fields = NULL,
   email_domain_fallback = TRUE,
   postcode_signal = FALSE,
+  unicode = TRUE,
   call = rlang::caller_env()
 )
 }
@@ -38,6 +39,12 @@ match the email's domain against the dictionary's \code{email_domain} entries.}
 dictionary carries a \code{postcode} column, a postcode match is attempted as a
 last resort (lowest priority, after name tokens and email domains) so
 existing matches do not shift. Off by default.}
+
+\item{unicode}{Logical (default \code{TRUE}). Match the patterns in Unicode
+mode, so \verb{\\w}, \verb{\\b}, \verb{\\d}, \verb{\\s} and POSIX classes such as \verb{[[:alpha:]]}
+know non-ASCII letters, digits and spaces (see Details). \code{FALSE} gives
+the ASCII-only classes of scimapR 0.4.0 and earlier, to reproduce
+earlier results.}
 
 \item{call}{Caller environment for error reporting.}
 }
@@ -69,6 +76,47 @@ secondary / multiple affiliations per author (each authorship row is matched
 independently).
 }
 \details{
+Dictionary patterns are case-insensitive Perl-compatible regular
+expressions (PCRE) with Unicode-aware \verb{\\w}, \verb{\\b}, \verb{\\d} and \verb{\\s}, matched
+against the affiliation text of each authorship. The rows are tried in
+dictionary order and the first pattern that matches wins, so list specific
+patterns before generic ones. \code{\link[=sm_affiliation_unmatched]{sm_affiliation_unmatched()}} lists the most
+frequent affiliation strings that nothing matched.
+
+In Unicode mode (\code{unicode = TRUE}, the default) each pattern is prefixed
+with the PCRE item \verb{(*UCP)} unless its leading items already include it.
+Umlauts, accented letters and the sharp s are then word characters: \verb{\\w}
+consumes them, \verb{\\b} finds the edge of a word that starts or ends with one,
+and POSIX classes such as \verb{[[:alpha:]]} are Unicode-aware too. In ASCII
+mode (\code{unicode = FALSE}) every non-ASCII letter is a non-word character,
+like punctuation: a pattern such as \verb{sanit\\w+wesens} cannot match the
+German word spelled with an a-umlaut, and \verb{\\b} finds no edge between a
+space and a word that starts with an umlaut. Unicode mode can therefore
+also lose matches. A pattern that used \verb{\\W}, \verb{\\S}, \verb{\\D} or \verb{\\B} to stand
+for a non-ASCII letter no longer matches it, and \verb{\\b} no longer finds an
+edge between an ASCII letter and a non-ASCII letter next to it: the
+shipped pattern \verb{\\bnato\\b} does not match "NATO" directly followed by an
+umlaut, as in a German compound word. To keep ASCII semantics in one
+place, write the class out, for example \verb{[A-Za-z0-9_]} instead of \verb{\\w}.
+
+\code{unicode = FALSE} gives the matches of scimapR 0.4.0. Two functions call
+\code{sm_affiliation_match()} with its defaults, and so match in Unicode mode,
+without a \code{unicode} argument of their own: \code{\link[=sm_attribute_institution]{sm_attribute_institution()}}
+when the corpus has no \code{institution_match} column, and
+\code{sm_count(level = "institution")} when neither \code{institution_id} nor
+\code{institution_match} has a value. Running
+\code{sm_affiliation_match(unicode = FALSE)} first gives the earlier results
+of \code{\link[=sm_attribute_institution]{sm_attribute_institution()}}. \code{\link[=sm_count]{sm_count()}} then counts by
+\code{institution_match} if at least one authorship matched, but leaves out
+the unmatched authorships, which its own matching counts under their raw
+affiliation string; for its earlier counts, also fill the missing
+\code{institution_match} values with \code{raw_affiliation} before counting.
+
+The optional \code{postcode} column (used with \code{postcode_signal = TRUE}) is
+matched case-sensitively as a whole word, in the same mode: it is wrapped
+in \verb{\\b}, any run of whitespace in it matches any amount of whitespace
+(including none), and it is used as a regular expression without escaping.
+
 To extend the dictionary, append rows to \link{sm_affiliation_dict} (or build your
 own data frame with the same columns) and pass it as \code{patterns}. For example
 \code{rbind(sm_affiliation_dict, tibble::tibble(institution = "My Uni", pattern = "my university", email_domain = "myuni.edu"))}.
@@ -78,14 +126,25 @@ corpus <- sm_example_corpus(n_works = 5, n_authors = 5)
 corpus$authorships$raw_affiliation[1] <- "Bundeswehrkrankenhaus Berlin"
 matched <- sm_affiliation_match(corpus)
 matched$authorships$institution_match[1]
+
+# In Unicode mode \w consumes the umlaut of a German unit name
+corpus$authorships$raw_affiliation[2] <-
+  "Zentrales Institut des Sanit\u00e4tswesens Nordstadt"
+dict <- list("Central Medical Institute" = "sanit\\\\w+wesens")
+matched <- sm_affiliation_match(corpus, patterns = dict)
+matched$authorships$institution_match[2]
+ascii <- sm_affiliation_match(corpus, patterns = dict, unicode = FALSE)
+ascii$authorships$institution_match[2]
 }
 \seealso{
-\code{\link[=sm_attribute_institution]{sm_attribute_institution()}}, \link{sm_affiliation_dict}
+\code{\link[=sm_attribute_institution]{sm_attribute_institution()}}, \link{sm_affiliation_dict},
+\code{\link[=sm_affiliation_unmatched]{sm_affiliation_unmatched()}}
 
 Other affiliation:
 \code{\link[=sm_affiliation_methods]{sm_affiliation_methods()}},
 \code{\link[=sm_affiliation_signals]{sm_affiliation_signals()}},
 \code{\link[=sm_affiliation_summary]{sm_affiliation_summary()}},
+\code{\link[=sm_affiliation_unmatched]{sm_affiliation_unmatched()}},
 \code{\link[=sm_attribute_institution]{sm_attribute_institution()}}
 }
 \concept{affiliation}

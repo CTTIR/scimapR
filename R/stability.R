@@ -24,6 +24,9 @@
 #'   \item{[sm_affiliation_summary()]}{A tibble: `institution`, `match_signal`
 #'     (factor, see [sm_affiliation_signals()]), `n_authorships`, `n_works`,
 #'     `example_evidence`.}
+#'   \item{[sm_affiliation_unmatched()]}{A tibble: `raw_affiliation`
+#'     (character), `n_authorships` and `n_works` (integer), sorted by
+#'     `n_authorships` descending and then by `raw_affiliation`.}
 #'   \item{[sm_reconcile()] (`summary()`)}{A one-row tibble: `n_a`, `n_b`,
 #'     `n_both`, `n_only_a`, `n_only_b`, `jaccard`.}
 #'   \item{[sm_metric_summary()]}{A one-row tibble: `metric`, `n`, `mean`,

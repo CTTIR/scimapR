@@ -8,8 +8,8 @@
 A tibble with three columns:
 \describe{
 \item{institution}{Canonical institution name (character).}
-\item{pattern}{A case-insensitive regular expression matched against
-affiliation strings (character).}
+\item{pattern}{A case-insensitive Perl-compatible regular expression
+matched against affiliation strings (character).}
 \item{email_domain}{Optional email domain used by the email-domain
 fallback, or \code{NA} (character).}
 }
@@ -23,10 +23,21 @@ variants used by \code{\link[=sm_affiliation_match]{sm_affiliation_match()}}. It
 medical institution variants (including German synonyms) plus email-domain
 fallbacks, and is designed to be extended by appending rows.
 }
+\details{
+Patterns are case-insensitive PCRE with Unicode-aware \verb{\\w}, \verb{\\b}, \verb{\\d}
+and \verb{\\s}: \code{\link[=sm_affiliation_match]{sm_affiliation_match()}} matches them in Unicode mode by
+default, so a row added for a German, French or Scandinavian name can use
+these classes next to non-ASCII letters (see the Details of
+\code{\link[=sm_affiliation_match]{sm_affiliation_match()}}, including its \code{unicode} argument). In that
+mode the shipped row \verb{\\bnato\\b} no longer matches "NATO" directly
+followed by an umlaut, as in a German compound word. The first pattern
+that matches wins, in row order, so add specific rows before generic
+ones.
+}
 \examples{
 sm_affiliation_dict
 }
 \seealso{
-\code{\link[=sm_affiliation_match]{sm_affiliation_match()}}
+\code{\link[=sm_affiliation_match]{sm_affiliation_match()}}, \code{\link[=sm_affiliation_unmatched]{sm_affiliation_unmatched()}}
 }
 \keyword{datasets}

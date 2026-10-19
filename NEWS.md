@@ -49,6 +49,26 @@
   across windows; snapshots gain `share`. Each cluster present in two
   consecutive windows gives one transition, except the noise cluster named
   by the new `noise` argument (default `0L`).
+- `sm_affiliation_match()` matches dictionary patterns in Unicode mode, so
+  `\w` and `\b` work on non-ASCII names; new `sm_affiliation_unmatched()`
+  lists unmatched affiliation strings. Unicode mode is the new default, for
+  the postcode signal too: `\w`, `\b`, `\d`, `\s` and POSIX classes such as
+  `[[:alpha:]]` now treat umlauts, accented letters and other non-ASCII
+  letters, digits and spaces like ASCII ones. A pattern can stop matching
+  if it used `\W`, `\S`, `\D` or `\B` to stand for a non-ASCII letter, or
+  if it relied on `\b` between an ASCII and a non-ASCII letter: the shipped
+  pattern `\bnato\b` no longer matches "NATO" directly followed by an
+  umlaut. The new argument `unicode = FALSE` restores the earlier
+  ASCII-only matching. `sm_attribute_institution()` and
+  `sm_count(level = "institution")` have no such argument and match in
+  Unicode mode when they run `sm_affiliation_match()` themselves; the
+  Details of `?sm_affiliation_match` show how to get their earlier results.
+- `sm_screen_regex()` matches its terms as written, case-insensitively and
+  in Unicode mode like `sm_affiliation_match()`, so a term can stop
+  matching in the same ways (new argument `unicode`, default `TRUE`). It no
+  longer lowercases the patterns, which turned `\W`, `\S`, `\D` and `\B`
+  into `\w`, `\s`, `\d` and `\b`, and a corpus with a single work now gets
+  one screening row instead of several.
 
 # scimapR 0.4.0
 

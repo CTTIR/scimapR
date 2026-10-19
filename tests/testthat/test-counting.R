@@ -81,6 +81,41 @@ test_that("sm_count source counting is identical for full and fractional", {
   expect_equal(sort(f$credit), sort(fr$credit))
 })
 
+test_that("sm_count(institution) matches raw affiliations in Unicode mode", {
+  # sm_count() has no unicode argument: its own matching keeps unmatched
+  # rows under their raw string, a corpus matched first is counted by
+  # institution_match without them
+  raw <- c("Bundeswehrkrankenhaus Berlin", "Nowhere University",
+           "Comit\u00e9 NATO\u00e4rzte")
+  ids <- sprintf("W%d", seq_along(raw))
+  corpus <- sm_corpus(
+    works = tibble::tibble(work_id = ids, title = "x", year = 2020L),
+    authorships = tibble::tibble(
+      work_id = ids, author_id = sprintf("A%d", seq_along(raw)),
+      position = 1L, is_corresponding = TRUE,
+      institution_id = NA_character_, raw_affiliation = raw,
+      country_code = NA_character_
+    )
+  )
+  expect_warning(res <- sm_count(corpus), "raw_affiliation")
+  expect_setequal(res$entity_id, c("Bundeswehr Hospital", raw[2:3]))
+
+  ascii <- suppressMessages(sm_affiliation_match(corpus, unicode = FALSE))
+  expect_setequal(sm_count(ascii)$entity_id, c("Bundeswehr Hospital", "NATO"))
+  # filling the unmatched rows with their raw string gives the earlier counts
+  a <- ascii$authorships
+  ascii$authorships$institution_match <- ifelse(
+    is.na(a$institution_match), a$raw_affiliation, a$institution_match
+  )
+  expect_setequal(sm_count(ascii)$entity_id,
+                  c("Bundeswehr Hospital", "NATO", raw[2]))
+
+  # a corpus matched without any hit is matched again, in Unicode mode
+  none <- suppressMessages(sm_affiliation_match(corpus, list(X = "zzz")))
+  expect_warning(res <- sm_count(none), "raw_affiliation")
+  expect_setequal(res$entity_id, c("Bundeswehr Hospital", raw[2:3]))
+})
+
 test_that("sm_count is type-stable when level data is absent", {
   corpus <- sm_corpus(works = tibble::tibble(work_id = "W1", title = "x",
                                              year = 2020L))

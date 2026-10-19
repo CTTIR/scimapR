@@ -22,12 +22,22 @@
 #' @format A tibble with three columns:
 #' \describe{
 #'   \item{institution}{Canonical institution name (character).}
-#'   \item{pattern}{A case-insensitive regular expression matched against
-#'     affiliation strings (character).}
+#'   \item{pattern}{A case-insensitive Perl-compatible regular expression
+#'     matched against affiliation strings (character).}
 #'   \item{email_domain}{Optional email domain used by the email-domain
 #'     fallback, or `NA` (character).}
 #' }
-#' @seealso [sm_affiliation_match()]
+#' @details
+#' Patterns are case-insensitive PCRE with Unicode-aware `\w`, `\b`, `\d`
+#' and `\s`: [sm_affiliation_match()] matches them in Unicode mode by
+#' default, so a row added for a German, French or Scandinavian name can use
+#' these classes next to non-ASCII letters (see the Details of
+#' [sm_affiliation_match()], including its `unicode` argument). In that
+#' mode the shipped row `\bnato\b` no longer matches "NATO" directly
+#' followed by an umlaut, as in a German compound word. The first pattern
+#' that matches wins, in row order, so add specific rows before generic
+#' ones.
+#' @seealso [sm_affiliation_match()], [sm_affiliation_unmatched()]
 #' @examples
 #' sm_affiliation_dict
 "sm_affiliation_dict"

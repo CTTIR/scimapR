@@ -8,6 +8,7 @@ sm_screen_regex(
   corpus,
   include_terms,
   exclude_terms = NULL,
+  unicode = TRUE,
   call = rlang::caller_env()
 )
 }
@@ -20,6 +21,11 @@ at least one to be included.}
 \item{exclude_terms}{Character vector of regex patterns. A work matching
 any is excluded. Default \code{NULL} (no exclusions).}
 
+\item{unicode}{Logical (default \code{TRUE}). Match the terms in Unicode mode,
+so \verb{\\w}, \verb{\\b}, \verb{\\d}, \verb{\\s} and POSIX classes know non-ASCII letters,
+digits and spaces, as in German or French titles. \code{FALSE} gives
+ASCII-only classes.}
+
 \item{call}{Caller environment for error reporting.}
 }
 \value{
@@ -31,6 +37,25 @@ matching on work titles and abstracts. Works matching any \code{include_terms}
 (case-insensitive) and none of the \code{exclude_terms} are classified as
 \code{"include"}; works matching an exclude term are \code{"exclude"}; works
 matching no include term are \code{"exclude"}.
+}
+\details{
+Terms are Perl-compatible regular expressions (PCRE), matched as written
+and case-insensitively against the title and abstract of each work. In
+Unicode mode (the default) each term is prefixed with the PCRE item
+\verb{(*UCP)} unless its leading items already include it, so \verb{\\b} finds the
+edge of a word that starts with an umlaut and \verb{\\w} consumes one. A term
+can therefore also stop matching: one that used \verb{\\W}, \verb{\\S}, \verb{\\D} or \verb{\\B}
+to stand for a non-ASCII letter no longer matches it, and \verb{\\b} no longer
+finds an edge between an ASCII letter and a non-ASCII letter next to it,
+as inside a German compound word. Write \verb{[A-Za-z0-9_]} instead of \verb{\\w}
+for an ASCII-only class.
+}
+\examples{
+corpus <- sm_example_corpus(n_works = 20, n_authors = 5)
+screened <- sm_screen_regex(corpus,
+                            include_terms = c("spatial", "transcriptom"),
+                            exclude_terms = "\\\\bmouse\\\\b")
+sm_screen_summary(screened)
 }
 \seealso{
 Other question:

@@ -299,7 +299,6 @@ test_that("H13: a global clustering is followed across time windows", {
 })
 
 test_that("H14: dictionary patterns match non-ASCII affiliations", {
-  skip("H14 pending - prompt A14")
   # Intent: ten fixture rows carry German address strings. The dictionary
   # rows whose \w must consume an umlaut or whose \b sits next to one (rows
   # 2, 3, 4, 6 and 7) leave all ten unmatched before the fix, and the

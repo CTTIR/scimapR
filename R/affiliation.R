@@ -30,6 +30,11 @@
 #'   dictionary carries a `postcode` column, a postcode match is attempted as a
 #'   last resort (lowest priority, after name tokens and email domains) so
 #'   existing matches do not shift. Off by default.
+#' @param unicode Logical (default `TRUE`). Match the patterns in Unicode
+#'   mode, so `\w`, `\b`, `\d`, `\s` and POSIX classes such as `[[:alpha:]]`
+#'   know non-ASCII letters, digits and spaces (see Details). `FALSE` gives
+#'   the ASCII-only classes of scimapR 0.4.0 and earlier, to reproduce
+#'   earlier results.
 #' @param call Caller environment for error reporting.
 #'
 #' @return The `corpus` with its `authorships` table gaining (or having
@@ -49,28 +54,81 @@
 #'   breakdown.
 #'
 #' @details
+#' Dictionary patterns are case-insensitive Perl-compatible regular
+#' expressions (PCRE) with Unicode-aware `\w`, `\b`, `\d` and `\s`, matched
+#' against the affiliation text of each authorship. The rows are tried in
+#' dictionary order and the first pattern that matches wins, so list specific
+#' patterns before generic ones. [sm_affiliation_unmatched()] lists the most
+#' frequent affiliation strings that nothing matched.
+#'
+#' In Unicode mode (`unicode = TRUE`, the default) each pattern is prefixed
+#' with the PCRE item `(*UCP)` unless its leading items already include it.
+#' Umlauts, accented letters and the sharp s are then word characters: `\w`
+#' consumes them, `\b` finds the edge of a word that starts or ends with one,
+#' and POSIX classes such as `[[:alpha:]]` are Unicode-aware too. In ASCII
+#' mode (`unicode = FALSE`) every non-ASCII letter is a non-word character,
+#' like punctuation: a pattern such as `sanit\w+wesens` cannot match the
+#' German word spelled with an a-umlaut, and `\b` finds no edge between a
+#' space and a word that starts with an umlaut. Unicode mode can therefore
+#' also lose matches. A pattern that used `\W`, `\S`, `\D` or `\B` to stand
+#' for a non-ASCII letter no longer matches it, and `\b` no longer finds an
+#' edge between an ASCII letter and a non-ASCII letter next to it: the
+#' shipped pattern `\bnato\b` does not match "NATO" directly followed by an
+#' umlaut, as in a German compound word. To keep ASCII semantics in one
+#' place, write the class out, for example `[A-Za-z0-9_]` instead of `\w`.
+#'
+#' `unicode = FALSE` gives the matches of scimapR 0.4.0. Two functions call
+#' `sm_affiliation_match()` with its defaults, and so match in Unicode mode,
+#' without a `unicode` argument of their own: [sm_attribute_institution()]
+#' when the corpus has no `institution_match` column, and
+#' `sm_count(level = "institution")` when neither `institution_id` nor
+#' `institution_match` has a value. Running
+#' `sm_affiliation_match(unicode = FALSE)` first gives the earlier results
+#' of [sm_attribute_institution()]. [sm_count()] then counts by
+#' `institution_match` if at least one authorship matched, but leaves out
+#' the unmatched authorships, which its own matching counts under their raw
+#' affiliation string; for its earlier counts, also fill the missing
+#' `institution_match` values with `raw_affiliation` before counting.
+#'
+#' The optional `postcode` column (used with `postcode_signal = TRUE`) is
+#' matched case-sensitively as a whole word, in the same mode: it is wrapped
+#' in `\b`, any run of whitespace in it matches any amount of whitespace
+#' (including none), and it is used as a regular expression without escaping.
+#'
 #' To extend the dictionary, append rows to [sm_affiliation_dict] (or build your
 #' own data frame with the same columns) and pass it as `patterns`. For example
 #' `rbind(sm_affiliation_dict, tibble::tibble(institution = "My Uni",
 #' pattern = "my university", email_domain = "myuni.edu"))`.
 #'
 #' @family affiliation
-#' @seealso [sm_attribute_institution()], [sm_affiliation_dict]
+#' @seealso [sm_attribute_institution()], [sm_affiliation_dict],
+#'   [sm_affiliation_unmatched()]
 #' @export
 #' @examples
 #' corpus <- sm_example_corpus(n_works = 5, n_authors = 5)
 #' corpus$authorships$raw_affiliation[1] <- "Bundeswehrkrankenhaus Berlin"
 #' matched <- sm_affiliation_match(corpus)
 #' matched$authorships$institution_match[1]
+#'
+#' # In Unicode mode \w consumes the umlaut of a German unit name
+#' corpus$authorships$raw_affiliation[2] <-
+#'   "Zentrales Institut des Sanit\u00e4tswesens Nordstadt"
+#' dict <- list("Central Medical Institute" = "sanit\\w+wesens")
+#' matched <- sm_affiliation_match(corpus, patterns = dict)
+#' matched$authorships$institution_match[2]
+#' ascii <- sm_affiliation_match(corpus, patterns = dict, unicode = FALSE)
+#' ascii$authorships$institution_match[2]
 sm_affiliation_match <- function(corpus,
                                  patterns = sm_affiliation_dict,
                                  fields = NULL,
                                  email_domain_fallback = TRUE,
                                  postcode_signal = FALSE,
+                                 unicode = TRUE,
                                  call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   .check_flag(email_domain_fallback, call = call)
   .check_flag(postcode_signal, call = call)
+  .check_flag(unicode, call = call)
 
   dict <- .normalize_aff_patterns(patterns, call = call)
   a <- corpus$authorships
@@ -104,13 +162,15 @@ sm_affiliation_match <- function(corpus,
   match_evidence <- rep(NA_character_, n)
 
   # ---- 1. name-token (pattern) matching, capturing the matched substring ----
+  # Unicode mode is added per pattern after the NA/empty filter: a prefixed
+  # empty pattern would match every string.
   has_text <- nzchar(aff_text)
   pat_rows <- which(!is.na(dict$pattern) & nzchar(dict$pattern))
   for (pr in pat_rows) {
     todo <- which(has_text & is.na(institution_match))
     if (length(todo) == 0L) break
-    m <- regexpr(dict$pattern[pr], aff_text[todo], ignore.case = TRUE,
-                 perl = TRUE)
+    m <- regexpr(.ucp_regex(dict$pattern[pr], unicode), aff_text[todo],
+                 ignore.case = TRUE, perl = TRUE)
     hit <- m != -1L
     if (any(hit)) {
       idx <- todo[hit]
@@ -149,7 +209,7 @@ sm_affiliation_match <- function(corpus,
       todo <- which(has_text & is.na(institution_match))
       if (length(todo) == 0L) break
       pat <- paste0("\\b", gsub("\\s+", "\\\\s*", dict$postcode[pr]), "\\b")
-      m <- regexpr(pat, aff_text[todo], perl = TRUE)
+      m <- regexpr(.ucp_regex(pat, unicode), aff_text[todo], perl = TRUE)
       hit <- m != -1L
       if (any(hit)) {
         idx <- todo[hit]
@@ -246,6 +306,83 @@ sm_affiliation_summary <- function(corpus, call = rlang::caller_env()) {
       .groups = "drop"
     ) %>%
     dplyr::arrange(dplyr::desc(.data$n_authorships))
+}
+
+#' List affiliation strings that matched no institution
+#'
+#' @description
+#' Audits an affiliation dictionary. After [sm_affiliation_match()], it lists
+#' the most frequent `raw_affiliation` strings of the authorships that no
+#' signal (name pattern, email domain or postcode) assigned to an
+#' institution, so the dictionary can be extended where that matters most.
+#'
+#' @param corpus An `sm_corpus` previously passed through
+#'   [sm_affiliation_match()] (so its `authorships` carry `institution_match`).
+#' @param n Maximum number of strings to return: a positive whole number, or
+#'   `Inf` for all of them. Default 25.
+#' @param call Caller environment for error reporting.
+#'
+#' @return A tibble with columns `raw_affiliation` (character),
+#'   `n_authorships` (integer: unmatched authorships with that string) and
+#'   `n_works` (integer: distinct works among them), at most `n` rows,
+#'   sorted by `n_authorships` descending and then by `raw_affiliation` in
+#'   code-point order. Authorships whose `raw_affiliation` is `NA` or blank
+#'   are not listed. Type-stable: a 0-row tibble when every affiliation
+#'   matched, and a 0-row tibble with a warning when the corpus has not been
+#'   matched.
+#'
+#' @family affiliation
+#' @seealso [sm_affiliation_match()], [sm_affiliation_summary()]
+#' @export
+#' @examples
+#' fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
+#' dict <- readr::read_csv(
+#'   sm_example_files("example_realuse_affiliation_dict.csv"),
+#'   col_types = "ccc"
+#' )
+#' matched <- sm_affiliation_match(fix, dict)
+#' sm_affiliation_unmatched(matched, n = 5)
+sm_affiliation_unmatched <- function(corpus, n = 25L,
+                                     call = rlang::caller_env()) {
+  .check_sm_corpus(corpus, call = call)
+  if (!rlang::is_integerish(n, n = 1L) || is.na(n) || n < 1) {
+    cli::cli_abort(
+      "{.arg n} must be a positive whole number or {.code Inf}.",
+      call = call
+    )
+  }
+  a <- corpus$authorships
+  empty <- tibble::tibble(
+    raw_affiliation = character(),
+    n_authorships = integer(), n_works = integer()
+  )
+  if (!"institution_match" %in% names(a)) {
+    cli::cli_warn(c(
+      "!" = "No affiliation matches found on this corpus.",
+      "i" = "Run {.fn sm_affiliation_match} first."
+    ), call = call)
+    return(empty)
+  }
+  raw <- if ("raw_affiliation" %in% names(a)) {
+    as.character(a$raw_affiliation)
+  } else {
+    rep(NA_character_, nrow(a))
+  }
+  keep <- is.na(a$institution_match) & !is.na(raw) & nzchar(trimws(raw))
+  if (!any(keep)) return(empty)
+
+  unmatched <- tibble::tibble(raw_affiliation = raw[keep],
+                              work_id = as.character(a$work_id[keep]))
+  out <- dplyr::summarise(
+    dplyr::group_by(unmatched, raw_affiliation = .data$raw_affiliation),
+    n_authorships = dplyr::n(),
+    n_works = dplyr::n_distinct(.data$work_id),
+    .groups = "drop"
+  )
+  # radix order sorts strings by code point, the same in every locale
+  out <- out[order(-out$n_authorships, out$raw_affiliation,
+                   method = "radix"), ]
+  out[seq_len(min(n, nrow(out))), ]
 }
 
 #' Normalise an affiliation pattern dictionary to a standard tibble

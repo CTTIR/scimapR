@@ -28,6 +28,9 @@ whose column set is the stable contract.
 \item{\code{\link[=sm_affiliation_summary]{sm_affiliation_summary()}}}{A tibble: \code{institution}, \code{match_signal}
 (factor, see \code{\link[=sm_affiliation_signals]{sm_affiliation_signals()}}), \code{n_authorships}, \code{n_works},
 \code{example_evidence}.}
+\item{\code{\link[=sm_affiliation_unmatched]{sm_affiliation_unmatched()}}}{A tibble: \code{raw_affiliation}
+(character), \code{n_authorships} and \code{n_works} (integer), sorted by
+\code{n_authorships} descending and then by \code{raw_affiliation}.}
 \item{\code{\link[=sm_reconcile]{sm_reconcile()}} (\code{summary()})}{A one-row tibble: \code{n_a}, \code{n_b},
 \code{n_both}, \code{n_only_a}, \code{n_only_b}, \code{jaccard}.}
 \item{\code{\link[=sm_metric_summary]{sm_metric_summary()}}}{A one-row tibble: \code{metric}, \code{n}, \code{mean},
