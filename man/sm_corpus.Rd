@@ -108,6 +108,199 @@ The corpus is the central data structure in scimapR, holding works, authors,
 authorships, institutions, sources, references, concepts, embeddings,
 provenance, screening decisions, and metadata.
 }
+\details{
+A corpus is a list of tables that share identifiers: \code{work_id} links
+every table to \code{works}, \code{author_id} links \code{authorships} to \code{authors},
+\code{institution_id} links them to \code{institutions} and \code{source_id} links
+\code{works} to \code{sources}. The tables below list, for each element, the
+required columns, which the readers and fetchers always write (a value
+may be \code{NA}), and the optional columns that some readers and functions
+write or read. \code{sm_corpus()} adds the missing required columns of
+\code{works} (mostly \code{NA}); it takes the other tables as given.
+
+\strong{\code{works}}: one row per work. Required:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{work_id} \tab character \tab Identifier, unique within the corpus \cr
+   \code{doi} \tab character \tab DOI, lower case, without \verb{https://doi.org/} \cr
+   \code{title}, \code{abstract} \tab character \tab Title and abstract \cr
+   \code{year} \tab integer \tab Publication year \cr
+   \code{type} \tab character \tab Document type, as the source names it \cr
+   \code{source_id} \tab character \tab The journal or other source (\code{sources}) \cr
+   \code{cited_by_count} \tab integer \tab Citations, as the source counts them \cr
+   \code{oa_status} \tab character \tab Open-access status \cr
+   \code{language} \tab character \tab Language \cr
+   \code{pmid}, \code{arxiv_id}, \code{openalex_id} \tab character \tab Other identifiers \cr
+   \code{is_retracted} \tab logical \tab Retraction flag \cr
+   \code{retraction_date} \tab Date \tab Date of the retraction \cr
+   \code{last_refreshed} \tab POSIXct \tab When the record was read or fetched \cr
+}
+
+
+Optional: \code{quartile}, \code{jif_quartile} or \code{sjr_quartile} (journal
+quartiles such as \code{"Q1"}, for \code{sm_its(outcome = "share_q1")}); \code{cnci},
+\code{fnci}, \code{rcr} and other impact columns (see \code{\link[=sm_its]{sm_its()}}); \code{field} (for
+\code{sm_metric_fnci(classification = "manual")}); \code{citation_mature} and
+\code{cnci_provisional} (\code{\link[=sm_citation_maturity]{sm_citation_maturity()}}); \code{cluster_id} and
+\code{cluster_label} (the clustering functions).
+
+\strong{\code{authors}}: one row per author. Required:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{author_id} \tab character \tab Identifier, unique within the corpus \cr
+   \code{orcid} \tab character \tab ORCID iD \cr
+   \code{display_name} \tab character \tab Name \cr
+   \code{display_name_alternatives} \tab list of character \tab Other spellings \cr
+   \code{inferred_gender}, \code{gender_method} \tab character \tab Gender and its method \cr
+   \code{gender_confidence} \tab double \tab Confidence of \code{inferred_gender} \cr
+}
+
+
+\code{display_name_alternatives} holds, for example, the names as a Web of
+Science file writes them, and \code{sm_audit_gender(method = "manual")}
+reads the gender columns. Optional: none so far.
+
+\strong{\code{authorships}}: one row per work, author and affiliation, so an author
+with several addresses in a work has several rows, which share
+\code{position} and \code{is_corresponding}. Required:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{work_id}, \code{author_id} \tab character \tab The work and the author \cr
+   \code{position} \tab integer \tab Place in the author list, from 1 (\code{NA}: unknown) \cr
+   \code{is_corresponding} \tab logical \tab Corresponding author: see below \cr
+   \code{institution_id} \tab character \tab The institution (\code{institutions}) \cr
+   \code{raw_affiliation} \tab character \tab The address as the source writes it \cr
+   \code{country_code} \tab character \tab ISO 3166-1 alpha-2 country code \cr
+}
+
+
+\code{is_corresponding} is \code{TRUE} for the authors the source names as
+corresponding, \code{FALSE} for the other authors of such a work and \code{NA}
+when the source does not say who the corresponding author is.
+\code{\link[=sm_read_wos]{sm_read_wos()}} and \code{\link[=as_sm_corpus]{as_sm_corpus()}} read it from the RP field,
+\code{\link[=sm_read_openalex_json]{sm_read_openalex_json()}} and \code{\link[=sm_fetch_openalex]{sm_fetch_openalex()}} from OpenAlex (a
+work whose authors are all marked \code{false} takes its corresponding
+authors from \code{corresponding_author_ids}, and counts as unknown when
+that lists none of them), \code{\link[=sm_read_dimensions]{sm_read_dimensions()}} from its Corresponding
+Authors column and \code{\link[=sm_fetch_biorxiv]{sm_fetch_biorxiv()}} from the bioRxiv API; the other
+readers and fetchers write \code{NA}. Up to scimapR 0.4.0 they flagged the
+first author instead. A name that fits several authors of a work
+equally (namesakes with the same surname and initials) and that the
+source does not tell apart leaves them \code{NA}. Functions that select
+corresponding authors take \code{TRUE} only, and the leadership outcome of
+\code{\link[=sm_its]{sm_its()}} leaves works whose corresponding author is unknown out of
+its shares.
+
+Optional: \code{institution_match}, \code{match_method}, \code{match_signal} and
+\code{match_evidence} (\code{\link[=sm_affiliation_match]{sm_affiliation_match()}}); \code{institution_name}
+(\code{\link[=sm_attribute_institution]{sm_attribute_institution()}}); \code{email} (exported as \code{EM} by
+\code{\link[=sm_to_bibliometrix]{sm_to_bibliometrix()}}).
+
+\strong{\code{institutions}}: one row per institution. Required:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{institution_id} \tab character \tab Identifier, as in \code{authorships} \cr
+   \code{ror} \tab character \tab ROR id \cr
+   \code{display_name} \tab character \tab Name \cr
+   \code{country_code} \tab character \tab ISO 3166-1 alpha-2 country code \cr
+   \code{region}, \code{income_tier} \tab character \tab World region and income group \cr
+   \code{type} \tab character \tab Kind of institution, such as education or healthcare \cr
+}
+
+
+Optional: none so far.
+
+\strong{\code{sources}}: one row per journal or other source. Required:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{source_id} \tab character \tab Identifier, as in \code{works} \cr
+   \code{issn_l} \tab character \tab Linking ISSN \cr
+   \code{issn} \tab list of character \tab All ISSNs of the source \cr
+   \code{display_name} \tab character \tab Name \cr
+   \code{type} \tab character \tab Kind of source, such as journal \cr
+   \code{is_oa} \tab logical \tab Open-access source \cr
+   \code{publisher}, \code{publisher_country} \tab character \tab Publisher and its country \cr
+}
+
+
+Optional: \code{abbreviation} and \code{iso_abbreviation} (character; the Web of
+Science abbreviations J9 and JI, written by \code{\link[=sm_read_wos]{sm_read_wos()}} and the
+bibliometrix conversion and exported by \code{\link[=sm_to_bibliometrix]{sm_to_bibliometrix()}}).
+
+\strong{\code{references}}: one row per cited reference. Required:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{work_id} \tab character \tab The citing work \cr
+   \code{ref_index} \tab integer \tab Place in the work's reference list \cr
+   \code{cited_work_id} \tab character \tab The cited work, when it is in \code{works} \cr
+   \code{cited_doi} \tab character \tab DOI of the cited work \cr
+   \code{cited_raw} \tab character \tab The reference as the source writes it \cr
+}
+
+
+Optional: none so far.
+
+\strong{\code{concepts}}: one row per keyword, category or concept of a work.
+Required:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{work_id} \tab character \tab The work \cr
+   \code{concept_id} \tab character \tab Identifier in its vocabulary \cr
+   \code{concept_name} \tab character \tab The keyword, category or concept \cr
+   \code{level} \tab integer \tab Level in the hierarchy of the vocabulary \cr
+   \code{score} \tab double \tab Weight given by the source \cr
+   \code{vocabulary} \tab character \tab One of \code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}} \cr
+}
+
+
+For MeSH headings \code{score} is 1 for a major topic and 0 otherwise.
+Optional: none so far.
+
+\strong{\code{embeddings}}: \code{NULL} or a numeric matrix with one row per work,
+named by \code{work_id}.
+
+\strong{\code{provenance}}: one row per work and source. Required:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{work_id} \tab character \tab The work \cr
+   \code{source} \tab character \tab Where the record comes from, such as \code{"wos"} \cr
+   \code{source_id_external} \tab character \tab Its identifier at the source \cr
+   \code{fetch_date} \tab POSIXct \tab When it was read or fetched \cr
+   \code{query} \tab character \tab The query or file it came from \cr
+   \code{engine} \tab character \tab The parser or client that read it \cr
+   \code{scimapR_version} \tab character \tab The scimapR version that read it \cr
+   \code{prompt_hash} \tab character \tab Hash of a prompt behind the record \cr
+}
+
+
+\code{source_id_external} is, for example, the Web of Science accession
+number (UT); \code{prompt_hash} is \code{NA} for records that no prompt
+produced. Optional: none so far.
+
+\strong{\code{screening}}: one row per screening decision. Required:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{work_id} \tab character \tab The work \cr
+   \code{stage} \tab character \tab Stage, such as \code{"title-abstract"} or \code{"full-text"} \cr
+   \code{decision} \tab character \tab \code{"include"}, \code{"exclude"} or \code{"unclear"} \cr
+   \code{reason} \tab character \tab Reason for the decision \cr
+   \code{confidence} \tab double \tab Confidence of the decision \cr
+   \code{source} \tab character \tab Who or what decided \cr
+   \code{decided_at} \tab POSIXct \tab When \cr
+}
+
+
+Optional: none so far.
+
+\strong{\code{metadata}}: a list. Required:\tabular{lll}{
+   Entry \tab Type \tab Content \cr
+   \code{scimapR_version} \tab character \tab The scimapR version that built the corpus \cr
+   \code{build_date} \tab POSIXct \tab When the corpus was built \cr
+   \code{corpus_hash} \tab character \tab Hash of the content (\code{\link[=sm_hash_corpus]{sm_hash_corpus()}}) \cr
+   \code{is_locked} \tab logical \tab Whether \code{\link[=sm_lock]{sm_lock()}} locked the corpus \cr
+   \code{last_refresh} \tab POSIXct \tab When \code{\link[=sm_refresh]{sm_refresh()}} last ran \cr
+   \code{question_id} \tab character \tab Id of its \code{\link[=sm_question]{sm_question()}} \cr
+}
+
+
+\code{question_id} is set by \code{\link[=sm_corpus_for_question]{sm_corpus_for_question()}}. Optional: entries
+the readers add, such as \code{source_file} and \code{reader}.
+\code{build_date} and \code{last_refresh} may also be numbers of seconds since
+1970-01-01 UTC, as corpora restored from tables store them, ISO 8601
+text or dates; \code{\link[=sm_certificate]{sm_certificate()}} and the citation-maturity cut-offs
+read all of these.
+}
 \examples{
 corpus <- sm_corpus(
   works = tibble::tibble(

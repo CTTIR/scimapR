@@ -238,6 +238,8 @@ sm_fetch_pubmed <- function(query,
 
   for (i in seq_along(articles)) {
     author_nodes <- xml2::xml_find_all(articles[[i]], ".//Author")
+    # the source names no corresponding author: unknown (NA)
+    corresponding <- .corresponding_flags(length(author_nodes))
     for (j in seq_along(author_nodes)) {
       node <- author_nodes[[j]]
       last <- xml2::xml_text(xml2::xml_find_first(node, "LastName"))
@@ -274,7 +276,7 @@ sm_fetch_pubmed <- function(query,
         work_id = work_ids[i],
         author_id = author_map[[key]]$author_id,
         position = as.integer(j),
-        is_corresponding = j == 1L,
+        is_corresponding = corresponding[j],
         institution_id = NA_character_,
         raw_affiliation = raw_aff,
         country_code = NA_character_

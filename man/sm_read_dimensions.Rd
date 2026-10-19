@@ -40,7 +40,16 @@ the parser skips lines that do not look like the header. Key columns
 matched (case-insensitive): Title, DOI, Authors, Source title
 (or Source Title), PubYear (or Publication Year), Times cited,
 Document Type (or Publication Type), Abstract, Dimensions ID,
-MeSH terms, Author Keywords, ISSN.
+MeSH terms, Author Keywords, ISSN and Corresponding Authors.
+
+The authors that the Corresponding Authors column names (\verb{;}-separated,
+an affiliation in parentheses after a name is ignored) get
+\code{authorships$is_corresponding = TRUE} and the other authors of the
+record \code{FALSE}; names are compared by surname and given names or
+initials. A name that fits several authors equally, such as "Wang, Y"
+for Wang Yan and Wang Yu, leaves them \code{NA}. Without that column, or when
+it names none of the record's authors for certain, \code{is_corresponding} is
+\code{NA} (unknown).
 }
 
 \examples{

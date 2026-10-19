@@ -28,10 +28,13 @@ ships at \code{system.file("extdata", "example_ror.csv", package = "scimapR")}.}
 \item{call}{Caller environment for error reporting.}
 }
 \value{
-The \code{corpus} with its \code{authorships} table gaining \code{institution_id}
-and \code{institution_name} columns (for \code{"ror"}, \code{institution_id} holds the
-ROR id). Unmatched rows keep \code{NA} -- the function never errors on
-unmatched affiliations. Type-stable.
+The \code{corpus} with \code{institution_id} and \code{institution_name} set on
+the \code{authorships} rows that match the vocabulary (for \code{"ror"},
+\code{institution_id} holds the ROR id; for \code{"custom"}, \verb{CUST:} and the
+matched name). Unmatched rows keep the \code{institution_id} and
+\code{institution_name} they had, such as the OpenAlex institution ids of
+a fetched corpus, or \code{NA} -- the function never errors on unmatched
+affiliations. Type-stable.
 }
 \description{
 Rolls institution matches (from \code{\link[=sm_affiliation_match]{sm_affiliation_match()}}) up to a controlled
@@ -55,6 +58,13 @@ vocabulary, put its names first, for example:
 corpus$authorships$institution_match <-
   dplyr::coalesce(a$institution_name, a$institution_match)
 }\if{html}{\out{</div>}}
+
+The ids written to matched rows are ROR ids or \verb{CUST:} ids, which join
+\code{corpus$institutions} only where that table lists them, so functions
+that read the institutions table for these rows (such as
+\code{sm_audit_geographic(by = "region")}) find no entry for them. Unmatched
+rows keep their earlier ids and so their entries. Up to scimapR 0.4.0,
+unmatched rows lost their \code{institution_id}.
 }
 \examples{
 ror <- utils::read.csv(

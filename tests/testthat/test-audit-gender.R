@@ -100,3 +100,45 @@ test_that("sm_audit_gender genderize errors are swallowed when cache miss", {
   expect_s3_class(res, "sm_audit_gender")
   expect_equal(res$coverage, 0.0)
 })
+
+test_that("sm_audit_gender counts corresponding authors who are not first", {
+  # In the real-use fixture 60 of 150 works have their corresponding author
+  # at position 2 or later. The breakdown used isTRUE() on the whole
+  # column, which never gave "corresponding".
+  fix <- realuse_corpus()
+  fix$authors$inferred_gender <- rep(c("female", "male"),
+                                     length.out = nrow(fix$authors))
+  res <- sm_audit_gender(fix, method = "manual")
+  bp <- res$by_position
+  a <- unique(fix$authorships[, c("work_id", "author_id", "position",
+                                  "is_corresponding")])
+  expected <- sum(a$is_corresponding & a$position > 1L)
+  expect_gt(expected, 0L)
+  expect_identical(sum(bp$count[bp$position_type == "corresponding"]),
+                   expected)
+})
+
+test_that("sm_audit_gender counts an author with two addresses once", {
+  corpus <- sm_corpus(
+    works = tibble::tibble(work_id = c("W1", "W2"), year = 2020L),
+    authors = tibble::tibble(author_id = c("A1", "A2"), orcid = NA_character_,
+                             display_name = c("Ann Roe", "Bo Doe"),
+                             inferred_gender = c("female", "male"),
+                             gender_confidence = NA_real_),
+    authorships = tibble::tibble(
+      work_id = c("W1", "W1", "W1", "W2"),
+      author_id = c("A1", "A1", "A2", "A2"),
+      position = c(1L, 1L, 2L, 1L),
+      is_corresponding = c(FALSE, FALSE, TRUE, NA),
+      institution_id = NA_character_,
+      raw_affiliation = c("Univ A", "Inst B", "Univ C", NA),
+      country_code = NA_character_
+    )
+  )
+  bp <- sm_audit_gender(corpus, method = "manual")$by_position
+  got <- stats::setNames(bp$count, paste(bp$position_type,
+                                         bp$inferred_gender))
+  expect_identical(got[order(names(got))],
+                   c("corresponding male" = 1L, "first female" = 1L,
+                     "first male" = 1L))
+})

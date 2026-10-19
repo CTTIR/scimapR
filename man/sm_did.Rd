@@ -14,6 +14,10 @@ sm_did(
   intervention_year,
   outcome = c("count", "share_q1", "cnci", "leadership"),
   family = NULL,
+  lag = NULL,
+  institution_aware = FALSE,
+  lead_role = c("corresponding", "first", "last", "first_or_last", "any_lead"),
+  shared = c("keep", "exclude", "lead"),
   call = rlang::caller_env()
 )
 
@@ -27,7 +31,8 @@ sm_did(
 \item{corpus}{An \code{sm_corpus} with institution-attribution columns.}
 
 \item{treated, control}{Character vectors of institution labels (matched
-against \code{institution_name} / \code{institution_match} / \code{institution_id}).}
+against \code{institution_name} / \code{institution_match} / \code{institution_id}).
+The two may not share a label.}
 
 \item{intervention_year}{Year the intervention takes effect: one whole
 number such as \code{2020}, or text holding one.}
@@ -38,6 +43,29 @@ number such as \code{2020}, or text holding one.}
 \item{family}{Optional GLM family; defaults to Gaussian (DiD is an additive
 contrast). Override for, e.g., a Poisson count model; a Poisson fit
 warns when the counts are overdispersed.}
+
+\item{lag}{Citation-maturity lag in years (default \code{2}), as in
+\code{\link[=sm_its]{sm_its()}}: for \code{"cnci"} the most recent \code{lag} years are
+citation-immature and excluded.}
+
+\item{institution_aware}{For \code{outcome = "leadership"}: if \code{TRUE}, each
+group's share counts the works whose author in the role \code{lead_role}
+belongs to the group's own institutions (the treated series uses
+\code{institutions = treated}, the control series \code{institutions = control},
+as in \code{\link[=sm_its]{sm_its()}}). \code{FALSE} (default) counts the works with a
+corresponding author.}
+
+\item{lead_role}{The author role that leads a work, as in \code{\link[=sm_its]{sm_its()}}, for
+\code{outcome = "leadership"} and for \code{shared = "lead"}. For the leadership
+outcome, roles other than \code{"corresponding"} need
+\code{institution_aware = TRUE}.}
+
+\item{shared}{What to do with works that belong to both groups, such as
+works co-authored by a treated and a control institution: \code{"keep"}
+(default) keeps them in both series, \code{"exclude"} leaves them out of
+both, and \code{"lead"} puts each in the series of the group whose
+institution holds its author in the role \code{lead_role} (a work led from
+both groups or from neither leaves both series).}
 
 \item{call}{Caller environment for error reporting.}
 
@@ -52,8 +80,14 @@ An \code{sm_did} S3 object with components: \code{model}, \code{did_estimate}
 (a one-row tibble: \code{estimate}, \code{std.error}, \code{conf.low}, \code{conf.high},
 \code{p.value}), \code{series} (group-by-year tibble: \code{year}, \code{group}, \code{value},
 \code{n_works}), \code{dropped_years} (tibble: \code{group}, \code{year}; the group-years
-left out for lack of a usable value), and metadata (\code{outcome},
-\code{intervention_year}, \code{family}).
+left out for lack of a usable value), \code{provisional_years} (integer;
+the citation-immature years excluded for \code{"cnci"}), \code{shared_works}
+(tibble: \code{work_id}, \code{series}; the works of both groups and where they
+went: \code{"both"}, \code{"treated"}, \code{"control"} or \code{"none"}), \code{shared} (the
+policy), \code{leadership} (the leadership definition, as in \code{\link[=sm_its]{sm_its()}},
+with \code{institutions} the labels of each group when \code{institution_aware};
+\code{NULL} for the other outcomes), and metadata (\code{outcome},
+\code{intervention_year}, \code{family}, \code{lag}).
 
 \code{print} returns \code{x} invisibly.
 
@@ -73,19 +107,32 @@ Each group's yearly series is built as in \code{\link[=sm_its]{sm_its()}}. For \
 group's years without works count 0, over every year from the first to
 the last publication year of the corpus. For the other outcomes a year in
 which a group has works but no usable value is dropped from that group's
-series, with a warning, and listed in \code{dropped_years}. Each group needs 4
-or more years, with at least one before \code{intervention_year} and one from
-it on; otherwise \code{sm_did()} aborts. The confidence interval uses the
-reference distribution of the p-value (t with the residual degrees of
-freedom for the default Gaussian family); no correction for
-autocorrelation is applied.
+series, with a warning, and listed in \code{dropped_years}. For \code{"cnci"} the
+citation-immature years are then excluded from both series, by the same
+rule as in \code{\link[=sm_its]{sm_its()}}, and listed in \code{provisional_years}; up to scimapR
+0.4.0 \code{sm_did()} kept them. Each group needs 4 or more years, with at
+least one before \code{intervention_year} and one from it on; otherwise
+\code{sm_did()} aborts. The confidence interval uses the reference
+distribution of the p-value (t with the residual degrees of freedom for
+the default Gaussian family); no correction for autocorrelation is
+applied.
+
+A work belongs to a group when one of its authorships carries one of the
+group's labels, so a work co-authored by both groups belongs to both.
+Such shared works pull the two series together and the estimate toward
+0. \code{sm_did()} warns when there are shared works and \code{shared} is not
+set, and records them in \code{shared_works}. For \code{"leadership"} the
+denominators leave out the works whose lead is unknown, as in
+\code{\link[=sm_its]{sm_its()}}.
 }
 \examples{
 \dontshow{if (rlang::is_installed("stringdist")) withAutoprint(\{ # examplesIf}
 corpus <- sm_example_corpus(n_works = 120, seed = 1)
-# Tag two institution groups for illustration
-corpus$authorships$institution_name <- rep(
-  c("Inst A", "Inst B"), length.out = nrow(corpus$authorships))
+# Tag two institution groups for illustration: each work belongs to one
+a <- corpus$authorships
+group <- rep(c("Inst A", "Inst B"), length.out = nrow(corpus$works))
+corpus$authorships$institution_name <-
+  group[match(a$work_id, corpus$works$work_id)]
 did <- sm_did(corpus, treated = "Inst A", control = "Inst B",
               intervention_year = 2020, outcome = "count")
 did

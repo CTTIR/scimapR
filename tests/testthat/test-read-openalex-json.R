@@ -165,3 +165,16 @@ test_that("sm_read_openalex_json emits a progress message only when verbose", {
   expect_message(sm_read_openalex_json(path, verbose = TRUE), "OpenAlex")
   expect_silent(sm_read_openalex_json(path, verbose = FALSE))
 })
+
+test_that("sm_read_openalex_json reads the corresponding author", {
+  # A saved response: the second author of W1 is corresponding; W2 marks
+  # every author false and W3 has no flag (both unknown); W4 lists its
+  # corresponding author only in corresponding_author_ids.
+  path <- test_path("fixtures", "openalex-corresponding.json")
+  corpus <- sm_read_openalex_json(path, verbose = FALSE)
+  a <- corpus$authorships
+  w <- match(a$work_id, corpus$works$work_id)
+  flags <- split(a$is_corresponding[order(w, a$position)], sort(w))
+  expect_identical(unname(flags), list(c(FALSE, TRUE, FALSE), c(NA, NA),
+                                       c(NA, NA), c(FALSE, TRUE)))
+})

@@ -21,7 +21,16 @@
 #' matched (case-insensitive): Title, DOI, Authors, Source title
 #' (or Source Title), PubYear (or Publication Year), Times cited,
 #' Document Type (or Publication Type), Abstract, Dimensions ID,
-#' MeSH terms, Author Keywords, ISSN.
+#' MeSH terms, Author Keywords, ISSN and Corresponding Authors.
+#'
+#' The authors that the Corresponding Authors column names (`;`-separated,
+#' an affiliation in parentheses after a name is ignored) get
+#' `authorships$is_corresponding = TRUE` and the other authors of the
+#' record `FALSE`; names are compared by surname and given names or
+#' initials. A name that fits several authors equally, such as "Wang, Y"
+#' for Wang Yan and Wang Yu, leaves them `NA`. Without that column, or when
+#' it names none of the record's authors for certain, `is_corresponding` is
+#' `NA` (unknown).
 #'
 #' @references
 #' Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for
@@ -106,6 +115,7 @@ sm_read_dimensions <- function(path,
   raw_title    <- .col(df, "^Title$")
   raw_doi      <- .col(df, "^DOI$")
   raw_authors  <- .col(df, "^Authors$", "^Author$")
+  raw_corr     <- .col(df, "^Corresponding.Authors?$")
   raw_source   <- .col(df, "^Source.title$", "^Source title$",
                         "^Source.Title$", "^Journal$")
   raw_year     <- .col(df, "^PubYear$", "^Pub.Year$",
@@ -144,7 +154,8 @@ sm_read_dimensions <- function(path,
 
   # --- authors & authorships -----------------------------------------------
   auth_strings <- as.character(raw_authors)
-  auth_result <- .dimensions_build_authors(auth_strings, work_ids)
+  auth_result <- .dimensions_build_authors(auth_strings, work_ids,
+                                           as.character(raw_corr))
 
   # --- sources -------------------------------------------------------------
   source_names <- as.character(raw_source)
@@ -220,10 +231,18 @@ sm_read_dimensions <- function(path,
 # ---- Dimensions helpers -----------------------------------------------------
 
 #' Build authors from Dimensions author strings (semicolon separated)
+#'
+#' `corr_strings` holds the corresponding authors of each record (the
+#' "Corresponding Authors" column), `;`-separated, each name possibly
+#' followed by its affiliation in parentheses; `NULL` or `NA` for none.
 #' @noRd
-.dimensions_build_authors <- function(auth_strings, work_ids) {
+.dimensions_build_authors <- function(auth_strings, work_ids,
+                                      corr_strings = NULL) {
   all_authors <- character()
   authorship_rows <- list()
+  if (is.null(corr_strings)) {
+    corr_strings <- rep(NA_character_, length(auth_strings))
+  }
 
   for (i in seq_along(auth_strings)) {
     au <- auth_strings[i]
@@ -234,12 +253,16 @@ sm_read_dimensions <- function(path,
     names <- names[nzchar(names)]
     if (length(names) == 0L) next
 
+    corr_names <- strsplit(corr_strings[i], ";", fixed = TRUE)[[1]]
+    corr_names <- gsub("\\s*\\([^()]*\\)", "", corr_names)
     all_authors <- c(all_authors, names)
     authorship_rows[[length(authorship_rows) + 1L]] <- tibble::tibble(
       work_id = work_ids[i],
       author_name = names,
       position = seq_along(names),
-      is_corresponding = c(TRUE, rep(FALSE, max(0L, length(names) - 1L)))
+      is_corresponding = .corresponding_flags(
+        length(names), .authors_named(names, corr_names)
+      )
     )
   }
 

@@ -245,3 +245,212 @@ test_that("sm_read_wos keeps the author names as the file writes them", {
   expect_identical(authors$display_name_alternatives,
                    list("Ibarra Soto, M", "de Souza, JA"))
 })
+
+# authorship rows as "record position author address" strings
+wos_rows <- function(corpus) {
+  a <- corpus$authorships
+  name <- corpus$authors$display_name[match(a$author_id,
+                                            corpus$authors$author_id)]
+  paste(match(a$work_id, corpus$works$work_id), a$position, name,
+        a$raw_affiliation)
+}
+
+# A Web of Science file of these records; each record gets SO, DI and UT,
+# so that bibliometrix::convert2df() reads it as well
+write_wos <- function(records, env = parent.frame()) {
+  path <- withr::local_tempfile(fileext = ".txt", .local_envir = env)
+  lines <- unlist(lapply(seq_along(records), function(i) {
+    c(records[[i]], "SO J TEST", sprintf("DI 10.9999/wos.%d", i),
+      sprintf("UT WOS:9999000000000%02d", i), "ER")
+  }))
+  writeLines(c("FN Clarivate", "VR 1.0", lines, "", "EF"), path)
+  path
+}
+
+# He is in "Chen" and Li in "Lin" and "Oliver"; Li has two addresses
+wos_collision_records <- list(
+  c("PT J", "AU He, X", "   Chen, Y", "AF He, Xin", "   Chen, Yu",
+    "TI Colliding surnames", "PY 2021",
+    "C1 [Chen, Yu] Univ Toronto, Toronto, ON, Canada.",
+    "   [He, Xin] Peking Univ, Beijing, Peoples R China."),
+  c("PT J", "AU Li, W", "   Lin, Q", "   Oliver, Z",
+    "AF Li, Wei", "   Lin, Qiao", "   Oliver, Zoe",
+    "TI More colliding surnames", "PY 2022",
+    "C1 [Lin, Qiao; Oliver, Zoe] Univ L, L City, Country.",
+    "   [Li, Wei] Univ K, K City, Country.",
+    "   [Li, Wei] Inst M, M City, Country.")
+)
+
+# C1 lines without names, as in older records: one author, two authors,
+# and a record that mixes lines with and without names, with names that
+# designate nobody of the record on its last line
+wos_unbracketed_records <- list(
+  c("PT J", "AU Solo, A", "TI One author", "PY 2020",
+    "C1 Univ Solo, S City, Country.", "   Inst Solo, T City, Country."),
+  c("PT J", "AU Roe, R", "   Doe, J", "TI Two authors", "PY 2020",
+    "C1 Univ R, R City, Country.", "   Univ D, D City, Country."),
+  c("PT J", "AU Roe, R", "   Doe, J", "AF Roe, Rita", "   Doe, Jon",
+    "TI Mixed lines", "PY 2021",
+    "C1 [Roe, Rita] Univ R, R City, Country.", "   Inst X, X City, Country.",
+    "   [Smith, Quinn] Univ Q, Q City, Country.")
+)
+
+test_that("sm_read_wos links C1 by whole names, not surname substrings", {
+  # The old surname grep gave He the Toronto address of Chen and Li the
+  # address of Lin and Oliver, and kept one address per author.
+  corpus <- sm_read_wos(write_wos(wos_collision_records), verbose = FALSE)
+  expect_identical(wos_rows(corpus), c(
+    "1 1 X He Peking Univ, Beijing, Peoples R China.",
+    "1 2 Y Chen Univ Toronto, Toronto, ON, Canada.",
+    "2 1 W Li Univ K, K City, Country.",
+    "2 1 W Li Inst M, M City, Country.",
+    "2 2 Q Lin Univ L, L City, Country.",
+    "2 3 Z Oliver Univ L, L City, Country."
+  ))
+})
+
+test_that("sm_read_wos links C1 lines without author brackets", {
+  # An address without names belongs to every author of the record, as in
+  # the bibliometrix conversion; before, no author of a record with
+  # several authors got one. Names that designate nobody link nobody.
+  corpus <- sm_read_wos(write_wos(wos_unbracketed_records), verbose = FALSE)
+  expect_identical(wos_rows(corpus), c(
+    "1 1 A Solo Univ Solo, S City, Country.",
+    "1 1 A Solo Inst Solo, T City, Country.",
+    "2 1 R Roe Univ R, R City, Country.",
+    "2 1 R Roe Univ D, D City, Country.",
+    "2 2 J Doe Univ R, R City, Country.",
+    "2 2 J Doe Univ D, D City, Country.",
+    "3 1 R Roe Univ R, R City, Country.",
+    "3 1 R Roe Inst X, X City, Country.",
+    "3 2 J Doe Inst X, X City, Country."
+  ))
+})
+
+# Record 1: two authors share an address in one RP segment and a third
+# follows on a continuation line, in another case; Uhlig has two address
+# rows, both flagged. Record 2: the older "(reprint author)". Record 3: RP
+# names nobody of the record, record 4 has no RP: both unknown.
+wos_rp_records <- list(
+  c("PT J", "AU Valdez, P", "   Mertens, C", "   Pieper, C", "   Uhlig, L",
+    "AF Valdez, Pieter", "   Mertens, Clara", "   Pieper, Clara",
+    "   Uhlig, Lea", "TI Three corresponding authors", "PY 2021",
+    "C1 [Valdez, Pieter; Mertens, Clara; Pieper, Clara] Univ A, A City.",
+    "   [Uhlig, Lea] Inst B, B City.", "   [Uhlig, Lea] Inst C, C City.",
+    "RP Mertens, C; Pieper, C (corresponding author), Univ A, A City.",
+    "   Uhlig, L (Corresponding Author), Inst B, B City."),
+  c("PT J", "AU Roe, R", "   Doe, J", "TI Reprint author", "PY 2019",
+    "RP Doe, J (reprint author), Univ D, D City."),
+  c("PT J", "AU Roe, R", "   Doe, J", "TI Nobody of the record", "PY 2019",
+    "RP Smith, Q (corresponding author), Univ Q, Q City."),
+  c("PT J", "AU Roe, R", "TI No RP", "PY 2018")
+)
+
+# Namesakes: "Wang, Y" is Wang Yan (Univ A) and Wang Yu (Univ B). RP names
+# "Wang, Y" with the address of Wang Yu (record 1), with an address of
+# neither (record 2), and so next to a second corresponding author, Li
+# (record 3).
+wos_namesake_records <- lapply(list(
+  "RP Wang, Y (corresponding author), Univ B, B City, Country.",
+  "RP Wang, Y (corresponding author), Univ C, C City, Country.",
+  c("RP Wang, Y (corresponding author), Univ C, C City, Country.",
+    "   Li, X (corresponding author), Univ A, A City, Country.")
+), function(rp) {
+  c("PT J", "AU Wang, Y", "   Li, X", "   Wang, Y",
+    "AF Wang, Yan", "   Li, Xin", "   Wang, Yu", "TI Namesakes", "PY 2022",
+    "C1 [Wang, Yan; Li, Xin] Univ A, A City, Country.",
+    "   [Wang, Yu] Univ B, B City, Country.", rp)
+})
+
+test_that("sm_read_wos takes the corresponding authors from RP", {
+  path <- write_wos(wos_rp_records)
+  msgs <- testthat::capture_messages(
+    corpus <- sm_read_wos(path, verbose = TRUE)
+  )
+  expect_true(any(grepl("corresponding author of 2 records is unknown",
+                        msgs, fixed = TRUE)))
+  a <- corpus$authorships
+  w <- match(a$work_id, corpus$works$work_id)
+  expect_identical(a$is_corresponding[w == 1L],
+                   c(FALSE, TRUE, TRUE, TRUE, TRUE))
+  expect_identical(a$position[w == 1L], c(1L, 2L, 3L, 4L, 4L))
+  expect_identical(a$is_corresponding[w == 2L], c(FALSE, TRUE))
+  expect_identical(a$is_corresponding[w %in% 3:4], c(NA, NA, NA))
+  expect_no_message(sm_read_wos(path, verbose = FALSE))
+})
+
+test_that("sm_read_wos tells namesakes in RP apart by their address", {
+  # Before, "Wang, Y" went to the first Wang, Y of the record whatever the
+  # address: Wang Yan was flagged in all three records.
+  path <- write_wos(wos_namesake_records)
+  msgs <- testthat::capture_messages(
+    corpus <- sm_read_wos(path, verbose = TRUE)
+  )
+  expect_true(any(grepl("corresponding author of 1 record is unknown",
+                        msgs, fixed = TRUE)))
+  a <- corpus$authorships
+  w <- match(a$work_id, corpus$works$work_id)
+  expect_identical(a$position[w == 1L], 1:3)
+  # the RP address is Wang Yu's
+  expect_identical(a$is_corresponding[w == 1L], c(FALSE, FALSE, TRUE))
+  # an address of neither: unknown, not a guess
+  expect_identical(a$is_corresponding[w == 2L], c(NA, NA, NA))
+  # Li is certain, the namesakes stay unknown
+  expect_identical(a$is_corresponding[w == 3L], c(NA, TRUE, NA))
+})
+
+# authorship rows of both engines, comparable across the case they write
+engine_rows <- function(corpus) {
+  a <- corpus$authorships
+  doi <- corpus$works$doi[match(a$work_id, corpus$works$work_id)]
+  sort(paste(doi, a$position, toupper(a$raw_affiliation),
+             a$is_corresponding))
+}
+
+read_wos_bibliometrix <- function(path) {
+  bx <- NULL
+  utils::capture.output(bx <- suppressWarnings(suppressMessages(
+    sm_read_wos(path, engine = "bibliometrix", verbose = FALSE)
+  )))
+  bx
+}
+
+test_that("the WoS engines write the same authorship rows and flags", {
+  skip_if_not_installed("bibliometrix")
+  skip_if(utils::packageVersion("bibliometrix") != "5.5.0",
+          "formats were observed with bibliometrix 5.5.0")
+  path <- realuse_wos_sample()
+  native <- sm_read_wos(path, verbose = FALSE)
+  expect_identical(engine_rows(read_wos_bibliometrix(path)),
+                   engine_rows(native))
+  expect_true(anyNA(native$authorships$is_corresponding))
+  expect_true(any(native$authorships$is_corresponding %in% TRUE))
+})
+
+test_that("the WoS engines agree on RP over several lines and on C1", {
+  skip_if_not_installed("bibliometrix")
+  skip_if(utils::packageVersion("bibliometrix") != "5.5.0",
+          "formats were observed with bibliometrix 5.5.0")
+  # convert2df() joins the lines of RP, and those of C1 in C1raw, with a
+  # space; the native reader joins them with "; ". Before, the bibliometrix
+  # engine lost the RP names after the first line and flagged those authors
+  # FALSE (Uhlig in record 1), and merged a C1 line without names into the
+  # address before it.
+  path <- write_wos(c(wos_rp_records, wos_namesake_records,
+                      wos_collision_records, wos_unbracketed_records))
+  native <- sm_read_wos(path, verbose = FALSE)
+  bx <- read_wos_bibliometrix(path)
+  expect_identical(engine_rows(bx), engine_rows(native))
+  a <- bx$authorships
+  doi <- bx$works$doi[match(a$work_id, bx$works$work_id)]
+  expect_identical(a$is_corresponding[doi == "10.9999/wos.1"],
+                   c(FALSE, TRUE, TRUE, TRUE, TRUE))
+  expect_identical(a$is_corresponding[doi == "10.9999/wos.5"],
+                   c(FALSE, FALSE, TRUE))
+  # the record with two authors and two addresses without names
+  expect_identical(sum(doi == "10.9999/wos.11"), 4L)
+  # the mixed record: Univ R for Roe, Inst X for both
+  expect_identical(toupper(a$raw_affiliation[doi == "10.9999/wos.12"]),
+                   c("UNIV R, R CITY, COUNTRY.", "INST X, X CITY, COUNTRY.",
+                     "INST X, X CITY, COUNTRY."))
+})

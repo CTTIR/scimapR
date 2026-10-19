@@ -61,11 +61,27 @@ test_that("sm_audit_geographic corresponding weighting returns a valid object", 
   res <- sm_audit_geographic(corpus, weight = "corresponding")
   expect_s3_class(res, "sm_audit_geographic")
   expect_equal(res$weight, "corresponding")
-  # NOTE (source behaviour): the corresponding-author filter uses
-  # `isTRUE(.data$is_corresponding)` which collapses the whole column to a
-  # single FALSE, so the filtered authorships are empty and the distribution
-  # is empty even though corresponding authorships exist in the corpus.
-  expect_equal(nrow(res$distribution), 0L)
+  # The filter keeps the rows flagged TRUE. It used isTRUE() on the whole
+  # column before, which selected no row: the distribution was empty and
+  # the coverage 0 although the corpus has corresponding authors.
+  expect_gt(nrow(res$distribution), 0L)
+  expect_gt(res$coverage, 0)
+  a <- corpus$authorships
+  expect_identical(sum(res$distribution$count),
+                   sum(a$is_corresponding %in% TRUE & !is.na(a$country_code)))
+})
+
+test_that("sm_audit_geographic leaves unknown corresponding authors out", {
+  corpus <- sm_example_corpus(n_works = 30, n_authors = 15,
+                              with_embeddings = FALSE, seed = 5)
+  corpus$authorships$is_corresponding[1:10] <- NA
+  res <- sm_audit_geographic(corpus, weight = "corresponding")
+  a <- corpus$authorships
+  expect_identical(sum(res$distribution$count),
+                   sum(a$is_corresponding %in% TRUE & !is.na(a$country_code)))
+  corpus$authorships$is_corresponding <- NA
+  res <- sm_audit_geographic(corpus, weight = "corresponding")
+  expect_identical(nrow(res$distribution), 0L)
 })
 
 test_that("sm_audit_geographic by region with no institutions => zero coverage", {

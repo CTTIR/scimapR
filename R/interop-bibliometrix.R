@@ -115,15 +115,19 @@
 #' as Web of Science records; `db = "ISI"` declares a corpus whose `CR`
 #' items are in Web of Science form anyway.
 #'
-#' `RP` follows `authorships$is_corresponding`. [sm_read_openalex_json()]
-#' reads the corresponding authors of OpenAlex records; the other file
-#' readers, the `sm_fetch_*()` functions and [as_sm_corpus()] flag the
-#' first author of each work ([sm_fetch_orcid()] flags the ORCID holder),
-#' so for their corpora `RP` names that author. Corpora built from tables
-#' keep the flags of their tables.
+#' `RP` follows `authorships$is_corresponding`: it names the authors
+#' flagged `TRUE` and is `NA` for a work without one. [sm_read_wos()] takes
+#' the corresponding authors from the RP field of the file,
+#' [sm_read_openalex_json()] and [sm_fetch_openalex()] from the OpenAlex
+#' records, [sm_read_dimensions()] from the Corresponding Authors column,
+#' [sm_fetch_biorxiv()] from the bioRxiv API and [as_sm_corpus()] from
+#' `RP`. The other readers and fetchers record the corresponding author as
+#' unknown (`NA`), so their corpora export `RP = NA`. Corpora built from
+#' tables keep the flags of their tables.
 #'
 #' [as_sm_corpus()] reads the result back: the round trip keeps the works,
-#' their DOIs and years, the authors of each work and their addresses.
+#' their DOIs and years, the authors of each work, their addresses and the
+#' corresponding authors.
 #'
 #' @references
 #' Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for
@@ -220,12 +224,19 @@ sm_to_bibliometrix <- function(corpus, keep_extra = TRUE,
 #' * `authors` and `authorships` from `AU` and `AF`, with one authorship
 #'   row per author and address: the names in the brackets of `C1`
 #'   (`C1raw` where present) link authors to addresses. An address
-#'   without names is linked only in a work with one author, otherwise
-#'   the authors keep `raw_affiliation = NA`. Authors are told apart by
-#'   the full names of `AF`; an entry whose given names are only initials,
-#'   or that has no `AF`, belongs to the author with that surname and
-#'   those initials when there is just one such author with a full name.
-#'   The first author of each work is flagged as corresponding;
+#'   without names, as in older records, belongs to every author of the
+#'   work; one whose names designate none of the authors belongs to the
+#'   author of a single-author work and else to nobody. Authors are told
+#'   apart by the full names of `AF`; an entry whose given names are only
+#'   initials, or that has no `AF`, belongs to the author with that
+#'   surname and those initials when there is just one such author with a
+#'   full name. `RP` gives `is_corresponding`: the authors it names before
+#'   "(corresponding author)" or "(reprint author)", in any case, are
+#'   `TRUE` on all their rows and the other authors of the work `FALSE`.
+#'   Namesakes (the same surname and initials) are told apart by the
+#'   address that `RP` gives with the name, and stay `NA` when it does not
+#'   tell them apart; a work without `RP`, or whose `RP` designates none
+#'   of its authors for certain, gets `NA` (unknown);
 #' * `sources` from `SO`, `SN`, `EI`, `J9` and `JI` (`issn_l`, `issn`,
 #'   `abbreviation`, `iso_abbreviation`);
 #' * `references` from `CR`, with the DOI of each item that has one;
@@ -757,7 +768,8 @@ as_sm_corpus.bibliometrixDB <- function(x,
   )
 
   auth <- .bx_read_authors(pick("AU", "Author"), pick("AF"),
-                           pick("C1raw", "C1"), work_ids)
+                           .bx_c1_lines(pick("C1raw"), pick("C1")),
+                           pick("RP"), work_ids)
   src <- .bx_read_sources(pick("SO"), pick("SN"), pick("EI"), pick("J9"),
                           pick("JI"))
   works$source_id <- src$source_id
@@ -986,8 +998,43 @@ as_sm_corpus.bibliometrixDB <- function(x,
        first = paste(key, substr(initials, 1L, 1L)))
 }
 
+#' C1 values with `; ` between the lines of the file
+#'
+#' `bibliometrix::convert2df()` keeps the names of C1 in `C1raw` but joins
+#' the lines there with a space, and separates the lines with `;` in `C1`,
+#' where it drops the names. The addresses of `C1`, found in turn in
+#' `C1raw`, mark where its lines end, so that an address without names
+#' stays apart from the line before it.
+#'
+#' @param raw,plain `C1raw` and `C1` values, one per work.
+#' @return `raw` with `; ` between its lines; `raw` as given where the two
+#'   do not agree, and `plain` where `raw` is `NA`.
+#' @noRd
+.bx_c1_lines <- function(raw, plain) {
+  out <- ifelse(is.na(raw), plain, raw)
+  for (i in which(!is.na(raw) & !is.na(plain))) {
+    addr <- .bx_text(strsplit(plain[i], ";", fixed = TRUE)[[1]])
+    addr <- addr[!is.na(addr)]
+    lines <- character(length(addr))
+    pos <- 1L
+    for (k in seq_along(addr)) {
+      at <- regexpr(addr[k], substring(raw[i], pos), fixed = TRUE)
+      if (at < 0L) break
+      end <- pos + at + nchar(addr[k]) - 2L
+      lines[k] <- substr(raw[i], pos, end)
+      pos <- end + 1L
+    }
+    if (length(addr) > 0L && all(nzchar(lines)) &&
+          !nzchar(trimws(substring(raw[i], pos)))) {
+      out[i] <- paste(trimws(lines), collapse = "; ")
+    }
+  }
+  out
+}
+
 #' Segments of C1: each address with the names in the bracket group before
-#' it (`names`, `NA` for text outside the groups) and the index `row` of
+#' it (`names`, `NA` for text outside the groups and `""` for text with a
+#' stray bracket, whose names cannot be read) and the index `row` of
 #' the C1 value
 #' @noRd
 .bx_c1_segments <- function(c1) {
@@ -1019,16 +1066,126 @@ as_sm_corpus.bibliometrixDB <- function(x,
   unit <- rep(seq_along(parts), lengths(parts))
   names <- inner[unit]
   names[duplicated(unit)] <- NA_character_
-  address <- .bx_text(gsub("[][]", "",
-                           as.character(unlist(parts, use.names = FALSE))))
+  part <- as.character(unlist(parts, use.names = FALSE))
+  # a stray bracket: names that cannot be read, rather than none
+  names[is.na(names) & grepl("[][]", part)] <- ""
+  address <- .bx_text(gsub("[][]", "", part))
   keep <- !is.na(address)
   list(row = row[unit][keep], names = names[keep], address = address[keep])
 }
 
-#' Authors and authorships from AU, AF and C1: one row per author position
-#' and address, linked through the names in the brackets of C1
+#' The `full`, `init` and `first` match keys of the entries `idx`
 #' @noRd
-.bx_read_authors <- function(au, af, c1, work_ids) {
+.bx_keys_at <- function(keys, idx) {
+  lapply(keys[c("full", "init", "first")], function(k) k[idx])
+}
+
+#' Match names to the authors of one work: each name takes the first
+#' author not yet taken whose full name agrees, else surname and initials,
+#' else surname and first initial
+#'
+#' @param who Match keys (`full`, `init`, `first`) of the work's authors,
+#'   as from `.bx_parse_authors()`.
+#' @param bk Match keys of the names, as from `.bx_bracket_keys()`.
+#' @return The indexes into `who` of the authors matched, in the order of
+#'   the names that matched.
+#' @noRd
+.bx_match_keys <- function(who, bk) {
+  hit <- integer()
+  for (q in seq_along(bk$full)) {
+    for (level in c("full", "init", "first")) {
+      cand <- setdiff(which(who[[level]] == bk[[level]][q]), hit)
+      if (length(cand) > 0L) {
+        hit <- c(hit, cand[1])
+        break
+      }
+    }
+  }
+  hit
+}
+
+#' Addresses of author entries, linked through the names in the brackets
+#' of C1 (`.bx_match_keys()`). An address without names, as in older
+#' records, belongs to every author of the work; one whose names designate
+#' none of the authors belongs to the author of a single-author work.
+#'
+#' @param who Parsed author entries of all works (`.bx_parse_authors()`).
+#' @param row The work (index) of each author entry.
+#' @param seg C1 segments of all works (`.bx_c1_segments()`).
+#' @param n Number of works.
+#' @return A list along the author entries with their distinct addresses,
+#'   `NA` for an entry without any.
+#' @noRd
+.bx_link_addresses <- function(who, row, seg, n) {
+  nm <- .bx_split_flat(seg$names)
+  bk <- .bx_bracket_keys(nm$item)
+  by_work <- split(seq_along(row), factor(row, levels = seq_len(n)))
+  seg_by_work <- split(seq_along(seg$row),
+                       factor(seg$row, levels = seq_len(n)))
+  names_by_seg <- split(seq_along(nm$item),
+                        factor(nm$row, levels = seq_along(seg$row)))
+  linked <- rep(list(character()), length(row))
+  for (i in which(lengths(seg_by_work) > 0L & lengths(by_work) > 0L)) {
+    idx <- by_work[[i]]
+    for (s in seg_by_work[[i]]) {
+      # an address without names: every author's
+      to <- idx
+      if (!is.na(seg$names[s])) {
+        hit <- .bx_match_keys(.bx_keys_at(who, idx),
+                              .bx_keys_at(bk, names_by_seg[[s]]))
+        # names that designate nobody: the sole author's, if there is one
+        if (length(hit) > 0L || length(idx) > 1L) to <- idx[hit]
+      }
+      for (j in to) linked[[j]] <- c(linked[[j]], seg$address[s])
+    }
+  }
+  lapply(linked, function(x) {
+    if (length(x) > 0L) unique(x) else NA_character_
+  })
+}
+
+#' Corresponding-author flags of author entries from RP: the authors that
+#' the names of RP designate (`.rp_entries()`, matched as C1 names are,
+#' with the RP address telling namesakes apart, `.names_designate()`) are
+#' `TRUE` and the other authors of the work `FALSE`; namesakes that RP
+#' does not tell apart are `NA`, and a work whose RP designates none of
+#' its authors, or that has no RP, gets `NA`
+#'
+#' @param who,row,n As for `.bx_link_addresses()`.
+#' @param rp RP values, one per work.
+#' @param linked The addresses of the author entries
+#'   (`.bx_link_addresses()`).
+#' @return A logical vector along the author entries.
+#' @noRd
+.bx_rp_flags <- function(who, row, rp, n, linked) {
+  entries <- .rp_entries(rp)
+  e_name <- lapply(entries, `[[`, "name")
+  e_row <- rep(seq_len(n), lengths(e_name))
+  bk <- .bx_bracket_keys(unlist(e_name, use.names = FALSE))
+  bk_addr <- .bx_key(unlist(lapply(entries, `[[`, "address"),
+                            use.names = FALSE))
+  addr <- split(.bx_key(unlist(linked, use.names = FALSE)),
+                factor(rep(seq_along(linked), lengths(linked)),
+                       levels = seq_along(linked)))
+  by_work <- split(seq_along(row), factor(row, levels = seq_len(n)))
+  entries_by_work <- split(seq_along(e_row),
+                           factor(e_row, levels = seq_len(n)))
+  flags <- rep(NA, length(row))
+  for (i in which(lengths(entries_by_work) > 0L & lengths(by_work) > 0L)) {
+    idx <- by_work[[i]]
+    e <- entries_by_work[[i]]
+    hit <- .names_designate(.bx_keys_at(who, idx), .bx_keys_at(bk, e),
+                            unname(addr[idx]), bk_addr[e])
+    flags[idx] <- .corresponding_flags(length(idx), hit)
+  }
+  flags
+}
+
+#' Authors and authorships from AU, AF, C1 and RP: one row per author
+#' position and address, linked through the names in the brackets of C1,
+#' and the corresponding authors that RP names
+#' @noRd
+.bx_read_authors <- function(au, af, c1, rp, work_ids) {
   n <- length(work_ids)
   au <- .bx_split_flat(au)
   if (length(au$item) == 0L) {
@@ -1042,39 +1199,8 @@ as_sm_corpus.bibliometrixDB <- function(x,
   af_item <- rep(NA_character_, length(au$item))
   af_item[same[au$row]] <- af$item[same[af$row]]
   who <- .bx_parse_authors(au$item, af_item)
-
-  seg <- .bx_c1_segments(c1)
-  nm <- .bx_split_flat(seg$names)
-  bk <- .bx_bracket_keys(nm$item)
-  by_work <- split(seq_along(au$item), factor(au$row, levels = seq_len(n)))
-  seg_by_work <- split(seq_along(seg$row),
-                       factor(seg$row, levels = seq_len(n)))
-  names_by_seg <- split(seq_along(nm$item),
-                        factor(nm$row, levels = seq_along(seg$row)))
-  linked <- rep(list(character()), length(au$item))
-  for (i in which(lengths(seg_by_work) > 0L & lengths(by_work) > 0L)) {
-    idx <- by_work[[i]]
-    unlinked <- character()
-    for (s in seg_by_work[[i]]) {
-      hit <- integer()
-      for (q in names_by_seg[[s]]) {
-        for (level in c("full", "init", "first")) {
-          cand <- setdiff(which(who[[level]][idx] == bk[[level]][q]), hit)
-          if (length(cand) > 0L) {
-            hit <- c(hit, cand[1])
-            break
-          }
-        }
-      }
-      if (length(hit) == 0L) unlinked <- c(unlinked, seg$address[s])
-      for (j in idx[hit]) linked[[j]] <- c(linked[[j]], seg$address[s])
-    }
-    # in a work with one author every address is that author's
-    if (length(idx) == 1L) linked[[idx]] <- c(linked[[idx]], unlinked)
-  }
-  linked <- lapply(linked, function(x) {
-    if (length(x) > 0L) unique(x) else NA_character_
-  })
+  linked <- .bx_link_addresses(who, au$row, .bx_c1_segments(c1), n)
+  corresponding <- .bx_rp_flags(who, au$row, rp, n, linked)
 
   # one author per identity, named after its first entry with a full name
   key <- .bx_author_keys(who)
@@ -1099,7 +1225,7 @@ as_sm_corpus.bibliometrixDB <- function(x,
     work_id = rep(work_ids[au$row], k),
     author_id = rep(author_ids[match(key, uk)], k),
     position = rep(pos, k),
-    is_corresponding = rep(pos == 1L, k),
+    is_corresponding = rep(corresponding, k),
     institution_id = NA_character_,
     raw_affiliation = unlist(linked, use.names = FALSE),
     country_code = NA_character_

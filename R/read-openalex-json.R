@@ -215,6 +215,7 @@ sm_read_openalex_json <- function(path,
     w <- works_list[[i]]
     aships <- w$authorships
     if (is.null(aships) || length(aships) == 0L) next
+    work_rows <- list()
 
     for (j in seq_along(aships)) {
       a <- aships[[j]]
@@ -249,7 +250,7 @@ sm_read_openalex_json <- function(path,
         inst_id <- first_inst$id %||% NA_character_
       }
 
-      authorship_rows[[length(authorship_rows) + 1L]] <- tibble::tibble(
+      work_rows[[length(work_rows) + 1L]] <- tibble::tibble(
         work_id = work_ids[i],
         author_name = display_name,
         orcid = orcid,
@@ -261,6 +262,13 @@ sm_read_openalex_json <- function(path,
         country_code = country
       )
     }
+    if (length(work_rows) == 0L) next
+    work_rows <- dplyr::bind_rows(work_rows)
+    work_rows$is_corresponding <- .openalex_corresponding(
+      work_rows$is_corresponding, work_rows$oa_id,
+      w$corresponding_author_ids
+    )
+    authorship_rows[[length(authorship_rows) + 1L]] <- work_rows
   }
 
   if (length(authorship_rows) == 0L) {

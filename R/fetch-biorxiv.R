@@ -189,6 +189,14 @@ sm_fetch_biorxiv <- function(query = NULL,
     # Authors are semicolon-separated in bioRxiv API
     names_vec <- trimws(strsplit(authors_str, ";")[[1]])
     names_vec <- names_vec[nzchar(names_vec)]
+    # the API names the corresponding author in `author_corresponding`
+    corr_names <- strsplit(
+      as.character(items[[i]][["author_corresponding"]] %||% NA_character_),
+      ";", fixed = TRUE
+    )[[1]]
+    corresponding <- .corresponding_flags(
+      length(names_vec), .authors_named(names_vec, corr_names)
+    )
 
     for (j in seq_along(names_vec)) {
       name <- names_vec[j]
@@ -207,7 +215,7 @@ sm_fetch_biorxiv <- function(query = NULL,
         work_id = work_ids[i],
         author_id = author_map[[key]]$author_id,
         position = as.integer(j),
-        is_corresponding = j == 1L,
+        is_corresponding = corresponding[j],
         institution_id = NA_character_,
         raw_affiliation = NA_character_,
         country_code = NA_character_

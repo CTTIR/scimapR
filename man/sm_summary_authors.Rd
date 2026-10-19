@@ -15,7 +15,10 @@ sm_summary_authors(corpus, call = rlang::caller_env())
 A tibble with one row containing:
 \code{n_authors}, \code{n_with_orcid}, \code{pct_orcid}, \code{mean_works_per_author},
 \code{median_works_per_author}, \code{max_works_per_author},
-\code{mean_authors_per_work}, \code{single_author_pct}.
+\code{mean_authors_per_work}, \code{single_author_pct}. The works of an author
+and the authors of a work are counted as distinct pairs of \code{work_id}
+and \code{author_id}, so an author with several address rows in a work
+counts once, as in \code{\link[=sm_metric_collab_index]{sm_metric_collab_index()}}.
 }
 \description{
 Computes aggregate summary statistics for authors in the corpus.

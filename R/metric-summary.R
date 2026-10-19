@@ -85,7 +85,10 @@ sm_summary_works <- function(corpus, call = rlang::caller_env()) {
 #' @return A tibble with one row containing:
 #'   `n_authors`, `n_with_orcid`, `pct_orcid`, `mean_works_per_author`,
 #'   `median_works_per_author`, `max_works_per_author`,
-#'   `mean_authors_per_work`, `single_author_pct`.
+#'   `mean_authors_per_work`, `single_author_pct`. The works of an author
+#'   and the authors of a work are counted as distinct pairs of `work_id`
+#'   and `author_id`, so an author with several address rows in a work
+#'   counts once, as in [sm_metric_collab_index()].
 #'
 #' @family metrics
 #' @export
@@ -112,19 +115,23 @@ sm_summary_authors <- function(corpus, call = rlang::caller_env()) {
 
   n_with_orcid <- sum(!is.na(authors$orcid) & nzchar(authors$orcid))
 
+  # One row per work and author: an author with several address rows
+  # counts once
+  pairs <- unique(authorships[c("work_id", "author_id")])
+
   # Works per author
-  works_per_author <- if (nrow(authorships) > 0L) {
-    authorships %>%
-      dplyr::count(.data$author_id) %>%
+  works_per_author <- if (nrow(pairs) > 0L) {
+    pairs |>
+      dplyr::count(.data$author_id) |>
       dplyr::pull(.data$n)
   } else {
     integer(0)
   }
 
   # Authors per work
-  authors_per_work <- if (nrow(authorships) > 0L) {
-    authorships %>%
-      dplyr::count(.data$work_id) %>%
+  authors_per_work <- if (nrow(pairs) > 0L) {
+    pairs |>
+      dplyr::count(.data$work_id) |>
       dplyr::pull(.data$n)
   } else {
     integer(0)
@@ -245,7 +252,8 @@ sm_summary_sources <- function(corpus, call = rlang::caller_env()) {
 #' @return A tibble with one row per year and columns:
 #'   `year`, `n_works`, `mean_citations`, `median_citations`,
 #'   `total_citations`, `n_oa`, `pct_oa`, `n_authors` (unique authors
-#'   active in that year), `mean_authors_per_work`.
+#'   active in that year), `mean_authors_per_work` (distinct authors per
+#'   work, so an author with several address rows counts once).
 #'
 #' @family metrics
 #' @export
@@ -306,14 +314,16 @@ sm_summary_period <- function(corpus, call = rlang::caller_env()) {
         .groups = "drop"
       )
 
-    authors_per_work <- authorships %>%
+    # one row per work and author: an author with several address rows
+    # counts once
+    authors_per_work <- unique(authorships[c("work_id", "author_id")]) |>
       dplyr::inner_join(
-        works %>% dplyr::select("work_id", "year"),
+        dplyr::select(works, "work_id", "year"),
         by = "work_id"
-      ) %>%
-      dplyr::filter(!is.na(.data$year)) %>%
-      dplyr::count(.data$work_id, .data$year) %>%
-      dplyr::group_by(.data$year) %>%
+      ) |>
+      dplyr::filter(!is.na(.data$year)) |>
+      dplyr::count(.data$work_id, .data$year) |>
+      dplyr::group_by(.data$year) |>
       dplyr::summarise(
         mean_authors_per_work = round(mean(.data$n), 2),
         .groups = "drop"

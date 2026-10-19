@@ -41,12 +41,13 @@ test_that("sm_read_ris builds authors with Last, First normalization", {
   expect_true("Wei Chen" %in% corpus$authors$display_name)
   expect_true("Sarah Smith" %in% corpus$authors$display_name)
 
-  # First author flagged corresponding
+  # RIS names no corresponding author: unknown (NA) for every author; the
+  # first author was flagged before
   first_ws <- corpus$authorships[corpus$authorships$work_id ==
                                    corpus$works$work_id[1], ]
   first_ws <- first_ws[order(first_ws$position), ]
-  expect_true(first_ws$is_corresponding[1])
-  expect_false(first_ws$is_corresponding[2])
+  expect_identical(first_ws$is_corresponding, c(NA, NA, NA))
+  expect_true(all(is.na(corpus$authorships$is_corresponding)))
 })
 
 test_that("sm_read_ris extracts journals as sources", {

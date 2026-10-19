@@ -164,3 +164,25 @@ test_that("sm_fetch_crossref engine='rcrossref' errors when rcrossref not instal
     "rcrossref"
   )
 })
+
+test_that("sm_fetch_crossref records the corresponding author as unknown", {
+  # Crossref's sequence = "first" marks the first author, not the
+  # corresponding one, which the record does not name
+  page <- 0L
+  local_mocked_bindings(
+    req_perform = function(req, ...) {
+      structure(list(), class = "httr2_response")
+    },
+    resp_body_json = function(resp, ...) {
+      page <<- page + 1L
+      if (page == 1L) .crossref_body(list(.crossref_item()), total = 1L)
+      else .crossref_body(list())
+    },
+    .package = "httr2"
+  )
+  corpus <- sm_fetch_crossref(query = "bibliometrics", n_max = 10,
+                              mailto = "", engine = "native", verbose = FALSE)
+  a <- corpus$authorships
+  expect_identical(a$position, 1:2)
+  expect_identical(a$is_corresponding, c(NA, NA))
+})

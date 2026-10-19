@@ -284,6 +284,8 @@ sm_fetch_semantic_scholar <- function(query = NULL,
 
   for (i in seq_along(results)) {
     authors_raw <- results[[i]][["authors"]] %||% list()
+    # the source names no corresponding author: unknown (NA)
+    corresponding <- .corresponding_flags(length(authors_raw))
     for (j in seq_along(authors_raw)) {
       a <- authors_raw[[j]]
       s2_id <- a[["authorId"]] %||% NA_character_
@@ -304,7 +306,7 @@ sm_fetch_semantic_scholar <- function(query = NULL,
         work_id = work_ids[i],
         author_id = author_map[[key]]$author_id,
         position = as.integer(j),
-        is_corresponding = j == 1L,
+        is_corresponding = corresponding[j],
         institution_id = NA_character_,
         raw_affiliation = NA_character_,
         country_code = NA_character_

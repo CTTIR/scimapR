@@ -44,7 +44,13 @@ An \code{sm_audit_gender} S3 object containing:
 \describe{
 \item{distribution}{Tibble with columns \code{inferred_gender}, \code{count},
 \code{pct}.}
-\item{by_position}{Tibble breaking down gender by authorship position.}
+\item{by_position}{Tibble breaking down gender by authorship position:
+\code{position_type} (\code{"first"}, \code{"corresponding"} for a corresponding
+author who is not first, else \code{"middle/last"}), \code{inferred_gender},
+\code{count} and \code{pct}. Each work and author counts once, however many
+address rows the author has; corresponding authors are those with
+\code{authorships$is_corresponding = TRUE} (\code{NA} counts as not
+corresponding).}
 \item{coverage}{Proportion of authors with an inferred gender.}
 \item{method}{The method used.}
 \item{confidence_summary}{Summary statistics for gender confidence

@@ -18,3 +18,17 @@ test_that("OpenAlex concepts are parsed into the openalex vocabulary", {
   expect_identical(.parse_openalex_concepts(list(), character()),
                    .empty_concepts())
 })
+
+test_that("the OpenAlex fetcher reads the corresponding author", {
+  # The same saved works as for sm_read_openalex_json(): the second author
+  # of W1 is corresponding, W2 and W3 do not tell (NA), W4 lists its
+  # corresponding author in corresponding_author_ids.
+  results <- jsonlite::fromJSON(test_path("fixtures",
+                                          "openalex-corresponding.json"),
+                                simplifyVector = FALSE)
+  a <- .parse_openalex_authorships(results, paste0("W", 1:4))$authorships
+  flags <- split(a$is_corresponding, a$work_id)
+  expect_identical(unname(flags), list(c(FALSE, TRUE, FALSE), c(NA, NA),
+                                       c(NA, NA), c(FALSE, TRUE)))
+  expect_identical(a$position, c(1:3, 1:2, 1:2, 1:2))
+})

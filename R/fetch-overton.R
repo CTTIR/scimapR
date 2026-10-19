@@ -164,6 +164,8 @@ sm_fetch_overton <- function(query,
       authors_raw <- as.list(trimws(strsplit(authors_raw, ";|,")[[1]]))
     }
 
+    # the source names no corresponding author: unknown (NA)
+    corresponding <- .corresponding_flags(length(authors_raw))
     for (j in seq_along(authors_raw)) {
       name <- if (is.list(authors_raw[[j]])) {
         authors_raw[[j]][["name"]] %||% NA_character_
@@ -186,7 +188,7 @@ sm_fetch_overton <- function(query,
         work_id = work_ids[i],
         author_id = author_map[[key]]$author_id,
         position = as.integer(j),
-        is_corresponding = j == 1L,
+        is_corresponding = corresponding[j],
         institution_id = NA_character_,
         raw_affiliation = NA_character_,
         country_code = NA_character_

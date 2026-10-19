@@ -198,6 +198,8 @@ sm_fetch_crossref <- function(query = NULL,
 
   for (i in seq_along(items)) {
     authors_raw <- items[[i]][["author"]] %||% list()
+    # the source names no corresponding author: unknown (NA)
+    corresponding <- .corresponding_flags(length(authors_raw))
     for (j in seq_along(authors_raw)) {
       a <- authors_raw[[j]]
       name <- paste(a[["given"]] %||% "", a[["family"]] %||% "")
@@ -228,7 +230,7 @@ sm_fetch_crossref <- function(query = NULL,
         work_id = work_ids[i],
         author_id = author_map[[key]]$author_id,
         position = as.integer(j),
-        is_corresponding = identical(a[["sequence"]], "first") && j == 1L,
+        is_corresponding = corresponding[j],
         institution_id = NA_character_,
         raw_affiliation = aff_str,
         country_code = NA_character_
