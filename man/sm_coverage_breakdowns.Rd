@@ -31,6 +31,16 @@ filtered to one dimension.
 This accessor honours the package's accessor return-type stability contract
 (see \link{scimapR-stability}): with \code{tidy = TRUE} the column set is guaranteed
 and will only change via a \code{lifecycle} deprecation.
+
+The recall columns (\code{n_reference}, \code{n_matched}, \code{recall}) come from the
+reference side and the precision columns (\code{n_corpus}, \code{precision}) from
+the corpus side, joined on \verb{(dimension, level)}. A level found on the
+reference side only has \code{n_corpus}, \code{precision} and \code{f1} \code{NA}; a level
+found on the corpus side only has \code{n_reference}, \code{n_matched}, \code{recall} and
+\code{f1} \code{NA}. Under full counting (see the Details of \code{\link[=sm_coverage_audit]{sm_coverage_audit()}})
+the per-level counts of a dimension can add up to more than the record
+totals. \code{tidy = FALSE}, \code{print()} and \code{autoplot()} show the same
+reference-side counts.
 }
 \examples{
 \dontshow{if (rlang::is_installed("stringdist")) withAutoprint(\{ # examplesIf}

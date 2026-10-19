@@ -5,13 +5,18 @@
 # covers common medical institution name variants (including German
 # synonyms) plus email-domain fallbacks. Patterns are case-insensitive regular
 # expressions matched against affiliation strings.
+#
+# The English names of the hospital are anchored on "Diakonie" or "Protestant":
+# a bare "deaconess hospital", "church hospital" or "public services hospital" names
+# hospitals of many countries, so it stays unmatched.
+hospital_diakonie <- "diakonie\\W+(\\w+\\W+)?hospital"
+hospital_protestant <- "protestant (deaconess|church|diaconal)\\W+(\\w+\\W+)?hospital"
 
 sm_affiliation_dict <- tibble::tribble(
   ~institution,                ~pattern,                              ~email_domain,
   "Diakonie Hospital",       "diakoniekrankenhaus",               "diakonie.example",
-  "Diakonie Hospital",       "public services hospital",               NA,
-  "Diakonie Hospital",       "church hospital",                       NA,
-  "Diakonie Hospital",       "deaconess hospital",                   NA,
+  "Diakonie Hospital",       hospital_diakonie,                   NA,
+  "Diakonie Hospital",       hospital_protestant,                       NA,
   "Diakonie Hospital",       "diakkh",                              NA,
   "Charite Berlin",            "charit[eé]",                          "charite.de",
   "Charite Berlin",            "universit[aä]tsmedizin berlin",       NA,

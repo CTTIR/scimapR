@@ -9,11 +9,14 @@
 #' not share identifiers.
 #'
 #' @param corpus_a,corpus_b An `sm_corpus` or a data frame with DOI and/or
-#'   title columns (see [sm_coverage_audit()] for accepted column aliases).
+#'   title columns (see [sm_coverage_audit()] for accepted column aliases and
+#'   for how the rows of a data frame are identified).
 #' @param match Matching strategy: `"doi_then_title"` (default), `"doi"`, or
 #'   `"title"`.
 #' @param threshold Minimum Jaro-Winkler title similarity (`[0, 1]`) to accept
-#'   a title match (default `0.9`).
+#'   a title match (default `0.9`). Titles only match between records
+#'   published at most one year apart (when both years are known) and never
+#'   between two records with different DOIs.
 #' @param call Caller environment for error reporting.
 #'
 #' @return An `sm_reconciliation` S3 object with components:
@@ -42,21 +45,22 @@ sm_reconcile <- function(corpus_a, corpus_b,
                          call = rlang::caller_env()) {
   match <- rlang::arg_match(match, error_call = call)
 
-  a <- .as_match_frame(corpus_a)
-  b <- .as_match_frame(corpus_b)
+  a <- .as_match_frame(corpus_a, what = "corpus_a", call = call)
+  b <- .as_match_frame(corpus_b, what = "corpus_b", call = call)
 
   pairs <- .sm_match_records(a, b, match = match, threshold = threshold)
 
   in_both <- tibble::tibble(
     a_id = pairs$a_id,
     b_id = pairs$b_id,
-    title = a$title[match(pairs$a_id, a$id)],
+    title = a$title[pairs$a_row],
     match_type = pairs$match_type,
     match_score = pairs$match_score
   )
 
-  only_a <- dplyr::filter(a, !(.data$id %in% pairs$a_id))
-  only_b <- dplyr::filter(b, !(.data$id %in% pairs$b_id))
+  # by row position, so that repeated identifiers cannot hide a record
+  only_a <- a[!seq_len(nrow(a)) %in% pairs$a_row, ]
+  only_b <- b[!seq_len(nrow(b)) %in% pairs$b_row, ]
 
   matches <- tibble::tibble(
     a_id = pairs$a_id,

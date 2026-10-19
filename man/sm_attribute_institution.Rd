@@ -13,7 +13,9 @@ sm_attribute_institution(
 }
 \arguments{
 \item{corpus}{An \code{sm_corpus}. If it has no \code{institution_match} column,
-\code{\link[=sm_affiliation_match]{sm_affiliation_match()}} is run first with default settings.}
+\code{\link[=sm_affiliation_match]{sm_affiliation_match()}} is run first with default settings, that is
+with the shipped \link{sm_affiliation_dict}; to attribute your own
+institutions, run it first with a dictionary of them.}
 
 \item{vocabulary}{\code{"ror"} (default) or \code{"custom"}.}
 
@@ -37,6 +39,22 @@ vocabulary, writing a normalised \code{institution_id} and \code{institution_nam
 onto the \code{authorships} table. Supports a ROR-backed vocabulary (via a
 user-supplied offline ROR table) or a \code{"custom"} vocabulary derived directly
 from the matched institution names.
+}
+\details{
+The \code{institution_match} column stays as it is.
+\code{sm_count(level = "institution")} labels each authorship by
+\code{institution_match} before \code{institution_name} and \code{institution_id}, so
+the roll-up to the vocabulary reaches the counts only for authorships
+without a match, and the \code{"affiliation"} breakdown of
+\code{\link[=sm_coverage_audit]{sm_coverage_audit()}} uses \code{institution_name} only when no authorship has
+a match. Up to scimapR 0.4.0, \code{\link[=sm_count]{sm_count()}} counted by \code{institution_id}
+whenever any authorship had one. To count or break down by the
+vocabulary, put its names first, for example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{a <- corpus$authorships
+corpus$authorships$institution_match <-
+  dplyr::coalesce(a$institution_name, a$institution_match)
+}\if{html}{\out{</div>}}
 }
 \examples{
 ror <- utils::read.csv(

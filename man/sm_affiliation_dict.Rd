@@ -33,6 +33,15 @@ mode the shipped row \verb{\\bembl\\b} no longer matches "EMBL" directly
 followed by an umlaut, as in a German compound word. The first pattern
 that matches wins, in row order, so add specific rows before generic
 ones.
+
+The rows for "Diakonie Hospital" match its German name, its
+abbreviation, or "hospital" after "Diakonie" or after "Protestant
+Deaconess", "Protestant Church" or "Protestant Diaconal", with at most one word in
+between. A bare "deaconess hospital", "church hospital" or "public services
+hospital", which names hospitals of many countries, stays unmatched; up
+to scimapR 0.4.0 these phrases matched "Diakonie Hospital" wherever
+they appeared. The dictionary is a starting point: for an audit of your
+own institutions, pass a dictionary of them to \code{\link[=sm_affiliation_match]{sm_affiliation_match()}}.
 }
 \examples{
 sm_affiliation_dict

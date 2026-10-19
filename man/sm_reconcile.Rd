@@ -23,13 +23,16 @@ sm_reconcile(
 }
 \arguments{
 \item{corpus_a, corpus_b}{An \code{sm_corpus} or a data frame with DOI and/or
-title columns (see \code{\link[=sm_coverage_audit]{sm_coverage_audit()}} for accepted column aliases).}
+title columns (see \code{\link[=sm_coverage_audit]{sm_coverage_audit()}} for accepted column aliases and
+for how the rows of a data frame are identified).}
 
 \item{match}{Matching strategy: \code{"doi_then_title"} (default), \code{"doi"}, or
 \code{"title"}.}
 
 \item{threshold}{Minimum Jaro-Winkler title similarity (\verb{[0, 1]}) to accept
-a title match (default \code{0.9}).}
+a title match (default \code{0.9}). Titles only match between records
+published at most one year apart (when both years are known) and never
+between two records with different DOIs.}
 
 \item{call}{Caller environment for error reporting.}
 

@@ -28,19 +28,36 @@ sm_coverage_audit(
 
 \item{reference}{The ground truth: an \code{sm_corpus} or a data frame with at
 least a DOI and/or title column (column names matched case-insensitively
-against \code{doi}/\code{di} and \code{title}/\code{ti}/\code{display_name}; an \code{id}/\code{work_id}/
-\code{reference_id} column is used as the identifier if present).}
+against \code{doi}/\code{di} and \code{title}/\code{ti}/\code{display_name}, the year against
+\code{year}/\code{py}/\code{publication_year}). A \code{Date} or date-time year column gives
+its calendar year, and a year outside 1000-2999 (such as a day count)
+counts as missing. Rows are identified by the first of the
+columns \code{ut} (Web of Science accession numbers), \code{id}, \code{work_id},
+\code{reference_id} and \code{ref_id} whose values are unique and never missing,
+and otherwise by their position (\code{R000001}, ...), with a warning when
+such a column had to be passed over. In a data frame with Web of Science
+field tags (such as \code{DI}, \code{TI}, \code{PY} or \code{UT}) a column named \code{ID} holds
+the Keywords Plus and is never the identifier.}
 
-\item{by}{Optional character vector of breakdown dimensions, any of
-\code{"year"}, \code{"source"}, \code{"affiliation"}. Per-slice recall is reported for
-each supplied dimension.}
+\item{by}{Optional character vector of breakdown dimensions. A name is
+either one of the named dimensions \code{"year"}, \code{"source"} and
+\code{"affiliation"}, written in lower case (see Details), or a column: of
+the reference data frame
+(matched case-insensitively) or of the \code{works} table of an \code{sm_corpus}
+(the exact name first, then case-insensitively). Each name is resolved
+on both sides; a name found on one side only gives levels whose columns
+for the other side are \code{NA}. A name that is neither a named dimension
+nor a column on either side is an error listing the available columns.
+The breakdowns label each dimension with the name as given.}
 
 \item{match}{Matching strategy: \code{"doi_then_title"} (default), \code{"doi"}, or
 \code{"title"}.}
 
 \item{threshold}{Minimum Jaro-Winkler title similarity (\verb{[0, 1]}) to accept
 a title match. Default \code{0.9}. When the optional \code{stringdist} package is
-not installed, the title fallback degrades to normalised exact matching.}
+not installed, the title fallback degrades to normalised exact matching.
+Titles only match between records published at most one year apart (when
+both years are known) and never between two records with different DOIs.}
 
 \item{index_table}{Optional journal index master list (same contract as
 \code{\link[=sm_journal_in_index]{sm_journal_in_index()}}; document expected columns there). When supplied,
@@ -64,21 +81,35 @@ drawn.}
 \value{
 An \code{sm_coverage} S3 object (a list) with components:
 \describe{
-\item{recall}{Matched reference records / total reference records.}
-\item{precision}{Matched corpus records / total corpus records.}
+\item{recall}{Reference records found in the corpus / total reference
+records. Each reference row is looked up on its own, so rows that
+report the same item (one paper reported by two units) are all
+found.}
+\item{precision}{Matched corpus records / total corpus records. Each
+corpus record pairs with at most one reference row.}
 \item{f1}{Harmonic mean of recall and precision.}
-\item{n_corpus, n_reference, n_matched}{Integer counts.}
+\item{n_corpus, n_reference}{Integer record counts.}
+\item{n_matched}{Reference records found in the corpus (the numerator
+of recall).}
+\item{n_corpus_matched}{Corpus records paired with a reference record
+(the numerator of precision); equal to \code{n_matched} unless reference
+rows share a corpus record.}
 \item{n_corpus_only, n_reference_only}{Unmatched counts.}
 \item{matches}{Tibble with one row per corpus record: \code{corpus_id},
 \code{reference_id}, \code{match_type} (\code{"doi"}/\code{"title"}/\code{"none"}),
 \code{match_score}. When \code{index_table} is supplied, also \code{issn},
 \code{indexable} (logical), and \code{indexed_title}.}
+\item{reference_matches}{Tibble with one row per reference record:
+\code{reference_id}, \code{corpus_id} (the corpus record it was found in),
+\code{match_type} and \code{match_score}; the recall-side counterpart of
+\code{matches}.}
 \item{corpus_only}{Tibble of corpus records absent from the reference.}
 \item{reference_only}{Tibble of reference records absent from the
 corpus.}
 \item{breakdowns}{A single flat tibble (\code{dimension}, \code{level},
-\code{n_reference}, \code{n_matched}, \code{recall}) across all \code{by} dimensions. Use
-\code{\link[=sm_coverage_breakdowns]{sm_coverage_breakdowns()}} to access/filter it.}
+\code{n_reference}, \code{n_matched}, \code{recall}) across all \code{by} dimensions,
+from the reference side. Use \code{\link[=sm_coverage_breakdowns]{sm_coverage_breakdowns()}} to
+access/filter it, also with the corpus-side counts and precision.}
 \item{breakdowns_nested}{The legacy named list of per-dimension tibbles
 (\code{slice}, \code{n_reference}, \code{n_matched}, \code{recall}). Retained for one
 release; prefer \code{breakdowns}.}
@@ -88,7 +119,11 @@ indexable vs non-indexable record counts; otherwise \code{NULL}.}
 
 \code{print} returns \code{x} invisibly.
 
-\code{summary} returns a one-row tibble of headline metrics.
+\code{summary} returns a one-row tibble of headline metrics: \code{recall},
+\code{precision}, \code{f1}, \code{n_corpus}, \code{n_reference}, \code{n_matched},
+\code{n_corpus_only}, \code{n_reference_only} and \code{n_corpus_matched}, so that
+\code{n_matched + n_reference_only} gives \code{n_reference} and
+\code{n_corpus_matched + n_corpus_only} gives \code{n_corpus}.
 
 \code{autoplot} returns a \code{ggplot} object.
 }
@@ -103,6 +138,51 @@ Matching is by normalised DOI with a fuzzy-title fallback (see
 \code{\link[=sm_reconcile]{sm_reconcile()}} for the shared matching engine). Full match provenance is
 retained so every decision can be inspected.
 }
+\details{
+\strong{Named dimensions.} \code{"year"} uses the publication years. \code{"source"} uses
+the source names of an \code{sm_corpus} (\code{sources$display_name}, or
+\code{works$source_id} when the corpus has no source table) and, in a data
+frame, the first of the columns \code{source}, \code{source_title}, \code{journal}, \code{so}
+and \code{source_id}, in this order (names matched case-insensitively); a
+\code{source_id} column holds ids, whose levels do not join the names of the
+corpus side. \code{"affiliation"} uses, in a data frame, the first of the
+columns \code{affiliation}, \code{affiliations}, \code{institution}, \code{country} and
+\code{country_code}, in this order. A data-frame cell holds one value, so an
+item reported by two units takes two rows; a list column gives each of
+its values. Missing and blank values have no level. A named dimension
+that neither side can resolve gives a warning and no breakdown rows.
+Only \code{"affiliation"} joins a tracker's units with the institutions of the
+corpus: \code{by = "institution"} names the column itself, which the corpus
+side has only if \code{works} has a column of that name.
+
+\strong{Affiliation levels of a corpus.} For an \code{sm_corpus} (the corpus under
+audit, or a reference given as one), \code{"affiliation"} labels the
+authorships from the first of these \code{authorships} columns that has a
+value in at least one row: \code{institution_match} (from
+\code{\link[=sm_affiliation_match]{sm_affiliation_match()}}), \code{institution_name} (from
+\code{\link[=sm_attribute_institution]{sm_attribute_institution()}}), \code{institution_id} (named by
+\code{corpus$institutions$display_name} when that table lists the id, else
+the id itself) and, as a last resort, \code{country_code}. One column serves
+every row, so the levels of a side are all of one kind, and an authorship
+without a value in that column has no level. A message names the column
+used on each side, and a warning says when a side falls back to country
+codes, whose levels do not join institution names. Because
+\code{\link[=sm_attribute_institution]{sm_attribute_institution()}} runs \code{\link[=sm_affiliation_match]{sm_affiliation_match()}} first,
+\code{institution_name} is used only when \code{institution_match} is absent or
+empty; the Details of \code{\link[=sm_attribute_institution]{sm_attribute_institution()}} show how to break the
+coverage down by its vocabulary instead.
+\code{sm_count(level = "institution")} reads the same columns in the
+same order, but row by row, and counts the raw affiliation string where
+none has a value instead of falling back to countries; up to scimapR
+0.4.0 it used, for every row, the first of \code{institution_id},
+\code{institution_match} and the raw strings (matched with
+\link{sm_affiliation_dict}) that had a value in any row.
+
+\strong{Full counting.} A record belongs to every level of its values, so a
+work with authors at two institutions counts in both slices, and the
+per-level counts of a dimension can add up to more than \code{n_corpus} or
+\code{n_reference}. The overall recall and precision count each record once.
+}
 \examples{
 \dontshow{if (rlang::is_installed("stringdist")) withAutoprint(\{ # examplesIf}
 corpus <- sm_example_corpus(n_works = 30, seed = 1)
@@ -110,11 +190,16 @@ corpus <- sm_example_corpus(n_works = 30, seed = 1)
 ref <- corpus$works[1:25, c("work_id", "doi", "title", "year")]
 cov <- sm_coverage_audit(corpus, ref, by = "year")
 cov
+
+# Any column of the reference or of the works is a dimension too
+ref$unit <- rep(c("Unit A", "Unit B"), length.out = nrow(ref))
+cov <- sm_coverage_audit(corpus, ref, by = c("unit", "type"), match = "doi")
+sm_coverage_breakdowns(cov)
 \dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link[=sm_reconcile]{sm_reconcile()}}, \code{\link[=sm_journal_in_index]{sm_journal_in_index()}},
-\code{\link[=sm_coverage_breakdowns]{sm_coverage_breakdowns()}}
+\code{\link[=sm_coverage_breakdowns]{sm_coverage_breakdowns()}}, \code{\link[=sm_affiliation_match]{sm_affiliation_match()}}
 
 Other coverage:
 \code{\link[=sm_coverage_breakdowns]{sm_coverage_breakdowns()}},

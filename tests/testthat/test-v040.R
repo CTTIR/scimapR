@@ -99,10 +99,15 @@ test_that("C2: sm_count(institution) clusters raw affiliations via the matcher",
   corpus$authorships$institution_id <- NA_character_
   corpus$authorships$raw_affiliation <- "Some University"
   corpus$authorships$raw_affiliation[1:6] <- "Diakoniekrankenhaus Berlin"
+  # sm_count() itself counts the raw strings, with a warning
   expect_warning(res <- sm_count(corpus, level = "institution"),
                  "raw_affiliation")
-  expect_gt(nrow(res), 0L)
-  # the matcher should have canonicalised the Diakonie rows
+  expect_setequal(res$entity_id,
+                  c("Diakoniekrankenhaus Berlin", "Some University"))
+  # the matcher, run first, canonicalises the Diakonie rows
+  matched <- suppressMessages(sm_affiliation_match(corpus))
+  expect_warning(res <- sm_count(matched, level = "institution"),
+                 "raw_affiliation")
   expect_true("Diakonie Hospital" %in% res$entity_id)
 })
 

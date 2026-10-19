@@ -24,7 +24,9 @@ whose column set is the stable contract.
 \code{precision}, \code{f1}.}
 \item{\code{\link[=summary.sm_coverage]{summary.sm_coverage()}}}{A one-row tibble: \code{recall}, \code{precision},
 \code{f1}, \code{n_corpus}, \code{n_reference}, \code{n_matched}, \code{n_corpus_only},
-\code{n_reference_only}.}
+\code{n_reference_only} and \code{n_corpus_matched} (the corpus records paired
+with a reference record, the numerator of \code{precision}; added after
+scimapR 0.4.0).}
 \item{\code{\link[=sm_affiliation_summary]{sm_affiliation_summary()}}}{A tibble: \code{institution}, \code{match_signal}
 (factor, see \code{\link[=sm_affiliation_signals]{sm_affiliation_signals()}}), \code{n_authorships}, \code{n_works},
 \code{example_evidence}.}

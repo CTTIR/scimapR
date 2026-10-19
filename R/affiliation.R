@@ -77,18 +77,14 @@
 #' umlaut, as in a German compound word. To keep ASCII semantics in one
 #' place, write the class out, for example `[A-Za-z0-9_]` instead of `\w`.
 #'
-#' `unicode = FALSE` gives the matches of scimapR 0.4.0. Two functions call
-#' `sm_affiliation_match()` with its defaults, and so match in Unicode mode,
-#' without a `unicode` argument of their own: [sm_attribute_institution()]
-#' when the corpus has no `institution_match` column, and
-#' `sm_count(level = "institution")` when neither `institution_id` nor
-#' `institution_match` has a value. Running
-#' `sm_affiliation_match(unicode = FALSE)` first gives the earlier results
-#' of [sm_attribute_institution()]. [sm_count()] then counts by
-#' `institution_match` if at least one authorship matched, but leaves out
-#' the unmatched authorships, which its own matching counts under their raw
-#' affiliation string; for its earlier counts, also fill the missing
-#' `institution_match` values with `raw_affiliation` before counting.
+#' `unicode = FALSE` gives the matches of scimapR 0.4.0.
+#' [sm_attribute_institution()] calls `sm_affiliation_match()` with its
+#' defaults, and so matches in Unicode mode, when the corpus has no
+#' `institution_match` column; running `sm_affiliation_match(unicode = FALSE)`
+#' first gives its earlier results. `sm_count(level = "institution")` no
+#' longer matches affiliations itself: it counts each authorship by its
+#' institution label, `institution_match` first, and by its raw affiliation
+#' string when it has none (see [sm_count()]).
 #'
 #' The optional `postcode` column (used with `postcode_signal = TRUE`) is
 #' matched case-sensitively as a whole word, in the same mode: it is wrapped
@@ -440,7 +436,9 @@ sm_affiliation_unmatched <- function(corpus, n = 25L,
 #' from the matched institution names.
 #'
 #' @param corpus An `sm_corpus`. If it has no `institution_match` column,
-#'   [sm_affiliation_match()] is run first with default settings.
+#'   [sm_affiliation_match()] is run first with default settings, that is
+#'   with the shipped [sm_affiliation_dict]; to attribute your own
+#'   institutions, run it first with a dictionary of them.
 #' @param vocabulary `"ror"` (default) or `"custom"`.
 #' @param ror_table For `vocabulary = "ror"`, a data frame with columns
 #'   `ror_id`, `name`, and `aliases` (aliases either a `;`-separated string or
@@ -453,6 +451,23 @@ sm_affiliation_unmatched <- function(corpus, n = 25L,
 #'   and `institution_name` columns (for `"ror"`, `institution_id` holds the
 #'   ROR id). Unmatched rows keep `NA` -- the function never errors on
 #'   unmatched affiliations. Type-stable.
+#'
+#' @details
+#' The `institution_match` column stays as it is.
+#' `sm_count(level = "institution")` labels each authorship by
+#' `institution_match` before `institution_name` and `institution_id`, so
+#' the roll-up to the vocabulary reaches the counts only for authorships
+#' without a match, and the `"affiliation"` breakdown of
+#' [sm_coverage_audit()] uses `institution_name` only when no authorship has
+#' a match. Up to scimapR 0.4.0, [sm_count()] counted by `institution_id`
+#' whenever any authorship had one. To count or break down by the
+#' vocabulary, put its names first, for example:
+#'
+#' ```
+#' a <- corpus$authorships
+#' corpus$authorships$institution_match <-
+#'   dplyr::coalesce(a$institution_name, a$institution_match)
+#' ```
 #'
 #' @family affiliation
 #' @seealso [sm_affiliation_match()]

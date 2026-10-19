@@ -37,12 +37,55 @@
 #' citations) to each. For `level = "source"` each work has a single source, so
 #' fractional and full counts coincide.
 #'
+#' For `level = "institution"` each authorship row is labelled on its own, by
+#' the first of these `authorships` columns that has a value in that row:
+#' `institution_match` (from [sm_affiliation_match()]), `institution_name`,
+#' `institution_id` (named by `corpus$institutions$display_name` when that
+#' table lists the id) and `raw_affiliation`. A row labelled through
+#' `institution_id` has that id as `entity_id`; every other row has its label
+#' as both `entity_id` and `entity_name`. Rows labelled by their raw
+#' affiliation string are counted un-disambiguated, with a warning, because
+#' `sm_count()` applies no affiliation dictionary itself: run
+#' [sm_affiliation_match()] with a dictionary of your institutions first to
+#' count them.
+#' The order is the one [sm_coverage_audit()] uses for its affiliation
+#' levels, which however takes one column for all rows and falls back to
+#' country codes instead of raw strings. Up to scimapR 0.4.0, `sm_count()`
+#' used one column for every row (the first of `institution_id`,
+#' `institution_match` and `raw_affiliation` with any value), so rows without
+#' a value in it were left out, and it matched raw strings against the
+#' shipped [sm_affiliation_dict] before counting them.
+#'
+#' [sm_attribute_institution()] keeps `institution_match`, so its roll-up of
+#' the matches to a controlled vocabulary (ROR ids and names in
+#' `institution_id` and `institution_name`) is counted only for rows without
+#' a match; up to scimapR 0.4.0 the counts followed `institution_id`. To
+#' count by the vocabulary, put its names first:
+#'
+#' ```
+#' a <- corpus$authorships
+#' corpus$authorships$institution_match <-
+#'   dplyr::coalesce(a$institution_name, a$institution_match)
+#' ```
+#'
 #' @family counting
-#' @seealso [sm_metric_summary()]
+#' @seealso [sm_metric_summary()], [sm_affiliation_match()]
 #' @export
 #' @examples
 #' corpus <- sm_example_corpus(n_works = 30, seed = 1)
 #' sm_count(corpus, method = "fractional", level = "author")
+#'
+#' # Institutions: match the affiliation strings with a dictionary of your
+#' # institutions first, then count
+#' a <- corpus$authorships
+#' corpus$authorships$raw_affiliation <- ifelse(
+#'   a$position == 1L,
+#'   "Unit North, Northtown",
+#'   "Department of Surgery, Unit South"
+#' )
+#' dict <- list("Unit North" = "unit north", "Unit South" = "unit south")
+#' matched <- sm_affiliation_match(corpus, patterns = dict)
+#' sm_count(matched, method = "fractional", level = "institution")
 sm_count <- function(corpus,
                      method = c("full", "fractional"),
                      level = c("institution", "author", "source"),
@@ -89,41 +132,42 @@ sm_count <- function(corpus,
         ))
         return(empty)
       }
-      has_col <- function(col) col %in% names(a) && any(!is.na(a[[col]]))
-
-      if (has_col("institution_id")) {
-        # structured identifiers available -- use them
-        name_col <- if ("institution_name" %in% names(a)) "institution_name" else "institution_id"
-        tibble::tibble(
-          work_id = a$work_id,
-          entity_id = as.character(a$institution_id),
-          entity_name = as.character(a[[name_col]])
-        )
-      } else if (has_col("institution_match")) {
-        tibble::tibble(
-          work_id = a$work_id,
-          entity_id = as.character(a$institution_match),
-          entity_name = as.character(a$institution_match)
-        )
-      } else if (has_col("raw_affiliation")) {
-        # C2: no structured IDs -- cluster raw affiliation strings via the
-        # affiliation matcher, falling back to the raw string when unmatched.
+      # each row on its own: the first label column with a value in it,
+      # else the raw affiliation string; no dictionary is applied here
+      cols <- c(.institution_label_columns(country_fallback = FALSE),
+                "raw_affiliation")
+      res <- .institution_labels_by_row(a, corpus$institutions, cols)
+      if (all(is.na(res$label))) {
         cli::cli_warn(c(
-          "!" = "No structured institution IDs found; clustering {.field raw_affiliation} via {.fn sm_affiliation_match}.",
-          "i" = "Results are {.emph un-disambiguated} and derived from raw affiliation strings; matched names use the dictionary, unmatched rows keep their raw string."
-        ))
-        a2 <- suppressMessages(sm_affiliation_match(corpus, call = call))$authorships
-        ent <- ifelse(!is.na(a2$institution_match),
-                      as.character(a2$institution_match),
-                      as.character(a2$raw_affiliation))
-        tibble::tibble(work_id = a2$work_id, entity_id = ent, entity_name = ent)
-      } else {
-        cli::cli_warn(c(
-          "!" = "No institution data found ({.field institution_id}, {.field institution_match}, or {.field raw_affiliation} all empty).",
+          "!" = "No institution data found ({.field institution_match},
+                 {.field institution_name}, {.field institution_id}, or
+                 {.field raw_affiliation} all empty).",
           "i" = "Returning an empty result."
         ))
         return(empty)
       }
+      n_raw <- sum(res$column %in% "raw_affiliation")
+      if (n_raw > 0L) {
+        cli::cli_warn(c(
+          "!" = "{n_raw} authorship{?s} without an institution label
+                 {?is/are} counted under {?its/their} raw affiliation string
+                 ({.field raw_affiliation}).",
+          "i" = "These entities are {.emph un-disambiguated}: raw affiliation
+                 strings are not matched to a dictionary here. Run
+                 {.fn sm_affiliation_match} with a dictionary of your
+                 institutions first to count them."
+        ), class = "scimapR_count_raw_affiliation")
+      }
+      entity_id <- res$label
+      by_id <- res$column %in% "institution_id"
+      if (any(by_id)) {
+        entity_id[by_id] <- as.character(a[["institution_id"]])[by_id]
+      }
+      tibble::tibble(
+        work_id = a$work_id,
+        entity_id = entity_id,
+        entity_name = res$label
+      )
     },
     source = {
       if (nrow(works) == 0L) return(empty)
