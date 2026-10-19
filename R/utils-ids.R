@@ -36,3 +36,15 @@
   doi <- sub("^doi:\\s*", "", doi, ignore.case = TRUE)
   ifelse(nzchar(doi), tolower(doi), NA_character_)
 }
+
+#' DOI of each cited-reference string, from its Web of Science "DOI 10.x/y"
+#' part (trailing periods dropped), normalised; NA where there is none
+#' @noRd
+.cr_doi <- function(refs) {
+  out <- rep(NA_character_, length(refs))
+  ok <- which(!is.na(refs))
+  m <- regexpr("DOI\\s+10\\.[^,;\\s]+", refs[ok], perl = TRUE)
+  hit <- ok[m > 0L]
+  out[hit] <- sub("^DOI\\s+", "", regmatches(refs[ok], m))
+  .normalize_doi(sub("\\.+$", "", out))
+}

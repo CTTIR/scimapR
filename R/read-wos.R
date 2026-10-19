@@ -19,19 +19,37 @@
 #' Each record begins with `PT ` (publication type) and ends with `ER`.
 #' Field tags are two uppercase letters followed by a single space.
 #' Continuation lines begin with three spaces. Tags parsed:
-#' AU or AF (authors), TI (title), SO (source), AB (abstract), DI (DOI),
-#' PY (year), DT (document type), LA (language), TC (times cited),
-#' UT (accession number, kept in `provenance`), PM (PubMed ID),
+#' AU or AF (authors), TI (title), SO (source), SN and EI (ISSN and
+#' electronic ISSN), J9 and JI (source abbreviations), AB (abstract),
+#' DI (DOI), PY (year), DT (document type), LA (language), TC (times
+#' cited), UT (accession number, kept in `provenance`), PM (PubMed ID),
 #' C1 (addresses), CR (cited references), DE (author keywords),
 #' ID (Keywords Plus), WC (Web of Science categories) and SC (research
 #' areas). Other tags are not read.
 #'
+#' Each distinct SO becomes a row of `sources`, with `issn_l` from SN
+#' (EI when SN is missing), `issn` holding SN and EI, and the abbreviations
+#' J9 and JI in the columns `abbreviation` and `iso_abbreviation`.
+#'
 #' DE, ID, WC and SC become `concepts`, one row per `;`-separated term, in
 #' the vocabularies `"author-keywords"`, `"keywords-plus"`, `"wos-category"`
 #' and `"wos-subject-category"` of [sm_concept_vocabularies()]. Terms keep
-#' the case of the file. The `"bibliometrix"` engine (also used by
-#' `"auto"` when bibliometrix can read the file) reads no keywords or
-#' categories into `concepts`.
+#' the case of the file.
+#'
+#' Author names are stored in the AU form, such as "J Smith" for
+#' "Smith, J", and `authors$display_name_alternatives` keeps the name as
+#' the file writes it, which tells a surname of several words such as
+#' "Garcia Lopez" from the initials. The native parser gives each author
+#' one authorship row, with the first C1 address whose bracket contains the
+#' author's surname. Both parsers flag the first author of each work as
+#' corresponding.
+#'
+#' The `"bibliometrix"` engine (also used by `"auto"` when bibliometrix can
+#' read the file) converts the data frame of `bibliometrix::convert2df()`
+#' as [as_sm_corpus()] does: it reads the same tags into `sources`,
+#' `references` and `concepts`, tells authors apart by the full names of AF
+#' and writes one authorship row per author and address, linked through
+#' the names in the brackets of C1.
 #'
 #' @references
 #' Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for
@@ -84,6 +102,7 @@ sm_read_wos <- function(path,
       works = .empty_works(),
       authors = .empty_authors(),
       authorships = .empty_authorships(),
+      sources = .empty_sources_abbrev(),
       metadata = list(source_file = path, reader = "sm_read_wos")
     ))
   }
@@ -96,6 +115,7 @@ sm_read_wos <- function(path,
       works = .empty_works(),
       authors = .empty_authors(),
       authorships = .empty_authorships(),
+      sources = .empty_sources_abbrev(),
       metadata = list(source_file = path, reader = "sm_read_wos")
     ))
   }
@@ -132,19 +152,31 @@ sm_read_wos <- function(path,
 
   # --- sources -------------------------------------------------------------
   source_names <- vapply(parsed, function(r) r$source, character(1))
-  sources <- .empty_sources()
+  sources <- .empty_sources_abbrev()
   if (any(!is.na(source_names))) {
     unames <- unique(stats::na.omit(source_names))
     sids <- .generate_source_id(length(unames))
+    # ISSNs and abbreviations from the first record of each source
+    first <- parsed[match(unames, source_names)]
+    field <- function(nm) vapply(first, function(r) r[[nm]], character(1))
+    sn <- field("sn")
+    ei <- field("ei")
+    issn_l <- sn
+    issn_l[is.na(issn_l)] <- ei[is.na(issn_l)]
     sources <- tibble::tibble(
       source_id = sids,
-      issn_l = NA_character_,
-      issn = lapply(seq_along(sids), function(i) character()),
+      issn_l = issn_l,
+      issn = lapply(seq_along(sids), function(i) {
+        x <- c(sn[i], ei[i])
+        unique(x[!is.na(x)])
+      }),
       display_name = unames,
       type = "journal",
       is_oa = NA,
       publisher = NA_character_,
-      publisher_country = NA_character_
+      publisher_country = NA_character_,
+      abbreviation = field("j9"),
+      iso_abbreviation = field("ji")
     )
     works$source_id <- sids[match(source_names, unames)]
   }
@@ -270,6 +302,10 @@ sm_read_wos <- function(path,
     authors     = tags[["AU"]] %||% tags[["AF"]] %||% character(),
     title       = .get_single("TI"),
     source      = .get_single("SO"),
+    sn          = .get_single("SN"),
+    ei          = .get_single("EI"),
+    j9          = .get_single("J9"),
+    ji          = .get_single("JI"),
     abstract    = .get_single("AB"),
     doi         = .get_single("DI"),
     year        = .get_single("PY"),
@@ -291,12 +327,14 @@ sm_read_wos <- function(path,
 #' @noRd
 .wos_build_authors <- function(author_lists, aff_lists, work_ids) {
   all_authors <- character()
+  all_spelled <- character()
   authorship_rows <- list()
 
   for (i in seq_along(author_lists)) {
     names <- trimws(author_lists[[i]])
     names <- names[nzchar(names)]
     if (length(names) == 0L) next
+    all_spelled <- c(all_spelled, names)
 
     # Normalize "Last, First" -> "First Last"
     names <- vapply(names, function(nm) {
@@ -342,12 +380,15 @@ sm_read_wos <- function(path,
   aships_df <- dplyr::bind_rows(authorship_rows)
   unique_names <- unique(all_authors)
   author_ids <- .generate_author_id(length(unique_names))
+  # the names as the file writes them ("Garcia Lopez, M"), which tell the
+  # surname from the initials
+  spelled <- split(all_spelled, factor(all_authors, levels = unique_names))
 
   authors <- tibble::tibble(
     author_id = author_ids,
     orcid = NA_character_,
     display_name = unique_names,
-    display_name_alternatives = lapply(seq_along(unique_names), function(x) character()),
+    display_name_alternatives = unname(Map(setdiff, spelled, unique_names)),
     inferred_gender = NA_character_,
     gender_confidence = NA_real_,
     gender_method = NA_character_
@@ -379,17 +420,11 @@ sm_read_wos <- function(path,
     refs <- refs[nzchar(refs)]
     if (length(refs) == 0L) next
 
-    # Try to extract DOI from CR strings
-    dois <- vapply(refs, function(r) {
-      m <- regmatches(r, regexpr("DOI\\s+(10\\.[^,;\\s]+)", r, perl = TRUE))
-      if (length(m) > 0L) sub("^DOI\\s+", "", m) else NA_character_
-    }, character(1), USE.NAMES = FALSE)
-
     rows[[length(rows) + 1L]] <- tibble::tibble(
       work_id = work_ids[i],
       ref_index = seq_along(refs),
       cited_work_id = NA_character_,
-      cited_doi = .normalize_doi(dois),
+      cited_doi = .cr_doi(refs),
       cited_raw = refs
     )
   }

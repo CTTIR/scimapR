@@ -23,7 +23,9 @@ as_sm_corpus(x, ...)
 
 \item{...}{Additional arguments passed to methods.}
 
-\item{source_label}{Label for provenance tracking.}
+\item{source_label}{Label for provenance tracking. For a bibliometrix
+data frame, rows with \code{DB = "ISI"} are labelled \code{"wos"} unless
+\code{source_label} is given.}
 }
 \value{
 An \code{sm_corpus} object.
@@ -31,6 +33,37 @@ An \code{sm_corpus} object.
 \description{
 Generic function to convert various data types to an \code{sm_corpus} object.
 }
+\section{bibliometrix data frames}{
+
+\code{as_sm_corpus()} reads a data frame made by \code{bibliometrix::convert2df()}
+or \code{\link[=sm_to_bibliometrix]{sm_to_bibliometrix()}} (class \code{bibliometrixDB}), and the file readers
+with \code{engine = "bibliometrix"} use the same conversion:
+\itemize{
+\item \code{works} from \code{TI}, \code{AB} (\code{TI_raw} and \code{AB_raw} where present, which
+keep the case of the file), \code{PY}, \code{DT}, \code{TC}, \code{LA}, \code{DI} and \code{PM};
+\item \code{authors} and \code{authorships} from \code{AU} and \code{AF}, with one authorship
+row per author and address: the names in the brackets of \code{C1}
+(\code{C1raw} where present) link authors to addresses. An address
+without names is linked only in a work with one author, otherwise
+the authors keep \code{raw_affiliation = NA}. Authors are told apart by
+the full names of \code{AF}; an entry whose given names are only initials,
+or that has no \code{AF}, belongs to the author with that surname and
+those initials when there is just one such author with a full name.
+The first author of each work is flagged as corresponding;
+\item \code{sources} from \code{SO}, \code{SN}, \code{EI}, \code{J9} and \code{JI} (\code{issn_l}, \code{issn},
+\code{abbreviation}, \code{iso_abbreviation});
+\item \code{references} from \code{CR}, with the DOI of each item that has one;
+\item \code{concepts} from \code{DE} (\code{DE_raw} where present), \code{ID}, \code{SC} and \code{WC}, in
+the vocabularies \code{author-keywords}, the indexer vocabulary of the
+source, \code{wos-subject-category} and \code{wos-category}. \code{ID} is read as
+\code{keywords-plus} for Web of Science data (\code{DB = "ISI"}), \code{mesh} for
+PubMed, Dimensions, Lens and Cochrane, \code{author-keywords} for BibTeX
+and RIS files (where bibliometrix stores the keywords of the file in
+\code{ID}) and \code{index-keywords} otherwise;
+\item \code{provenance} with \code{UT} as \code{source_id_external}.
+}
+}
+
 \examples{
 corpus <- sm_example_corpus()
 as_sm_corpus(corpus)

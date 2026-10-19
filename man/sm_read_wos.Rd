@@ -38,19 +38,37 @@ The native parser follows the Web of Science Core Collection export format.
 Each record begins with \code{PT } (publication type) and ends with \code{ER}.
 Field tags are two uppercase letters followed by a single space.
 Continuation lines begin with three spaces. Tags parsed:
-AU or AF (authors), TI (title), SO (source), AB (abstract), DI (DOI),
-PY (year), DT (document type), LA (language), TC (times cited),
-UT (accession number, kept in \code{provenance}), PM (PubMed ID),
+AU or AF (authors), TI (title), SO (source), SN and EI (ISSN and
+electronic ISSN), J9 and JI (source abbreviations), AB (abstract),
+DI (DOI), PY (year), DT (document type), LA (language), TC (times
+cited), UT (accession number, kept in \code{provenance}), PM (PubMed ID),
 C1 (addresses), CR (cited references), DE (author keywords),
 ID (Keywords Plus), WC (Web of Science categories) and SC (research
 areas). Other tags are not read.
 
+Each distinct SO becomes a row of \code{sources}, with \code{issn_l} from SN
+(EI when SN is missing), \code{issn} holding SN and EI, and the abbreviations
+J9 and JI in the columns \code{abbreviation} and \code{iso_abbreviation}.
+
 DE, ID, WC and SC become \code{concepts}, one row per \verb{;}-separated term, in
 the vocabularies \code{"author-keywords"}, \code{"keywords-plus"}, \code{"wos-category"}
 and \code{"wos-subject-category"} of \code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}}. Terms keep
-the case of the file. The \code{"bibliometrix"} engine (also used by
-\code{"auto"} when bibliometrix can read the file) reads no keywords or
-categories into \code{concepts}.
+the case of the file.
+
+Author names are stored in the AU form, such as "J Smith" for
+"Smith, J", and \code{authors$display_name_alternatives} keeps the name as
+the file writes it, which tells a surname of several words such as
+"Garcia Lopez" from the initials. The native parser gives each author
+one authorship row, with the first C1 address whose bracket contains the
+author's surname. Both parsers flag the first author of each work as
+corresponding.
+
+The \code{"bibliometrix"} engine (also used by \code{"auto"} when bibliometrix can
+read the file) converts the data frame of \code{bibliometrix::convert2df()}
+as \code{\link[=as_sm_corpus]{as_sm_corpus()}} does: it reads the same tags into \code{sources},
+\code{references} and \code{concepts}, tells authors apart by the full names of AF
+and writes one authorship row per author and address, linked through
+the names in the brackets of C1.
 }
 
 \examples{
