@@ -219,6 +219,32 @@ test_that("sm_affiliation_dict finds no NATO edge before an umlaut", {
   expect_identical(new$institution_match, c(NA, NA, "NATO"))
 })
 
+test_that("sm_affiliation_dict leaves other military hospitals unmatched", {
+  # Before, its rows credited any "military hospital", "army hospital" or
+  # "armed forces hospital" to the Bundeswehr hospital; the English names it
+  # keeps need "Bundeswehr" or "German" in front
+  raw <- c("Military Hospital of Southcity, Southland",
+           "Army Hospital Research and Referral, Northtown",
+           "Armed Forces Hospital Northtown",
+           "US Army Hospital, Southcity",
+           "Bundeswehr Hospital Nordstadt",
+           "German Army Field Hospital, Nordstadt",
+           "Bundeswehrkrankenhaus Nordstadt")
+  expected <- c(NA, NA, NA, "US Army", rep("Bundeswehr Hospital", 3L))
+  expect_identical(match_aff(raw, sm_affiliation_dict)$institution_match,
+                   expected)
+  old <- match_aff(raw, sm_affiliation_dict, unicode = FALSE)
+  expect_identical(old$institution_match, expected)
+
+  # sm_attribute_institution() matches with this dictionary itself when the
+  # corpus has not been matched
+  out <- suppressMessages(sm_attribute_institution(aff_corpus(raw), "custom"))
+  expect_identical(out$authorships$institution_name, expected)
+  expect_identical(out$authorships$institution_id,
+                   c(NA, NA, NA, "CUST:us-army",
+                     rep("CUST:bundeswehr-hospital", 3L)))
+})
+
 # ---- B2: sm_attribute_institution -------------------------------------------
 
 ror_tbl <- function() {
@@ -283,6 +309,22 @@ test_that("sm_attribute_institution keeps an ASCII-mode match", {
   none <- suppressMessages(sm_affiliation_match(corpus, list(X = "zzz")))
   out <- sm_attribute_institution(none, "custom")
   expect_identical(out$authorships$institution_name, c(NA_character_, NA))
+})
+
+test_that("sm_attribute_institution finds ROR names in other scripts", {
+  # names are compared after a normalisation that keeps the letters of
+  # every script; before, a Cyrillic name normalised to nothing
+  name <- paste("\u0421\u0435\u0432\u0435\u0440\u043d\u044b\u0439",
+                "\u0438\u043d\u0441\u0442\u0438\u0442\u0443\u0442")
+  ror <- data.frame(ror_id = "https://ror.org/09999zz01", name = name,
+                    aliases = NA_character_, stringsAsFactors = FALSE)
+  corpus <- aff_corpus(c(paste0(name, ","), "Nowhere University"))
+  out <- suppressMessages(
+    sm_attribute_institution(corpus, vocabulary = "ror", ror_table = ror)
+  )
+  expect_identical(out$authorships$institution_id,
+                   c("https://ror.org/09999zz01", NA))
+  expect_identical(out$authorships$institution_name, c(name, NA))
 })
 
 test_that("sm_attribute_institution errors without ror_table", {

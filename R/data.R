@@ -37,6 +37,15 @@
 #' followed by an umlaut, as in a German compound word. The first pattern
 #' that matches wins, in row order, so add specific rows before generic
 #' ones.
+#'
+#' The rows for "Bundeswehr Hospital" match its German name, its
+#' abbreviation, or "hospital" after "Bundeswehr" or after "German Armed
+#' Forces", "German Army" or "German Military", with at most one word in
+#' between. A bare "military hospital", "army hospital" or "armed forces
+#' hospital", which names hospitals of many countries, stays unmatched; up
+#' to scimapR 0.4.0 these phrases matched "Bundeswehr Hospital" wherever
+#' they appeared. The dictionary is a starting point: for an audit of your
+#' own institutions, pass a dictionary of them to [sm_affiliation_match()].
 #' @seealso [sm_affiliation_match()], [sm_affiliation_unmatched()]
 #' @examples
 #' sm_affiliation_dict

@@ -5,13 +5,18 @@
 # covers common military / medical institution name variants (including German
 # synonyms) plus email-domain fallbacks. Patterns are case-insensitive regular
 # expressions matched against affiliation strings.
+#
+# The English names of the hospital are anchored on "Bundeswehr" or "German":
+# a bare "military hospital", "army hospital" or "armed forces hospital" names
+# hospitals of many countries, so it stays unmatched.
+hospital_bundeswehr <- "bundeswehr\\W+(\\w+\\W+)?hospital"
+hospital_german <- "german (armed forces|army|military)\\W+(\\w+\\W+)?hospital"
 
 sm_affiliation_dict <- tibble::tribble(
   ~institution,                ~pattern,                              ~email_domain,
   "Bundeswehr Hospital",       "bundeswehrkrankenhaus",               "bundeswehr.org",
-  "Bundeswehr Hospital",       "armed forces hospital",               NA,
-  "Bundeswehr Hospital",       "army hospital",                       NA,
-  "Bundeswehr Hospital",       "military hospital",                   NA,
+  "Bundeswehr Hospital",       hospital_bundeswehr,                   NA,
+  "Bundeswehr Hospital",       hospital_german,                       NA,
   "Bundeswehr Hospital",       "bwkrhs",                              NA,
   "Charite Berlin",            "charit[eé]",                          "charite.de",
   "Charite Berlin",            "universit[aä]tsmedizin berlin",       NA,

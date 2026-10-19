@@ -59,10 +59,10 @@
   if it relied on `\b` between an ASCII and a non-ASCII letter: the shipped
   pattern `\bnato\b` no longer matches "NATO" directly followed by an
   umlaut. The new argument `unicode = FALSE` restores the earlier
-  ASCII-only matching. `sm_attribute_institution()` and
-  `sm_count(level = "institution")` have no such argument and match in
-  Unicode mode when they run `sm_affiliation_match()` themselves; the
-  Details of `?sm_affiliation_match` show how to get their earlier results.
+  ASCII-only matching. `sm_attribute_institution()` has no such argument
+  and matches in Unicode mode when it runs `sm_affiliation_match()` itself;
+  the Details of `?sm_affiliation_match` show how to get its earlier
+  results.
 - `sm_screen_regex()` matches its terms as written, case-insensitively and
   in Unicode mode like `sm_affiliation_match()`, so a term can stop
   matching in the same ways (new argument `unicode`, default `TRUE`). It no
@@ -176,6 +176,81 @@
   author with the same surname and initials when there is just one.
   `as_sm_corpus()` labels the provenance of Web of Science data
   (`DB = "ISI"`) `"wos"`.
+
+- `sm_coverage_audit(by =)` accepts any reference or works column;
+  corpus-side affiliation uses institution matches before country codes.
+  A name is either one of the named dimensions `"year"`, `"source"` and
+  `"affiliation"` or a column of the reference data frame (matched
+  case-insensitively) or of `works`; a dimension found on one side only
+  gets `NA` for the other side, and a name found on neither side is an
+  error listing the available columns. The affiliation levels of a corpus
+  come from the first of `institution_match`, `institution_name`,
+  `institution_id` and `country_code` that has a value, with a message
+  naming the column on each side and a warning when a side falls back to
+  country codes. A work counts in every institution of its authors, so
+  per-level counts can add up to more than the total; the overall recall
+  and precision count each record once. In a data-frame reference,
+  `"affiliation"` now takes an `affiliation`, `affiliations` or
+  `institution` column before a `country` or `country_code` column, and
+  `"source"` a source name before `source_id`, whatever their order, and
+  the values of each row stay with that row.
+- `sm_coverage_audit()` and `sm_reconcile()` identify the rows of a data
+  frame by its `UT` column (Web of Science accession numbers) or an `id`,
+  `work_id`, `reference_id` or `ref_id` column only when its values are
+  unique and none is missing; otherwise rows are identified by their
+  position (`R000001`, ...), with a warning. A column named `ID` next to
+  Web of Science field tags holds the Keywords Plus and is never used.
+  Before, missing or repeated identifiers, such as those of the `ID` column
+  that `sm_to_bibliometrix()` writes, made the recall, the breakdowns,
+  `n_reference_only` and `matches$reference_id` disagree.
+- `sm_coverage_audit()` looks up each reference row on its own for recall,
+  so an item that two rows report (one paper reported by two units) counts
+  as found for both instead of only for the first; precision still pairs
+  each corpus record with at most one reference row. `n_matched` counts the
+  reference rows found and the new element `n_corpus_matched` the corpus
+  records paired, which `print()` shows for precision and `summary()` adds
+  as its last column; the two differ only when reference rows share a
+  corpus record. The new element `reference_matches` shows for each
+  reference row the corpus record it was found in, as `matches` does for
+  the corpus records. When a DOI repeats on both sides, its records now
+  pair in order instead of leaving the later ones to the title fallback.
+- The title fallback of `sm_coverage_audit()` and `sm_reconcile()` pairs
+  two records only when their publication years differ by at most one
+  (or a year is missing) and never when both have a DOI and the DOIs
+  differ, so serial titles such as annual reports and generic titles such
+  as "Editorial" no longer match across years. A `Date` or date-time year
+  column of a data frame counts by its calendar year, and a year outside
+  1000-2999 (such as a day count) as missing.
+- Title matching in `sm_coverage_audit()` and `sm_reconcile()`, and the ROR
+  lookup of `sm_attribute_institution()`, keep the letters and digits of
+  every script when they normalise text. Before, they dropped every
+  non-ASCII letter, so titles in Cyrillic, Greek or other non-Latin scripts
+  never matched and words with umlauts or accents lost letters.
+- `sm_count(level = "institution")` no longer applies the shipped
+  dictionary `sm_affiliation_dict` on its own, which credited any
+  "military hospital" or "army hospital" to "Bundeswehr Hospital". This
+  changes its default counts: each authorship row now takes the first of
+  `institution_match`, `institution_name` and `institution_id` (named by
+  `corpus$institutions` when listed) that has a value in that row, and
+  otherwise its raw affiliation string, with a warning. Before, one column
+  served every row, so the rows without a value in it were left out, and
+  `entity_id` was the `institution_id` whenever any row had one; now it is
+  the label, except for rows labelled through `institution_id`. After
+  `sm_attribute_institution()`, which keeps `institution_match`, the
+  counts therefore follow the dictionary matches instead of their roll-up
+  to ROR ids and names; to count by the vocabulary, replace
+  `institution_match` by `institution_name` where that is set (see
+  `?sm_count`). Run `sm_affiliation_match()` with a dictionary of your
+  institutions first to count them.
+- The shipped dictionary `sm_affiliation_dict` no longer credits a bare
+  "military hospital", "army hospital" or "armed forces hospital", which
+  can be a hospital of any country, to "Bundeswehr Hospital". Its rows for
+  that hospital now need "Bundeswehr", "German Armed Forces", "German
+  Army" or "German Military" before "hospital", or the German name, so
+  `sm_affiliation_match()` with its default patterns, and
+  `sm_attribute_institution()` on a corpus that was not matched first,
+  leave other military hospitals unmatched; an English name with
+  "Bundeswehr", such as "Bundeswehr Hospital", now matches as well.
 
 # scimapR 0.4.0
 

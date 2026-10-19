@@ -99,18 +99,14 @@ shipped pattern \verb{\\bnato\\b} does not match "NATO" directly followed by an
 umlaut, as in a German compound word. To keep ASCII semantics in one
 place, write the class out, for example \verb{[A-Za-z0-9_]} instead of \verb{\\w}.
 
-\code{unicode = FALSE} gives the matches of scimapR 0.4.0. Two functions call
-\code{sm_affiliation_match()} with its defaults, and so match in Unicode mode,
-without a \code{unicode} argument of their own: \code{\link[=sm_attribute_institution]{sm_attribute_institution()}}
-when the corpus has no \code{institution_match} column, and
-\code{sm_count(level = "institution")} when neither \code{institution_id} nor
-\code{institution_match} has a value. Running
-\code{sm_affiliation_match(unicode = FALSE)} first gives the earlier results
-of \code{\link[=sm_attribute_institution]{sm_attribute_institution()}}. \code{\link[=sm_count]{sm_count()}} then counts by
-\code{institution_match} if at least one authorship matched, but leaves out
-the unmatched authorships, which its own matching counts under their raw
-affiliation string; for its earlier counts, also fill the missing
-\code{institution_match} values with \code{raw_affiliation} before counting.
+\code{unicode = FALSE} gives the matches of scimapR 0.4.0.
+\code{\link[=sm_attribute_institution]{sm_attribute_institution()}} calls \code{sm_affiliation_match()} with its
+defaults, and so matches in Unicode mode, when the corpus has no
+\code{institution_match} column; running \code{sm_affiliation_match(unicode = FALSE)}
+first gives its earlier results. \code{sm_count(level = "institution")} no
+longer matches affiliations itself: it counts each authorship by its
+institution label, \code{institution_match} first, and by its raw affiliation
+string when it has none (see \code{\link[=sm_count]{sm_count()}}).
 
 The optional \code{postcode} column (used with \code{postcode_signal = TRUE}) is
 matched case-sensitively as a whole word, in the same mode: it is wrapped

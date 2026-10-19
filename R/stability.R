@@ -20,7 +20,9 @@
 #'     `precision`, `f1`.}
 #'   \item{[summary.sm_coverage()]}{A one-row tibble: `recall`, `precision`,
 #'     `f1`, `n_corpus`, `n_reference`, `n_matched`, `n_corpus_only`,
-#'     `n_reference_only`.}
+#'     `n_reference_only` and `n_corpus_matched` (the corpus records paired
+#'     with a reference record, the numerator of `precision`; added after
+#'     scimapR 0.4.0).}
 #'   \item{[sm_affiliation_summary()]}{A tibble: `institution`, `match_signal`
 #'     (factor, see [sm_affiliation_signals()]), `n_authorships`, `n_works`,
 #'     `example_evidence`.}

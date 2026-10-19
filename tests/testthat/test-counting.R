@@ -81,10 +81,11 @@ test_that("sm_count source counting is identical for full and fractional", {
   expect_equal(sort(f$credit), sort(fr$credit))
 })
 
-test_that("sm_count(institution) matches raw affiliations in Unicode mode", {
-  # sm_count() has no unicode argument: its own matching keeps unmatched
-  # rows under their raw string, a corpus matched first is counted by
-  # institution_match without them
+test_that("sm_count(institution) counts matches and raw strings per row", {
+  # sm_count() applies no dictionary itself: unmatched rows keep their raw
+  # string, and a corpus matched first (in either mode) is counted by
+  # institution_match, row by row, with the unmatched rows under their raw
+  # string
   raw <- c("Bundeswehrkrankenhaus Berlin", "Nowhere University",
            "Comit\u00e9 NATO\u00e4rzte")
   ids <- sprintf("W%d", seq_along(raw))
@@ -98,22 +99,108 @@ test_that("sm_count(institution) matches raw affiliations in Unicode mode", {
     )
   )
   expect_warning(res <- sm_count(corpus), "raw_affiliation")
+  expect_setequal(res$entity_id, raw)
+
+  uni <- suppressMessages(sm_affiliation_match(corpus))
+  expect_warning(res <- sm_count(uni), class = "scimapR_count_raw_affiliation")
   expect_setequal(res$entity_id, c("Bundeswehr Hospital", raw[2:3]))
 
   ascii <- suppressMessages(sm_affiliation_match(corpus, unicode = FALSE))
-  expect_setequal(sm_count(ascii)$entity_id, c("Bundeswehr Hospital", "NATO"))
-  # filling the unmatched rows with their raw string gives the earlier counts
-  a <- ascii$authorships
-  ascii$authorships$institution_match <- ifelse(
-    is.na(a$institution_match), a$raw_affiliation, a$institution_match
-  )
-  expect_setequal(sm_count(ascii)$entity_id,
-                  c("Bundeswehr Hospital", "NATO", raw[2]))
+  expect_warning(res <- sm_count(ascii), "raw_affiliation")
+  expect_setequal(res$entity_id, c("Bundeswehr Hospital", "NATO", raw[2]))
+})
 
-  # a corpus matched without any hit is matched again, in Unicode mode
-  none <- suppressMessages(sm_affiliation_match(corpus, list(X = "zzz")))
-  expect_warning(res <- sm_count(none), "raw_affiliation")
-  expect_setequal(res$entity_id, c("Bundeswehr Hospital", raw[2:3]))
+test_that("sm_count(institution) never applies the shipped dictionary", {
+  # the shipped dictionary matches the first string, and before also the
+  # generic hospital phrases of the others; sm_count() counts them all under
+  # their raw strings
+  raw <- c("Bundeswehrkrankenhaus Nordstadt",
+           "Military Hospital of Southcity, Southland",
+           "Army Hospital Research and Referral, Northtown")
+  ids <- sprintf("W%d", seq_along(raw))
+  corpus <- sm_corpus(
+    works = tibble::tibble(work_id = ids, title = "x", year = 2020L),
+    authorships = tibble::tibble(
+      work_id = ids, author_id = sprintf("A%d", seq_along(raw)),
+      position = 1L, is_corresponding = TRUE,
+      institution_id = NA_character_, raw_affiliation = raw,
+      country_code = NA_character_
+    )
+  )
+  expect_warning(res <- sm_count(corpus),
+                 class = "scimapR_count_raw_affiliation")
+  expect_setequal(res$entity_id, raw)
+  expect_false("Bundeswehr Hospital" %in% res$entity_name)
+})
+
+test_that("sm_count(institution) counts a vocabulary roll-up put first", {
+  # sm_attribute_institution() keeps institution_match, which sm_count()
+  # labels first, so its roll-up of two dictionary names to one ROR id only
+  # counts once the vocabulary names are put first
+  corpus <- sm_corpus(
+    works = tibble::tibble(work_id = c("W1", "W2"), title = "x",
+                           year = 2020L),
+    authorships = tibble::tibble(
+      work_id = c("W1", "W2"), author_id = c("A1", "A2"), position = 1L,
+      is_corresponding = TRUE, institution_id = NA_character_,
+      raw_affiliation = c("Coastal Inst North, Northtown",
+                          "Coastal Inst South, Southcity"),
+      country_code = NA_character_
+    )
+  )
+  dict <- list("Coastal Inst North" = "coastal inst north",
+               "Coastal Inst South" = "coastal inst south")
+  ror <- data.frame(ror_id = "https://ror.org/09999zz01",
+                    name = "Coastal Institute",
+                    aliases = "Coastal Inst North;Coastal Inst South",
+                    stringsAsFactors = FALSE)
+  matched <- suppressMessages(sm_affiliation_match(corpus, dict))
+  out <- sm_attribute_institution(matched, "ror", ror_table = ror)
+  expect_identical(out$authorships$institution_id,
+                   rep("https://ror.org/09999zz01", 2L))
+
+  res <- sm_count(out)
+  expect_setequal(res$entity_id, c("Coastal Inst North", "Coastal Inst South"))
+  expect_identical(res$n_works, c(1L, 1L))
+
+  a <- out$authorships
+  out$authorships$institution_match <- dplyr::coalesce(a$institution_name,
+                                                       a$institution_match)
+  res <- sm_count(out)
+  expect_identical(res$entity_id, "Coastal Institute")
+  expect_identical(res$n_works, 2L)
+})
+
+test_that("sm_count(institution) resolves each authorship on its own", {
+  corpus <- sm_corpus(
+    works = tibble::tibble(work_id = sprintf("W%d", 1:4), title = "x",
+                           year = 2020L, cited_by_count = 1L),
+    authorships = tibble::tibble(
+      work_id = c("W1", "W2", "W3", "W4", "W4"),
+      author_id = sprintf("A%d", 1:5), position = c(1L, 1L, 1L, 1L, 2L),
+      is_corresponding = TRUE,
+      institution_id = c("I1", NA, "I7", NA, NA),
+      institution_match = c(NA, "Unit North", NA, NA, NA),
+      raw_affiliation = c(NA, "Unit North, Northtown", NA, "Somewhere", NA),
+      country_code = "DE"
+    ),
+    institutions = tibble::tibble(institution_id = "I1",
+                                  display_name = "Coastal Institute")
+  )
+  expect_warning(res <- sm_count(corpus),
+                 class = "scimapR_count_raw_affiliation")
+  res <- res[order(res$entity_id), ]
+  # the id rows and the matched row both count; the authorship without any
+  # label (A5) is left out
+  expect_identical(res$entity_id, c("I1", "I7", "Somewhere", "Unit North"))
+  expect_identical(res$entity_name,
+                   c("Coastal Institute", "I7", "Somewhere", "Unit North"))
+  expect_identical(res$n_works, rep(1L, 4))
+
+  # without raw strings there is nothing to warn about
+  corpus$authorships$raw_affiliation[4] <- NA_character_
+  expect_no_warning(res <- sm_count(corpus))
+  expect_setequal(res$entity_id, c("I1", "I7", "Unit North"))
 })
 
 test_that("sm_count is type-stable when level data is absent", {

@@ -85,15 +85,20 @@ test_that("H3: bibliometrix finds institutions and local citations", {
 })
 
 test_that("H4: coverage breaks down by tracker columns and institutions", {
-  skip("H4 pending - prompt A05")
   # Intent: `by` accepts the tracker's own columns (here `category`), and
   # after sm_affiliation_match() the corpus side of the affiliation
   # breakdown uses the matched institutions instead of country codes, so
-  # both sides of the table share their levels.
+  # both sides of the table share their levels. Before the matching, the
+  # corpus side falls back to country codes with a warning.
   fix <- realuse_corpus()
   ref <- realuse_reference()
-  cov <- sm_coverage_audit(fix, ref, by = c("year", "category", "affiliation"),
-                           match = "doi")
+  expect_warning(
+    cov <- suppressMessages(
+      sm_coverage_audit(fix, ref, by = c("year", "category", "affiliation"),
+                        match = "doi")
+    ),
+    class = "scimapR_coverage_country_fallback"
+  )
   expect_s3_class(cov, "sm_coverage")
   by_category <- sm_coverage_breakdowns(cov, "category")
   expect_setequal(by_category$level, unique(ref$category))
@@ -101,7 +106,9 @@ test_that("H4: coverage breaks down by tracker columns and institutions", {
 
   dict <- realuse_dict()
   matched <- suppressMessages(sm_affiliation_match(fix, dict))
-  cov <- sm_coverage_audit(matched, ref, by = "affiliation", match = "doi")
+  cov <- suppressMessages(
+    sm_coverage_audit(matched, ref, by = "affiliation", match = "doi")
+  )
   by_affiliation <- sm_coverage_breakdowns(cov, "affiliation")
   corpus_levels <- by_affiliation$level[!is.na(by_affiliation$n_corpus)]
   expect_gt(length(corpus_levels), 0L)

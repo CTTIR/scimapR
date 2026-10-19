@@ -50,13 +50,55 @@ The fractional rule is the standard equal-share rule: a work with \eqn{k}
 distinct entities contributes \eqn{1/k} of credit (and \eqn{1/k} of its
 citations) to each. For \code{level = "source"} each work has a single source, so
 fractional and full counts coincide.
+
+For \code{level = "institution"} each authorship row is labelled on its own, by
+the first of these \code{authorships} columns that has a value in that row:
+\code{institution_match} (from \code{\link[=sm_affiliation_match]{sm_affiliation_match()}}), \code{institution_name},
+\code{institution_id} (named by \code{corpus$institutions$display_name} when that
+table lists the id) and \code{raw_affiliation}. A row labelled through
+\code{institution_id} has that id as \code{entity_id}; every other row has its label
+as both \code{entity_id} and \code{entity_name}. Rows labelled by their raw
+affiliation string are counted un-disambiguated, with a warning, because
+\code{sm_count()} applies no affiliation dictionary itself: run
+\code{\link[=sm_affiliation_match]{sm_affiliation_match()}} with a dictionary of your institutions first to
+count them.
+The order is the one \code{\link[=sm_coverage_audit]{sm_coverage_audit()}} uses for its affiliation
+levels, which however takes one column for all rows and falls back to
+country codes instead of raw strings. Up to scimapR 0.4.0, \code{sm_count()}
+used one column for every row (the first of \code{institution_id},
+\code{institution_match} and \code{raw_affiliation} with any value), so rows without
+a value in it were left out, and it matched raw strings against the
+shipped \link{sm_affiliation_dict} before counting them.
+
+\code{\link[=sm_attribute_institution]{sm_attribute_institution()}} keeps \code{institution_match}, so its roll-up of
+the matches to a controlled vocabulary (ROR ids and names in
+\code{institution_id} and \code{institution_name}) is counted only for rows without
+a match; up to scimapR 0.4.0 the counts followed \code{institution_id}. To
+count by the vocabulary, put its names first:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{a <- corpus$authorships
+corpus$authorships$institution_match <-
+  dplyr::coalesce(a$institution_name, a$institution_match)
+}\if{html}{\out{</div>}}
 }
 \examples{
 corpus <- sm_example_corpus(n_works = 30, seed = 1)
 sm_count(corpus, method = "fractional", level = "author")
+
+# Institutions: match the affiliation strings with a dictionary of your
+# institutions first, then count
+a <- corpus$authorships
+corpus$authorships$raw_affiliation <- ifelse(
+  a$position == 1L,
+  "Unit North, Northtown",
+  "Department of Surgery, Unit South"
+)
+dict <- list("Unit North" = "unit north", "Unit South" = "unit south")
+matched <- sm_affiliation_match(corpus, patterns = dict)
+sm_count(matched, method = "fractional", level = "institution")
 }
 \seealso{
-\code{\link[=sm_metric_summary]{sm_metric_summary()}}
+\code{\link[=sm_metric_summary]{sm_metric_summary()}}, \code{\link[=sm_affiliation_match]{sm_affiliation_match()}}
 
 Other counting:
 \code{\link[=sm_citation_maturity]{sm_citation_maturity()}},
