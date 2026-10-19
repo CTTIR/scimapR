@@ -178,3 +178,70 @@ test_that("sm_read_wos validates the engine argument", {
   }
   expect_error(sm_read_wos(path, engine = "nope", verbose = FALSE))
 })
+
+test_that("sm_read_wos reads ISSNs and journal abbreviations into sources", {
+  path <- realuse_wos_sample()
+  corpus <- sm_read_wos(path, verbose = FALSE)
+  src <- corpus$sources
+  lines <- readLines(path, encoding = "UTF-8")
+  tag <- function(x) {
+    sub("^.. ", "", grep(paste0("^", x, " "), lines, value = TRUE))
+  }
+  # one journal per SO line, in the order of the file
+  first <- !duplicated(tag("SO"))
+  expect_identical(src$display_name, tag("SO")[first])
+  expect_identical(src$issn_l, tag("SN")[first])
+  expect_identical(src$issn, lapply(which(first), function(i) {
+    c(tag("SN")[i], tag("EI")[i])
+  }))
+  expect_identical(src$abbreviation, tag("J9")[first])
+  expect_identical(src$iso_abbreviation, tag("JI")[first])
+})
+
+test_that("sm_read_wos takes the electronic ISSN when SN is missing", {
+  path <- withr::local_tempfile(fileext = ".txt")
+  writeLines(c("FN Clarivate", "VR 1.0", "PT J", "AU Smith, J",
+               "TI A Work", "SO SOME JOURNAL", "EI 9998-0001", "PY 2021",
+               "ER", "", "EF"), path)
+  src <- sm_read_wos(path, verbose = FALSE)$sources
+  expect_identical(src$issn_l, "9998-0001")
+  expect_identical(src$issn, list("9998-0001"))
+  expect_identical(src$abbreviation, NA_character_)
+})
+
+test_that("sm_read_wos keeps the sources columns when no record has SO", {
+  path <- withr::local_tempfile(fileext = ".txt")
+  writeLines(c("FN Clarivate", "VR 1.0", "PT J", "AU Smith, J",
+               "TI A Work", "PY 2021", "ER", "", "EF"), path)
+  src <- sm_read_wos(path, verbose = FALSE)$sources
+  expect_identical(nrow(src), 0L)
+  expect_identical(names(src), names(sm_read_wos(realuse_wos_sample(),
+                                                 verbose = FALSE)$sources))
+  expect_true(all(c("abbreviation", "iso_abbreviation") %in% names(src)))
+})
+
+test_that("sm_read_wos drops a trailing period from cited-reference DOIs", {
+  path <- withr::local_tempfile(fileext = ".txt")
+  writeLines(c("FN Clarivate", "VR 1.0", "PT J", "AU Smith, J",
+               "TI A Work", "PY 2021",
+               "CR Doe J, 2020, J THINGS, V1, P2, DOI 10.9999/x.1.",
+               "   Roe M, 2019, J THINGS, V3, P4, DOI 10.9999/Y.2",
+               "ER", "", "EF"), path)
+  refs <- sm_read_wos(path, verbose = FALSE)$references
+  expect_identical(refs$cited_doi, c("10.9999/x.1", "10.9999/y.2"))
+  # the cited reference itself stays as written
+  expect_identical(refs$cited_raw[1],
+                   "Doe J, 2020, J THINGS, V1, P2, DOI 10.9999/x.1.")
+})
+
+test_that("sm_read_wos keeps the author names as the file writes them", {
+  path <- withr::local_tempfile(fileext = ".txt")
+  writeLines(c("FN Clarivate", "VR 1.0", "PT J", "AU Ibarra Soto, M",
+               "   de Souza, JA", "TI A Work", "PY 2021", "ER",
+               "PT J", "AU Ibarra Soto, M", "TI Another Work", "PY 2022",
+               "ER", "", "EF"), path)
+  authors <- sm_read_wos(path, verbose = FALSE)$authors
+  expect_identical(authors$display_name, c("M Ibarra Soto", "JA de Souza"))
+  expect_identical(authors$display_name_alternatives,
+                   list("Ibarra Soto, M", "de Souza, JA"))
+})

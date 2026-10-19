@@ -4,36 +4,161 @@
 \alias{sm_to_bibliometrix}
 \title{Convert sm_corpus to bibliometrix format}
 \usage{
-sm_to_bibliometrix(corpus, ...)
+sm_to_bibliometrix(
+  corpus,
+  keep_extra = TRUE,
+  db = c("auto", "ISI", "scimapR"),
+  ...
+)
 }
 \arguments{
 \item{corpus}{An \code{sm_corpus} object.}
 
+\item{keep_extra}{Logical. If \code{TRUE} (default), the columns without a
+field tag follow the tag columns, as in earlier versions: the other
+\code{works} columns (such as \code{work_id} and \code{source_id}), \code{country_code}
+and \code{SO_ISSN}. \code{FALSE} returns the tag columns only.}
+
+\item{db}{Value of the \code{DB} column. \code{"auto"} (default) writes \code{"ISI"}
+when every work comes from Web of Science and \code{"scimapR"} otherwise;
+\code{"ISI"} and \code{"scimapR"} write that value. See Details.}
+
 \item{...}{Additional arguments (currently unused).}
 }
 \value{
-A data frame with class \code{c("bibliometrixDB", "data.frame")}.
+A data frame with class \code{c("bibliometrixDB", "data.frame")}, one
+row per work in the order of \code{corpus$works}, with \code{SR} as row names.
+Every tag column is present, \code{NA} where the corpus holds no data.
 }
 \description{
 Converts an \code{sm_corpus} to the data frame format used by
-\code{bibliometrix::biblioAnalysis()}. This enables using bibliometrix's
-analysis functions on corpora built with scimapR.
+\code{bibliometrix::biblioAnalysis()} and the other functions of bibliometrix:
+one row per work and one column per Web of Science field tag. This
+enables using bibliometrix's analysis functions on corpora built with
+scimapR.
 }
 \details{
+\subsection{Field tags}{
+\itemize{
+\item \code{AU}: authors as \verb{SURNAME INITIALS}, \code{AF}: full names as
+\verb{SURNAME, GIVEN NAMES}; one entry per author of the work, in
+\code{position} order and separated by \verb{;}, from \code{authors$display_name}
+through \code{authorships}. An author with several address rows appears
+once; authors without a name are left out.
+\item \code{TI}, \code{AB}: \code{works$title}, \code{works$abstract}; \code{TI_raw} and \code{AB_raw} hold
+them in their stored case, as \code{bibliometrix::convert2df()} does.
+\item \code{SO}, \code{J9}, \code{JI}: \code{sources$display_name}, and the optional columns
+\code{sources$abbreviation} and \code{sources$iso_abbreviation}.
+\item \code{SN}, \code{EI}: \code{sources$issn_l} (else the first value of \code{sources$issn})
+and the next distinct value of \code{sources$issn}.
+\item \code{C1}: one segment per distinct address of the work,
+\verb{[AUTHOR A; AUTHOR B] ADDRESS}, with the authors (\code{AF} form) in
+\code{position} order, joined by \verb{; }; from \code{authorships$raw_affiliation}.
+\item \code{RP}: one segment per corresponding author
+(\code{authorships$is_corresponding}), \verb{SURNAME, INITIALS (CORRESPONDING AUTHOR), ADDRESS} with the author's first address, joined by \verb{; }.
+\item \code{EM}: the e-mail addresses of the optional column
+\code{authorships$email}.
+\item \code{CR}: \code{references$cited_raw} in \code{ref_index} order, separated by \verb{;};
+\code{NR}: the number of items in \code{CR}.
+\item \code{DE}: author keywords, see below; \code{DE_raw} holds them in their stored
+case. \code{ID}: the concepts of the \code{indexer_keyword} family of
+\code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}} (such as Keywords Plus or MeSH). \code{WC}: the
+vocabulary \code{wos-category} (Web of Science categories); \code{SC}: the
+vocabulary \code{wos-subject-category} (research areas). Terms are joined
+by \verb{; }.
+\item \code{DT}, \code{LA}, \code{PY}, \code{TC}, \code{DI}, \code{PM}: \code{works$type}, \code{language}, \code{year},
+\code{cited_by_count}, \code{doi} and \code{pmid}.
+\item \code{UT}: the Web of Science accession number,
+\code{provenance$source_id_external} of the work's first provenance row
+with \code{source == "wos"}, else a \code{work_id} that starts with \verb{WOS:}.
+\item \code{DB}: see below. \code{SR}: the short reference \verb{FIRST AUTHOR, YEAR, J9}
+(with \code{SO} where \code{J9} is missing), made unique by appending \code{-a},
+\code{-b}, ... to repeats; \code{SR_FULL} keeps it without the suffixes.
+}
+
+With \code{keep_extra = TRUE}, \code{country_code} holds the country codes of
+\code{authorships$country_code}, one per authorship row (author and
+address), and \code{SO_ISSN} holds \code{sources$issn_l}. The export has no
+\code{AU_CO} column, as data from \code{bibliometrix::convert2df()} has none:
+\code{bibliometrix::metaTagExtraction(M, "AU_CO")} adds the country names
+that bibliometrix reads from \code{C1} and uses for its country analyses.
+}
+
+\subsection{Conventions}{
+
+Like \code{bibliometrix::convert2df()} for Web of Science files, the export
+upper-cases \code{AU}, \code{AF}, \code{TI}, \code{SO}, \code{J9}, \code{JI}, \code{AB}, \code{C1}, \code{RP}, \code{EM},
+\code{CR} (including the DOIs in it), \code{DE}, \code{ID}, \code{WC}, \code{SC}, \code{DT} and \code{LA}.
+\code{DI}, \code{UT}, \code{SN}, \code{EI} and \code{PM} are written as stored, so \code{DI} keeps the
+lower-case DOIs of the scimapR readers. Upper-casing uses \code{\link[=toupper]{toupper()}},
+whose result for non-ASCII letters depends on the locale.
+
+Names: a \code{display_name} with a comma is read as \verb{Surname, Given names}.
+Otherwise an entry of \code{authors$display_name_alternatives} in that form
+that agrees with the name gives the surname, so a surname of several
+words such as "Garcia Lopez" stays whole; \code{\link[=sm_read_wos]{sm_read_wos()}} keeps the
+names of the file there. Else initials at the end of the name (single
+letters, or capitals with periods, as in "Chen W." from
+\code{\link[=sm_read_scopus]{sm_read_scopus()}}) follow the surname, and otherwise the last word is
+the surname, together with the lower-case particles before it ("Anna
+van der Berg" gives \verb{VAN DER BERG A}). Particles never become initials.
+Without such a spelling, a surname of several words without particles
+("Maria Garcia Lopez") keeps only its last word, and a name such as
+"SMITH JA" is read as given names followed by the surname. The given
+names of \code{AF} are the longest spelling at hand, the initials of \code{AU}
+the shortest. Corpora read by \code{\link[=sm_read_wos]{sm_read_wos()}} store the \code{AU} form of a
+name (such as "J Smith"), so their \code{AF} holds initials.
+
+\code{CR} items are written in the Web of Science form \verb{SURNAME INITIALS, YEAR, SOURCE, ...}: an item \verb{Surname, IN, YEAR, ...} (with a comma after
+the surname, as some exports write it) becomes \verb{SURNAME IN, YEAR, ...}.
+Other items, such as titles or OpenAlex IDs, are only upper-cased.
+Because \verb{;} separates the items of \code{AU}, \code{AF}, \code{C1}, \code{RP}, \code{CR}, \code{DE},
+\code{ID}, \code{WC} and \code{SC}, a \verb{;} inside an item becomes \verb{,}.
+
 \code{DE} holds the author keywords of each work: the concepts of the
 \code{author_keyword} family of \code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}} (\code{author-keywords},
-\code{manual-tags}), separated by \verb{;}. A work without author keywords gets its
-OpenAlex concepts (\code{openalex}) instead, so corpora built from OpenAlex
-keep their \code{DE}; other vocabularies (Keywords Plus, MeSH, categories,
-arXiv and bioRxiv subjects) never enter \code{DE}. A work with neither has
-\code{DE = NA}.
+\code{manual-tags}). A work without author keywords gets its OpenAlex
+concepts (\code{openalex}) instead, so corpora built from OpenAlex keep their
+\code{DE}; other vocabularies (Keywords Plus, MeSH, categories, arXiv and
+bioRxiv subjects) never enter \code{DE}. A work with neither has \code{DE = NA}.
+
+\code{DB}: with \code{db = "auto"}, a corpus whose works all come from Web of
+Science (each has a provenance row with \code{source == "wos"}, or a
+\code{work_id} that starts with \verb{WOS:}) gets \code{"ISI"}, the value
+\code{bibliometrix::convert2df()} writes for Web of Science files, so that
+\code{bibliometrix::histNetwork()} and \code{bibliometrix::rpys()} accept it.
+Other corpora get \code{"scimapR"}, because bibliometrix reads \code{"ISI"} data
+as Web of Science records; \code{db = "ISI"} declares a corpus whose \code{CR}
+items are in Web of Science form anyway.
+
+\code{RP} follows \code{authorships$is_corresponding}. \code{\link[=sm_read_openalex_json]{sm_read_openalex_json()}}
+reads the corresponding authors of OpenAlex records; the other file
+readers, the \verb{sm_fetch_*()} functions and \code{\link[=as_sm_corpus]{as_sm_corpus()}} flag the
+first author of each work (\code{\link[=sm_fetch_orcid]{sm_fetch_orcid()}} flags the ORCID holder),
+so for their corpora \code{RP} names that author. Corpora built from tables
+keep the flags of their tables.
+
+\code{\link[=as_sm_corpus]{as_sm_corpus()}} reads the result back: the round trip keeps the works,
+their DOIs and years, the authors of each work and their addresses.
+}
 }
 \examples{
-\dontshow{if (requireNamespace("bibliometrix", quietly = TRUE)) withAutoprint(\{ # examplesIf}
-corpus <- sm_example_corpus(n_works = 10, n_authors = 5)
-M <- sm_to_bibliometrix(corpus)
+corpus <- sm_example_corpus(n_works = 10, n_authors = 5,
+                            with_embeddings = FALSE)
+M <- sm_to_bibliometrix(corpus, keep_extra = FALSE)
 class(M)
-\dontshow{\}) # examplesIf}
+M[1:3, c("AU", "PY", "SO", "DB")]
+
+# a corpus from Web of Science records
+fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
+M <- sm_to_bibliometrix(fix)
+unique(M$DB)
+M$C1[1]
+\donttest{
+if (requireNamespace("bibliometrix", quietly = TRUE)) {
+  results <- bibliometrix::biblioAnalysis(M, sep = ";")
+}
+}
 }
 \references{
 Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for

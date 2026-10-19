@@ -51,7 +51,6 @@ test_that("H2: keyword consumers read the vocabularies readers write", {
 })
 
 test_that("H3: sm_to_bibliometrix() exports the Web of Science tags", {
-  skip("H3 pending - prompt A04")
   # Intent: the export carries C1, RP, ID, WC and UT from the corpus tables
   # (UT from provenance, or from a WOS: work_id for the two works without a
   # provenance row), lists each author once in AU even when the author has
@@ -69,7 +68,6 @@ test_that("H3: sm_to_bibliometrix() exports the Web of Science tags", {
 })
 
 test_that("H3: bibliometrix finds institutions and local citations", {
-  skip("H3 pending - prompt A04")
   skip_if_not_installed("bibliometrix")
   # Intent: on the exported data frame bibliometrix extracts affiliations
   # (AU_UN), and histNetwork() links every work whose CR line carries the

@@ -134,6 +134,48 @@
   once per work in its dominant topics and novelty (before, a name that a
   work had in two vocabularies counted twice), so a category with the same
   name as a research area of the work leaves the trajectory unchanged.
+- `sm_to_bibliometrix()` exports C1, RP, ID, WC, SC, UT, SN/EI, J9/JI, EM,
+  AF, one AU entry per author, CR in Web of Science form and `DB = "ISI"`
+  for corpora from Web of Science, so `bibliometrix::histNetwork()` and
+  `bibliometrix::rpys()` run; C1 round-trips through `as_sm_corpus()`.
+  Every tag column is present, `NA` where the corpus has no data. New
+  arguments: `keep_extra = FALSE` drops the columns without a field tag,
+  and `db` sets `DB`. `sm_read_wos()` now reads the ISSNs and journal
+  abbreviations (SN, EI, J9, JI) into `sources` (`issn_l`, `issn` and the
+  new columns `abbreviation` and `iso_abbreviation`), so ISSN lookups now
+  work for corpora read from Web of Science files. It also keeps each
+  author name as the file writes it (such as "Garcia Lopez, M") in
+  `authors$display_name_alternatives`, so the export keeps surnames of
+  several words whole, and cited-reference DOIs lose a trailing period.
+  Because of these changes the corpus hash (`sm_hash_corpus()`) of corpora
+  read from Web of Science files changes too.
+- `sm_to_bibliometrix()` now upper-cases the text fields that bibliometrix
+  keeps upper-case (as `convert2df()` does); `DI` stays as stored. Its
+  default output changes in a few more ways: `AU` holds names as
+  `SURNAME INITIALS` (such as `VALDEZ P`) instead of the stored display
+  names, `SR` is built as `convert2df()` builds it (first author, year and
+  journal abbreviation, made unique) and gives the row names, `NR` counts
+  the items of `CR` instead of the reference rows, `DE` separates its terms
+  with `; `, and the tag columns come first. `AU_CO` is no longer written,
+  so bibliometrix reads the countries from `C1`
+  (`bibliometrix::metaTagExtraction(M, "AU_CO")`) as it does for
+  `convert2df()` data. With the default `keep_extra = TRUE` the other
+  columns stay, and the ISO country codes that `AU_CO` held are in the new
+  column `country_code`.
+- The `"bibliometrix"` and `"auto"` engines of the file readers and
+  `as_sm_corpus()` for bibliometrix data frames now share one conversion,
+  which also reads the cited references (CR, with the DOI of each reference
+  that has one), the sources (SO, SN, EI, J9, JI), the keywords and
+  categories (DE, ID, WC, SC), the Web of Science accession numbers (UT)
+  and the PubMed IDs; before, these corpora had no references, sources or
+  concepts. Authors keep their full names from AF and get one authorship
+  row per address, linked through the names in C1, and titles and
+  abstracts keep the case of the file. Authors are now told apart by
+  their full names in AF instead of their AU form, so author counts can
+  change; an entry with initials only, or without AF, belongs to the
+  author with the same surname and initials when there is just one.
+  `as_sm_corpus()` labels the provenance of Web of Science data
+  (`DB = "ISI"`) `"wos"`.
 
 # scimapR 0.4.0
 

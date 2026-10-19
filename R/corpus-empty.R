@@ -71,6 +71,13 @@
   )
 }
 
+# Sources with the journal abbreviations of Web of Science data (J9, JI),
+# as sm_read_wos() and the bibliometrix conversion write them
+.empty_sources_abbrev <- function() {
+  tibble::add_column(.empty_sources(), abbreviation = character(),
+                     iso_abbreviation = character())
+}
+
 .empty_references <- function() {
   tibble::tibble(
     work_id = character(),
