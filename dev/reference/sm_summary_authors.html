@@ -65,7 +65,10 @@
     <p>A tibble with one row containing:
 <code>n_authors</code>, <code>n_with_orcid</code>, <code>pct_orcid</code>, <code>mean_works_per_author</code>,
 <code>median_works_per_author</code>, <code>max_works_per_author</code>,
-<code>mean_authors_per_work</code>, <code>single_author_pct</code>.</p>
+<code>mean_authors_per_work</code>, <code>single_author_pct</code>. The works of an author
+and the authors of a work are counted as distinct pairs of <code>work_id</code>
+and <code>author_id</code>, so an author with several address rows in a work
+counts once, as in <code><a href="sm_metric_collab_index.html">sm_metric_collab_index()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

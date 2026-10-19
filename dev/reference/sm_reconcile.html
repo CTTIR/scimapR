@@ -84,7 +84,8 @@ not share identifiers.</p>
 
 <dl><dt id="arg-corpus-a-corpus-b">corpus_a, corpus_b<a class="anchor" aria-label="anchor" href="#arg-corpus-a-corpus-b"></a></dt>
 <dd><p>An <code>sm_corpus</code> or a data frame with DOI and/or
-title columns (see <code><a href="sm_coverage_audit.html">sm_coverage_audit()</a></code> for accepted column aliases).</p></dd>
+title columns (see <code><a href="sm_coverage_audit.html">sm_coverage_audit()</a></code> for accepted column aliases and
+for how the rows of a data frame are identified).</p></dd>
 
 
 <dt id="arg-match">match<a class="anchor" aria-label="anchor" href="#arg-match"></a></dt>
@@ -94,7 +95,9 @@ title columns (see <code><a href="sm_coverage_audit.html">sm_coverage_audit()</a
 
 <dt id="arg-threshold">threshold<a class="anchor" aria-label="anchor" href="#arg-threshold"></a></dt>
 <dd><p>Minimum Jaro-Winkler title similarity (<code>[0, 1]</code>) to accept
-a title match (default <code>0.9</code>).</p></dd>
+a title match (default <code>0.9</code>). Titles only match between records
+published at most one year apart (when both years are known) and never
+between two records with different DOIs.</p></dd>
 
 
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>

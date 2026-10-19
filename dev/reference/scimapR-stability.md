@@ -25,7 +25,9 @@ is the stable contract.
 - [`summary.sm_coverage()`](https://cttir.github.io/scimapR/dev/reference/sm_coverage_audit.md):
 
   A one-row tibble: `recall`, `precision`, `f1`, `n_corpus`,
-  `n_reference`, `n_matched`, `n_corpus_only`, `n_reference_only`.
+  `n_reference`, `n_matched`, `n_corpus_only`, `n_reference_only` and
+  `n_corpus_matched` (the corpus records paired with a reference record,
+  the numerator of `precision`; added after scimapR 0.4.0).
 
 - [`sm_affiliation_summary()`](https://cttir.github.io/scimapR/dev/reference/sm_affiliation_summary.md):
 
@@ -67,3 +69,15 @@ sets, so downstream filtering is reliable: see
 (`match_method`), and
 [`sm_match_types()`](https://cttir.github.io/scimapR/dev/reference/sm_match_types.md)
 (coverage `match_type`).
+
+The `vocabulary` column of `corpus$concepts` is the exception: it stays
+character, so concept tables bind and hash as before, and its values are
+the names returned by
+[`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md).
+Readers write these names, and
+[`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md)
+and
+[`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_from_tables.md)
+rename legacy spellings to them.
+`sm_concept_vocabularies(describe = TRUE)` returns a tibble with the
+factor columns `level` and `family` and a character `description`.

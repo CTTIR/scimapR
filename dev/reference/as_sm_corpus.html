@@ -73,7 +73,9 @@
 
 
 <dt id="arg-source-label">source_label<a class="anchor" aria-label="anchor" href="#arg-source-label"></a></dt>
-<dd><p>Label for provenance tracking.</p></dd>
+<dd><p>Label for provenance tracking. For a bibliometrix
+data frame, rows with <code>DB = "ISI"</code> are labelled <code>"wos"</code> unless
+<code>source_label</code> is given.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -81,11 +83,48 @@
     <p>An <code>sm_corpus</code> object.</p>
     </div>
     <div class="section level2">
+    <h2 id="bibliometrix-data-frames">bibliometrix data frames<a class="anchor" aria-label="anchor" href="#bibliometrix-data-frames"></a></h2>
+
+
+<p><code>as_sm_corpus()</code> reads a data frame made by <code><a href="https://rdrr.io/pkg/bibliometrix/man/convert2df.html" class="external-link">bibliometrix::convert2df()</a></code>
+or <code><a href="sm_to_bibliometrix.html">sm_to_bibliometrix()</a></code> (class <code>bibliometrixDB</code>), and the file readers
+with <code>engine = "bibliometrix"</code> use the same conversion:</p><ul><li><p><code>works</code> from <code>TI</code>, <code>AB</code> (<code>TI_raw</code> and <code>AB_raw</code> where present, which
+keep the case of the file), <code>PY</code>, <code>DT</code>, <code>TC</code>, <code>LA</code>, <code>DI</code> and <code>PM</code>;</p></li>
+<li><p><code>authors</code> and <code>authorships</code> from <code>AU</code> and <code>AF</code>, with one authorship
+row per author and address: the names in the brackets of <code>C1</code>
+(<code>C1raw</code> where present) link authors to addresses. An address
+without names, as in older records, belongs to every author of the
+work; one whose names designate none of the authors belongs to the
+author of a single-author work and else to nobody. Authors are told
+apart by the full names of <code>AF</code>; an entry whose given names are only
+initials, or that has no <code>AF</code>, belongs to the author with that
+surname and those initials when there is just one such author with a
+full name. <code>RP</code> gives <code>is_corresponding</code>: the authors it names before
+"(corresponding author)" or "(reprint author)", in any case, are
+<code>TRUE</code> on all their rows and the other authors of the work <code>FALSE</code>.
+Namesakes (the same surname and initials) are told apart by the
+address that <code>RP</code> gives with the name, and stay <code>NA</code> when it does not
+tell them apart; a work without <code>RP</code>, or whose <code>RP</code> designates none
+of its authors for certain, gets <code>NA</code> (unknown);</p></li>
+<li><p><code>sources</code> from <code>SO</code>, <code>SN</code>, <code>EI</code>, <code>J9</code> and <code>JI</code> (<code>issn_l</code>, <code>issn</code>,
+<code>abbreviation</code>, <code>iso_abbreviation</code>);</p></li>
+<li><p><code>references</code> from <code>CR</code>, with the DOI of each item that has one;</p></li>
+<li><p><code>concepts</code> from <code>DE</code> (<code>DE_raw</code> where present), <code>ID</code>, <code>SC</code> and <code>WC</code>, in
+the vocabularies <code>author-keywords</code>, the indexer vocabulary of the
+source, <code>wos-subject-category</code> and <code>wos-category</code>. <code>ID</code> is read as
+<code>keywords-plus</code> for Web of Science data (<code>DB = "ISI"</code>), <code>mesh</code> for
+PubMed, Dimensions, Lens and Cochrane, <code>author-keywords</code> for BibTeX
+and RIS files (where bibliometrix stores the keywords of the file in
+<code>ID</code>) and <code>index-keywords</code> otherwise;</p></li>
+<li><p><code>provenance</code> with <code>UT</code> as <code>source_id_external</code>.</p></li>
+</ul></div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other corpus:
 <code><a href="is_sm_corpus.html">is_sm_corpus()</a></code>,
 <code><a href="sm_bind_corpora.html">sm_bind_corpora()</a></code>,
 <code><a href="sm_build_corpus.html">sm_build_corpus()</a></code>,
+<code><a href="sm_concept_vocabularies.html">sm_concept_vocabularies()</a></code>,
 <code><a href="sm_corpus.html">sm_corpus()</a></code>,
 <code><a href="sm_corpus_from_tables.html">sm_corpus_from_tables()</a></code>,
 <code><a href="sm_dedupe.html">sm_dedupe()</a></code>,
@@ -106,7 +145,7 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Sources (journals):</span> 10</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Embeddings:</span> 200 x 64</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Provenance:</span> synthetic (200)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Status:</span> Unlocked (last refreshed: 2026-10-19 15:54:12)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Status:</span> Unlocked (last refreshed: 2026-10-19 23:44:11)</span>
 <span class="r-in"><span><span class="fu">as_sm_corpus</span><span class="op">(</span><span class="va">corpus</span><span class="op">$</span><span class="va">works</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">&lt;sm_corpus&gt;</span> <span style="color: #00BBBB;">─────────────────────────────────────────────────────────────────</span></span>

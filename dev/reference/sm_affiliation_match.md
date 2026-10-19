@@ -131,22 +131,15 @@ followed by an umlaut, as in a German compound word. To keep ASCII
 semantics in one place, write the class out, for example `[A-Za-z0-9_]`
 instead of `\w`.
 
-`unicode = FALSE` gives the matches of scimapR 0.4.0. Two functions call
-`sm_affiliation_match()` with its defaults, and so match in Unicode
-mode, without a `unicode` argument of their own:
+`unicode = FALSE` gives the matches of scimapR 0.4.0.
 [`sm_attribute_institution()`](https://cttir.github.io/scimapR/dev/reference/sm_attribute_institution.md)
-when the corpus has no `institution_match` column, and
-`sm_count(level = "institution")` when neither `institution_id` nor
-`institution_match` has a value. Running
-`sm_affiliation_match(unicode = FALSE)` first gives the earlier results
-of
-[`sm_attribute_institution()`](https://cttir.github.io/scimapR/dev/reference/sm_attribute_institution.md).
-[`sm_count()`](https://cttir.github.io/scimapR/dev/reference/sm_count.md)
-then counts by `institution_match` if at least one authorship matched,
-but leaves out the unmatched authorships, which its own matching counts
-under their raw affiliation string; for its earlier counts, also fill
-the missing `institution_match` values with `raw_affiliation` before
-counting.
+calls `sm_affiliation_match()` with its defaults, and so matches in
+Unicode mode, when the corpus has no `institution_match` column; running
+`sm_affiliation_match(unicode = FALSE)` first gives its earlier results.
+`sm_count(level = "institution")` no longer matches affiliations itself:
+it counts each authorship by its institution label, `institution_match`
+first, and by its raw affiliation string when it has none (see
+[`sm_count()`](https://cttir.github.io/scimapR/dev/reference/sm_count.md)).
 
 The optional `postcode` column (used with `postcode_signal = TRUE`) is
 matched case-sensitively as a whole word, in the same mode: it is

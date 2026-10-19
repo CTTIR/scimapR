@@ -94,11 +94,52 @@ object. Handles the standard WoS tagged format with two-letter field codes.</p>
 <p>The native parser follows the Web of Science Core Collection export format.
 Each record begins with <code>PT </code> (publication type) and ends with <code>ER</code>.
 Field tags are two uppercase letters followed by a single space.
-Continuation lines begin with three spaces. Key tags parsed:
-AU (authors), TI (title), SO (source), AB (abstract), DI (DOI),
-PY (year), DT (document type), C1 (addresses), RP (reprint author),
-CR (cited references), NR (number of references), TC (times cited),
-SC (subject category), UT (unique identifier), LA (language).</p>
+Continuation lines begin with three spaces. Tags parsed:
+AU or AF (authors), TI (title), SO (source), SN and EI (ISSN and
+electronic ISSN), J9 and JI (source abbreviations), AB (abstract),
+DI (DOI), PY (year), DT (document type), LA (language), TC (times
+cited), UT (accession number, kept in <code>provenance</code>), PM (PubMed ID),
+C1 (addresses), RP (corresponding authors), CR (cited references),
+DE (author keywords),
+ID (Keywords Plus), WC (Web of Science categories) and SC (research
+areas). Other tags are not read.</p>
+<p>Each distinct SO becomes a row of <code>sources</code>, with <code>issn_l</code> from SN
+(EI when SN is missing), <code>issn</code> holding SN and EI, and the abbreviations
+J9 and JI in the columns <code>abbreviation</code> and <code>iso_abbreviation</code>.</p>
+<p>DE, ID, WC and SC become <code>concepts</code>, one row per <code>;</code>-separated term, in
+the vocabularies <code>"author-keywords"</code>, <code>"keywords-plus"</code>, <code>"wos-category"</code>
+and <code>"wos-subject-category"</code> of <code><a href="sm_concept_vocabularies.html">sm_concept_vocabularies()</a></code>. Terms keep
+the case of the file.</p>
+<p>Author names are stored in the AU form, such as "J Smith" for
+"Smith, J", and <code>authors$display_name_alternatives</code> keeps the name as
+the file writes it, which tells a surname of several words such as
+"Garcia Lopez" from the initials.</p>
+<p>Both parsers write one authorship row per author and address. The names
+in the brackets of C1 link authors to addresses: each name belongs to
+the author with the same full name (from AF), else to the one with the
+same surname and initials, else to the one with the same surname and
+first initial, so a short surname such as "He" never takes the address
+of "Chen". An address that C1 lists without names, as older records do,
+belongs to every author of the record, so each of them gets a row for
+it. An address whose names designate none of the authors belongs to the
+author of a single-author record and else to nobody.</p>
+<p>The corresponding authors come from RP, which names them before
+"(corresponding author)" ("(reprint author)" in older files), in any
+case, with each name and its address on a line of its own or on one
+line. The authors these names designate, matched like the names of C1,
+get <code>is_corresponding = TRUE</code> on all their rows and the other authors
+<code>FALSE</code>. When a name fits several authors equally (namesakes with the
+same surname and initials), the one whose C1 addresses include the
+address RP gives with the name is meant; if that does not tell them
+apart, they get <code>NA</code>. A record without RP, or whose RP designates none
+of its authors for certain, gets <code>NA</code> (unknown) for all its authors;
+the native parser reports the number of such records when
+<code>verbose = TRUE</code>.</p>
+<p>The <code>"bibliometrix"</code> engine (also used by <code>"auto"</code> when bibliometrix can
+read the file) converts the data frame of <code><a href="https://rdrr.io/pkg/bibliometrix/man/convert2df.html" class="external-link">bibliometrix::convert2df()</a></code>
+as <code><a href="as_sm_corpus.html">as_sm_corpus()</a></code> does: it reads the same tags into <code>sources</code>,
+<code>references</code> and <code>concepts</code>, tells authors apart by the full names of AF
+and links C1 and RP to the authors by the same rule.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

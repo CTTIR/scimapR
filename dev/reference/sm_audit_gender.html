@@ -121,7 +121,13 @@ authors table (no inference performed).</p></li>
 <code>pct</code>.</p></dd>
 
 <dt>by_position</dt>
-<dd><p>Tibble breaking down gender by authorship position.</p></dd>
+<dd><p>Tibble breaking down gender by authorship position:
+<code>position_type</code> (<code>"first"</code>, <code>"corresponding"</code> for a corresponding
+author who is not first, else <code>"middle/last"</code>), <code>inferred_gender</code>,
+<code>count</code> and <code>pct</code>. Each work and author counts once, however many
+address rows the author has; corresponding authors are those with
+<code>authorships$is_corresponding = TRUE</code> (<code>NA</code> counts as not
+corresponding).</p></dd>
 
 <dt>coverage</dt>
 <dd><p>Proportion of authors with an inferred gender.</p></dd>

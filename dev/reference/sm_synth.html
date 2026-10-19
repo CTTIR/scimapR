@@ -60,6 +60,9 @@ installed an informative error explains how to install it.</p>
 <span>  <span class="va">donors</span>,</span>
 <span>  <span class="va">intervention_year</span>,</span>
 <span>  outcome <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"count"</span>, <span class="st">"share_q1"</span>, <span class="st">"cnci"</span>, <span class="st">"leadership"</span><span class="op">)</span>,</span>
+<span>  lag <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  institution_aware <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  lead_role <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"corresponding"</span>, <span class="st">"first"</span>, <span class="st">"last"</span>, <span class="st">"first_or_last"</span>, <span class="st">"any_lead"</span><span class="op">)</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -92,6 +95,27 @@ number such as <code>2020</code>, or text holding one.</p></dd>
 <dd><p>One of <code>"count"</code>, <code>"share_q1"</code>, <code>"cnci"</code>, <code>"leadership"</code>.</p></dd>
 
 
+<dt id="arg-lag">lag<a class="anchor" aria-label="anchor" href="#arg-lag"></a></dt>
+<dd><p>Citation-maturity lag in years (default <code>2</code>), as in
+<code><a href="sm_its.html">sm_its()</a></code>: for <code>"cnci"</code> the most recent <code>lag</code> years are
+citation-immature and excluded from the panel.</p></dd>
+
+
+<dt id="arg-institution-aware">institution_aware<a class="anchor" aria-label="anchor" href="#arg-institution-aware"></a></dt>
+<dd><p>For <code>outcome = "leadership"</code>: if <code>TRUE</code>, each
+unit's share counts the works whose author in the role <code>lead_role</code>
+belongs to the unit itself (its label is the focal institution, as
+<code>institutions</code> in <code><a href="sm_its.html">sm_its()</a></code>); the treated unit and every donor use
+their own label. <code>FALSE</code> (default) counts the works with a
+corresponding author.</p></dd>
+
+
+<dt id="arg-lead-role">lead_role<a class="anchor" aria-label="anchor" href="#arg-lead-role"></a></dt>
+<dd><p>For <code>outcome = "leadership"</code>: the author role that leads
+a work, as in <code><a href="sm_its.html">sm_its()</a></code>. Roles other than <code>"corresponding"</code> need
+<code>institution_aware = TRUE</code>.</p></dd>
+
+
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
 <dd><p>Caller environment for error reporting.</p></dd>
 
@@ -109,7 +133,11 @@ number such as <code>2020</code>, or text holding one.</p></dd>
     <p>An <code>sm_synth</code> S3 object wrapping the initialised <code>tidysynth</code>
 object (<code>synth</code>), the long panel (<code>panel</code>: <code>unit</code>, <code>year</code>, <code>value</code>),
 <code>dropped_years</code> (tibble: <code>unit</code>, <code>year</code>; the unit-years without a usable
-value, whose years were dropped for every unit), and metadata.</p>
+value, whose years were dropped for every unit), <code>provisional_years</code>
+(integer; the citation-immature years excluded for <code>"cnci"</code>),
+<code>leadership</code> (the leadership definition, as in <code><a href="sm_its.html">sm_its()</a></code>, with
+<code>institutions</code> the unit labels when <code>institution_aware</code>; <code>NULL</code> for
+the other outcomes), and metadata.</p>
 <p><code>print</code> returns <code>x</code> invisibly.</p>
     </div>
     <div class="section level2">
@@ -119,9 +147,13 @@ contain works. For <code>"count"</code> a unit's years without works count 0, ov
 every year from the first to the last publication year of the corpus, so
 no year is dropped. For the other outcomes the panel stays balanced: a
 year in which any unit has no works or no usable value is dropped for
-every unit, with a warning, and listed in <code>dropped_years</code>. At least 4
-panel years must remain, 2 or more before <code>intervention_year</code> and 1 or
-more from it on; otherwise <code>sm_synth()</code> aborts.</p>
+every unit, with a warning, and listed in <code>dropped_years</code>. For <code>"cnci"</code>
+the citation-immature years are then excluded for every unit, by the
+same rule as in <code><a href="sm_its.html">sm_its()</a></code>, and listed in <code>provisional_years</code>; up to
+scimapR 0.4.0 <code>sm_synth()</code> kept them. At least 4 panel years must
+remain, 2 or more before <code>intervention_year</code> and 1 or more from it on;
+otherwise <code>sm_synth()</code> aborts. For <code>"leadership"</code> the shares leave out
+the works whose lead is unknown, as in <code><a href="sm_its.html">sm_its()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

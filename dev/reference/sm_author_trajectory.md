@@ -4,7 +4,8 @@ Analyses the career trajectory of a single author within a corpus,
 partitioning their publication record into `n_periods` career stages.
 For each period, the function computes:
 
-- **Career stages**: dominant topics and publication volume.
+- **Career stages**: dominant topics (the three concept names found in
+  most of the period's works) and publication volume.
 
 - **Topic pivots**: how much the research focus shifted between periods,
   measured as the Jaccard distance of concept sets.
@@ -17,7 +18,8 @@ For each period, the function computes:
 
 - **H-index curve**: cumulative h-index at the end of each period.
 
-- **Novelty curve**: average concept novelty per period.
+- **Novelty curve**: average concept novelty per period, the mean number
+  of distinct concept names per work (over the works with concepts).
 
 - **Citation acceleration**: mean citations per period relative to the
   corpus-wide mean for the same years.

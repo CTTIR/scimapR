@@ -83,7 +83,9 @@ whose column set is the stable contract.</p>
 <dt><code><a href="sm_coverage_audit.html">summary.sm_coverage()</a></code></dt>
 <dd><p>A one-row tibble: <code>recall</code>, <code>precision</code>,
 <code>f1</code>, <code>n_corpus</code>, <code>n_reference</code>, <code>n_matched</code>, <code>n_corpus_only</code>,
-<code>n_reference_only</code>.</p></dd>
+<code>n_reference_only</code> and <code>n_corpus_matched</code> (the corpus records paired
+with a reference record, the numerator of <code>precision</code>; added after
+scimapR 0.4.0).</p></dd>
 
 <dt><code><a href="sm_affiliation_summary.html">sm_affiliation_summary()</a></code></dt>
 <dd><p>A tibble: <code>institution</code>, <code>match_signal</code>
@@ -118,6 +120,13 @@ tibbles with the columns documented at <code><a href="sm_self_citation.html">sm_
 sets, so downstream filtering is reliable: see <code><a href="sm_affiliation_signals.html">sm_affiliation_signals()</a></code>
 (<code>match_signal</code>), <code><a href="sm_affiliation_methods.html">sm_affiliation_methods()</a></code> (<code>match_method</code>), and
 <code><a href="sm_match_types.html">sm_match_types()</a></code> (coverage <code>match_type</code>).</p>
+<p>The <code>vocabulary</code> column of <code>corpus$concepts</code> is the exception: it stays
+character, so concept tables bind and hash as before, and its values are
+the names returned by <code><a href="sm_concept_vocabularies.html">sm_concept_vocabularies()</a></code>. Readers write these
+names, and <code><a href="sm_corpus.html">sm_corpus()</a></code> and <code><a href="sm_corpus_from_tables.html">sm_corpus_from_tables()</a></code> rename legacy
+spellings to them. <code>sm_concept_vocabularies(describe = TRUE)</code> returns a
+tibble with the factor columns <code>level</code> and <code>family</code> and a character
+<code>description</code>.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

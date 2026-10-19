@@ -25,7 +25,8 @@ sm_summary_period(corpus, call = rlang::caller_env())
 A tibble with one row per year and columns: `year`, `n_works`,
 `mean_citations`, `median_citations`, `total_citations`, `n_oa`,
 `pct_oa`, `n_authors` (unique authors active in that year),
-`mean_authors_per_work`.
+`mean_authors_per_work` (distinct authors per work, so an author with
+several address rows counts once).
 
 ## See also
 

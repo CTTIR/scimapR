@@ -43,6 +43,6 @@ net <- sm_network_cocitation(corpus)
 sm_export_gephi(net, tempfile(fileext = ".gexf"))
 #> Warning: Unknown or uninitialised column: `from`.
 #> Warning: Unknown or uninitialised column: `to`.
-#> ✔ Network exported to /tmp/RtmplGuAFS/file21bf6f4d0790.gexf
+#> ✔ Network exported to /tmp/RtmpusxX3b/file21bf50bb1028.gexf
 # }
 ```

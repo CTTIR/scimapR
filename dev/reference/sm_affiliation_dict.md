@@ -45,6 +45,16 @@ including its `unicode` argument). In that mode the shipped row
 in a German compound word. The first pattern that matches wins, in row
 order, so add specific rows before generic ones.
 
+The rows for "Bundeswehr Hospital" match its German name, its
+abbreviation, or "hospital" after "Bundeswehr" or after "German Armed
+Forces", "German Army" or "German Military", with at most one word in
+between. A bare "military hospital", "army hospital" or "armed forces
+hospital", which names hospitals of many countries, stays unmatched; up
+to scimapR 0.4.0 these phrases matched "Bundeswehr Hospital" wherever
+they appeared. The dictionary is a starting point: for an audit of your
+own institutions, pass a dictionary of them to
+[`sm_affiliation_match()`](https://cttir.github.io/scimapR/dev/reference/sm_affiliation_match.md).
+
 ## See also
 
 [`sm_affiliation_match()`](https://cttir.github.io/scimapR/dev/reference/sm_affiliation_match.md),
@@ -54,21 +64,20 @@ order, so add specific rows before generic ones.
 
 ``` r
 sm_affiliation_dict
-#> # A tibble: 14 × 3
-#>    institution           pattern                         email_domain  
-#>    <chr>                 <chr>                           <chr>         
-#>  1 Bundeswehr Hospital   "bundeswehrkrankenhaus"         bundeswehr.org
-#>  2 Bundeswehr Hospital   "armed forces hospital"         NA            
-#>  3 Bundeswehr Hospital   "army hospital"                 NA            
-#>  4 Bundeswehr Hospital   "military hospital"             NA            
-#>  5 Bundeswehr Hospital   "bwkrhs"                        NA            
-#>  6 Charite Berlin        "charit[eé]"                    charite.de    
-#>  7 Charite Berlin        "universit[aä]tsmedizin berlin" NA            
-#>  8 Walter Reed           "walter reed"                   NA            
-#>  9 Walter Reed           "wrair"                         NA            
-#> 10 US Army               "u\\.?s\\.? army"               army.mil      
-#> 11 US Army               "united states army"            NA            
-#> 12 NATO                  "\\bnato\\b"                    NA            
-#> 13 Robert Koch Institute "robert koch"                   rki.de        
-#> 14 Robert Koch Institute "robert-koch-institut"          NA            
+#> # A tibble: 13 × 3
+#>    institution           pattern                                    email_domain
+#>    <chr>                 <chr>                                      <chr>       
+#>  1 Bundeswehr Hospital   "bundeswehrkrankenhaus"                    bundeswehr.…
+#>  2 Bundeswehr Hospital   "bundeswehr\\W+(\\w+\\W+)?hospital"        NA          
+#>  3 Bundeswehr Hospital   "german (armed forces|army|military)\\W+(… NA          
+#>  4 Bundeswehr Hospital   "bwkrhs"                                   NA          
+#>  5 Charite Berlin        "charit[eé]"                               charite.de  
+#>  6 Charite Berlin        "universit[aä]tsmedizin berlin"            NA          
+#>  7 Walter Reed           "walter reed"                              NA          
+#>  8 Walter Reed           "wrair"                                    NA          
+#>  9 US Army               "u\\.?s\\.? army"                          army.mil    
+#> 10 US Army               "united states army"                       NA          
+#> 11 NATO                  "\\bnato\\b"                               NA          
+#> 12 Robert Koch Institute "robert koch"                              rki.de      
+#> 13 Robert Koch Institute "robert-koch-institut"                     NA          
 ```

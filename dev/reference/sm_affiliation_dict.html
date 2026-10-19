@@ -83,6 +83,14 @@ mode the shipped row <code>\bnato\b</code> no longer matches "NATO" directly
 followed by an umlaut, as in a German compound word. The first pattern
 that matches wins, in row order, so add specific rows before generic
 ones.</p>
+<p>The rows for "Bundeswehr Hospital" match its German name, its
+abbreviation, or "hospital" after "Bundeswehr" or after "German Armed
+Forces", "German Army" or "German Military", with at most one word in
+between. A bare "military hospital", "army hospital" or "armed forces
+hospital", which names hospitals of many countries, stays unmatched; up
+to scimapR 0.4.0 these phrases matched "Bundeswehr Hospital" wherever
+they appeared. The dictionary is a starting point: for an audit of your
+own institutions, pass a dictionary of them to <code><a href="sm_affiliation_match.html">sm_affiliation_match()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -92,23 +100,22 @@ ones.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">sm_affiliation_dict</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 14 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    institution           pattern                         email_domain  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> Bundeswehr Hospital   <span style="color: #949494;">"</span>bundeswehrkrankenhaus<span style="color: #949494;">"</span>         bundeswehr.org</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> Bundeswehr Hospital   <span style="color: #949494;">"</span>armed forces hospital<span style="color: #949494;">"</span>         <span style="color: #BB0000;">NA</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> Bundeswehr Hospital   <span style="color: #949494;">"</span>army hospital<span style="color: #949494;">"</span>                 <span style="color: #BB0000;">NA</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> Bundeswehr Hospital   <span style="color: #949494;">"</span>military hospital<span style="color: #949494;">"</span>             <span style="color: #BB0000;">NA</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> Bundeswehr Hospital   <span style="color: #949494;">"</span>bwkrhs<span style="color: #949494;">"</span>                        <span style="color: #BB0000;">NA</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> Charite Berlin        <span style="color: #949494;">"</span>charit[eé]<span style="color: #949494;">"</span>                    charite.de    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> Charite Berlin        <span style="color: #949494;">"</span>universit[aä]tsmedizin berlin<span style="color: #949494;">"</span> <span style="color: #BB0000;">NA</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> Walter Reed           <span style="color: #949494;">"</span>walter reed<span style="color: #949494;">"</span>                   <span style="color: #BB0000;">NA</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> Walter Reed           <span style="color: #949494;">"</span>wrair<span style="color: #949494;">"</span>                         <span style="color: #BB0000;">NA</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> US Army               <span style="color: #949494;">"</span>u\\.?s\\.? army<span style="color: #949494;">"</span>               army.mil      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> US Army               <span style="color: #949494;">"</span>united states army<span style="color: #949494;">"</span>            <span style="color: #BB0000;">NA</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> NATO                  <span style="color: #949494;">"</span>\\bnato\\b<span style="color: #949494;">"</span>                    <span style="color: #BB0000;">NA</span>            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> Robert Koch Institute <span style="color: #949494;">"</span>robert koch<span style="color: #949494;">"</span>                   rki.de        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">14</span> Robert Koch Institute <span style="color: #949494;">"</span>robert-koch-institut<span style="color: #949494;">"</span>          <span style="color: #BB0000;">NA</span>            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 13 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    institution           pattern                                    email_domain</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                 <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> Bundeswehr Hospital   <span style="color: #949494;">"</span>bundeswehrkrankenhaus<span style="color: #949494;">"</span>                    bundeswehr.…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> Bundeswehr Hospital   <span style="color: #949494;">"</span>bundeswehr\\W+(\\w+\\W+)?hospital<span style="color: #949494;">"</span>        <span style="color: #BB0000;">NA</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> Bundeswehr Hospital   <span style="color: #949494;">"</span>german (armed forces|army|military)\\W+(… <span style="color: #BB0000;">NA</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> Bundeswehr Hospital   <span style="color: #949494;">"</span>bwkrhs<span style="color: #949494;">"</span>                                   <span style="color: #BB0000;">NA</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> Charite Berlin        <span style="color: #949494;">"</span>charit[eé]<span style="color: #949494;">"</span>                               charite.de  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> Charite Berlin        <span style="color: #949494;">"</span>universit[aä]tsmedizin berlin<span style="color: #949494;">"</span>            <span style="color: #BB0000;">NA</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> Walter Reed           <span style="color: #949494;">"</span>walter reed<span style="color: #949494;">"</span>                              <span style="color: #BB0000;">NA</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> Walter Reed           <span style="color: #949494;">"</span>wrair<span style="color: #949494;">"</span>                                    <span style="color: #BB0000;">NA</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> US Army               <span style="color: #949494;">"</span>u\\.?s\\.? army<span style="color: #949494;">"</span>                          army.mil    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> US Army               <span style="color: #949494;">"</span>united states army<span style="color: #949494;">"</span>                       <span style="color: #BB0000;">NA</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span> NATO                  <span style="color: #949494;">"</span>\\bnato\\b<span style="color: #949494;">"</span>                               <span style="color: #BB0000;">NA</span>          </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">12</span> Robert Koch Institute <span style="color: #949494;">"</span>robert koch<span style="color: #949494;">"</span>                              rki.de      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">13</span> Robert Koch Institute <span style="color: #949494;">"</span>robert-koch-institut<span style="color: #949494;">"</span>                     <span style="color: #BB0000;">NA</span>          </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

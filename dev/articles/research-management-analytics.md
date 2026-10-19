@@ -66,11 +66,11 @@ names(reference)[1] <- "id"
 cov <- sm_coverage_audit(corpus, reference, by = "year", match = "doi")
 cov
 summary(cov)
-#> # A tibble: 1 × 8
+#> # A tibble: 1 × 9
 #>   recall precision    f1 n_corpus n_reference n_matched n_corpus_only
 #>    <dbl>     <dbl> <dbl>    <int>       <int>     <int>         <int>
 #> 1      1      0.75 0.857      200         150       150            50
-#> # ℹ 1 more variable: n_reference_only <int>
+#> # ℹ 2 more variables: n_reference_only <int>, n_corpus_matched <int>
 ```
 
 ``` r
@@ -211,18 +211,37 @@ automatically
 exposes the same flags on `works`).
 
 A treated-vs-control comparison uses difference-in-differences. Here we
-tag two illustrative institution groups.
+tag two illustrative institution groups, giving each work to one of
+them.
 
 ``` r
 
-corpus$authorships$institution_name <- rep(
-  c("Treated Inst", "Control Inst"),
-  length.out = nrow(corpus$authorships))
+group <- rep(c("Treated Inst", "Control Inst"),
+             length.out = nrow(corpus$works))
+corpus$authorships$institution_name <-
+  group[match(corpus$authorships$work_id, corpus$works$work_id)]
 
 did <- sm_did(corpus, treated = "Treated Inst", control = "Control Inst",
               intervention_year = 2020, outcome = "count")
 did
 ```
+
+A work co-authored by both groups belongs to both series and pulls them
+together.
+[`sm_did()`](https://cttir.github.io/scimapR/dev/reference/sm_did.md)
+warns about such works and lists them in `did$shared_works`;
+`shared = "exclude"` leaves them out of both series and
+`shared = "lead"` gives each to the group of its lead author.
+
+For `outcome = "leadership"`, `institutions` (in
+[`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md))
+or `institution_aware = TRUE` (in
+[`sm_did()`](https://cttir.github.io/scimapR/dev/reference/sm_did.md)
+and
+[`sm_synth()`](https://cttir.github.io/scimapR/dev/reference/sm_synth.md))
+count only the works whose corresponding author, or the author in
+another `lead_role` such as `"first"`, belongs to the focal
+institutions.
 
 ## 4. Counting and robust impact
 

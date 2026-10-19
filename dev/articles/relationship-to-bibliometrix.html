@@ -202,7 +202,10 @@ capabilities.</p>
 <div class="section level3">
 <h3 id="round-trip-preservation">Round-trip preservation<a class="anchor" aria-label="anchor" href="#round-trip-preservation"></a>
 </h3>
-<p>The round-trip preserves DOI, title, year, and author count:</p>
+<p>The round trip keeps the DOIs, titles, abstracts and years of the
+works and the authors of each work with their addresses. Addresses and
+other text fields, such as source titles, document types and Keywords
+Plus, come back in upper case, as bibliometrix stores them:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">M</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_to_bibliometrix.html">sm_to_bibliometrix</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
 <span><span class="va">corpus_rt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_sm_corpus.html">as_sm_corpus</a></span><span class="op">(</span><span class="va">M</span><span class="op">)</span></span>

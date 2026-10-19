@@ -59,7 +59,10 @@ Missing keys produce a
 [`cli::cli_warn`](https://cli.r-lib.org/reference/cli_abort.html) and
 skip that source rather than erroring. Internally, row-binds use a
 type-safe helper so a `NULL`/empty source never corrupts a column's
-type.
+type. After a merge into `concepts`, legacy spellings in its
+`vocabulary` column are renamed to the names of
+[`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md),
+without a message.
 
 ## See also
 
@@ -70,6 +73,7 @@ Other corpus:
 [`is_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/is_sm_corpus.md),
 [`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md),
 [`sm_build_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_build_corpus.md),
+[`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md),
 [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md),
 [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_from_tables.md),
 [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md),

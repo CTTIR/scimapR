@@ -6,7 +6,12 @@ first-class and side-stepping format-specific parsers. Required columns
 are validated against the `sm_corpus` schema, column types are coerced
 (with informative messages), absent optional tables are filled with
 correctly-typed 0-row tibbles, and the result is validated before being
-returned.
+returned. Legacy and common spellings of concept vocabularies (such as
+`"keywords-author"` or `"Author Keywords"`) are renamed to the names of
+[`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md),
+with a message. Values that name no known vocabulary are kept as written
+and listed in the same message, each time a corpus is built from them;
+name a vocabulary of your own `"custom"`.
 
 This is the recommended ingestion path for arbitrary tabular sources.
 
@@ -40,7 +45,7 @@ sm_corpus_from_tables(
 
   Logical (default `TRUE`); coerce supplied columns to the schema's
   types. When `FALSE`, columns are used as-is (missing columns are still
-  filled with typed `NA`).
+  filled with typed `NA`, and concept vocabularies are still renamed).
 
 - metadata:
 
@@ -67,6 +72,7 @@ Other corpus:
 [`is_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/is_sm_corpus.md),
 [`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md),
 [`sm_build_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_build_corpus.md),
+[`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md),
 [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md),
 [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md),
 [`sm_materialise()`](https://cttir.github.io/scimapR/dev/reference/sm_materialise.md),

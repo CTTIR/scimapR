@@ -116,10 +116,36 @@ columns.</p>
 distinct entities contributes \(1/k\) of credit (and \(1/k\) of its
 citations) to each. For <code>level = "source"</code> each work has a single source, so
 fractional and full counts coincide.</p>
+<p>For <code>level = "institution"</code> each authorship row is labelled on its own, by
+the first of these <code>authorships</code> columns that has a value in that row:
+<code>institution_match</code> (from <code><a href="sm_affiliation_match.html">sm_affiliation_match()</a></code>), <code>institution_name</code>,
+<code>institution_id</code> (named by <code>corpus$institutions$display_name</code> when that
+table lists the id) and <code>raw_affiliation</code>. A row labelled through
+<code>institution_id</code> has that id as <code>entity_id</code>; every other row has its label
+as both <code>entity_id</code> and <code>entity_name</code>. Rows labelled by their raw
+affiliation string are counted un-disambiguated, with a warning, because
+<code>sm_count()</code> applies no affiliation dictionary itself: run
+<code><a href="sm_affiliation_match.html">sm_affiliation_match()</a></code> with a dictionary of your institutions first to
+count them.
+The order is the one <code><a href="sm_coverage_audit.html">sm_coverage_audit()</a></code> uses for its affiliation
+levels, which however takes one column for all rows and falls back to
+country codes instead of raw strings. Up to scimapR 0.4.0, <code>sm_count()</code>
+used one column for every row (the first of <code>institution_id</code>,
+<code>institution_match</code> and <code>raw_affiliation</code> with any value), so rows without
+a value in it were left out, and it matched raw strings against the
+shipped <a href="sm_affiliation_dict.html">sm_affiliation_dict</a> before counting them.</p>
+<p><code><a href="sm_attribute_institution.html">sm_attribute_institution()</a></code> keeps <code>institution_match</code>, so its roll-up of
+the matches to a controlled vocabulary (ROR ids and names in
+<code>institution_id</code> and <code>institution_name</code>) is counted only for rows without
+a match; up to scimapR 0.4.0 the counts followed <code>institution_id</code>. To
+count by the vocabulary, put its names first:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>a <span class="ot">&lt;-</span> corpus<span class="sc">$</span>authorships</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>corpus<span class="sc">$</span>authorships<span class="sc">$</span>institution_match <span class="ot">&lt;-</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">coalesce</span>(a<span class="sc">$</span>institution_name, a<span class="sc">$</span>institution_match)</span></code></pre><p></p></div>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="sm_metric_summary.html">sm_metric_summary()</a></code></p>
+    <div class="dont-index"><p><code><a href="sm_metric_summary.html">sm_metric_summary()</a></code>, <code><a href="sm_affiliation_match.html">sm_affiliation_match()</a></code></p>
 <p>Other counting:
 <code><a href="sm_citation_maturity.html">sm_citation_maturity()</a></code>,
 <code><a href="sm_metric_summary.html">sm_metric_summary()</a></code></p></div>
@@ -143,6 +169,26 @@ fractional and full counts coincide.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> A000000006 Fatima Brown           3  0.644               3.42</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> A000000040 Lars Garcia            2  0.625               2.88</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 48 more rows</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Institutions: match the affiliation strings with a dictionary of your</span></span></span>
+<span class="r-in"><span><span class="co"># institutions first, then count</span></span></span>
+<span class="r-in"><span><span class="va">a</span> <span class="op">&lt;-</span> <span class="va">corpus</span><span class="op">$</span><span class="va">authorships</span></span></span>
+<span class="r-in"><span><span class="va">corpus</span><span class="op">$</span><span class="va">authorships</span><span class="op">$</span><span class="va">raw_affiliation</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">a</span><span class="op">$</span><span class="va">position</span> <span class="op">==</span> <span class="fl">1L</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"Unit North, Northtown"</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"Department of Surgery, Unit South"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dict</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"Unit North"</span> <span class="op">=</span> <span class="st">"unit north"</span>, <span class="st">"Unit South"</span> <span class="op">=</span> <span class="st">"unit south"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">matched</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_affiliation_match.html">sm_affiliation_match</a></span><span class="op">(</span><span class="va">corpus</span>, patterns <span class="op">=</span> <span class="va">dict</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Affiliation matching flagged 145 authorships across 2 institutions.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> By signal: name_token: 145. See `sm_affiliation_summary()` for the full</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   breakdown.</span>
+<span class="r-in"><span><span class="fu">sm_count</span><span class="op">(</span><span class="va">matched</span>, method <span class="op">=</span> <span class="st">"fractional"</span>, level <span class="op">=</span> <span class="st">"institution"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   entity_id  entity_name n_works credit weighted_citations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Unit North Unit North       30     16               226.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Unit South Unit South       28     14               208.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

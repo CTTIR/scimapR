@@ -71,7 +71,9 @@ from the matched institution names.</p>
 
 <dl><dt id="arg-corpus">corpus<a class="anchor" aria-label="anchor" href="#arg-corpus"></a></dt>
 <dd><p>An <code>sm_corpus</code>. If it has no <code>institution_match</code> column,
-<code><a href="sm_affiliation_match.html">sm_affiliation_match()</a></code> is run first with default settings.</p></dd>
+<code><a href="sm_affiliation_match.html">sm_affiliation_match()</a></code> is run first with default settings, that is
+with the shipped <a href="sm_affiliation_dict.html">sm_affiliation_dict</a>; to attribute your own
+institutions, run it first with a dictionary of them.</p></dd>
 
 
 <dt id="arg-vocabulary">vocabulary<a class="anchor" aria-label="anchor" href="#arg-vocabulary"></a></dt>
@@ -92,10 +94,34 @@ ships at <code>system.file("extdata", "example_ror.csv", package = "scimapR")</c
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The <code>corpus</code> with its <code>authorships</code> table gaining <code>institution_id</code>
-and <code>institution_name</code> columns (for <code>"ror"</code>, <code>institution_id</code> holds the
-ROR id). Unmatched rows keep <code>NA</code> – the function never errors on
-unmatched affiliations. Type-stable.</p>
+    <p>The <code>corpus</code> with <code>institution_id</code> and <code>institution_name</code> set on
+the <code>authorships</code> rows that match the vocabulary (for <code>"ror"</code>,
+<code>institution_id</code> holds the ROR id; for <code>"custom"</code>, <code>CUST:</code> and the
+matched name). Unmatched rows keep the <code>institution_id</code> and
+<code>institution_name</code> they had, such as the OpenAlex institution ids of
+a fetched corpus, or <code>NA</code> – the function never errors on unmatched
+affiliations. Type-stable.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The <code>institution_match</code> column stays as it is.
+<code>sm_count(level = "institution")</code> labels each authorship by
+<code>institution_match</code> before <code>institution_name</code> and <code>institution_id</code>, so
+the roll-up to the vocabulary reaches the counts only for authorships
+without a match, and the <code>"affiliation"</code> breakdown of
+<code><a href="sm_coverage_audit.html">sm_coverage_audit()</a></code> uses <code>institution_name</code> only when no authorship has
+a match. Up to scimapR 0.4.0, <code><a href="sm_count.html">sm_count()</a></code> counted by <code>institution_id</code>
+whenever any authorship had one. To count or break down by the
+vocabulary, put its names first, for example:</p>
+<p></p><div class="sourceCode"><pre><code><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>a <span class="ot">&lt;-</span> corpus<span class="sc">$</span>authorships</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>corpus<span class="sc">$</span>authorships<span class="sc">$</span>institution_match <span class="ot">&lt;-</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">coalesce</span>(a<span class="sc">$</span>institution_name, a<span class="sc">$</span>institution_match)</span></code></pre><p></p></div>
+<p>The ids written to matched rows are ROR ids or <code>CUST:</code> ids, which join
+<code>corpus$institutions</code> only where that table lists them, so functions
+that read the institutions table for these rows (such as
+<code>sm_audit_geographic(by = "region")</code>) find no entry for them. Unmatched
+rows keep their earlier ids and so their entries. Up to scimapR 0.4.0,
+unmatched rows lost their <code>institution_id</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

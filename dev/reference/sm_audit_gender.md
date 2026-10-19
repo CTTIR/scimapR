@@ -74,7 +74,13 @@ An `sm_audit_gender` S3 object containing:
 
 - by_position:
 
-  Tibble breaking down gender by authorship position.
+  Tibble breaking down gender by authorship position: `position_type`
+  (`"first"`, `"corresponding"` for a corresponding author who is not
+  first, else `"middle/last"`), `inferred_gender`, `count` and `pct`.
+  Each work and author counts once, however many address rows the author
+  has; corresponding authors are those with
+  `authorships$is_corresponding = TRUE` (`NA` counts as not
+  corresponding).
 
 - coverage:
 

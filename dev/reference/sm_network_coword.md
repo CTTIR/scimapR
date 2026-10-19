@@ -13,6 +13,7 @@ sm_network_coword(
   ngram = 1L,
   min_freq = 5L,
   stopwords = NULL,
+  vocabulary = NULL,
   call = rlang::caller_env()
 )
 ```
@@ -48,6 +49,16 @@ sm_network_coword(
   [tidytext::stop_words](https://juliasilge.github.io/tidytext/reference/stop_words.html).
   Set to `NULL` (default) for no additional stopwords.
 
+- vocabulary:
+
+  For `field = "keywords"` or `"concepts"`, the concept vocabularies to
+  take terms from: names of vocabularies or of families of
+  [`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md),
+  such as `"author-keywords"` or `"indexer_keyword"`. `NULL` (default)
+  means the author keywords for `"keywords"` (see Details) and every
+  vocabulary for `"concepts"`. Must be `NULL` for `"title"` and
+  `"abstract"`, whose terms come from the text.
+
 - call:
 
   Caller environment for error reporting.
@@ -62,15 +73,24 @@ frequency). Edges carry a `weight` column (co-occurrence count).
 ## Details
 
 When `field = "concepts"`, terms come from the `concept_name` column in
-`corpus$concepts` (no tokenisation needed).
+`corpus$concepts` (no tokenisation needed), of every vocabulary or of
+those named in `vocabulary`.
 
-When `field` is `"title"`, `"abstract"`, or `"keywords"`, the text is
-tokenised with
+When `field = "keywords"`, terms are whole keywords from
+`corpus$concepts`, not tokenised. By default these are the author
+keywords (the `author_keyword` family: `author-keywords`,
+`manual-tags`); a corpus without any falls back to the indexer keywords
+(the `indexer_keyword` family: Keywords Plus, Scopus index keywords,
+Zotero automatic tags and MeSH) with a message, and a corpus with
+neither gives an empty network with a message. The fallback applies to
+the whole corpus, not per work.
+
+When `field` is `"title"` or `"abstract"`, the text is tokenised with
 [`tidytext::unnest_tokens()`](https://juliasilge.github.io/tidytext/reference/unnest_tokens.html)
-using the chosen `ngram` size, stopwords are removed, and terms below
-`min_freq` are dropped.
+using the chosen `ngram` size and stopwords are removed.
 
-Empty input returns an empty undirected `tbl_graph`.
+Terms are lower-cased, and terms below `min_freq` are dropped. Empty
+input returns an empty undirected `tbl_graph`.
 
 ## See also
 
@@ -112,4 +132,47 @@ g
 #> 2     1     3     26
 #> 3     1     4     30
 #> # ℹ 42 more rows
+
+# Keyword networks from a Web of Science file
+path <- tempfile(fileext = ".txt")
+writeLines(c(
+  "PT J", "AU Doe, J", "TI First work",
+  "DE heat illness; recruits; cooling", "ID HYPERTHERMIA; EXERCISE",
+  "PY 2021", "UT WOS:000000000000001", "ER",
+  "PT J", "AU Roe, R", "TI Second work",
+  "DE heat illness; recruits", "ID HYPERTHERMIA; EXERCISE",
+  "PY 2022", "UT WOS:000000000000002", "ER", "EF"
+), path)
+wos <- sm_read_wos(path, verbose = FALSE)
+sm_network_coword(wos, field = "keywords", min_freq = 2L)
+#> # A tbl_graph: 2 nodes and 1 edges
+#> #
+#> # An unrooted tree
+#> #
+#> # Node Data: 2 × 2 (active)
+#>   name          freq
+#>   <chr>        <int>
+#> 1 heat illness     2
+#> 2 recruits         2
+#> #
+#> # Edge Data: 1 × 3
+#>    from    to weight
+#>   <int> <int>  <int>
+#> 1     1     2      2
+sm_network_coword(wos, field = "keywords", vocabulary = "keywords-plus",
+                  min_freq = 2L)
+#> # A tbl_graph: 2 nodes and 1 edges
+#> #
+#> # An unrooted tree
+#> #
+#> # Node Data: 2 × 2 (active)
+#>   name          freq
+#>   <chr>        <int>
+#> 1 exercise         2
+#> 2 hyperthermia     2
+#> #
+#> # Edge Data: 1 × 3
+#>    from    to weight
+#>   <int> <int>  <int>
+#> 1     1     2      2
 ```

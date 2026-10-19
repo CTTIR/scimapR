@@ -97,7 +97,15 @@ the parser skips lines that do not look like the header. Key columns
 matched (case-insensitive): Title, DOI, Authors, Source title
 (or Source Title), PubYear (or Publication Year), Times cited,
 Document Type (or Publication Type), Abstract, Dimensions ID,
-MeSH terms, Author Keywords, ISSN.</p>
+MeSH terms, Author Keywords, ISSN and Corresponding Authors.</p>
+<p>The authors that the Corresponding Authors column names (<code>;</code>-separated,
+an affiliation in parentheses after a name is ignored) get
+<code>authorships$is_corresponding = TRUE</code> and the other authors of the
+record <code>FALSE</code>; names are compared by surname and given names or
+initials. A name that fits several authors equally, such as "Wang, Y"
+for Wang Yan and Wang Yu, leaves them <code>NA</code>. Without that column, or when
+it names none of the record's authors for certain, <code>is_corresponding</code> is
+<code>NA</code> (unknown).</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

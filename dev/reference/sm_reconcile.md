@@ -36,7 +36,8 @@ autoplot(object, ...)
 
   An `sm_corpus` or a data frame with DOI and/or title columns (see
   [`sm_coverage_audit()`](https://cttir.github.io/scimapR/dev/reference/sm_coverage_audit.md)
-  for accepted column aliases).
+  for accepted column aliases and for how the rows of a data frame are
+  identified).
 
 - match:
 
@@ -46,7 +47,9 @@ autoplot(object, ...)
 - threshold:
 
   Minimum Jaro-Winkler title similarity (`[0, 1]`) to accept a title
-  match (default `0.9`).
+  match (default `0.9`). Titles only match between records published at
+  most one year apart (when both years are known) and never between two
+  records with different DOIs.
 
 - call:
 

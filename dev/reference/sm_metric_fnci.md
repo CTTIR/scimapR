@@ -74,9 +74,12 @@ baseline cell (by default its field and year). Values \> 1.0 indicate
 above-average impact.
 
 For `"openalex_concepts"`, the highest-scoring level-0 concept from the
-concepts table is used. For `"mesh"`, MeSH headings are used (requires
-MeSH data in concepts; see below). For `"manual"`, a `field` column must
-already exist in `corpus$works`.
+concepts table is used. For `"mesh"`, MeSH headings are used: concepts
+of the `"mesh"` vocabulary of
+[`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md),
+also when spelled `"MEDLINE"` (requires MeSH data in concepts; see
+below). For `"manual"`, a `field` column must already exist in
+`corpus$works`.
 
 ## Small cells
 

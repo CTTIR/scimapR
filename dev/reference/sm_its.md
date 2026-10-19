@@ -14,6 +14,8 @@ sm_its(
   outcome = c("count", "share_q1", "cnci", "leadership"),
   family = NULL,
   lag = NULL,
+  institutions = NULL,
+  lead_role = c("corresponding", "first", "last", "first_or_last", "any_lead"),
   call = rlang::caller_env()
 )
 
@@ -66,8 +68,9 @@ autoplot(object, ...)
 
   `"leadership"`
 
-  :   Share of works with a corresponding/leadership author (uses
-      `authorships$is_corresponding`).
+  :   Share of works led through the author role `lead_role` (by default
+      the corresponding author, `authorships$is_corresponding`), by one
+      of `institutions` when they are given; see Details.
 
 - family:
 
@@ -81,6 +84,27 @@ autoplot(object, ...)
   Citation-maturity lag in years (default `2`). For citation-based
   outcomes (`"cnci"`), the most recent `lag` years are citation-immature
   and are excluded from the fit; this is reported in the print method.
+
+- institutions:
+
+  For `outcome = "leadership"`: `NULL` (default) or a character vector
+  of focal institution labels. A work then counts as led when an
+  authorship in the role `lead_role` belongs to one of them, that is
+  when its `institution_match`, `institution_name` or `institution_id`,
+  or the name of that id in `corpus$institutions`, is one of the labels
+  (run
+  [`sm_affiliation_match()`](https://cttir.github.io/scimapR/dev/reference/sm_affiliation_match.md)
+  first). A label that no authorship carries gives a warning naming the
+  nearest labels; when none is found, `sm_its()` aborts.
+
+- lead_role:
+
+  For `outcome = "leadership"`: the author role that leads a work.
+  `"corresponding"` (default) is an author with
+  `is_corresponding = TRUE`, `"first"` and `"last"` are the authors with
+  the lowest and the highest `position` of the work, `"first_or_last"`
+  either, and `"any_lead"` the first, last or corresponding author.
+  Roles other than `"corresponding"` need `institutions`.
 
 - call:
 
@@ -105,9 +129,15 @@ An `sm_its` S3 object with components: `model` (the fitted `glm`),
 `conf.low`, `conf.high`, `statistic`, `p.value`), `series` (tibble:
 `year`, `observed`, `fitted`, `counterfactual`), and metadata
 (`outcome`, `intervention_year`, `family`, `lag`, `provisional_years`,
-`dropped_years`). `dropped_years` (integer) lists the years left out for
-lack of a usable value, `provisional_years` (integer) the
-citation-immature years excluded after them.
+`dropped_years`, `leadership`). `dropped_years` (integer) lists the
+years left out for lack of a usable value, `provisional_years` (integer)
+the citation-immature years excluded after them. `leadership` holds the
+definition used for `outcome = "leadership"`, a list of `lead_role`,
+`institution_aware` (`FALSE`), `institutions` (the focal labels or
+`NULL`) and `label_column` (the column that labels the institutions of
+the corpus, `institution_match`, `institution_name` or `institution_id`,
+the first with a value; `NA` without `institutions`), and is `NULL` for
+the other outcomes.
 
 `print` returns `x` invisibly.
 
@@ -125,6 +155,34 @@ is dropped with a warning and listed in `dropped_years`: no work of the
 year has a journal quartile (`"share_q1"`) or a finite impact value
 (`"cnci"`). For `"cnci"` the citation-immature years are excluded after
 that and listed in `provisional_years`, so no year is in both.
+
+For `"leadership"` the share of a year is over the works whose lead is
+known, and that number of works weights the year in the fit. A work
+whose authorships all have `is_corresponding = NA` (unknown, as the
+readers of sources without corresponding-author data record it; see
+[`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md))
+leaves the denominator for `lead_role = "corresponding"`, with or
+without `institutions`; up to scimapR 0.4.0 it counted as not led. So
+does a work without authorships, and for the position roles a work whose
+positions are all `NA`. For `"any_lead"` an unknown corresponding author
+counts as not leading, so the work stays in the denominator. A year in
+which no work has a known lead is dropped with a warning, and `sm_its()`
+aborts when no work has one. With `institutions` the denominator is
+every work of the year with a known lead, not only the works with an
+authorship at the focal institutions.
+
+A focal label is compared with every label column of an authorship row
+(`institution_match`, `institution_name`, `institution_id` and the name
+of that id), as group membership in
+[`sm_did()`](https://cttir.github.io/scimapR/dev/reference/sm_did.md)
+and
+[`sm_synth()`](https://cttir.github.io/scimapR/dev/reference/sm_synth.md)
+is, so a row with `institution_match` "A" and `institution_name` "B"
+belongs to both "A" and "B".
+[`sm_count()`](https://cttir.github.io/scimapR/dev/reference/sm_count.md)
+instead labels each row by the first of these columns with a value. The
+print method names the column that labels the institutions of the corpus
+(`leadership$label_column`).
 
 At least 4 years must remain after these exclusions, with 2 or more
 before `intervention_year` and 2 or more from it on, so that the
@@ -173,4 +231,32 @@ its
 ggplot2::autoplot(its)
 
 # }
+
+# share of works whose corresponding author is at a focal unit
+fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
+dict <- readr::read_csv(
+  sm_example_files("example_realuse_affiliation_dict.csv"),
+  col_types = "ccc"
+)
+fix <- sm_affiliation_match(fix, dict)
+#> ✔ Affiliation matching flagged 427 authorships across 4 institutions.
+#> ℹ By signal: name_token: 427. See `sm_affiliation_summary()` for the full
+#>   breakdown.
+lead <- sm_its(fix, intervention_year = 2021, outcome = "leadership",
+               institutions = "Armed Forces Hospital Northtown")
+lead$series
+#> # A tibble: 11 × 4
+#>     year observed fitted counterfactual
+#>    <int>    <dbl>  <dbl>          <dbl>
+#>  1  2016    0      0.136          0.136
+#>  2  2017    0      0.161          0.161
+#>  3  2018    0.25   0.186          0.186
+#>  4  2019    0.25   0.211          0.211
+#>  5  2020    0.2    0.236          0.236
+#>  6  2021    0.222  0.192          0.261
+#>  7  2022    0.15   0.198          0.286
+#>  8  2023    0.182  0.203          0.311
+#>  9  2024    0.273  0.209          0.336
+#> 10  2025    0.2    0.215          0.361
+#> 11  2026    0.2    0.221          0.386
 ```

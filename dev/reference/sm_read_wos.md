@@ -52,11 +52,60 @@ object.
 The native parser follows the Web of Science Core Collection export
 format. Each record begins with `PT ` (publication type) and ends with
 `ER`. Field tags are two uppercase letters followed by a single space.
-Continuation lines begin with three spaces. Key tags parsed: AU
-(authors), TI (title), SO (source), AB (abstract), DI (DOI), PY (year),
-DT (document type), C1 (addresses), RP (reprint author), CR (cited
-references), NR (number of references), TC (times cited), SC (subject
-category), UT (unique identifier), LA (language).
+Continuation lines begin with three spaces. Tags parsed: AU or AF
+(authors), TI (title), SO (source), SN and EI (ISSN and electronic
+ISSN), J9 and JI (source abbreviations), AB (abstract), DI (DOI), PY
+(year), DT (document type), LA (language), TC (times cited), UT
+(accession number, kept in `provenance`), PM (PubMed ID), C1
+(addresses), RP (corresponding authors), CR (cited references), DE
+(author keywords), ID (Keywords Plus), WC (Web of Science categories)
+and SC (research areas). Other tags are not read.
+
+Each distinct SO becomes a row of `sources`, with `issn_l` from SN (EI
+when SN is missing), `issn` holding SN and EI, and the abbreviations J9
+and JI in the columns `abbreviation` and `iso_abbreviation`.
+
+DE, ID, WC and SC become `concepts`, one row per `;`-separated term, in
+the vocabularies `"author-keywords"`, `"keywords-plus"`,
+`"wos-category"` and `"wos-subject-category"` of
+[`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md).
+Terms keep the case of the file.
+
+Author names are stored in the AU form, such as "J Smith" for "Smith,
+J", and `authors$display_name_alternatives` keeps the name as the file
+writes it, which tells a surname of several words such as "Garcia Lopez"
+from the initials.
+
+Both parsers write one authorship row per author and address. The names
+in the brackets of C1 link authors to addresses: each name belongs to
+the author with the same full name (from AF), else to the one with the
+same surname and initials, else to the one with the same surname and
+first initial, so a short surname such as "He" never takes the address
+of "Chen". An address that C1 lists without names, as older records do,
+belongs to every author of the record, so each of them gets a row for
+it. An address whose names designate none of the authors belongs to the
+author of a single-author record and else to nobody.
+
+The corresponding authors come from RP, which names them before
+"(corresponding author)" ("(reprint author)" in older files), in any
+case, with each name and its address on a line of its own or on one
+line. The authors these names designate, matched like the names of C1,
+get `is_corresponding = TRUE` on all their rows and the other authors
+`FALSE`. When a name fits several authors equally (namesakes with the
+same surname and initials), the one whose C1 addresses include the
+address RP gives with the name is meant; if that does not tell them
+apart, they get `NA`. A record without RP, or whose RP designates none
+of its authors for certain, gets `NA` (unknown) for all its authors; the
+native parser reports the number of such records when `verbose = TRUE`.
+
+The `"bibliometrix"` engine (also used by `"auto"` when bibliometrix can
+read the file) converts the data frame of
+[`bibliometrix::convert2df()`](https://rdrr.io/pkg/bibliometrix/man/convert2df.html)
+as
+[`as_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/as_sm_corpus.md)
+does: it reads the same tags into `sources`, `references` and
+`concepts`, tells authors apart by the full names of AF and links C1 and
+RP to the authors by the same rule.
 
 ## References
 

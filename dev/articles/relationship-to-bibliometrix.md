@@ -89,7 +89,10 @@ is_sm_corpus(corpus2)
 
 ### Round-trip preservation
 
-The round-trip preserves DOI, title, year, and author count:
+The round trip keeps the DOIs, titles, abstracts and years of the works
+and the authors of each work with their addresses. Addresses and other
+text fields, such as source titles, document types and Keywords Plus,
+come back in upper case, as bibliometrix stores them:
 
 ``` r
 

@@ -85,6 +85,15 @@ side (corpus vs reference) carry <code>NA</code> in the other side's counts/metr
     <p>This accessor honours the package's accessor return-type stability contract
 (see <a href="scimapR-stability.html">scimapR-stability</a>): with <code>tidy = TRUE</code> the column set is guaranteed
 and will only change via a <code>lifecycle</code> deprecation.</p>
+<p>The recall columns (<code>n_reference</code>, <code>n_matched</code>, <code>recall</code>) come from the
+reference side and the precision columns (<code>n_corpus</code>, <code>precision</code>) from
+the corpus side, joined on <code>(dimension, level)</code>. A level found on the
+reference side only has <code>n_corpus</code>, <code>precision</code> and <code>f1</code> <code>NA</code>; a level
+found on the corpus side only has <code>n_reference</code>, <code>n_matched</code>, <code>recall</code> and
+<code>f1</code> <code>NA</code>. Under full counting (see the Details of <code><a href="sm_coverage_audit.html">sm_coverage_audit()</a></code>)
+the per-level counts of a dimension can add up to more than the record
+totals. <code>tidy = FALSE</code>, <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code>autoplot()</code> show the same
+reference-side counts.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

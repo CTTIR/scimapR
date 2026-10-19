@@ -121,11 +121,11 @@ against it, and see which years are worst covered.</p>
 <span><span class="va">cov</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_coverage_audit.html">sm_coverage_audit</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">reference</span>, by <span class="op">=</span> <span class="st">"year"</span>, match <span class="op">=</span> <span class="st">"doi"</span><span class="op">)</span></span>
 <span><span class="va">cov</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cov</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 8</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 9</span></span></span>
 <span><span class="co">#&gt;   recall precision    f1 n_corpus n_reference n_matched n_corpus_only</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span>      1      0.75 0.857      200         150       150            50</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 1 more variable: n_reference_only &lt;int&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: n_reference_only &lt;int&gt;, n_corpus_matched &lt;int&gt;</span></span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">cov</span><span class="op">)</span></span></code></pre></div>
 <p><img src="research-management-analytics_files/figure-html/coverage-plot-1.png" class="r-plt" alt="" width="576"></p>
@@ -236,15 +236,28 @@ fits a level shift and slope change with a counterfactual.</p>
 excluded automatically (<code><a href="../reference/sm_citation_maturity.html">sm_citation_maturity()</a></code> exposes the
 same flags on <code>works</code>).</p>
 <p>A treated-vs-control comparison uses difference-in-differences. Here
-we tag two illustrative institution groups.</p>
+we tag two illustrative institution groups, giving each work to one of
+them.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">corpus</span><span class="op">$</span><span class="va">authorships</span><span class="op">$</span><span class="va">institution_name</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Treated Inst"</span>, <span class="st">"Control Inst"</span><span class="op">)</span>,</span>
-<span>  length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">$</span><span class="va">authorships</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">group</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Treated Inst"</span>, <span class="st">"Control Inst"</span><span class="op">)</span>,</span>
+<span>             length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">$</span><span class="va">works</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">corpus</span><span class="op">$</span><span class="va">authorships</span><span class="op">$</span><span class="va">institution_name</span> <span class="op">&lt;-</span></span>
+<span>  <span class="va">group</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/match.html" class="external-link">match</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">$</span><span class="va">authorships</span><span class="op">$</span><span class="va">work_id</span>, <span class="va">corpus</span><span class="op">$</span><span class="va">works</span><span class="op">$</span><span class="va">work_id</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
 <span><span class="va">did</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_did.html">sm_did</a></span><span class="op">(</span><span class="va">corpus</span>, treated <span class="op">=</span> <span class="st">"Treated Inst"</span>, control <span class="op">=</span> <span class="st">"Control Inst"</span>,</span>
 <span>              intervention_year <span class="op">=</span> <span class="fl">2020</span>, outcome <span class="op">=</span> <span class="st">"count"</span><span class="op">)</span></span>
 <span><span class="va">did</span></span></code></pre></div>
+<p>A work co-authored by both groups belongs to both series and pulls
+them together. <code><a href="../reference/sm_did.html">sm_did()</a></code> warns about such works and lists
+them in <code>did$shared_works</code>; <code>shared = "exclude"</code>
+leaves them out of both series and <code>shared = "lead"</code> gives
+each to the group of its lead author.</p>
+<p>For <code>outcome = "leadership"</code>, <code>institutions</code>
+(in <code><a href="../reference/sm_its.html">sm_its()</a></code>) or <code>institution_aware = TRUE</code> (in
+<code><a href="../reference/sm_did.html">sm_did()</a></code> and <code><a href="../reference/sm_synth.html">sm_synth()</a></code>) count only the works
+whose corresponding author, or the author in another
+<code>lead_role</code> such as <code>"first"</code>, belongs to the
+focal institutions.</p>
 </div>
 <div class="section level2">
 <h2 id="counting-and-robust-impact">4. Counting and robust impact<a class="anchor" aria-label="anchor" href="#counting-and-robust-impact"></a>

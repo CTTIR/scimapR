@@ -43,6 +43,17 @@ contract (see
 with `tidy = TRUE` the column set is guaranteed and will only change via
 a `lifecycle` deprecation.
 
+The recall columns (`n_reference`, `n_matched`, `recall`) come from the
+reference side and the precision columns (`n_corpus`, `precision`) from
+the corpus side, joined on `(dimension, level)`. A level found on the
+reference side only has `n_corpus`, `precision` and `f1` `NA`; a level
+found on the corpus side only has `n_reference`, `n_matched`, `recall`
+and `f1` `NA`. Under full counting (see the Details of
+[`sm_coverage_audit()`](https://cttir.github.io/scimapR/dev/reference/sm_coverage_audit.md))
+the per-level counts of a dimension can add up to more than the record
+totals. `tidy = FALSE`, [`print()`](https://rdrr.io/r/base/print.html)
+and `autoplot()` show the same reference-side counts.
+
 ## See also
 
 [`sm_coverage_audit()`](https://cttir.github.io/scimapR/dev/reference/sm_coverage_audit.md),

@@ -25,6 +25,10 @@ sm_summary_authors(corpus, call = rlang::caller_env())
 A tibble with one row containing: `n_authors`, `n_with_orcid`,
 `pct_orcid`, `mean_works_per_author`, `median_works_per_author`,
 `max_works_per_author`, `mean_authors_per_work`, `single_author_pct`.
+The works of an author and the authors of a work are counted as distinct
+pairs of `work_id` and `author_id`, so an author with several address
+rows in a work counts once, as in
+[`sm_metric_collab_index()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_collab_index.md).
 
 ## See also
 

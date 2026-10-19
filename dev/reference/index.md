@@ -28,6 +28,8 @@
   : Filter works in a corpus
 - [`sm_materialise()`](https://cttir.github.io/scimapR/dev/reference/sm_materialise.md)
   : Materialise cached enrichment into a corpus
+- [`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md)
+  : Controlled vocabulary for concept vocabularies
 - [`scimapR-stability`](https://cttir.github.io/scimapR/dev/reference/scimapR-stability.md)
   : scimapR accessor return-type stability contract
 

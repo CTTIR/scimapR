@@ -115,9 +115,10 @@ published in year <em>y</em>.</p>
 baseline cell (by default its field and year). Values &gt; 1.0 indicate
 above-average impact.</p>
 <p>For <code>"openalex_concepts"</code>, the highest-scoring level-0 concept from the
-concepts table is used. For <code>"mesh"</code>, MeSH headings are used (requires
-MeSH data in concepts; see below). For <code>"manual"</code>, a <code>field</code> column must
-already exist in <code>corpus$works</code>.</p>
+concepts table is used. For <code>"mesh"</code>, MeSH headings are used: concepts
+of the <code>"mesh"</code> vocabulary of <code><a href="sm_concept_vocabularies.html">sm_concept_vocabularies()</a></code>, also when
+spelled <code>"MEDLINE"</code> (requires MeSH data in concepts; see below). For
+<code>"manual"</code>, a <code>field</code> column must already exist in <code>corpus$works</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="small-cells">Small cells<a class="anchor" aria-label="anchor" href="#small-cells"></a></h2>

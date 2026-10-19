@@ -57,6 +57,7 @@ the number of works in which both terms appear.</p>
 <span>  ngram <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  min_freq <span class="op">=</span> <span class="fl">5L</span>,</span>
 <span>  stopwords <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  vocabulary <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -91,6 +92,16 @@ tokenising free text. Combined with <a href="https://juliasilge.github.io/tidyte
 <code>NULL</code> (default) for no additional stopwords.</p></dd>
 
 
+<dt id="arg-vocabulary">vocabulary<a class="anchor" aria-label="anchor" href="#arg-vocabulary"></a></dt>
+<dd><p>For <code>field = "keywords"</code> or <code>"concepts"</code>, the concept
+vocabularies to take terms from: names of vocabularies or of families
+of <code><a href="sm_concept_vocabularies.html">sm_concept_vocabularies()</a></code>, such as <code>"author-keywords"</code> or
+<code>"indexer_keyword"</code>. <code>NULL</code> (default) means the author keywords for
+<code>"keywords"</code> (see Details) and every vocabulary for <code>"concepts"</code>. Must
+be <code>NULL</code> for <code>"title"</code> and <code>"abstract"</code>, whose terms come from the
+text.</p></dd>
+
+
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
 <dd><p>Caller environment for error reporting.</p></dd>
 
@@ -104,11 +115,21 @@ tokenising free text. Combined with <a href="https://juliasilge.github.io/tidyte
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>When <code>field = "concepts"</code>, terms come from the <code>concept_name</code> column in
-<code>corpus$concepts</code> (no tokenisation needed).</p>
-<p>When <code>field</code> is <code>"title"</code>, <code>"abstract"</code>, or <code>"keywords"</code>, the text is
-tokenised with <code><a href="https://juliasilge.github.io/tidytext/reference/unnest_tokens.html" class="external-link">tidytext::unnest_tokens()</a></code> using the chosen <code>ngram</code> size,
-stopwords are removed, and terms below <code>min_freq</code> are dropped.</p>
-<p>Empty input returns an empty undirected <code>tbl_graph</code>.</p>
+<code>corpus$concepts</code> (no tokenisation needed), of every vocabulary or of
+those named in <code>vocabulary</code>.</p>
+<p>When <code>field = "keywords"</code>, terms are whole keywords from
+<code>corpus$concepts</code>, not tokenised. By default these are the author
+keywords (the <code>author_keyword</code> family: <code>author-keywords</code>,
+<code>manual-tags</code>); a corpus without any falls back to the indexer keywords
+(the <code>indexer_keyword</code> family: Keywords Plus, Scopus index keywords,
+Zotero automatic tags and MeSH) with a message, and a corpus with
+neither gives an empty network with a message. The fallback applies to
+the whole corpus, not per work.</p>
+<p>When <code>field</code> is <code>"title"</code> or <code>"abstract"</code>, the text is tokenised with
+<code><a href="https://juliasilge.github.io/tidytext/reference/unnest_tokens.html" class="external-link">tidytext::unnest_tokens()</a></code> using the chosen <code>ngram</code> size and stopwords
+are removed.</p>
+<p>Terms are lower-cased, and terms below <code>min_freq</code> are dropped. Empty
+input returns an empty undirected <code>tbl_graph</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -150,6 +171,49 @@ stopwords are removed, and terms below <code>min_freq</code> are dropped.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>     1     3     26</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>     1     4     30</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 42 more rows</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Keyword networks from a Web of Science file</span></span></span>
+<span class="r-in"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".txt"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="st">"PT J"</span>, <span class="st">"AU Doe, J"</span>, <span class="st">"TI First work"</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"DE heat illness; recruits; cooling"</span>, <span class="st">"ID HYPERTHERMIA; EXERCISE"</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"PY 2021"</span>, <span class="st">"UT WOS:000000000000001"</span>, <span class="st">"ER"</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"PT J"</span>, <span class="st">"AU Roe, R"</span>, <span class="st">"TI Second work"</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"DE heat illness; recruits"</span>, <span class="st">"ID HYPERTHERMIA; EXERCISE"</span>,</span></span>
+<span class="r-in"><span>  <span class="st">"PY 2022"</span>, <span class="st">"UT WOS:000000000000002"</span>, <span class="st">"ER"</span>, <span class="st">"EF"</span></span></span>
+<span class="r-in"><span><span class="op">)</span>, <span class="va">path</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">wos</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_read_wos.html">sm_read_wos</a></span><span class="op">(</span><span class="va">path</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">sm_network_coword</span><span class="op">(</span><span class="va">wos</span>, field <span class="op">=</span> <span class="st">"keywords"</span>, min_freq <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tbl_graph: 2 nodes and 1 edges</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># An unrooted tree</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Node Data: 2 × 2 (active)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   name          freq</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> heat illness     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> recruits         2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Edge Data: 1 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to weight</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     1     2      2</span>
+<span class="r-in"><span><span class="fu">sm_network_coword</span><span class="op">(</span><span class="va">wos</span>, field <span class="op">=</span> <span class="st">"keywords"</span>, vocabulary <span class="op">=</span> <span class="st">"keywords-plus"</span>,</span></span>
+<span class="r-in"><span>                  min_freq <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tbl_graph: 2 nodes and 1 edges</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># An unrooted tree</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Node Data: 2 × 2 (active)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   name          freq</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> exercise         2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> hyperthermia     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Edge Data: 1 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    from    to weight</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>     1     2      2</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

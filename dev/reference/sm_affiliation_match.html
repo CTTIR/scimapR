@@ -169,18 +169,14 @@ edge between an ASCII letter and a non-ASCII letter next to it: the
 shipped pattern <code>\bnato\b</code> does not match "NATO" directly followed by an
 umlaut, as in a German compound word. To keep ASCII semantics in one
 place, write the class out, for example <code>[A-Za-z0-9_]</code> instead of <code>\w</code>.</p>
-<p><code>unicode = FALSE</code> gives the matches of scimapR 0.4.0. Two functions call
-<code>sm_affiliation_match()</code> with its defaults, and so match in Unicode mode,
-without a <code>unicode</code> argument of their own: <code><a href="sm_attribute_institution.html">sm_attribute_institution()</a></code>
-when the corpus has no <code>institution_match</code> column, and
-<code>sm_count(level = "institution")</code> when neither <code>institution_id</code> nor
-<code>institution_match</code> has a value. Running
-<code>sm_affiliation_match(unicode = FALSE)</code> first gives the earlier results
-of <code><a href="sm_attribute_institution.html">sm_attribute_institution()</a></code>. <code><a href="sm_count.html">sm_count()</a></code> then counts by
-<code>institution_match</code> if at least one authorship matched, but leaves out
-the unmatched authorships, which its own matching counts under their raw
-affiliation string; for its earlier counts, also fill the missing
-<code>institution_match</code> values with <code>raw_affiliation</code> before counting.</p>
+<p><code>unicode = FALSE</code> gives the matches of scimapR 0.4.0.
+<code><a href="sm_attribute_institution.html">sm_attribute_institution()</a></code> calls <code>sm_affiliation_match()</code> with its
+defaults, and so matches in Unicode mode, when the corpus has no
+<code>institution_match</code> column; running <code>sm_affiliation_match(unicode = FALSE)</code>
+first gives its earlier results. <code>sm_count(level = "institution")</code> no
+longer matches affiliations itself: it counts each authorship by its
+institution label, <code>institution_match</code> first, and by its raw affiliation
+string when it has none (see <code><a href="sm_count.html">sm_count()</a></code>).</p>
 <p>The optional <code>postcode</code> column (used with <code>postcode_signal = TRUE</code>) is
 matched case-sensitively as a whole word, in the same mode: it is wrapped
 in <code>\b</code>, any run of whitespace in it matches any amount of whitespace

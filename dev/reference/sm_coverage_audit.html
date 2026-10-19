@@ -97,14 +97,29 @@ retained so every decision can be inspected.</p>
 <dt id="arg-reference">reference<a class="anchor" aria-label="anchor" href="#arg-reference"></a></dt>
 <dd><p>The ground truth: an <code>sm_corpus</code> or a data frame with at
 least a DOI and/or title column (column names matched case-insensitively
-against <code>doi</code>/<code>di</code> and <code>title</code>/<code>ti</code>/<code>display_name</code>; an <code>id</code>/<code>work_id</code>/
-<code>reference_id</code> column is used as the identifier if present).</p></dd>
+against <code>doi</code>/<code>di</code> and <code>title</code>/<code>ti</code>/<code>display_name</code>, the year against
+<code>year</code>/<code>py</code>/<code>publication_year</code>). A <code>Date</code> or date-time year column gives
+its calendar year, and a year outside 1000-2999 (such as a day count)
+counts as missing. Rows are identified by the first of the
+columns <code>ut</code> (Web of Science accession numbers), <code>id</code>, <code>work_id</code>,
+<code>reference_id</code> and <code>ref_id</code> whose values are unique and never missing,
+and otherwise by their position (<code>R000001</code>, ...), with a warning when
+such a column had to be passed over. In a data frame with Web of Science
+field tags (such as <code>DI</code>, <code>TI</code>, <code>PY</code> or <code>UT</code>) a column named <code>ID</code> holds
+the Keywords Plus and is never the identifier.</p></dd>
 
 
 <dt id="arg-by">by<a class="anchor" aria-label="anchor" href="#arg-by"></a></dt>
-<dd><p>Optional character vector of breakdown dimensions, any of
-<code>"year"</code>, <code>"source"</code>, <code>"affiliation"</code>. Per-slice recall is reported for
-each supplied dimension.</p></dd>
+<dd><p>Optional character vector of breakdown dimensions. A name is
+either one of the named dimensions <code>"year"</code>, <code>"source"</code> and
+<code>"affiliation"</code>, written in lower case (see Details), or a column: of
+the reference data frame
+(matched case-insensitively) or of the <code>works</code> table of an <code>sm_corpus</code>
+(the exact name first, then case-insensitively). Each name is resolved
+on both sides; a name found on one side only gives levels whose columns
+for the other side are <code>NA</code>. A name that is neither a named dimension
+nor a column on either side is an error listing the available columns.
+The breakdowns label each dimension with the name as given.</p></dd>
 
 
 <dt id="arg-match">match<a class="anchor" aria-label="anchor" href="#arg-match"></a></dt>
@@ -115,7 +130,9 @@ each supplied dimension.</p></dd>
 <dt id="arg-threshold">threshold<a class="anchor" aria-label="anchor" href="#arg-threshold"></a></dt>
 <dd><p>Minimum Jaro-Winkler title similarity (<code>[0, 1]</code>) to accept
 a title match. Default <code>0.9</code>. When the optional <code>stringdist</code> package is
-not installed, the title fallback degrades to normalised exact matching.</p></dd>
+not installed, the title fallback degrades to normalised exact matching.
+Titles only match between records published at most one year apart (when
+both years are known) and never between two records with different DOIs.</p></dd>
 
 
 <dt id="arg-index-table">index_table<a class="anchor" aria-label="anchor" href="#arg-index-table"></a></dt>
@@ -152,16 +169,29 @@ drawn.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An <code>sm_coverage</code> S3 object (a list) with components:</p><dl><dt>recall</dt>
-<dd><p>Matched reference records / total reference records.</p></dd>
+<dd><p>Reference records found in the corpus / total reference
+records. Each reference row is looked up on its own, so rows that
+report the same item (one paper reported by two units) are all
+found.</p></dd>
 
 <dt>precision</dt>
-<dd><p>Matched corpus records / total corpus records.</p></dd>
+<dd><p>Matched corpus records / total corpus records. Each
+corpus record pairs with at most one reference row.</p></dd>
 
 <dt>f1</dt>
 <dd><p>Harmonic mean of recall and precision.</p></dd>
 
-<dt>n_corpus, n_reference, n_matched</dt>
-<dd><p>Integer counts.</p></dd>
+<dt>n_corpus, n_reference</dt>
+<dd><p>Integer record counts.</p></dd>
+
+<dt>n_matched</dt>
+<dd><p>Reference records found in the corpus (the numerator
+of recall).</p></dd>
+
+<dt>n_corpus_matched</dt>
+<dd><p>Corpus records paired with a reference record
+(the numerator of precision); equal to <code>n_matched</code> unless reference
+rows share a corpus record.</p></dd>
 
 <dt>n_corpus_only, n_reference_only</dt>
 <dd><p>Unmatched counts.</p></dd>
@@ -172,6 +202,12 @@ drawn.</p></dd>
 <code>match_score</code>. When <code>index_table</code> is supplied, also <code>issn</code>,
 <code>indexable</code> (logical), and <code>indexed_title</code>.</p></dd>
 
+<dt>reference_matches</dt>
+<dd><p>Tibble with one row per reference record:
+<code>reference_id</code>, <code>corpus_id</code> (the corpus record it was found in),
+<code>match_type</code> and <code>match_score</code>; the recall-side counterpart of
+<code>matches</code>.</p></dd>
+
 <dt>corpus_only</dt>
 <dd><p>Tibble of corpus records absent from the reference.</p></dd>
 
@@ -181,8 +217,9 @@ corpus.</p></dd>
 
 <dt>breakdowns</dt>
 <dd><p>A single flat tibble (<code>dimension</code>, <code>level</code>,
-<code>n_reference</code>, <code>n_matched</code>, <code>recall</code>) across all <code>by</code> dimensions. Use
-<code><a href="sm_coverage_breakdowns.html">sm_coverage_breakdowns()</a></code> to access/filter it.</p></dd>
+<code>n_reference</code>, <code>n_matched</code>, <code>recall</code>) across all <code>by</code> dimensions,
+from the reference side. Use <code><a href="sm_coverage_breakdowns.html">sm_coverage_breakdowns()</a></code> to
+access/filter it, also with the corpus-side counts and precision.</p></dd>
 
 <dt>breakdowns_nested</dt>
 <dd><p>The legacy named list of per-dimension tibbles
@@ -195,13 +232,61 @@ indexable vs non-indexable record counts; otherwise <code>NULL</code>.</p></dd>
 
 
 </dl><p><code>print</code> returns <code>x</code> invisibly.</p>
-<p><code>summary</code> returns a one-row tibble of headline metrics.</p>
+<p><code>summary</code> returns a one-row tibble of headline metrics: <code>recall</code>,
+<code>precision</code>, <code>f1</code>, <code>n_corpus</code>, <code>n_reference</code>, <code>n_matched</code>,
+<code>n_corpus_only</code>, <code>n_reference_only</code> and <code>n_corpus_matched</code>, so that
+<code>n_matched + n_reference_only</code> gives <code>n_reference</code> and
+<code>n_corpus_matched + n_corpus_only</code> gives <code>n_corpus</code>.</p>
 <p><code>autoplot</code> returns a <code>ggplot</code> object.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p><strong>Named dimensions.</strong> <code>"year"</code> uses the publication years. <code>"source"</code> uses
+the source names of an <code>sm_corpus</code> (<code>sources$display_name</code>, or
+<code>works$source_id</code> when the corpus has no source table) and, in a data
+frame, the first of the columns <code>source</code>, <code>source_title</code>, <code>journal</code>, <code>so</code>
+and <code>source_id</code>, in this order (names matched case-insensitively); a
+<code>source_id</code> column holds ids, whose levels do not join the names of the
+corpus side. <code>"affiliation"</code> uses, in a data frame, the first of the
+columns <code>affiliation</code>, <code>affiliations</code>, <code>institution</code>, <code>country</code> and
+<code>country_code</code>, in this order. A data-frame cell holds one value, so an
+item reported by two units takes two rows; a list column gives each of
+its values. Missing and blank values have no level. A named dimension
+that neither side can resolve gives a warning and no breakdown rows.
+Only <code>"affiliation"</code> joins a tracker's units with the institutions of the
+corpus: <code>by = "institution"</code> names the column itself, which the corpus
+side has only if <code>works</code> has a column of that name.</p>
+<p><strong>Affiliation levels of a corpus.</strong> For an <code>sm_corpus</code> (the corpus under
+audit, or a reference given as one), <code>"affiliation"</code> labels the
+authorships from the first of these <code>authorships</code> columns that has a
+value in at least one row: <code>institution_match</code> (from
+<code><a href="sm_affiliation_match.html">sm_affiliation_match()</a></code>), <code>institution_name</code> (from
+<code><a href="sm_attribute_institution.html">sm_attribute_institution()</a></code>), <code>institution_id</code> (named by
+<code>corpus$institutions$display_name</code> when that table lists the id, else
+the id itself) and, as a last resort, <code>country_code</code>. One column serves
+every row, so the levels of a side are all of one kind, and an authorship
+without a value in that column has no level. A message names the column
+used on each side, and a warning says when a side falls back to country
+codes, whose levels do not join institution names. Because
+<code><a href="sm_attribute_institution.html">sm_attribute_institution()</a></code> runs <code><a href="sm_affiliation_match.html">sm_affiliation_match()</a></code> first,
+<code>institution_name</code> is used only when <code>institution_match</code> is absent or
+empty; the Details of <code><a href="sm_attribute_institution.html">sm_attribute_institution()</a></code> show how to break the
+coverage down by its vocabulary instead.
+<code>sm_count(level = "institution")</code> reads the same columns in the
+same order, but row by row, and counts the raw affiliation string where
+none has a value instead of falling back to countries; up to scimapR
+0.4.0 it used, for every row, the first of <code>institution_id</code>,
+<code>institution_match</code> and the raw strings (matched with
+<a href="sm_affiliation_dict.html">sm_affiliation_dict</a>) that had a value in any row.</p>
+<p><strong>Full counting.</strong> A record belongs to every level of its values, so a
+work with authors at two institutions counts in both slices, and the
+per-level counts of a dimension can add up to more than <code>n_corpus</code> or
+<code>n_reference</code>. The overall recall and precision count each record once.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="sm_reconcile.html">sm_reconcile()</a></code>, <code><a href="sm_journal_in_index.html">sm_journal_in_index()</a></code>,
-<code><a href="sm_coverage_breakdowns.html">sm_coverage_breakdowns()</a></code></p>
+<code><a href="sm_coverage_breakdowns.html">sm_coverage_breakdowns()</a></code>, <code><a href="sm_affiliation_match.html">sm_affiliation_match()</a></code></p>
 <p>Other coverage:
 <code><a href="sm_coverage_breakdowns.html">sm_coverage_breakdowns()</a></code>,
 <code><a href="sm_journal_in_index.html">sm_journal_in_index()</a></code>,
@@ -232,6 +317,19 @@ indexable vs non-indexable record counts; otherwise <code>NULL</code>.</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 2017: recall 1 (2/2)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 2018: recall 1 (2/2)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 2020: recall 1 (6/6)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Any column of the reference or of the works is a dimension too</span></span></span>
+<span class="r-in"><span><span class="va">ref</span><span class="op">$</span><span class="va">unit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Unit A"</span>, <span class="st">"Unit B"</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">ref</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cov</span> <span class="op">&lt;-</span> <span class="fu">sm_coverage_audit</span><span class="op">(</span><span class="va">corpus</span>, <span class="va">ref</span>, by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"unit"</span>, <span class="st">"type"</span><span class="op">)</span>, match <span class="op">=</span> <span class="st">"doi"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="sm_coverage_breakdowns.html">sm_coverage_breakdowns</a></span><span class="op">(</span><span class="va">cov</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 5 × 8</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   dimension level          n_reference n_matched recall n_corpus precision    f1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> unit      Unit A                  13        13      1       <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> unit      Unit B                  12        12      1       <span style="color: #BB0000;">NA</span>    <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> type      journal-artic…          <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span>       18     0.833    <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> type      letter                  <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span>        6     1        <span style="color: #BB0000;">NA</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> type      review                  <span style="color: #BB0000;">NA</span>        <span style="color: #BB0000;">NA</span>     <span style="color: #BB0000;">NA</span>        6     0.667    <span style="color: #BB0000;">NA</span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

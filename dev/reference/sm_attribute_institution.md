@@ -24,7 +24,10 @@ sm_attribute_institution(
 
   An `sm_corpus`. If it has no `institution_match` column,
   [`sm_affiliation_match()`](https://cttir.github.io/scimapR/dev/reference/sm_affiliation_match.md)
-  is run first with default settings.
+  is run first with default settings, that is with the shipped
+  [sm_affiliation_dict](https://cttir.github.io/scimapR/dev/reference/sm_affiliation_dict.md);
+  to attribute your own institutions, run it first with a dictionary of
+  them.
 
 - vocabulary:
 
@@ -45,10 +48,38 @@ sm_attribute_institution(
 
 ## Value
 
-The `corpus` with its `authorships` table gaining `institution_id` and
-`institution_name` columns (for `"ror"`, `institution_id` holds the ROR
-id). Unmatched rows keep `NA` – the function never errors on unmatched
+The `corpus` with `institution_id` and `institution_name` set on the
+`authorships` rows that match the vocabulary (for `"ror"`,
+`institution_id` holds the ROR id; for `"custom"`, `CUST:` and the
+matched name). Unmatched rows keep the `institution_id` and
+`institution_name` they had, such as the OpenAlex institution ids of a
+fetched corpus, or `NA` – the function never errors on unmatched
 affiliations. Type-stable.
+
+## Details
+
+The `institution_match` column stays as it is.
+`sm_count(level = "institution")` labels each authorship by
+`institution_match` before `institution_name` and `institution_id`, so
+the roll-up to the vocabulary reaches the counts only for authorships
+without a match, and the `"affiliation"` breakdown of
+[`sm_coverage_audit()`](https://cttir.github.io/scimapR/dev/reference/sm_coverage_audit.md)
+uses `institution_name` only when no authorship has a match. Up to
+scimapR 0.4.0,
+[`sm_count()`](https://cttir.github.io/scimapR/dev/reference/sm_count.md)
+counted by `institution_id` whenever any authorship had one. To count or
+break down by the vocabulary, put its names first, for example:
+
+    a <- corpus$authorships
+    corpus$authorships$institution_match <-
+      dplyr::coalesce(a$institution_name, a$institution_match)
+
+The ids written to matched rows are ROR ids or `CUST:` ids, which join
+`corpus$institutions` only where that table lists them, so functions
+that read the institutions table for these rows (such as
+`sm_audit_geographic(by = "region")`) find no entry for them. Unmatched
+rows keep their earlier ids and so their entries. Up to scimapR 0.4.0,
+unmatched rows lost their `institution_id`.
 
 ## See also
 

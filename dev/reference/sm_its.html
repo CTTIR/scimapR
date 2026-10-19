@@ -60,6 +60,8 @@ pre-intervention trend projected forward).</p>
 <span>  outcome <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"count"</span>, <span class="st">"share_q1"</span>, <span class="st">"cnci"</span>, <span class="st">"leadership"</span><span class="op">)</span>,</span>
 <span>  family <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lag <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  institutions <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  lead_role <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"corresponding"</span>, <span class="st">"first"</span>, <span class="st">"last"</span>, <span class="st">"first_or_last"</span>, <span class="st">"any_lead"</span><span class="op">)</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -106,8 +108,10 @@ the columns inspected. Works without a finite impact value are left
 out of the yearly mean.</p></dd>
 
 <dt><code>"leadership"</code></dt>
-<dd><p>Share of works with a corresponding/leadership
-author (uses <code>authorships$is_corresponding</code>).</p></dd>
+<dd><p>Share of works led through the author role
+<code>lead_role</code> (by default the corresponding author,
+<code>authorships$is_corresponding</code>), by one of <code>institutions</code> when
+they are given; see Details.</p></dd>
 
 
 </dl></dd>
@@ -124,6 +128,26 @@ overdispersed; <code>"quasipoisson"</code> then scales the standard errors.</p><
 <dd><p>Citation-maturity lag in years (default <code>2</code>). For citation-based
 outcomes (<code>"cnci"</code>), the most recent <code>lag</code> years are citation-immature and
 are excluded from the fit; this is reported in the print method.</p></dd>
+
+
+<dt id="arg-institutions">institutions<a class="anchor" aria-label="anchor" href="#arg-institutions"></a></dt>
+<dd><p>For <code>outcome = "leadership"</code>: <code>NULL</code> (default) or a
+character vector of focal institution labels. A work then counts as
+led when an authorship in the role <code>lead_role</code> belongs to one of them,
+that is when its <code>institution_match</code>, <code>institution_name</code> or
+<code>institution_id</code>, or the name of that id in <code>corpus$institutions</code>, is
+one of the labels (run <code><a href="sm_affiliation_match.html">sm_affiliation_match()</a></code> first). A label that
+no authorship carries gives a warning naming the nearest labels; when
+none is found, <code>sm_its()</code> aborts.</p></dd>
+
+
+<dt id="arg-lead-role">lead_role<a class="anchor" aria-label="anchor" href="#arg-lead-role"></a></dt>
+<dd><p>For <code>outcome = "leadership"</code>: the author role that leads
+a work. <code>"corresponding"</code> (default) is an author with
+<code>is_corresponding = TRUE</code>, <code>"first"</code> and <code>"last"</code> are the authors with
+the lowest and the highest <code>position</code> of the work, <code>"first_or_last"</code>
+either, and <code>"any_lead"</code> the first, last or corresponding author.
+Roles other than <code>"corresponding"</code> need <code>institutions</code>.</p></dd>
 
 
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
@@ -149,9 +173,15 @@ are excluded from the fit; this is reported in the print method.</p></dd>
 <code>conf.high</code>, <code>statistic</code>, <code>p.value</code>), <code>series</code> (tibble: <code>year</code>,
 <code>observed</code>, <code>fitted</code>, <code>counterfactual</code>), and metadata (<code>outcome</code>,
 <code>intervention_year</code>, <code>family</code>, <code>lag</code>, <code>provisional_years</code>,
-<code>dropped_years</code>). <code>dropped_years</code> (integer) lists the years left out for
-lack of a usable value, <code>provisional_years</code> (integer) the
-citation-immature years excluded after them.</p>
+<code>dropped_years</code>, <code>leadership</code>). <code>dropped_years</code> (integer) lists the
+years left out for lack of a usable value, <code>provisional_years</code>
+(integer) the citation-immature years excluded after them.
+<code>leadership</code> holds the definition used for <code>outcome = "leadership"</code>, a
+list of <code>lead_role</code>, <code>institution_aware</code> (<code>FALSE</code>), <code>institutions</code>
+(the focal labels or <code>NULL</code>) and <code>label_column</code> (the column that
+labels the institutions of the corpus, <code>institution_match</code>,
+<code>institution_name</code> or <code>institution_id</code>, the first with a value; <code>NA</code>
+without <code>institutions</code>), and is <code>NULL</code> for the other outcomes.</p>
 <p><code>print</code> returns <code>x</code> invisibly.</p>
 <p><code>summary</code> returns the tidy coefficient tibble.</p>
 <p><code>autoplot</code> returns a <code>ggplot</code>.</p>
@@ -166,6 +196,27 @@ is dropped with a warning and listed in <code>dropped_years</code>: no work of t
 year has a journal quartile (<code>"share_q1"</code>) or a finite impact value
 (<code>"cnci"</code>). For <code>"cnci"</code> the citation-immature years are excluded after
 that and listed in <code>provisional_years</code>, so no year is in both.</p>
+<p>For <code>"leadership"</code> the share of a year is over the works whose lead is
+known, and that number of works weights the year in the fit. A work
+whose authorships all have <code>is_corresponding = NA</code> (unknown, as the
+readers of sources without corresponding-author data record it; see
+<code><a href="sm_corpus.html">sm_corpus()</a></code>) leaves the denominator for
+<code>lead_role = "corresponding"</code>, with or without <code>institutions</code>; up to
+scimapR 0.4.0 it counted as not led. So does a work without
+authorships, and for the position roles a work whose positions are all
+<code>NA</code>. For <code>"any_lead"</code> an unknown corresponding author counts as not
+leading, so the work stays in the denominator. A year in which no work
+has a known lead is dropped with a warning, and <code>sm_its()</code> aborts when
+no work has one. With <code>institutions</code> the denominator is every work of
+the year with a known lead, not only the works with an authorship at
+the focal institutions.</p>
+<p>A focal label is compared with every label column of an authorship row
+(<code>institution_match</code>, <code>institution_name</code>, <code>institution_id</code> and the name
+of that id), as group membership in <code><a href="sm_did.html">sm_did()</a></code> and <code><a href="sm_synth.html">sm_synth()</a></code> is, so
+a row with <code>institution_match</code> "A" and <code>institution_name</code> "B" belongs to
+both "A" and "B". <code><a href="sm_count.html">sm_count()</a></code> instead labels each row by the first of
+these columns with a value. The print method names the column that
+labels the institutions of the corpus (<code>leadership$label_column</code>).</p>
 <p>At least 4 years must remain after these exclusions, with 2 or more before
 <code>intervention_year</code> and 2 or more from it on, so that the pre-trend, the
 level change and the slope change can all be estimated; otherwise
@@ -209,6 +260,34 @@ values as independent; no correction for autocorrelation is applied.</p>
 <span class="r-in"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">its</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sm_its-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># share of works whose corresponding author is at a focal unit</span></span></span>
+<span class="r-in"><span><span class="va">fix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="sm_example_files.html">sm_example_files</a></span><span class="op">(</span><span class="st">"example_realuse_corpus.rds"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">dict</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="sm_example_files.html">sm_example_files</a></span><span class="op">(</span><span class="st">"example_realuse_affiliation_dict.csv"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  col_types <span class="op">=</span> <span class="st">"ccc"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">fix</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_affiliation_match.html">sm_affiliation_match</a></span><span class="op">(</span><span class="va">fix</span>, <span class="va">dict</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Affiliation matching flagged 427 authorships across 4 institutions.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> By signal: name_token: 427. See `sm_affiliation_summary()` for the full</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   breakdown.</span>
+<span class="r-in"><span><span class="va">lead</span> <span class="op">&lt;-</span> <span class="fu">sm_its</span><span class="op">(</span><span class="va">fix</span>, intervention_year <span class="op">=</span> <span class="fl">2021</span>, outcome <span class="op">=</span> <span class="st">"leadership"</span>,</span></span>
+<span class="r-in"><span>               institutions <span class="op">=</span> <span class="st">"Armed Forces Hospital Northtown"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">lead</span><span class="op">$</span><span class="va">series</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 11 × 4</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     year observed fitted counterfactual</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span>  <span style="text-decoration: underline;">2</span>016    0      0.136          0.136</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span>  <span style="text-decoration: underline;">2</span>017    0      0.161          0.161</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span>  <span style="text-decoration: underline;">2</span>018    0.25   0.186          0.186</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span>  <span style="text-decoration: underline;">2</span>019    0.25   0.211          0.211</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span>  <span style="text-decoration: underline;">2</span>020    0.2    0.236          0.236</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span>  <span style="text-decoration: underline;">2</span>021    0.222  0.192          0.261</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span>  <span style="text-decoration: underline;">2</span>022    0.15   0.198          0.286</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span>  <span style="text-decoration: underline;">2</span>023    0.182  0.203          0.311</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span>  <span style="text-decoration: underline;">2</span>024    0.273  0.209          0.336</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span>  <span style="text-decoration: underline;">2</span>025    0.2    0.215          0.361</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">11</span>  <span style="text-decoration: underline;">2</span>026    0.2    0.221          0.386</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
