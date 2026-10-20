@@ -159,7 +159,8 @@ sm_enrich_retraction <- function(corpus,
     source_name = "retraction_check",
     external_ids = target_dois,
     query_text = "enrich_retraction",
-    engine_name = "native"
+    engine_name = "native",
+    kind = "enrichment"
   )
   corpus$provenance <- dplyr::bind_rows(corpus$provenance, new_prov)
 

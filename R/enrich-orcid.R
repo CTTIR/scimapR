@@ -124,7 +124,8 @@ sm_enrich_orcid <- function(corpus,
       source_name = "orcid",
       external_ids = NA_character_,
       query_text = "enrich_orcid",
-      engine_name = "native"
+      engine_name = "native",
+      kind = "enrichment"
     )
     corpus$provenance <- dplyr::bind_rows(corpus$provenance, new_prov)
   }

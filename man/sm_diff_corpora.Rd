@@ -59,6 +59,7 @@ Other reproducibility:
 \code{\link[=sm_cite_corpus]{sm_cite_corpus()}},
 \code{\link[=sm_hash_corpus]{sm_hash_corpus()}},
 \code{\link[=sm_provenance]{sm_provenance()}},
+\code{\link[=sm_register_input]{sm_register_input()}},
 \code{\link[=sm_snapshot]{sm_snapshot()}}
 }
 \concept{reproducibility}

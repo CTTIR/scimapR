@@ -185,7 +185,8 @@ sm_enrich_ror <- function(corpus,
       source_name = "ror",
       external_ids = NA_character_,
       query_text = "enrich_ror",
-      engine_name = "native"
+      engine_name = "native",
+      kind = "enrichment"
     )
     corpus$provenance <- dplyr::bind_rows(corpus$provenance, new_prov)
   }

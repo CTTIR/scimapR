@@ -226,3 +226,21 @@ test_that("sm_fetch_pubmed engine='rentrez' errors when rentrez not installed", 
     "rentrez"
   )
 })
+
+test_that("sm_fetch_pubmed records its request for a rebuild", {
+  local_mocked_bindings(
+    req_perform = function(req, ...) {
+      structure(list(), class = "httr2_response")
+    },
+    resp_body_json = function(resp, ...) .pubmed_esearch_body(),
+    resp_body_string = function(resp, ...) .pubmed_xml(),
+    .package = "httr2"
+  )
+  corpus <- sm_fetch_pubmed(query = "bibliometrics", n_max = 10,
+                            api_key = "", engine = "native", verbose = FALSE)
+  prov <- corpus$provenance
+  expect_identical(unique(prov$kind), "api_query")
+  expect_identical(unique(prov$n_max), 10L)
+  expect_identical(unique(prov$filter), NA_character_)
+  expect_identical(unique(prov$query), "bibliometrics")
+})

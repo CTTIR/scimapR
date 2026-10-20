@@ -19,7 +19,9 @@
 #' @param call Caller environment for error reporting.
 #'
 #' @return An `sm_corpus` with `metadata$question_id` set to the
-#'   question's content-hash ID.
+#'   question's content-hash ID. Its provenance records each search
+#'   (`query`, `n_max` and, as `engine`, the client package that ran it), so
+#'   that [sm_rebuild_from_cert()] can run it again.
 #'
 #' @family question
 #' @export
@@ -93,6 +95,8 @@ sm_corpus_for_question <- function(question,
 
       all_works[[src]] <- result$works
 
+      # kind, engine and n_max let sm_rebuild_from_cert() replay the
+      # search with the client package and the limit it ran with
       all_prov[[src]] <- tibble::tibble(
         work_id = new_ids,
         source = src,
@@ -100,9 +104,12 @@ sm_corpus_for_question <- function(question,
         fetch_date = Sys.time(),
         query = question$query_strings[[src]] %||%
           question$query_strings$generic,
-        engine = "native",
+        engine = .question_engines[[src]],
         scimapR_version = pkg_version,
-        prompt_hash = NA_character_
+        prompt_hash = NA_character_,
+        kind = "api_query",
+        filter = NA_character_,
+        n_max = .question_n_max(src, n_per_source)
       )
     }
 
@@ -197,7 +204,7 @@ sm_corpus_for_question <- function(question,
     )
     result <- rcrossref::cr_works(
       query = query,
-      limit = min(n_max, 1000L)
+      limit = .question_n_max("crossref", n_max)
     )
     works <- .crossref_to_works(result$data)
   } else {
@@ -205,6 +212,21 @@ sm_corpus_for_question <- function(question,
   }
 
   list(works = works, n_fetched = nrow(works))
+}
+
+#' The client package that `.fetch_from_source()` searches each source with
+#' @noRd
+.question_engines <- c(openalex = "openalexR", pubmed = "rentrez",
+                       crossref = "rcrossref")
+
+#' The most works `.fetch_from_source()` asks a source for
+#'
+#' Its one Crossref request returns at most 1,000 works, the most the API
+#' gives at once.
+#' @noRd
+.question_n_max <- function(source, n_max) {
+  n_max <- as.integer(n_max)
+  if (identical(source, "crossref")) min(n_max, 1000L) else n_max
 }
 
 #' Convert OpenAlex results to works tibble

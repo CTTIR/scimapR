@@ -20,7 +20,9 @@
 #' @param verbose Print progress messages?
 #' @param call Caller environment for error reporting.
 #'
-#' @return An `sm_corpus` object.
+#' @return An `sm_corpus` object. Its provenance records the search
+#'   (`query`, `n_max` and `engine`), so that [sm_rebuild_from_cert()] can
+#'   run it again.
 #'
 #' @family fetchers
 #' @export
@@ -43,10 +45,15 @@ sm_fetch_pubmed <- function(query,
     engine <- if (rlang::is_installed("rentrez")) "rentrez" else "native"
   }
 
+  # the request goes into provenance, so that sm_rebuild_from_cert() can
+  # replay it
   if (engine == "rentrez") {
-    return(.fetch_pubmed_rentrez(
-      query = query, n_max = n_max, api_key = api_key,
-      verbose = verbose, call = call
+    return(.record_request(
+      .fetch_pubmed_rentrez(
+        query = query, n_max = n_max, api_key = api_key,
+        verbose = verbose, call = call
+      ),
+      n_max = n_max
     ))
   }
 
@@ -90,7 +97,10 @@ sm_fetch_pubmed <- function(query,
 
   if (length(pmids) == 0L) {
     .sm_verbose("No PubMed results found.", verbose)
-    return(.empty_corpus_with_provenance("pubmed", query, "native"))
+    return(.record_request(
+      .empty_corpus_with_provenance("pubmed", query, "native"),
+      n_max = n_max
+    ))
   }
 
   .sm_verbose("Found {count} results; fetching {length(pmids)} records.", verbose)
@@ -141,7 +151,8 @@ sm_fetch_pubmed <- function(query,
     )
   }
 
-  .parse_pubmed_results(all_articles, query, verbose, call)
+  .record_request(.parse_pubmed_results(all_articles, query, verbose, call),
+                  n_max = n_max)
 }
 
 

@@ -226,3 +226,46 @@ test_that("the openalexR engine passes the key and turns 429 into an error", {
                fixed = TRUE)
   expect_false(grepl("KEY-77", conditionMessage(err), fixed = TRUE))
 })
+
+test_that("sm_fetch_openalex() records its request for a rebuild", {
+  withr::local_envvar(OPENALEX_API_KEY = "", SCIMAPR_MAILTO = "")
+  results <- jsonlite::read_json(test_path("fixtures", "openalex-impact.json"))
+  local_mocked_bindings(
+    req_perform = function(req, ...) {
+      body <- list(meta = list(count = 3L, next_cursor = NULL),
+                   results = results)
+      httr2::response(
+        status_code = 200L, url = "https://api.openalex.org/works",
+        headers = list(`Content-Type` = "application/json"),
+        body = charToRaw(jsonlite::toJSON(body, auto_unbox = TRUE,
+                                          null = "null", digits = NA))
+      )
+    },
+    .package = "httr2"
+  )
+  corpus <- suppressMessages(sm_fetch_openalex(
+    query = "x", filter = "type:article", n_max = 50, verbose = FALSE
+  ))
+  prov <- corpus$provenance
+  expect_identical(unique(prov$kind), "api_query")
+  expect_identical(unique(prov$filter), "type:article")
+  expect_identical(unique(prov$n_max), 50L)
+  expect_identical(unique(prov$query), "x")
+})
+
+test_that("the openalexR engine records its request too", {
+  skip_if_not_installed("openalexR", minimum_version = "3.1.1")
+  withr::local_envvar(OPENALEX_API_KEY = "", openalexR.max_tries = NA)
+  local_mocked_bindings(
+    oa_fetch = function(...) openalexr_works(),
+    .package = "openalexR"
+  )
+  corpus <- suppressMessages(
+    sm_fetch_openalex(query = "x", n_max = 30, engine = "openalexR",
+                      verbose = FALSE)
+  )
+  expect_identical(unique(corpus$provenance$kind), "api_query")
+  expect_identical(unique(corpus$provenance$filter), NA_character_)
+  expect_identical(unique(corpus$provenance$n_max), 30L)
+  expect_identical(unique(corpus$provenance$engine), "openalexR")
+})

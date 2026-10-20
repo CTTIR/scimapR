@@ -4,30 +4,55 @@
 \alias{sm_hash_corpus}
 \title{Hash a corpus for reproducibility}
 \usage{
-sm_hash_corpus(corpus)
+sm_hash_corpus(corpus, version = 2L)
 }
 \arguments{
 \item{corpus}{An \code{sm_corpus} object.}
+
+\item{version}{The hash algorithm: \code{2} (default) or \code{1} (scimapR 0.4.0
+and earlier). See Details.}
 }
 \value{
 A single character string containing the hex-encoded SHA-256 hash.
 }
 \description{
 Computes a content-addressable SHA-256 hash of the corpus. The hash
-captures the works, authors, authorships, references, concepts, screening,
-and provenance tables. Metadata (which contains timestamps) is excluded
-from the hash to allow comparing corpus content across sessions.
+covers the works (without \code{last_refreshed}), authors, authorships,
+institutions, sources, references, concepts, screening decisions
+(without \code{decided_at}) and embeddings, and the yearly citation counts
+(\code{citations_by_year}) when the corpus has any, so a corpus without them
+hashes as it did before the element existed.
 
 Two corpora with identical scientific content will produce the same hash,
-regardless of when they were built.
+regardless of when they were built and of the order of their rows and
+columns.
 
-The yearly citation counts (\code{citations_by_year}) enter the hash only when
-the corpus has some, so a corpus without them hashes as it did before
-the element existed.
+The hash leaves out the provenance table, which records when each record
+was fetched, and the metadata (timestamps, the lock, the embedding model
+and the local input files of \code{\link[=sm_register_input]{sm_register_input()}}): changing them does
+not change the hash. \code{\link[=sm_verify_certificate]{sm_verify_certificate()}} checks the local input
+files on their own.
+}
+\details{
+\code{version} selects the algorithm. Version 2, the default from scimapR
+0.5.0 on, sorts the columns of every table by name and the rows of the
+embeddings by work id before hashing, so the order in which the steps
+that built a corpus added their columns no longer changes the hash.
+Hashes of version 2 therefore differ from the hashes that earlier
+versions of scimapR computed for the same content. Version 1 is the
+algorithm of these earlier versions. Certificates (\code{\link[=sm_certificate]{sm_certificate()}})
+and snapshots (\code{\link[=sm_snapshot]{sm_snapshot()}}) record the version they used as
+\code{hash_version}; those written before it existed are checked with
+version 1, so they stay verifiable.
 }
 \examples{
 corpus <- sm_example_corpus()
 sm_hash_corpus(corpus)
+
+# the order of the columns does not matter
+reordered <- corpus
+reordered$works <- reordered$works[, rev(names(reordered$works))]
+identical(sm_hash_corpus(reordered), sm_hash_corpus(corpus))
 }
 \seealso{
 Other reproducibility:
@@ -35,6 +60,7 @@ Other reproducibility:
 \code{\link[=sm_cite_corpus]{sm_cite_corpus()}},
 \code{\link[=sm_diff_corpora]{sm_diff_corpora()}},
 \code{\link[=sm_provenance]{sm_provenance()}},
+\code{\link[=sm_register_input]{sm_register_input()}},
 \code{\link[=sm_snapshot]{sm_snapshot()}}
 }
 \concept{reproducibility}

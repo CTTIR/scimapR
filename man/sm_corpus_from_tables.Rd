@@ -9,6 +9,7 @@ sm_corpus_from_tables(
   schema = NULL,
   .coerce = TRUE,
   metadata = list(),
+  inputs = NULL,
   call = rlang::caller_env()
 )
 }
@@ -31,6 +32,15 @@ still filled with typed \code{NA}, and concept vocabularies are still
 renamed).}
 
 \item{metadata}{Optional list of corpus-level metadata.}
+
+\item{inputs}{\code{NULL} (default) or the local files the tables come from,
+such as a database snapshot or a publication tracker, registered with
+\code{\link[=sm_register_input]{sm_register_input()}} after the corpus is built: a character vector of
+paths, whose names (where given) become the \code{role} of each file, or a
+data frame with a \code{path} column and optional \code{role} and \code{builder}
+columns. Files already listed in \code{metadata$local_inputs} are kept, and
+a file registered again replaces its row. \code{\link[=sm_certificate]{sm_certificate()}} records
+them with their SHA-256 hashes.}
 
 \item{call}{Caller environment for error reporting.}
 }
@@ -67,6 +77,15 @@ authorships <- data.frame(
 corpus <- sm_corpus_from_tables(list(works = works,
                                      authorships = authorships))
 corpus
+
+# record the file the tables were read from
+snapshot <- tempfile(fileext = ".csv")
+utils::write.csv(works, snapshot, row.names = FALSE)
+corpus <- sm_corpus_from_tables(
+  list(works = utils::read.csv(snapshot)),
+  inputs = c("source table" = snapshot)
+)
+corpus$metadata$local_inputs[, c("basename", "role", "sha256")]
 }
 \seealso{
 \code{\link[=sm_corpus]{sm_corpus()}}, \code{\link[=as_sm_corpus]{as_sm_corpus()}}

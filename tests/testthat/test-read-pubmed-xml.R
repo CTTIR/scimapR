@@ -165,3 +165,11 @@ test_that("sm_read_pubmed_xml records the corresponding author as unknown", {
   expect_type(a$is_corresponding, "logical")
   expect_true(all(is.na(a$is_corresponding)))
 })
+
+test_that("sm_read_pubmed_xml records a file step without an absolute path", {
+  path <- normalizePath(.pubmed_fixture(), winslash = "/")
+  withr::local_dir(withr::local_tempdir())
+  corpus <- sm_read_pubmed_xml(path, verbose = FALSE)
+  expect_identical(unique(corpus$provenance$kind), "file")
+  expect_identical(unique(corpus$provenance$query), "example_pubmed.xml")
+})

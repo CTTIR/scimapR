@@ -47,8 +47,10 @@ visualisations.
   questions, auto-generate search queries, and screen with optional LLM
   grounding (`sm_question()`, `sm_screen_against_question()`).
 - **Reproducible-by-construction corpus certificates.** A YAML document
-  that another researcher can use to re-derive your exact corpus
-  (`sm_certificate()`, `sm_rebuild_from_cert()`).
+  that records how your corpus was built, its local input files included
+  (with SHA-256 hashes), so that another researcher can verify it and run
+  its searches again (`sm_certificate()`, `sm_verify_certificate()`,
+  `sm_rebuild_from_cert()`).
 - **Author trajectory analysis.** Track topic pivots, collaborator turnover,
   and productivity curves across a career (`sm_author_trajectory()`).
 - **Equity and representation auditing.** Geographic, gender, funding, and

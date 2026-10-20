@@ -278,3 +278,23 @@ test_that("sm_read_openalex_json unwraps saved API responses", {
     "Hand hygiene audits on a training ground"
   )
 })
+
+test_that("sm_read_openalex_json records a file step, not an absolute path", {
+  # the provenance of a file read is a file step, not an OpenAlex search
+  # that a certificate rebuild would send with the path as search text
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "exports"))
+  path <- file.path(dir, "exports", "works.json")
+  writeLines('[{"id":"W1","title":"One","publication_year":2020}]', path)
+
+  withr::local_dir(withr::local_tempdir())
+  corpus <- sm_read_openalex_json(path, verbose = FALSE)
+  expect_identical(corpus$provenance$kind, "file")
+  expect_identical(corpus$provenance$query, "works.json")
+
+  withr::local_dir(dir)
+  corpus <- sm_read_openalex_json(path, verbose = FALSE)
+  expect_identical(corpus$provenance$query, "exports/works.json")
+  corpus <- sm_read_openalex_json("exports/works.json", verbose = FALSE)
+  expect_identical(corpus$provenance$query, "exports/works.json")
+})

@@ -112,6 +112,21 @@
   )
 }
 
+# Local input files of a corpus (metadata$local_inputs, sm_register_input())
+.empty_local_inputs <- function() {
+  tibble::tibble(
+    path = character(),
+    path_abs = character(),
+    root = character(),
+    basename = character(),
+    sha256 = character(),
+    bytes = double(),
+    role = character(),
+    builder = character(),
+    registered_at = .POSIXct(double(), tz = "UTC")
+  )
+}
+
 # Yearly citation counts, the optional corpus element citations_by_year
 .empty_citations_by_year <- function() {
   tibble::tibble(

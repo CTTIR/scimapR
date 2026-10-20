@@ -170,13 +170,14 @@ sm_read_lens <- function(path,
     source    = "lens",
     source_id_external = as.character(raw_lens_id),
     fetch_date = Sys.time(),
-    query     = path,
+    query     = .file_step_path(path),
     engine    = "native",
     scimapR_version = tryCatch(
       as.character(utils::packageVersion("scimapR")),
       error = function(e) "0.1.0"
     ),
-    prompt_hash = NA_character_
+    prompt_hash = NA_character_,
+    kind      = "file"
   )
 
   .sm_verbose("Parsed {n} Lens record{?s}.", verbose)

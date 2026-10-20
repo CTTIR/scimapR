@@ -217,3 +217,60 @@ test_that(".fetch_from_source aborts on unknown source", {
 test_that(".pubmed_ids_to_works returns empty for no ids / failed summary", {
   expect_equal(nrow(scimapR:::.pubmed_ids_to_works(character(0))), 0L)
 })
+
+test_that("sm_corpus_for_question records each search for a rebuild", {
+  q <- make_q()
+  testthat::local_mocked_bindings(
+    .fetch_from_source = function(source, query_strings, n_max, languages,
+                                  call) {
+      list(works = fake_works(paste0("10.1/", source, 1:2)), n_fetched = 2L)
+    }
+  )
+  corpus <- sm_corpus_for_question(q, sources = c("pubmed", "openalex"),
+                                   n_max = 30, verbose = FALSE)
+  prov <- corpus$provenance
+  expect_identical(unique(prov$kind), "api_query")
+  expect_identical(unique(prov$n_max), 15L)
+  expect_identical(unique(prov$filter), NA_character_)
+})
+
+test_that("a question corpus records and replays the engine and limit used", {
+  skip_if_not_installed("yaml")
+  q <- make_q()
+  testthat::local_mocked_bindings(
+    .fetch_from_source = function(source, query_strings, n_max, languages,
+                                  call) {
+      list(works = fake_works(paste0("10.1/", source, 1:2)), n_fetched = 2L)
+    }
+  )
+  corpus <- sm_corpus_for_question(q, n_max = 4500, verbose = FALSE)
+  prov <- unique(corpus$provenance[c("source", "query", "engine", "n_max")])
+  sources <- c("pubmed", "openalex", "crossref")
+  prov <- prov[match(sources, prov$source), ]
+  # the client package that ran each search, not the native fetchers
+  expect_identical(prov$engine, c("rentrez", "openalexR", "rcrossref"))
+  # 1500 works per source, but one Crossref request returns at most 1000
+  expect_identical(prov$n_max, c(1500L, 1500L, 1000L))
+
+  calls <- list()
+  record <- function(fetcher) {
+    function(query = NULL, n_max = 200L, engine = "native", ...) {
+      calls[[fetcher]] <<- list(query = query, engine = engine,
+                                n_max = n_max)
+      sm_corpus(works = scimapR:::.empty_works())
+    }
+  }
+  testthat::local_mocked_bindings(
+    sm_fetch_openalex = record("openalex"),
+    sm_fetch_pubmed = record("pubmed"),
+    sm_fetch_crossref = record("crossref")
+  )
+  cert <- suppressMessages(sm_certificate(corpus))
+  rebuilt <- sm_rebuild_from_cert(cert, verbose = FALSE)
+  expect_s3_class(rebuilt, "sm_corpus")
+  for (i in seq_along(sources)) {
+    expect_identical(calls[[sources[i]]],
+                     list(query = prov$query[i], engine = prov$engine[i],
+                          n_max = prov$n_max[i]))
+  }
+})

@@ -52,7 +52,9 @@ are chunked, fetched per batch, and row-bound with de-duplication. Default
 \item{call}{Caller environment for error reporting.}
 }
 \value{
-An \code{sm_corpus} object.
+An \code{sm_corpus} object. Its provenance records the search
+(\code{query}, \code{filter}, \code{n_max} and \code{engine}), so that
+\code{\link[=sm_rebuild_from_cert]{sm_rebuild_from_cert()}} can run it again.
 }
 \description{
 Query the \href{https://openalex.org/}{OpenAlex} API for scholarly works and

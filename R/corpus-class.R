@@ -213,11 +213,24 @@
 #'
 #' `source_id_external` is, for example, the Web of Science accession
 #' number (UT); `prompt_hash` is `NA` for records that no prompt
-#' produced. Optional: `kind` (character), the kind of step that wrote the
-#' row: `"enrichment"` for [sm_enrich_openalex_impact()], whose rows have
-#' the source `"openalex_impact"`. [sm_certificate()] records the kind of
-#' each step, inferred from the source for rows without `kind`, and
-#' [sm_rebuild_from_cert()] replays only searches, never an enrichment.
+#' produced. Optional:
+#'
+#' | Column | Type | Content |
+#' | --- | --- | --- |
+#' | `kind` | character | The kind of step that wrote the row (see below) |
+#' | `filter` | character | The filter of a search, else `NA` |
+#' | `n_max` | integer | The maximum number of works of a search |
+#'
+#' `kind` is `"api_query"` for the searches of [sm_fetch_openalex()],
+#' [sm_fetch_pubmed()], [sm_fetch_crossref()] and
+#' [sm_corpus_for_question()], which also write `filter` and `n_max`;
+#' `"file"` for the file readers, whose `query` holds the file relative to
+#' the working directory when it lies below it, else its name; and
+#' `"enrichment"` for the enrichers, such as [sm_enrich_openalex_impact()],
+#' whose rows have the source `"openalex_impact"`. [sm_certificate()]
+#' records the kind of each step, inferred from the source, query and
+#' engine for rows without `kind`, and [sm_rebuild_from_cert()] replays
+#' only searches, never a file read or an enrichment.
 #'
 #' **`screening`**: one row per screening decision. Required:
 #'
@@ -263,7 +276,14 @@
 #' | `question_id` | character | Id of its [sm_question()] |
 #'
 #' `question_id` is set by [sm_corpus_for_question()]. Optional: entries
-#' the readers add, such as `source_file` and `reader`.
+#' the readers add, such as `source_file` and `reader`;
+#' `hash_version` (integer), the algorithm of `corpus_hash`
+#' ([sm_hash_corpus()]), which [sm_snapshot()] writes (a snapshot without
+#' it used version 1); and `local_inputs`, a tibble of the local files the
+#' corpus was built from, with their SHA-256 hashes, which
+#' [sm_register_input()] and [sm_corpus_from_tables()] (`inputs`) write,
+#' [sm_certificate()] records and [sm_verify_certificate()] checks (see
+#' [sm_register_input()] for its columns).
 #' `build_date` and `last_refresh` may also be numbers of seconds since
 #' 1970-01-01 UTC, as corpora restored from tables store them, ISO 8601
 #' text or dates; [sm_certificate()] and the citation-maturity cut-offs

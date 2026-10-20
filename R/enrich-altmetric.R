@@ -120,7 +120,8 @@ sm_enrich_altmetric <- function(corpus,
     source_name = "altmetric",
     external_ids = target_dois,
     query_text = "enrich_altmetric",
-    engine_name = "native"
+    engine_name = "native",
+    kind = "enrichment"
   )
 
   corpus$works <- works

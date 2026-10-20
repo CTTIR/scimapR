@@ -188,3 +188,25 @@ test_that("sm_build_corpus passes mix_models on to sm_bind_corpora", {
   expect_error(sm_build_corpus(c1, c2, mix_models = NA, verbose = FALSE),
                "mix_models")
 })
+
+test_that("sm_bind_corpora keeps the local inputs of both corpora", {
+  withr::local_dir(withr::local_tempdir())
+  writeLines("a", "a.csv")
+  writeLines("b", "b.csv")
+  c1 <- sm_example_corpus(n_works = 3, n_authors = 2, seed = 1)
+  c2 <- sm_example_corpus(n_works = 3, n_authors = 2, seed = 2)
+  with_a <- sm_register_input(c1, "a.csv")
+  with_ab <- sm_register_input(sm_register_input(c2, "a.csv"), "b.csv")
+
+  bound <- sm_bind_corpora(with_a, with_ab)
+  expect_identical(bound$metadata$local_inputs$path, c("a.csv", "b.csv"))
+  expect_identical(sm_bind_corpora(c1, with_ab)$metadata$local_inputs$path,
+                   c("a.csv", "b.csv"))
+  expect_null(sm_bind_corpora(c1, c2)$metadata$local_inputs)
+
+  # the same file with other content is a different input
+  writeLines("a changed", "a.csv")
+  changed <- sm_register_input(c2, "a.csv")
+  bound <- sm_bind_corpora(with_a, changed)
+  expect_identical(bound$metadata$local_inputs$path, c("a.csv", "a.csv"))
+})

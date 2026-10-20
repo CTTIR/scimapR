@@ -63,7 +63,9 @@
 #' @param verbose Print progress messages?
 #' @param call Caller environment for error reporting.
 #'
-#' @return An `sm_corpus` object.
+#' @return An `sm_corpus` object. Its provenance records the search
+#'   (`query`, `filter`, `n_max` and `engine`), so that
+#'   [sm_rebuild_from_cert()] can run it again.
 #'
 #' @family fetchers
 #' @seealso [sm_enrich_openalex_impact()], [sm_citation_window()]
@@ -104,11 +106,16 @@ sm_fetch_openalex <- function(query = NULL,
     }
   }
 
+  # the request goes into provenance, so that sm_rebuild_from_cert() can
+  # replay it
   if (engine == "openalexR") {
-    return(.fetch_openalex_openalexr(
-      query = query, filter = filter, n_max = n_max,
-      api_key = api_key, batch_size = batch_size,
-      verbose = verbose, call = call
+    return(.record_request(
+      .fetch_openalex_openalexr(
+        query = query, filter = filter, n_max = n_max,
+        api_key = api_key, batch_size = batch_size,
+        verbose = verbose, call = call
+      ),
+      filter = filter, n_max = n_max
     ))
   }
 
@@ -155,10 +162,14 @@ sm_fetch_openalex <- function(query = NULL,
 
   if (length(collected) == 0L) {
     .sm_verbose("No results found.", verbose)
-    return(.empty_corpus_with_provenance("openalex", query, "native"))
+    return(.record_request(
+      .empty_corpus_with_provenance("openalex", query, "native"),
+      filter = filter, n_max = n_max
+    ))
   }
 
-  .parse_openalex_results(collected, query, verbose, call)
+  .record_request(.parse_openalex_results(collected, query, verbose, call),
+                  filter = filter, n_max = n_max)
 }
 
 
@@ -191,10 +202,12 @@ sm_fetch_openalex <- function(query = NULL,
   )
 }
 
+#' Provenance rows of a fetch or an enrichment, with the kind of the step
+#' when `kind` is given (see `.provenance_kind()`)
 #' @noRd
 .make_provenance_rows <- function(work_ids, source_name, external_ids,
-                                  query_text, engine_name) {
-  tibble::tibble(
+                                  query_text, engine_name, kind = NULL) {
+  rows <- tibble::tibble(
     work_id = work_ids,
     source = source_name,
     source_id_external = external_ids,
@@ -207,6 +220,8 @@ sm_fetch_openalex <- function(query = NULL,
     ),
     prompt_hash = NA_character_
   )
+  if (!is.null(kind)) rows$kind <- rep_len(kind, nrow(rows))
+  rows
 }
 
 #' Parse OpenAlex work records from the API into an sm_corpus

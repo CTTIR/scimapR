@@ -20,7 +20,9 @@ An \code{sm_corpus} object.
 }
 \description{
 Row-bind all tables of two \code{sm_corpus} objects, the yearly citation
-counts (\code{citations_by_year}) too when either corpus has them.
+counts (\code{citations_by_year}) too when either corpus has them. The bound
+corpus keeps the metadata of \code{corpus1}, with the local input files
+(\code{\link[=sm_register_input]{sm_register_input()}}) of both corpora, each file and content once.
 }
 \details{
 Embeddings are bound when both corpora have them, with the same number
