@@ -88,14 +88,7 @@ sm_cluster_evolution <- function(corpus,
       call = call
     )
   }
-  bad_noise <- !is.null(noise) &&
-    (!is.atomic(noise) || length(noise) != 1L || is.na(noise))
-  if (bad_noise) {
-    cli::cli_abort(
-      "{.arg noise} must be a single cluster id or {.code NULL}.",
-      call = call
-    )
-  }
+  .check_noise_id(noise, call = call)
 
   works <- corpus$works
 
