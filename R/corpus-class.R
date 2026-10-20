@@ -189,8 +189,14 @@
 #' For MeSH headings `score` is 1 for a major topic and 0 otherwise.
 #' Optional: none so far.
 #'
-#' **`embeddings`**: `NULL` or a numeric matrix with one row per work,
-#' named by `work_id`.
+#' **`embeddings`**: `NULL` or a numeric matrix with one row per embedded
+#' work, named by its `work_id`, and one column per dimension. Works may
+#' have no row: works without text to embed ([sm_embed_works()]), works
+#' missing from a cache ([sm_embed_load()]) or works for which a service
+#' has no vector ([sm_enrich_specter()]). The clustering functions give
+#' them no cluster (`NA`), and [sm_network_semantic()] and
+#' [sm_plot_landscape()] leave them out. `metadata$embedding` records the
+#' model (see below).
 #'
 #' **`provenance`**: one row per work and source. Required:
 #'
@@ -262,6 +268,42 @@
 #' 1970-01-01 UTC, as corpora restored from tables store them, ISO 8601
 #' text or dates; [sm_certificate()] and the citation-maturity cut-offs
 #' read all of these.
+#'
+#' Optional: `embedding`, the record of the model behind `embeddings`, a
+#' list that [sm_embed_works()], [sm_enrich_specter()],
+#' [sm_fetch_semantic_scholar()], [sm_embed_load()] (from the cache of
+#' [sm_embed_save()]) and [sm_bind_corpora()] write and
+#' [sm_certificate()] reports:
+#'
+#' | Entry | Type | Content |
+#' | --- | --- | --- |
+#' | `model` | character | Short model name, `"mixed"` for several |
+#' | `model_id` | character | Hugging Face id or Semantic Scholar field |
+#' | `base_model_id` | character | Base model of an adapter, else `NA` |
+#' | `revision` | character | Commit of the model snapshot, or `NA` |
+#' | `base_revision` | character | Commit of the base model, or `NA` |
+#' | `backend` | character | The Python package or the service used |
+#' | `text` | character | The text embedded, such as `"title_abstract"` |
+#' | `prefix` | character | Input prefix, else `""` |
+#' | `versions` | list | Versions of the Python packages used |
+#' | `models` | character | The model ids behind the rows |
+#' | `n_works`, `n_dimensions` | integer | Size of the matrix when made |
+#' | `created` | POSIXct | When the record was written (UTC) |
+#'
+#' `model_id` is the Hugging Face id of the model (for `"specter2"` that
+#' of the adapter, whose base model is `base_model_id`) or the Semantic
+#' Scholar field of the vectors (`"embedding.specter_v2"` or
+#' `"embedding.specter_v1"`), whose `revision` is the model version that
+#' Semantic Scholar reports. `backend` is `"sentence-transformers"`,
+#' `"adapters"`, `"semantic-scholar"` or `"mixed"`; a mix lists its models
+#' in `models`. `prefix` is `"query: "` for `"multilingual-e5"`.
+#' A record whose `n_dimensions` differs from the width of `embeddings`,
+#' or whose `n_works` is smaller than its number of rows, no longer
+#' describes the matrix and counts as no record. Embeddings without a
+#' record, such as those made by earlier versions of scimapR, have a model
+#' that is not recorded: [sm_certificate()] reports it as `"unknown"`, and
+#' the functions that combine embeddings combine them with recorded ones
+#' only when asked to (`mix_models`).
 #'
 #' @return An `sm_corpus` S3 object.
 #'

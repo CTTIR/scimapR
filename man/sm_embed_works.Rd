@@ -6,7 +6,8 @@
 \usage{
 sm_embed_works(
   corpus,
-  model = c("specter2", "scincl", "scibert", "minilm-l6", "mpnet"),
+  model = c("specter2", "scincl", "scibert", "minilm-l6", "mpnet", "multilingual-mpnet",
+    "multilingual-e5"),
   text = c("title_abstract", "title", "abstract"),
   batch_size = 32L,
   cache_dir = tools::R_user_dir("scimapR", "cache"),
@@ -19,13 +20,15 @@ sm_embed_works(
 \arguments{
 \item{corpus}{An \link{sm_corpus} object.}
 
-\item{model}{Character; the embedding model to use. One of \code{"specter2"}
-(default, optimised for scientific text), \code{"scincl"}, \code{"scibert"},
-\code{"minilm-l6"}, or \code{"mpnet"}.}
+\item{model}{Character; the embedding model to use. One of
+\code{"specter2"} (default, optimised for scientific text), \code{"scincl"},
+\code{"scibert"}, \code{"minilm-l6"} and \code{"mpnet"}, which are trained on English
+text, or \code{"multilingual-mpnet"} and \code{"multilingual-e5"}, which place
+works of many languages in one space. See Details.}
 
 \item{text}{Character; which text field(s) to embed. One of
-\code{"title_abstract"} (default, concatenates title and abstract),
-\code{"title"}, or \code{"abstract"}.}
+\code{"title_abstract"} (default, title and abstract together), \code{"title"},
+or \code{"abstract"}.}
 
 \item{batch_size}{Integer; batch size for the transformer model. Defaults
 to \code{32L}.}
@@ -36,8 +39,10 @@ to the scimapR user cache directory.}
 \item{python}{Character or \code{NULL}; path to the Python executable. If \code{NULL},
 uses \pkg{reticulate}'s default Python.}
 
-\item{install_deps}{Logical; if \code{TRUE}, attempt to install
-\code{sentence-transformers} into the Python environment. Defaults to \code{FALSE}.}
+\item{install_deps}{Logical; if \code{TRUE}, install the Python packages the
+chosen model needs with pip first: \code{torch} and \code{adapters} (which brings
+\code{transformers}) for \code{"specter2"}, \code{sentence-transformers} for the other
+models. Defaults to \code{FALSE}.}
 
 \item{verbose}{Logical; if \code{TRUE}, print progress messages.}
 
@@ -45,33 +50,89 @@ uses \pkg{reticulate}'s default Python.}
 }
 \value{
 The input \code{corpus} with \code{corpus$embeddings} replaced by a numeric
-matrix of shape \verb{(n_works, embedding_dim)}. Row names are set to
-\code{work_id}.
+matrix with one row per embedded work and one column per dimension, and
+with \code{corpus$metadata$embedding} recording the model. Row names are the
+\code{work_id}s of the embedded works: every work that has text to embed
+(see Details).
 }
 \description{
 Generates dense vector embeddings for works in an \code{sm_corpus} using
-pretrained transformer models via Python's \code{sentence-transformers} library.
-Requires \pkg{reticulate} and a working Python installation with
-\code{sentence-transformers} installed.
+pretrained transformer models in Python. The default model, \code{specter2},
+loads the SPECTER2 adapter with the Python package \code{adapters}; the other
+models load with \code{sentence-transformers}. Requires \pkg{reticulate} and
+a Python installation with the packages the chosen model needs.
 }
 \details{
-Model name mapping:
+Models and their Hugging Face models:
 \itemize{
-\item \code{"specter2"} -> \code{"allenai/specter2"}
-\item \code{"scincl"} -> \code{"malteos/scincl"}
-\item \code{"scibert"} -> \code{"allenai/scibert_scivocab_uncased"}
-\item \code{"minilm-l6"} -> \code{"sentence-transformers/all-MiniLM-L6-v2"}
-\item \code{"mpnet"} -> \code{"sentence-transformers/all-mpnet-base-v2"}
+\item \code{"specter2"}: \code{allenai/specter2}, an adapter on \code{allenai/specter2_base};
+\item \code{"scincl"}: \code{malteos/scincl};
+\item \code{"scibert"}: \code{allenai/scibert_scivocab_uncased};
+\item \code{"minilm-l6"}: \code{sentence-transformers/all-MiniLM-L6-v2};
+\item \code{"mpnet"}: \code{sentence-transformers/all-mpnet-base-v2};
+\item \code{"multilingual-mpnet"}:
+\code{sentence-transformers/paraphrase-multilingual-mpnet-base-v2}, trained
+on more than 50 languages;
+\item \code{"multilingual-e5"}: \code{intfloat/multilingual-e5-base}, trained on about
+100 languages.
 }
 
-Python and \code{sentence-transformers} are soft dependencies (in Suggests).
-If unavailable, the function aborts with an informative message.
+The first five are trained on English text. \code{"specter2"} loads with the
+Python package \code{adapters}, the others with \code{sentence-transformers}.
+
+\code{"specter2"} follows its model card: the base model with the proximity
+adapter, title and abstract joined by the separator token \verb{[SEP]}
+without spaces, at most 512 tokens, and the first token of the last
+layer as the embedding. It needs the Python packages \code{torch},
+\code{transformers} and \code{adapters}; the other models need
+\code{sentence-transformers}. A missing package stops the function with an
+error naming it, and so does a model that does not load; it never falls
+back to another model.
+
+The other models join title and abstract with a space. For
+\code{"multilingual-e5"} every text starts with \code{"query: "}, the prefix its
+model card gives for clustering and for using the embeddings as
+features; its embeddings have unit length. \code{"multilingual-mpnet"} reads
+at most 128 tokens, so it sees the title and the start of a long
+abstract only. \code{"scibert"} has no sentence-transformers configuration,
+so sentence-transformers averages its token vectors, with a warning.
+
+When more than 10\% of the works with a known language
+(\code{works$language}: names such as \code{"German"}, ISO 639-1 codes such as
+\code{"de"} or ISO 639-2 codes such as \code{"ger"}) are not in English and an
+English-only model is chosen, a message (class
+\code{scimapR_embed_multilingual}) suggests a multilingual model; it changes
+nothing else.
+
+Works without text to embed (with \code{"title_abstract"} neither a title
+nor an abstract, with \code{"title"} or \code{"abstract"} no such field; blank
+text counts as none) would all get the same vector and become each
+other's nearest neighbours. They are left out, with one warning (class
+\code{scimapR_embed_no_text}) giving their number: they get no row in
+\code{corpus$embeddings}, so the clustering functions give them no cluster
+(\code{NA}), and \code{\link[=sm_network_semantic]{sm_network_semantic()}} and \code{\link[=sm_plot_landscape]{sm_plot_landscape()}} leave
+them out, as they do for works missing from a cache loaded with
+\code{\link[=sm_embed_load]{sm_embed_load()}}.
+
+\code{corpus$metadata$embedding} records what produced the embeddings: the
+model, its Hugging Face id and, when the local model snapshot in
+\code{cache_dir} shows it, its revision, the text used, the input prefix and
+the versions of the Python packages (see \code{\link[=sm_corpus]{sm_corpus()}}).
+\code{\link[=sm_certificate]{sm_certificate()}} reports it in \code{embedding_info}.
+
+Python and its packages are soft dependencies (\pkg{reticulate} is in
+Suggests). If they are unavailable, the function aborts with an
+informative message.
 }
 \examples{
 \dontrun{
 corpus <- sm_example_corpus(with_embeddings = FALSE)
 corpus <- sm_embed_works(corpus, model = "minilm-l6")
 dim(corpus$embeddings)
+corpus$metadata$embedding$model_id
+
+# a corpus with works in several languages
+corpus <- sm_embed_works(corpus, model = "multilingual-mpnet")
 }
 }
 \seealso{

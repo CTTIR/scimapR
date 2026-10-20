@@ -34,7 +34,8 @@ to \code{5L}.}
 \value{
 The input \code{corpus} with a \code{cluster_id} column added to
 \code{corpus$works}. Noise points (not assigned to any cluster) receive
-\code{cluster_id = 0L}.
+\code{cluster_id = 0L}. Works without a row in \code{corpus$embeddings} (such as
+works without text, see \code{\link[=sm_embed_works]{sm_embed_works()}}) get \code{NA}.
 }
 \description{
 Clusters works using the HDBSCAN (Hierarchical Density-Based Spatial

@@ -10,7 +10,8 @@
 #' @param dark Logical; dark mode?
 #' @param ... Additional arguments.
 #'
-#' @return A `ggplot` object.
+#' @return A `ggplot` object with one point per row of
+#'   `corpus$embeddings`, so works without an embedding are not shown.
 #'
 #' @family plots
 #' @export

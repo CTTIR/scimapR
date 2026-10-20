@@ -20,7 +20,9 @@ The input \code{corpus} (invisibly).
 \description{
 Saves the embeddings matrix from an \code{sm_corpus} to an RDS file on disk.
 This allows caching expensive embedding computations for later reuse
-with \code{\link[=sm_embed_load]{sm_embed_load()}}.
+with \code{\link[=sm_embed_load]{sm_embed_load()}}. The cache keeps the record of the model behind
+the embeddings (\code{corpus$metadata$embedding}, see \code{\link[=sm_corpus]{sm_corpus()}}) when the
+corpus has one.
 }
 \examples{
 \dontrun{

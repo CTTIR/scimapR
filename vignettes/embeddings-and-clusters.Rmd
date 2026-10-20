@@ -77,12 +77,13 @@ sm_plot_thematic_map(corpus)
 For production use, compute embeddings with SPECTER2:
 
 ```r
-# Requires Python + sentence-transformers
+# Requires Python with the packages torch, transformers and adapters
 corpus <- sm_embed_works(corpus, model = "specter2")
 ```
 
 Alternatively, fetch pre-computed SPECTER embeddings from Semantic Scholar:
 
 ```r
-corpus <- sm_enrich_specter(corpus)
+# replace = TRUE: the corpus already has embeddings of another model
+corpus <- sm_enrich_specter(corpus, replace = TRUE)
 ```

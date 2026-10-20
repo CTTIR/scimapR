@@ -16,7 +16,10 @@
 #' @param api_key Semantic Scholar API key. Read from
 #'   `SEMANTIC_SCHOLAR_API_KEY` env var by default.
 #' @param include_embeddings Logical; if `TRUE`, request SPECTER embeddings
-#'   for each paper and attach as an embedding matrix.
+#'   for each paper and attach as an embedding matrix. These are the API's
+#'   default SPECTER v1 vectors, recorded in `metadata$embedding` with the
+#'   model id `"embedding.specter_v1"` (see [sm_corpus()]);
+#'   [sm_enrich_specter()] fetches SPECTER v2 vectors.
 #' @param verbose Print progress messages?
 #' @param call Caller environment for error reporting.
 #'
@@ -239,18 +242,24 @@ sm_fetch_semantic_scholar <- function(query = NULL,
   sources <- .parse_s2_sources(results)
 
   # ---- embeddings ----
+  # the API's default `embedding` field holds SPECTER v1 vectors, recorded
+  # as such so that sm_enrich_specter() (SPECTER v2) does not mix them in
   embeddings <- NULL
+  metadata <- list()
   if (include_embeddings) {
     emb_list <- purrr::map(results, \(p) {
       e <- p[["embedding"]][["vector"]]
       if (is.null(e)) return(NULL)
-      as.double(e)
+      as.double(unlist(e))
     })
     valid <- !purrr::map_lgl(emb_list, is.null)
     if (any(valid)) {
       emb_mat <- do.call(rbind, emb_list[valid])
       rownames(emb_mat) <- work_ids[valid]
       embeddings <- emb_mat
+      reported <- purrr::map(results[valid], \(p) p[["embedding"]][["model"]])
+      metadata$embedding <- .s2_embedding_record("specter_v1", reported,
+                                                 emb_mat)
     }
   }
 
@@ -273,7 +282,8 @@ sm_fetch_semantic_scholar <- function(query = NULL,
     sources = sources,
     references = references,
     embeddings = embeddings,
-    provenance = provenance
+    provenance = provenance,
+    metadata = metadata
   )
 }
 

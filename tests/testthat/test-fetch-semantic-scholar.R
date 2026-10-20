@@ -93,6 +93,12 @@ test_that("sm_fetch_semantic_scholar attaches embeddings when requested", {
   expect_true(is.matrix(corpus$embeddings))
   expect_equal(ncol(corpus$embeddings), 3L)
   expect_equal(nrow(corpus$embeddings), 1L)
+  # recorded as the API's default SPECTER v1 vectors, which
+  # sm_enrich_specter() (SPECTER v2) does not mix in
+  rec <- corpus$metadata$embedding
+  expect_identical(rec$model_id, "embedding.specter_v1")
+  expect_identical(rec$revision, "specter")
+  expect_identical(c(rec$n_works, rec$n_dimensions), c(1L, 3L))
 })
 
 test_that("sm_fetch_semantic_scholar verbose prints progress", {

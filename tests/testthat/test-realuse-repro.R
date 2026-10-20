@@ -172,7 +172,6 @@ test_that("H6: OpenAlex impact fields survive parsing", {
 })
 
 test_that("H7: multilingual models map to ids and get their prefix", {
-  skip("H7 pending - prompt A08")
   # Intent: about 15% of the fixture works are German. Multilingual model
   # names map to their Hugging Face ids, and e5 models get the "query: "
   # input prefix their model card documents; other models get none.
@@ -397,7 +396,6 @@ test_that("H16: the WoS reader takes the corresponding author from RP", {
 })
 
 test_that("H17: specter2 needs the adapters module", {
-  skip("H17 pending - prompt A08")
   skip_if_not_installed("reticulate")
   # Intent: allenai/specter2 is an adapter, so the default model takes the
   # adapters path. With Python available and the adapters module missing,

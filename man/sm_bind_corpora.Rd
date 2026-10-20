@@ -4,12 +4,16 @@
 \alias{sm_bind_corpora}
 \title{Bind two corpora together}
 \usage{
-sm_bind_corpora(corpus1, corpus2)
+sm_bind_corpora(corpus1, corpus2, mix_models = FALSE)
 }
 \arguments{
 \item{corpus1}{An \code{sm_corpus}.}
 
 \item{corpus2}{An \code{sm_corpus}.}
+
+\item{mix_models}{Logical; bind embeddings that come from different
+models (or of which only one corpus records its model)? Defaults to
+\code{FALSE}. See Details.}
 }
 \value{
 An \code{sm_corpus} object.
@@ -17,6 +21,19 @@ An \code{sm_corpus} object.
 \description{
 Row-bind all tables of two \code{sm_corpus} objects, the yearly citation
 counts (\code{citations_by_year}) too when either corpus has them.
+}
+\details{
+Embeddings are bound when both corpora have them, with the same number
+of dimensions, and when they come from the same model as
+\code{metadata$embedding} records it (see \code{\link[=sm_corpus]{sm_corpus()}}); the bound corpus
+keeps that record. Embeddings that record different models, or of
+which only one corpus records its model, are not comparable: the
+function stops (class \code{scimapR_embedding_model_mismatch}) unless
+\code{mix_models = TRUE}, which binds them and records the model as
+\code{"mixed"}. Embeddings of two corpora that record no model, such as
+corpora embedded by earlier versions of scimapR, are bound as before,
+and the model of the bound rows stays unrecorded. When only one corpus
+has embeddings, or their widths differ, the bound corpus has none.
 }
 \seealso{
 Other corpus:

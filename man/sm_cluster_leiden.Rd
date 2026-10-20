@@ -25,7 +25,8 @@ Higher values produce more (smaller) clusters. Defaults to \code{1.0}.}
 }
 \value{
 The input \code{corpus} with a \code{cluster_id} column added to
-\code{corpus$works}.
+\code{corpus$works}. Works that are not nodes of the network, such as works
+without a row in \code{corpus$embeddings}, get \code{NA}.
 }
 \description{
 Clusters works using the Leiden community detection algorithm via

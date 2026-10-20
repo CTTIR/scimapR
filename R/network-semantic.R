@@ -18,6 +18,7 @@
 #' @details
 #' Embeddings must be present in `corpus$embeddings` (a numeric matrix with
 #' row names matching `work_id`). Use [sm_embed_works()] to compute them.
+#' Works without a row, such as works without text, are not nodes.
 #'
 #' The function computes cosine similarity via matrix multiplication on
 #' L2-normalised vectors and selects the top-`k` neighbours for each work.

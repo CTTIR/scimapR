@@ -81,3 +81,18 @@ test_that("sm_cluster_hdbscan uses default min_samples = min_cluster_size", {
   )
   expect_true("cluster_id" %in% names(out$works))
 })
+
+test_that("works without an embedding row get no cluster", {
+  skip_if_not_installed("dbscan")
+  skip_if_not_installed("uwot")
+  # a partial matrix, as sm_embed_works() leaves for works without text
+  corpus <- sm_example_corpus(n_works = 60, n_clusters = 3,
+                              with_embeddings = TRUE, seed = 8)
+  corpus$embeddings <- corpus$embeddings[-(1:4), , drop = FALSE]
+  out <- suppressMessages(
+    sm_cluster_hdbscan(corpus, min_cluster_size = 10L, reducer = "pca")
+  )
+  expect_identical(nrow(out$works), 60L)
+  expect_true(all(is.na(out$works$cluster_id[1:4])))
+  expect_false(anyNA(out$works$cluster_id[-(1:4)]))
+})
