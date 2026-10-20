@@ -36,6 +36,12 @@ embedding the corpus hash as part of the filename for traceability.
 
 \code{sm_snapshot_load()} reads a previously saved snapshot and validates that
 the loaded object is a well-formed \code{sm_corpus}.
+
+The snapshot stores the corpus hash (\code{\link[=sm_hash_corpus]{sm_hash_corpus()}}) in
+\code{metadata$corpus_hash} and the version of the hash algorithm in
+\code{metadata$hash_version}. \code{sm_snapshot_load()} recomputes the hash with
+that version, or with version 1 for snapshots written before scimapR
+0.5.0, and warns when it differs.
 }
 \examples{
 corpus <- sm_example_corpus()
@@ -51,6 +57,7 @@ Other reproducibility:
 \code{\link[=sm_cite_corpus]{sm_cite_corpus()}},
 \code{\link[=sm_diff_corpora]{sm_diff_corpora()}},
 \code{\link[=sm_hash_corpus]{sm_hash_corpus()}},
-\code{\link[=sm_provenance]{sm_provenance()}}
+\code{\link[=sm_provenance]{sm_provenance()}},
+\code{\link[=sm_register_input]{sm_register_input()}}
 }
 \concept{reproducibility}

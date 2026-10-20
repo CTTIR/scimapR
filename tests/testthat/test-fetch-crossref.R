@@ -186,3 +186,25 @@ test_that("sm_fetch_crossref records the corresponding author as unknown", {
   expect_identical(a$position, 1:2)
   expect_identical(a$is_corresponding, c(NA, NA))
 })
+
+test_that("sm_fetch_crossref records its request for a rebuild", {
+  page <- 0L
+  local_mocked_bindings(
+    req_perform = function(req, ...) {
+      structure(list(), class = "httr2_response")
+    },
+    resp_body_json = function(resp, ...) {
+      page <<- page + 1L
+      if (page == 1L) .crossref_body(list(.crossref_item()), total = 1L)
+      else .crossref_body(list())
+    },
+    .package = "httr2"
+  )
+  corpus <- sm_fetch_crossref(filter = "from-pub-date:2020", n_max = 5,
+                              mailto = "", engine = "native", verbose = FALSE)
+  prov <- corpus$provenance
+  expect_identical(prov$kind, "api_query")
+  expect_identical(prov$filter, "from-pub-date:2020")
+  expect_identical(prov$n_max, 5L)
+  expect_identical(prov$query, NA_character_)
+})

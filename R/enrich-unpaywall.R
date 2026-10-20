@@ -108,7 +108,8 @@ sm_enrich_unpaywall <- function(corpus,
     source_name = "unpaywall",
     external_ids = target_dois,
     query_text = "enrich_unpaywall",
-    engine_name = "native"
+    engine_name = "native",
+    kind = "enrichment"
   )
 
   corpus$works <- works

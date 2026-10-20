@@ -119,6 +119,7 @@ reference:
       - sm_certificate
       - sm_rebuild_from_cert
       - sm_verify_certificate
+      - sm_register_input
       - sm_provenance
       - sm_hash_corpus
       - sm_cite_corpus

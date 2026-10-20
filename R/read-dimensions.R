@@ -193,13 +193,14 @@ sm_read_dimensions <- function(path,
     source    = "dimensions",
     source_id_external = as.character(raw_dim_id),
     fetch_date = Sys.time(),
-    query     = path,
+    query     = .file_step_path(path),
     engine    = "native",
     scimapR_version = tryCatch(
       as.character(utils::packageVersion("scimapR")),
       error = function(e) "0.1.0"
     ),
-    prompt_hash = NA_character_
+    prompt_hash = NA_character_,
+    kind      = "file"
   )
 
   .sm_verbose("Parsed {n} Dimensions record{?s}.", verbose)

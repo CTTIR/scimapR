@@ -7,6 +7,12 @@
 #' `sm_snapshot_load()` reads a previously saved snapshot and validates that
 #' the loaded object is a well-formed `sm_corpus`.
 #'
+#' The snapshot stores the corpus hash ([sm_hash_corpus()]) in
+#' `metadata$corpus_hash` and the version of the hash algorithm in
+#' `metadata$hash_version`. `sm_snapshot_load()` recomputes the hash with
+#' that version, or with version 1 for snapshots written before scimapR
+#' 0.5.0, and warns when it differs.
+#'
 #' @param corpus An `sm_corpus` object.
 #' @param path Character. File path for the snapshot. If `NULL`, a path is
 #'   generated in the current working directory using the corpus hash.
@@ -53,6 +59,7 @@ sm_snapshot <- function(corpus,
 
   # Store hash in metadata before saving
   corpus$metadata$corpus_hash <- sm_hash_corpus(corpus)
+  corpus$metadata$hash_version <- .hash_version
   corpus$metadata$snapshot_date <- Sys.time()
 
   saveRDS(corpus, file = path, compress = compress)
@@ -84,10 +91,15 @@ sm_snapshot_load <- function(path,
 
   validate_sm_corpus(corpus, call = call)
 
-  # Verify hash if stored
+  # Verify hash if stored, with the algorithm that computed it (snapshots
+  # written before the version was recorded used version 1)
   stored_hash <- corpus$metadata$corpus_hash
   if (!is.na(stored_hash %||% NA_character_)) {
-    current_hash <- sm_hash_corpus(corpus)
+    version <- .check_hash_version(
+      corpus$metadata$hash_version %||% 1L,
+      what = "The snapshot's {.field hash_version}", call = call
+    )
+    current_hash <- sm_hash_corpus(corpus, version = version)
     if (!identical(stored_hash, current_hash)) {
       cli::cli_warn(c(
         "!" = "Corpus hash mismatch after loading snapshot.",

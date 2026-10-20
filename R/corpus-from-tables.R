@@ -130,6 +130,14 @@
 #'   still filled with typed `NA`, and concept vocabularies are still
 #'   renamed).
 #' @param metadata Optional list of corpus-level metadata.
+#' @param inputs `NULL` (default) or the local files the tables come from,
+#'   such as a database snapshot or a publication tracker, registered with
+#'   [sm_register_input()] after the corpus is built: a character vector of
+#'   paths, whose names (where given) become the `role` of each file, or a
+#'   data frame with a `path` column and optional `role` and `builder`
+#'   columns. Files already listed in `metadata$local_inputs` are kept, and
+#'   a file registered again replaces its row. [sm_certificate()] records
+#'   them with their SHA-256 hashes.
 #' @param call Caller environment for error reporting.
 #'
 #' @return A validated `sm_corpus` object.
@@ -153,10 +161,20 @@
 #' corpus <- sm_corpus_from_tables(list(works = works,
 #'                                      authorships = authorships))
 #' corpus
+#'
+#' # record the file the tables were read from
+#' snapshot <- tempfile(fileext = ".csv")
+#' utils::write.csv(works, snapshot, row.names = FALSE)
+#' corpus <- sm_corpus_from_tables(
+#'   list(works = utils::read.csv(snapshot)),
+#'   inputs = c("source table" = snapshot)
+#' )
+#' corpus$metadata$local_inputs[, c("basename", "role", "sha256")]
 sm_corpus_from_tables <- function(tables,
                                   schema = NULL,
                                   .coerce = TRUE,
                                   metadata = list(),
+                                  inputs = NULL,
                                   call = rlang::caller_env()) {
   if (!is.list(tables) || is.null(names(tables))) {
     cli::cli_abort("{.arg tables} must be a named list of data frames.",
@@ -219,5 +237,5 @@ sm_corpus_from_tables <- function(tables,
   )
 
   validate_sm_corpus(corpus, call = call)
-  corpus
+  .register_inputs(corpus, inputs, call = call)
 }

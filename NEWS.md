@@ -451,6 +451,50 @@
   `sm_embed_load()` restores it, or leaves the model unrecorded for a cache
   without one, and `sm_fetch_semantic_scholar(include_embeddings = TRUE)`
   records its SPECTER v1 vectors.
+- Certificates record local input files with SHA-256
+  (`sm_register_input()`, `sm_corpus_from_tables(inputs =)`);
+  `sm_verify_certificate()` checks them (`base_dir`), reports a `status` per
+  check and warns about inputs it could not find; `sm_rebuild_from_cert()`
+  names the local inputs it cannot replay. The `checks` of a verification
+  gain the columns `status` (`"pass"`, `"fail"` or `"not checked"`) and
+  `location`, and the result gains `n_not_checked`: a check that was not
+  made has `pass = NA`, and the overall result passes unless a check
+  failed. A relative input path is looked for in `base_dir`, in the folder
+  of the certificate file, in the working directory and last at the
+  absolute path recorded at registration. Printing a verification now shows
+  a symbol for each check, and printing a certificate the number of local
+  inputs. `sm_bind_corpora()` keeps the local inputs of both corpora.
+- `sm_rebuild_from_cert()` replays only the searches of OpenAlex, PubMed and
+  Crossref, through `sm_fetch_openalex()`, `sm_fetch_pubmed()` or
+  `sm_fetch_crossref()` with the engine, filter and `n_max` they were made
+  with. Before, it cut every search at 1,000 works and sent the file paths
+  of file reads and the placeholder queries of enrichments to the APIs as
+  search text. `sm_fetch_openalex()`, `sm_fetch_pubmed()`,
+  `sm_fetch_crossref()` and `sm_corpus_for_question()` now record `kind`,
+  `filter` and `n_max` in provenance, and `sm_corpus_for_question()`
+  records the client package that ran each search (`"openalexR"`,
+  `"rentrez"` or `"rcrossref"`) as its `engine` instead of `"native"`, and
+  for Crossref an `n_max` of at most 1,000, the most its single request
+  returns; the file readers record the kind `"file"` and the file relative
+  to the working directory, or its name, instead of the path as given; the
+  enrichers record the kind `"enrichment"`; and certificates write file
+  steps without absolute paths. A message names the steps and local inputs
+  that were not replayed. When a certificate has no search to replay but
+  records file reads or local inputs, the rebuild stops with an error that
+  names them instead of returning an empty corpus; a certificate of only
+  synthetic records, enrichments, refreshes or searches of other sources
+  still gives an empty corpus. A search without a recorded `n_max`, as in
+  certificates of earlier versions, fetches up to the number of works of
+  the certified corpus. The rebuilt corpus holds the works of the searches
+  and their provenance only.
+- `sm_hash_corpus()` no longer depends on the order of the columns of a
+  table or of the rows of the embeddings (hash version 2; new argument
+  `version`), so hashes of new certificates and snapshots differ from
+  earlier ones for the same content. Certificates and snapshots record
+  `hash_version`, and those written without it are checked with the earlier
+  algorithm (`version = 1`), so they stay verifiable. The documentation now
+  says that the hash leaves out the provenance table, which records fetch
+  dates, and the metadata, the local inputs included.
 
 # scimapR 0.4.0
 

@@ -209,3 +209,76 @@ test_that("a legacy metrics table still feeds the impact outcome", {
   expect_identical(res$source, "corpus$metrics$cnci")
   expect_false("metrics" %in% names(corpus[1:5]))
 })
+
+test_that("sm_corpus_from_tables registers its input files", {
+  withr::local_dir(withr::local_tempdir())
+  writeLines(c("work_id,title", "W1,Alpha"), "works.csv")
+  writeLines(c("pattern,institution", "field,Unit A"), "dict.csv")
+  works <- data.frame(work_id = "W1", title = "Alpha")
+  corpus <- suppressMessages(sm_corpus_from_tables(
+    list(works = works),
+    inputs = c("source table" = "works.csv", "dict.csv")
+  ))
+  inputs <- corpus$metadata$local_inputs
+  expect_s3_class(inputs, "tbl_df")
+  expect_identical(inputs$path, c("works.csv", "dict.csv"))
+  expect_identical(inputs$role, c("source table", NA))
+  expect_identical(inputs$sha256[1],
+                   digest::digest("works.csv", algo = "sha256", file = TRUE))
+
+  # a data frame gives builders, and inputs passed in metadata stay
+  spec <- data.frame(path = "dict.csv", role = "dictionary",
+                     builder = "R/02_match.R::match_units")
+  again <- suppressMessages(sm_corpus_from_tables(
+    list(works = works), metadata = corpus$metadata, inputs = spec
+  ))
+  inputs <- again$metadata$local_inputs
+  expect_identical(inputs$path, c("works.csv", "dict.csv"))
+  expect_identical(inputs$role, c("source table", "dictionary"))
+  expect_identical(inputs$builder, c(NA, "R/02_match.R::match_units"))
+
+  # inputs restored as a list of rows (as YAML or JSON give them back) are
+  # one tibble again
+  meta <- corpus$metadata
+  meta$local_inputs <- .local_inputs_to_list(meta$local_inputs)
+  restored <- suppressMessages(sm_corpus_from_tables(list(works = works),
+                                                     metadata = meta))
+  expect_identical(restored$metadata$local_inputs,
+                   corpus$metadata$local_inputs)
+
+  expect_error(
+    suppressMessages(sm_corpus_from_tables(list(works = works), inputs = 1)),
+    "character vector"
+  )
+  expect_error(
+    suppressMessages(sm_corpus_from_tables(list(works = works),
+                                           inputs = "none.csv")),
+    "No such file"
+  )
+})
+
+test_that("a corpus rebuilt from the fixture's tables certifies its input", {
+  # as the integration test does: the fixture's tables and metadata and a
+  # relative path to a temporary copy of an input; the certificate names
+  # no folder of the installed package
+  skip_if_not_installed("yaml")
+  fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
+  withr::local_dir(withr::local_tempdir())
+  file.copy(sm_example_files("example_realuse_reference.csv"),
+            "reference.csv")
+  tables <- c("works", "authors", "authorships", "institutions", "sources",
+              "references", "concepts", "provenance", "screening",
+              "citations_by_year")
+  corpus <- suppressMessages(sm_corpus_from_tables(
+    unclass(fix)[tables], metadata = fix$metadata,
+    inputs = c(tracker = "reference.csv")
+  ))
+  cert <- suppressMessages(sm_certificate(corpus))
+  expect_identical(cert$local_inputs$path, "reference.csv")
+  expect_identical(cert$local_inputs$role, "tracker")
+  library_dir <- normalizePath(system.file(package = "scimapR"),
+                               winslash = "/")
+  text <- yaml::as.yaml(.cert_to_list(cert))
+  expect_false(grepl(library_dir, text, fixed = TRUE))
+  expect_true(sm_verify_certificate(corpus, cert)$pass)
+})

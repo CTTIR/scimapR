@@ -454,3 +454,14 @@ test_that("the WoS engines agree on RP over several lines and on C1", {
                    c("UNIV R, R CITY, COUNTRY.", "INST X, X CITY, COUNTRY.",
                      "INST X, X CITY, COUNTRY."))
 })
+
+test_that("sm_read_wos records a file step relative to the working directory", {
+  dir <- withr::local_tempdir()
+  dir.create(file.path(dir, "data"))
+  file.copy(test_path("fixtures", "realuse-wos-sample.txt"),
+            file.path(dir, "data", "export.txt"))
+  withr::local_dir(dir)
+  corpus <- sm_read_wos(file.path(dir, "data", "export.txt"), verbose = FALSE)
+  expect_identical(unique(corpus$provenance$kind), "file")
+  expect_identical(unique(corpus$provenance$query), "data/export.txt")
+})

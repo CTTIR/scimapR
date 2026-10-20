@@ -19,7 +19,9 @@
 #' @param verbose Print progress messages?
 #' @param call Caller environment for error reporting.
 #'
-#' @return An `sm_corpus` object.
+#' @return An `sm_corpus` object. Its provenance records the search
+#'   (`query`, `filter`, `n_max` and `engine`), so that
+#'   [sm_rebuild_from_cert()] can run it again.
 #'
 #' @family fetchers
 #' @export
@@ -49,10 +51,15 @@ sm_fetch_crossref <- function(query = NULL,
     engine <- if (rlang::is_installed("rcrossref")) "rcrossref" else "native"
   }
 
+  # the request goes into provenance, so that sm_rebuild_from_cert() can
+  # replay it
   if (engine == "rcrossref") {
-    return(.fetch_crossref_rcrossref(
-      query = query, filter = filter, n_max = n_max,
-      mailto = mailto, verbose = verbose, call = call
+    return(.record_request(
+      .fetch_crossref_rcrossref(
+        query = query, filter = filter, n_max = n_max,
+        mailto = mailto, verbose = verbose, call = call
+      ),
+      filter = filter, n_max = n_max
     ))
   }
 
@@ -113,10 +120,14 @@ sm_fetch_crossref <- function(query = NULL,
 
   if (length(collected) == 0L) {
     .sm_verbose("No results found.", verbose)
-    return(.empty_corpus_with_provenance("crossref", query, "native"))
+    return(.record_request(
+      .empty_corpus_with_provenance("crossref", query, "native"),
+      filter = filter, n_max = n_max
+    ))
   }
 
-  .parse_crossref_results(collected, query, verbose, call)
+  .record_request(.parse_crossref_results(collected, query, verbose, call),
+                  filter = filter, n_max = n_max)
 }
 
 # ---- internal helpers ----

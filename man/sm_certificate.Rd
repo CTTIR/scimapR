@@ -12,7 +12,12 @@ sm_certificate(corpus, path = NULL, call = rlang::caller_env())
 
 sm_rebuild_from_cert(cert, verbose = TRUE, call = rlang::caller_env())
 
-sm_verify_certificate(corpus, cert, call = rlang::caller_env())
+sm_verify_certificate(
+  corpus,
+  cert,
+  base_dir = NULL,
+  call = rlang::caller_env()
+)
 
 \method{print}{sm_certificate}(x, ...)
 
@@ -30,6 +35,9 @@ If \code{NULL}, the certificate is returned but not written to disk.}
 
 \item{verbose}{Logical. Print progress?}
 
+\item{base_dir}{\code{NULL} or the folder that the relative paths of the
+local inputs are relative to; looked in first. See "Local inputs".}
+
 \item{x}{An \code{sm_certificate} or \code{sm_cert_verification} object.}
 
 \item{...}{Ignored.}
@@ -37,42 +45,53 @@ If \code{NULL}, the certificate is returned but not written to disk.}
 \value{
 For \code{sm_certificate()}: an \code{sm_certificate} S3 object (list),
 also written to \code{path} if provided.
-For \code{sm_rebuild_from_cert()}: an \code{sm_corpus} reconstructed from the
-certificate. For \code{sm_verify_certificate()}: an \code{sm_cert_verification}
-S3 object with pass/fail and details.
+For \code{sm_rebuild_from_cert()}: an \code{sm_corpus} with the works of the
+replayed searches. For \code{sm_verify_certificate()}: an
+\code{sm_cert_verification} S3 object, a list with \code{pass}, \code{checks},
+\code{n_not_checked}, \code{corpus_hash} (computed with the certificate's hash
+version), \code{cert_hash}, \code{cert_created} and \code{hash_version}.
 
 \code{x} invisibly (print methods).
 }
 \description{
-A corpus certificate is a self-contained YAML document that captures
-every query, file, enrichment, embedding, screening decision, and chat
-interaction used to produce a corpus. It enables exact re-derivation
-of the corpus from scratch.
+A corpus certificate is a self-contained YAML document that records how
+a corpus was made and lets others check it: the corpus hash
+(\code{\link[=sm_hash_corpus]{sm_hash_corpus()}}) and the size of its tables, the steps recorded in
+its provenance (searches, file reads, enrichments and refreshes), a
+summary of its screening decisions, its embeddings and their model, and
+the local input files registered with \code{\link[=sm_register_input]{sm_register_input()}}, each with
+its SHA-256 hash.
 
 \code{sm_certificate()} creates a certificate from a corpus.
-\code{sm_rebuild_from_cert()} re-runs every recorded search to reconstruct
-the corpus. \code{sm_verify_certificate()} compares a live corpus against
-a certificate to detect divergence.
+\code{sm_verify_certificate()} compares a live corpus, and its local input
+files, against a certificate to detect divergence.
+\code{sm_rebuild_from_cert()} runs the recorded searches again (see
+"Rebuilding a corpus"); file reads and local inputs cannot be replayed,
+and verification checks them instead.
 
 Each recorded step (\code{queries}) has a \code{source}, \code{query}, \code{engine} and
-\code{kind}: \code{"api_query"} for searches and file reads, \code{"enrichment"} for
+\code{kind}: \code{"api_query"} for searches of a bibliographic API, \code{"file"} for
+records read from a local file (the file relative to the working
+directory when it lies below it, else its name), \code{"enrichment"} for
 steps such as \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}} that added fields to works
 already in the corpus, \code{"refresh"} for \code{\link[=sm_refresh]{sm_refresh()}} and \code{"manual"}
-for synthetic records. The kind comes from the provenance column
-\code{kind}, else from the source label. \code{sm_rebuild_from_cert()} replays
-only the \code{"api_query"} steps; for a certificate without kinds it infers
-them from the source.
+for synthetic records. The searches of \code{\link[=sm_fetch_openalex]{sm_fetch_openalex()}},
+\code{\link[=sm_fetch_pubmed]{sm_fetch_pubmed()}}, \code{\link[=sm_fetch_crossref]{sm_fetch_crossref()}} and
+\code{\link[=sm_corpus_for_question]{sm_corpus_for_question()}} also record their \code{filter} and \code{n_max}. The
+kind comes from the provenance column \code{kind}, else (for corpora and
+certificates written before kinds were recorded) from the source label,
+the query and the engine (see \code{\link[=sm_provenance]{sm_provenance()}}).
 }
 \details{
-Certificates write their timestamps (\code{created} and the corpus's
-\code{build_date} and \code{last_refresh}) in UTC as ISO 8601 text, for example
-\verb{2026-10-17T11:45:00Z}, and read back both this form and the older one
-with a numeric offset. Printing a certificate shows \code{created} in UTC as
-well, so a certificate read back from YAML prints the same time as the
-one it was written from. The corpus timestamps may be stored as POSIXct, a
-Date, numeric seconds since 1970-01-01 UTC (as in corpora restored from
-tables) or ISO 8601 text. A missing or implausible value is written as
-\code{NA}.
+Certificates write their timestamps (\code{created}, the corpus's
+\code{build_date} and \code{last_refresh}, and the \code{registered_at} of each local
+input) in UTC as ISO 8601 text, for example \verb{2026-10-17T11:45:00Z}, and
+read back both this form and the older one with a numeric offset.
+Printing a certificate shows \code{created} in UTC as well, so a certificate
+read back from YAML prints the same time as the one it was written from.
+The corpus timestamps may be stored as POSIXct, a Date, numeric seconds
+since 1970-01-01 UTC (as in corpora restored from tables) or ISO 8601
+text. A missing or implausible value is written as \code{NA}.
 
 \code{embedding_info} describes \code{corpus$embeddings}: its size (\code{n_works},
 \code{n_dimensions}) and, from the record in \code{corpus$metadata$embedding}
@@ -87,13 +106,81 @@ as embeddings made by earlier versions of scimapR, or a matrix replaced
 by hand) and \code{"none"} when the corpus has no embeddings. In these two
 cases \code{model} and \code{model_id} say the same.
 }
+\section{Local inputs}{
+
+The \code{local_inputs} block lists the files of \code{metadata$local_inputs}
+(\code{\link[=sm_register_input]{sm_register_input()}}) with their \code{path}, \code{path_abs}, \code{root},
+\code{basename}, \code{sha256}, \code{bytes}, \code{role}, \code{builder} and \code{registered_at}.
+It is a tibble in the certificate object, with no rows when no file is
+registered, and a list with one entry per file in the YAML file.
+
+\code{sm_verify_certificate()} adds one check per file, named
+\verb{input:<basename>} (\verb{input:<path>} when files share a name). It looks
+for a file with a relative \code{path} in \code{base_dir}, then in the folder of
+the certificate file (when \code{cert} is a path), then in the working
+directory, and last at \code{path_abs}; a file with an absolute \code{path} is
+looked for there and at \code{path_abs}. The first file found is hashed
+again, its check passes when the hash is the recorded one, and the
+check's \code{location} says where it was found. A file found nowhere is not
+checked, and the function warns (class \code{scimapR_cert_inputs_missing}),
+naming the files and the folders searched, because a verification run
+from the wrong folder would otherwise pass without a word.
+}
+
+\section{Verification results}{
+
+\code{checks} has one row per check, with the columns \code{check}, \code{expected},
+\code{actual} (for a local input the first 16 characters of the hashes, or
+\code{"missing"}), \code{pass}, \code{status} and \code{location}. \code{status} (character) is
+\code{"pass"}, \code{"fail"} or \code{"not checked"}; \code{pass} is \code{TRUE}, \code{FALSE}, or
+\code{NA} for a check that was not made. The overall \code{pass} is \code{TRUE} unless
+a check failed, so it can be \code{TRUE} while \code{n_not_checked} counts checks
+that were not made. The corpus hash is computed with the
+\code{hash_version} the certificate records, or with version 1 for
+certificates written before scimapR 0.5.0 (see \code{\link[=sm_hash_corpus]{sm_hash_corpus()}}).
+}
+
+\section{Rebuilding a corpus}{
+
+\code{sm_rebuild_from_cert()} replays the \code{"api_query"} steps of OpenAlex,
+PubMed and Crossref with the fetcher of their source
+(\code{\link[=sm_fetch_openalex]{sm_fetch_openalex()}}, \code{\link[=sm_fetch_pubmed]{sm_fetch_pubmed()}} or \code{\link[=sm_fetch_crossref]{sm_fetch_crossref()}}),
+the engine they were made with and the recorded \code{filter} and \code{n_max}.
+The searches of \code{\link[=sm_corpus_for_question]{sm_corpus_for_question()}} record the client package
+that ran them (openalexR, rentrez or rcrossref) as their engine. A step
+without \code{n_max}, as in certificates of earlier versions, fetches up to
+the number of works of the certified corpus, with a message. The other
+steps (file reads, enrichments, refreshes, synthetic records and
+searches of other sources) and the local inputs cannot be replayed, and
+a message of class \code{scimapR_cert_not_replayed} names them. When a
+certificate has no search to replay but records file reads or local
+inputs, the function stops instead, with an error of class
+\code{scimapR_cert_not_replayable} that lists them, with the role, hash and
+builder of each local input. Without a search to replay, file reads or
+local inputs (only synthetic records, enrichments, refreshes or searches
+of other sources, or no step at all), it returns an empty corpus.
+
+The rebuilt corpus holds the works of the replayed searches, without
+duplicate DOIs and with new work ids, and their provenance; its other
+tables are empty. It shows what the recorded searches find today, so
+it does not pass \code{\link[=sm_verify_certificate]{sm_verify_certificate()}}: its hash and table sizes
+differ from those of the certified corpus.
+}
+
 \examples{
 \dontshow{if (requireNamespace("yaml", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 corpus <- sm_example_corpus()
+tracker <- tempfile(fileext = ".csv")
+writeLines(c("doi,unit", "10.9999/example.1,Unit A"), tracker)
+corpus <- sm_register_input(corpus, tracker, role = "publication tracker")
 cert <- sm_certificate(corpus)
 print(cert)
 verification <- sm_verify_certificate(corpus, cert)
 print(verification)
+
+# a changed input file fails its check
+cat("10.9999/example.2,Unit B\n", file = tracker, append = TRUE)
+sm_verify_certificate(corpus, cert)$pass
 \dontshow{\}) # examplesIf}
 }
 \seealso{
@@ -102,6 +189,7 @@ Other reproducibility:
 \code{\link[=sm_diff_corpora]{sm_diff_corpora()}},
 \code{\link[=sm_hash_corpus]{sm_hash_corpus()}},
 \code{\link[=sm_provenance]{sm_provenance()}},
+\code{\link[=sm_register_input]{sm_register_input()}},
 \code{\link[=sm_snapshot]{sm_snapshot()}}
 }
 \concept{reproducibility}

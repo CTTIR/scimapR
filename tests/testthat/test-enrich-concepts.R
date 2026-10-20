@@ -201,3 +201,28 @@ test_that("enrichment counts concepts stored under another spelling", {
   )
   expect_identical(out$concepts, corpus$concepts)
 })
+
+test_that("concept enrichment records its provenance as an enrichment", {
+  # the rows carry the API name; their kind keeps a certificate rebuild
+  # from sending the placeholder query as a search
+  corpus <- sm_example_corpus(n_works = 3, n_authors = 3,
+                              with_embeddings = FALSE, seed = 1)
+  corpus$concepts <- corpus$concepts[corpus$concepts$vocabulary != "openalex", ]
+  testthat::local_mocked_bindings(
+    req_perform = function(req, ...) structure(list(), class = "sm_fake_resp"),
+    resp_body_json = function(resp, ...) {
+      list(results = list(list(
+        id = "https://openalex.org/W123",
+        concepts = list(
+          list(id = "C1", display_name = "Oncology", level = 1L, score = 0.9)
+        )
+      )))
+    },
+    .package = "httr2"
+  )
+  out <- sm_enrich_concepts(corpus, source = "openalex", verbose = FALSE)
+  rows <- out$provenance[out$provenance$source == "openalex", ]
+  expect_gt(nrow(rows), 0L)
+  expect_identical(unique(rows$kind), "enrichment")
+  expect_identical(unique(rows$query), "enrich_concepts_openalex")
+})

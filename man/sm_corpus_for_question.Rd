@@ -27,7 +27,9 @@ sm_corpus_for_question(
 }
 \value{
 An \code{sm_corpus} with \code{metadata$question_id} set to the
-question's content-hash ID.
+question's content-hash ID. Its provenance records each search
+(\code{query}, \code{n_max} and, as \code{engine}, the client package that ran it), so
+that \code{\link[=sm_rebuild_from_cert]{sm_rebuild_from_cert()}} can run it again.
 }
 \description{
 Takes a structured \code{\link[=sm_question]{sm_question()}} object, translates its fields into

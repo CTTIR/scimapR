@@ -29,8 +29,10 @@ knitr::opts_chunk$set(
 
 Every bibliometric analysis starts with a corpus, but most analyses don't
 document *how* the corpus was built. scimapR's corpus certificates solve
-this: they are structured YAML documents that another researcher can use
-to re-derive the exact same corpus.
+this: they are structured YAML documents that record the corpus hash, the
+steps behind the corpus and the local files it was built from, so that
+another researcher can check a corpus against them and run its searches
+again.
 
 ```{r setup}
 library(scimapR)
@@ -62,8 +64,36 @@ str(cert, max.level = 1)
 
 ```{r verify}
 result <- sm_verify_certificate(corpus, cert)
-result$matches
+result$pass
+result$checks[, c("check", "expected", "actual", "status")]
 ```
+
+## Local input files
+
+A corpus built from local files, such as a database snapshot, an
+institutional export or an affiliation dictionary, records each file with
+its SHA-256 hash. `sm_corpus_from_tables(inputs = )` registers the files
+the tables come from; `sm_register_input()` adds any other file.
+
+```{r local-inputs}
+tracker <- tempfile(fileext = ".csv")
+writeLines(c("doi,unit", "10.9999/example.1,Unit A"), tracker)
+corpus <- sm_register_input(corpus, tracker, role = "publication tracker",
+                            builder = "R/01_import.R::read_tracker")
+cert <- sm_certificate(corpus)
+sm_verify_certificate(corpus, cert)$checks[, c("check", "status")]
+
+# once the file changes, its check fails
+cat("10.9999/example.2,Unit B\n", file = tracker, append = TRUE)
+sm_verify_certificate(corpus, cert)$pass
+```
+
+A file that verification cannot find is reported as `"not checked"`, with
+a warning; its relative path is looked for in `base_dir`, in the folder of
+the certificate file and in the working directory. `sm_rebuild_from_cert()`
+replays the recorded searches of OpenAlex, PubMed and Crossref, but it
+cannot replay local files or file reads: for a corpus built only from
+them it stops and names the files and the code that read them.
 
 ## Saving and loading
 

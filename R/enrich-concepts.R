@@ -130,7 +130,8 @@ sm_enrich_concepts <- function(corpus,
       source_name = "openalex",
       external_ids = dois[match(enriched_ids, corpus$works$work_id)],
       query_text = "enrich_concepts_openalex",
-      engine_name = "native"
+      engine_name = "native",
+      kind = "enrichment"
     )
     corpus$provenance <- dplyr::bind_rows(corpus$provenance, new_prov)
   }
@@ -251,7 +252,8 @@ sm_enrich_concepts <- function(corpus,
       source_name = "pubmed",
       external_ids = pmids[match(enriched_ids, corpus$works$work_id)],
       query_text = "enrich_concepts_mesh",
-      engine_name = "native"
+      engine_name = "native",
+      kind = "enrichment"
     )
     corpus$provenance <- dplyr::bind_rows(corpus$provenance, new_prov)
   }

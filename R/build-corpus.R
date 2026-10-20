@@ -59,7 +59,9 @@ sm_build_corpus <- function(..., dedupe = TRUE, mix_models = FALSE,
 #'
 #' @description
 #' Row-bind all tables of two `sm_corpus` objects, the yearly citation
-#' counts (`citations_by_year`) too when either corpus has them.
+#' counts (`citations_by_year`) too when either corpus has them. The bound
+#' corpus keeps the metadata of `corpus1`, with the local input files
+#' ([sm_register_input()]) of both corpora, each file and content once.
 #'
 #' @details
 #' Embeddings are bound when both corpora have them, with the same number
@@ -104,6 +106,8 @@ sm_bind_corpora <- function(corpus1, corpus2, mix_models = FALSE) {
   emb <- .bind_embeddings(corpus1, corpus2, mix_models = mix_models)
   metadata <- corpus1$metadata
   metadata$embedding <- emb$record
+  metadata$local_inputs <- .bind_local_inputs(corpus1$metadata$local_inputs,
+                                              corpus2$metadata$local_inputs)
 
   new_sm_corpus(
     works = dplyr::bind_rows(corpus1$works, corpus2$works),

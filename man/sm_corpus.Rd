@@ -299,11 +299,24 @@ model (see below).
 
 \code{source_id_external} is, for example, the Web of Science accession
 number (UT); \code{prompt_hash} is \code{NA} for records that no prompt
-produced. Optional: \code{kind} (character), the kind of step that wrote the
-row: \code{"enrichment"} for \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}}, whose rows have
-the source \code{"openalex_impact"}. \code{\link[=sm_certificate]{sm_certificate()}} records the kind of
-each step, inferred from the source for rows without \code{kind}, and
-\code{\link[=sm_rebuild_from_cert]{sm_rebuild_from_cert()}} replays only searches, never an enrichment.
+produced. Optional:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{kind} \tab character \tab The kind of step that wrote the row (see below) \cr
+   \code{filter} \tab character \tab The filter of a search, else \code{NA} \cr
+   \code{n_max} \tab integer \tab The maximum number of works of a search \cr
+}
+
+
+\code{kind} is \code{"api_query"} for the searches of \code{\link[=sm_fetch_openalex]{sm_fetch_openalex()}},
+\code{\link[=sm_fetch_pubmed]{sm_fetch_pubmed()}}, \code{\link[=sm_fetch_crossref]{sm_fetch_crossref()}} and
+\code{\link[=sm_corpus_for_question]{sm_corpus_for_question()}}, which also write \code{filter} and \code{n_max};
+\code{"file"} for the file readers, whose \code{query} holds the file relative to
+the working directory when it lies below it, else its name; and
+\code{"enrichment"} for the enrichers, such as \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}},
+whose rows have the source \code{"openalex_impact"}. \code{\link[=sm_certificate]{sm_certificate()}}
+records the kind of each step, inferred from the source, query and
+engine for rows without \code{kind}, and \code{\link[=sm_rebuild_from_cert]{sm_rebuild_from_cert()}} replays
+only searches, never a file read or an enrichment.
 
 \strong{\code{screening}}: one row per screening decision. Required:\tabular{lll}{
    Column \tab Type \tab Content \cr
@@ -349,7 +362,14 @@ them and \code{\link[=sm_hash_corpus]{sm_hash_corpus()}} includes them when ther
 
 
 \code{question_id} is set by \code{\link[=sm_corpus_for_question]{sm_corpus_for_question()}}. Optional: entries
-the readers add, such as \code{source_file} and \code{reader}.
+the readers add, such as \code{source_file} and \code{reader};
+\code{hash_version} (integer), the algorithm of \code{corpus_hash}
+(\code{\link[=sm_hash_corpus]{sm_hash_corpus()}}), which \code{\link[=sm_snapshot]{sm_snapshot()}} writes (a snapshot without
+it used version 1); and \code{local_inputs}, a tibble of the local files the
+corpus was built from, with their SHA-256 hashes, which
+\code{\link[=sm_register_input]{sm_register_input()}} and \code{\link[=sm_corpus_from_tables]{sm_corpus_from_tables()}} (\code{inputs}) write,
+\code{\link[=sm_certificate]{sm_certificate()}} records and \code{\link[=sm_verify_certificate]{sm_verify_certificate()}} checks (see
+\code{\link[=sm_register_input]{sm_register_input()}} for its columns).
 \code{build_date} and \code{last_refresh} may also be numbers of seconds since
 1970-01-01 UTC, as corpora restored from tables store them, ISO 8601
 text or dates; \code{\link[=sm_certificate]{sm_certificate()}} and the citation-maturity cut-offs

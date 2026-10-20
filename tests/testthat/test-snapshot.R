@@ -103,3 +103,23 @@ test_that("sm_snapshot_load warns on a tampered (hash-mismatched) snapshot", {
     "hash mismatch"
   )
 })
+
+test_that("snapshots record the hash version; older ones still load", {
+  corpus <- sm_example_corpus(n_works = 5, n_authors = 4,
+                              with_embeddings = FALSE, seed = 6)
+  path <- withr::local_tempfile(fileext = ".rds")
+  suppressMessages(sm_snapshot(corpus, path = path, compress = "gzip"))
+  obj <- readRDS(path)
+  expect_identical(obj$metadata$hash_version, 2L)
+  expect_identical(obj$metadata$corpus_hash, sm_hash_corpus(corpus))
+
+  # a snapshot written before the version was recorded holds a version 1
+  # hash, which is checked as such
+  obj$metadata$hash_version <- NULL
+  obj$metadata$corpus_hash <- sm_hash_corpus(corpus, version = 1)
+  saveRDS(obj, path)
+  expect_no_warning(suppressMessages(sm_snapshot_load(path)))
+  obj$works$title[1] <- "TAMPERED TITLE"
+  saveRDS(obj, path)
+  expect_warning(suppressMessages(sm_snapshot_load(path)), "hash mismatch")
+})

@@ -191,7 +191,6 @@ test_that("H7: multilingual models map to ids and get their prefix", {
 })
 
 test_that("H8: certificates record and verify local input files", {
-  skip("H8 pending - prompt A09")
   skip_if_not_installed("yaml")
   # Intent: a registered local input is stored with its SHA-256, and
   # verification fails that input's check once the file has changed.

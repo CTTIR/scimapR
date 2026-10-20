@@ -787,13 +787,15 @@ as_sm_corpus.bibliometrixDB <- function(x,
     source = source,
     source_id_external = pick("UT"),
     fetch_date = Sys.time(),
-    query = if (is.null(source_file)) NA_character_ else source_file,
+    query = if (is.null(source_file)) NA_character_ else
+      .file_step_path(source_file),
     engine = "bibliometrix",
     scimapR_version = tryCatch(
       as.character(utils::packageVersion("scimapR")),
       error = function(e) "0.1.0"
     ),
-    prompt_hash = NA_character_
+    prompt_hash = NA_character_,
+    kind = "file"
   )
 
   new_sm_corpus(

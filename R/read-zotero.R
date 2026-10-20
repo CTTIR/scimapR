@@ -147,13 +147,14 @@ sm_read_zotero <- function(path,
     source    = "zotero",
     source_id_external = as.character(raw_key),
     fetch_date = Sys.time(),
-    query     = path,
+    query     = .file_step_path(path),
     engine    = "native",
     scimapR_version = tryCatch(
       as.character(utils::packageVersion("scimapR")),
       error = function(e) "0.1.0"
     ),
-    prompt_hash = NA_character_
+    prompt_hash = NA_character_,
+    kind      = "file"
   )
 
   .sm_verbose("Parsed {n} Zotero record{?s}.", verbose)

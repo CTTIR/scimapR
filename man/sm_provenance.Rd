@@ -12,9 +12,13 @@ sm_provenance(corpus)
 \value{
 A tibble with columns \code{work_id}, \code{source}, \code{source_id_external},
 \code{fetch_date}, \code{query}, \code{engine}, \code{scimapR_version}, and \code{prompt_hash},
-and the optional column \code{kind} (the kind of step, such as
-\code{"enrichment"} for \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}}; \code{NA} for rows that
-do not record one).
+and the optional columns \code{kind} (the kind of step: \code{"api_query"},
+\code{"file"}, \code{"enrichment"}, \code{"refresh"} or \code{"manual"}, see
+\code{\link[=sm_certificate]{sm_certificate()}}; \code{NA} for rows that do not record one), \code{filter} and
+\code{n_max} (the filter and the maximum number of works of a search, which
+\code{\link[=sm_rebuild_from_cert]{sm_rebuild_from_cert()}} uses to replay it). File readers record the
+file in \code{query} relative to the working directory when it lies below
+it, else by its name.
 }
 \description{
 Returns the full provenance table from a corpus, documenting the data
@@ -31,6 +35,7 @@ Other reproducibility:
 \code{\link[=sm_cite_corpus]{sm_cite_corpus()}},
 \code{\link[=sm_diff_corpora]{sm_diff_corpora()}},
 \code{\link[=sm_hash_corpus]{sm_hash_corpus()}},
+\code{\link[=sm_register_input]{sm_register_input()}},
 \code{\link[=sm_snapshot]{sm_snapshot()}}
 }
 \concept{reproducibility}

@@ -245,18 +245,36 @@ test_that("a certificate rebuild never replays the enrichment step", {
   sources <- vapply(cert$queries, function(q) q$source, character(1))
   expect_identical(kinds[sources == "openalex_impact"], "enrichment")
   fetched <- character()
-  local_mocked_bindings(
-    .fetch_from_source = function(source, ...) {
+  fetch <- function(source) {
+    function(...) {
       fetched <<- c(fetched, source)
-      list(works = scimapR:::.empty_works(), n_fetched = 0L)
+      sm_corpus(works = scimapR:::.empty_works())
     }
+  }
+  local_mocked_bindings(
+    sm_fetch_openalex = fetch("openalex"),
+    sm_fetch_pubmed = fetch("pubmed"),
+    sm_fetch_crossref = fetch("crossref")
   )
-  expect_message(rebuilt <- sm_rebuild_from_cert(cert),
-                 "Skipping enrichment step")
+  expect_message(rebuilt <- sm_rebuild_from_cert(cert, verbose = FALSE),
+                 "\"openalex_impact\" (enrichment)", fixed = TRUE)
   expect_identical(fetched, character())
   expect_identical(nrow(rebuilt$works), 0L)
 
+  # next to a search, only the search is replayed
+  search <- list(source = "openalex", query = "field surgery",
+                 engine = "native", kind = "api_query", n_max = 5L)
+  with_search <- cert
+  with_search$queries <- c(cert$queries, list(search))
+  expect_message(
+    rebuilt <- sm_rebuild_from_cert(with_search, verbose = FALSE),
+    "\"openalex_impact\" (enrichment)", fixed = TRUE
+  )
+  expect_identical(fetched, "openalex")
+  expect_identical(nrow(rebuilt$works), 0L)
+
   # a certificate written before step kinds infers them from the source
+  fetched <- character()
   cert$queries <- lapply(cert$queries, function(q) {
     q[c("source", "query", "engine")]
   })
