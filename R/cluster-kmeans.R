@@ -13,7 +13,8 @@
 #' @param call Caller environment for error reporting.
 #'
 #' @return The input `corpus` with a `cluster_id` column added to
-#'   `corpus$works`.
+#'   `corpus$works`. Works without a row in `corpus$embeddings` (such as
+#'   works without text, see [sm_embed_works()]) get `NA`.
 #'
 #' @details
 #' Requires embeddings in `corpus$embeddings`. Compute them first with

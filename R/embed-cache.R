@@ -3,7 +3,9 @@
 #' @description
 #' Saves the embeddings matrix from an `sm_corpus` to an RDS file on disk.
 #' This allows caching expensive embedding computations for later reuse
-#' with [sm_embed_load()].
+#' with [sm_embed_load()]. The cache keeps the record of the model behind
+#' the embeddings (`corpus$metadata$embedding`, see [sm_corpus()]) when the
+#' corpus has one.
 #'
 #' @param corpus An [sm_corpus] object with a non-`NULL` `embeddings` matrix.
 #' @param path Character; file path to write the embeddings to. Should end in
@@ -38,19 +40,22 @@ sm_embed_save <- function(corpus, path, call = rlang::caller_env()) {
     fs::dir_create(parent_dir, recurse = TRUE)
   }
 
-  # Save as RDS with work_id mapping
+  # Save as RDS with work_id mapping and the record of the model
+  record <- .embedding_record(corpus)
   cache_data <- list(
     embeddings = emb,
     work_ids   = rownames(emb),
     timestamp  = Sys.time(),
     n_works    = nrow(emb),
-    n_dims     = ncol(emb)
+    n_dims     = ncol(emb),
+    embedding  = record
   )
 
   saveRDS(cache_data, file = path)
   cli::cli_inform(c(
     "v" = "Embeddings saved to {.path {path}}.",
-    "i" = "{nrow(emb)} works x {ncol(emb)} dimensions."
+    "i" = "{nrow(emb)} works x {ncol(emb)} dimensions,
+           {(.embedding_describe(record))}."
   ))
 
   invisible(corpus)
@@ -64,12 +69,20 @@ sm_embed_save <- function(corpus, path, call = rlang::caller_env()) {
 #' it to the corpus. Only embeddings for works present in the corpus are
 #' loaded; mismatches are reported.
 #'
+#' The loaded embeddings replace any the corpus had, and so does the record
+#' of their model (`corpus$metadata$embedding`, see [sm_corpus()]): the
+#' cache's record when it describes the cached matrix, else none, so the
+#' model of embeddings from an older cache or a bare matrix counts as not
+#' recorded (`"unknown"` in [sm_certificate()]).
+#'
 #' @param corpus An [sm_corpus] object.
 #' @param path Character; file path to read embeddings from (an `.rds` file
 #'   created by [sm_embed_save()]).
 #' @param call Caller environment for error reporting.
 #'
-#' @return The input `corpus` with `corpus$embeddings` updated.
+#' @return The input `corpus` with `corpus$embeddings` and
+#'   `corpus$metadata$embedding` updated. Works without a cached row get no
+#'   row, so the clustering functions give them no cluster (`NA`).
 #'
 #' @family embedding
 #' @export
@@ -87,9 +100,10 @@ sm_embed_load <- function(corpus, path, call = rlang::caller_env()) {
   cache_data <- readRDS(path)
 
   # Support both raw matrix and list format
-
+  record <- NULL
   if (is.list(cache_data) && "embeddings" %in% names(cache_data)) {
     emb <- cache_data$embeddings
+    record <- cache_data$embedding
   } else if (is.matrix(cache_data)) {
     emb <- cache_data
   } else {
@@ -142,10 +156,16 @@ sm_embed_load <- function(corpus, path, call = rlang::caller_env()) {
     emb <- emb[matched, , drop = FALSE]
   }
 
+  # the cache's record, when it describes the cached matrix
+  record <- .embedding_record_fits(record, emb)
+  if (!is.null(record)) record$n_works <- nrow(emb)
+
   corpus$embeddings <- emb
+  corpus$metadata$embedding <- record
 
   cli::cli_inform(c(
-    "v" = "Embeddings loaded: {nrow(emb)} works x {ncol(emb)} dimensions."
+    "v" = "Embeddings loaded: {nrow(emb)} works x {ncol(emb)} dimensions.",
+    "i" = "These are {(.embedding_describe(record))}."
   ))
 
   corpus

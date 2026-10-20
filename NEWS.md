@@ -396,6 +396,61 @@
   second, such as `2026-10-01T04:12:33.123456` (the form of OpenAlex's
   `updated_date`), are read, for example in `metadata$last_refresh`;
   before, they counted as missing.
+- `sm_embed_works()` with the default model `specter2` loads the SPECTER2
+  adapter through the Python `adapters` package as the model card
+  describes; it previously failed in `SentenceTransformer()`. This model
+  needs the Python packages `torch`, `transformers` and `adapters`
+  (`install_deps = TRUE` installs `torch` and `adapters`), the other models
+  need `sentence-transformers` as before, and the error for a missing
+  package names it. A model that does not load now stops with an error
+  that names the model and gives the Python error.
+- `sm_embed_works()` gains multilingual models (`multilingual-mpnet`,
+  `multilingual-e5`), informs when an English-only model meets a
+  multilingual corpus, warns about works without text, and records the
+  model in the corpus metadata and certificate. Texts for
+  `multilingual-e5` start with `"query: "`, the prefix its model card gives
+  for clustering. The message appears when more than 10% of the works with
+  a known language are not in English; it reads language names such as
+  `"German"`, ISO 639-1 codes such as `"de"` and ISO 639-2 codes such as
+  `"ger"`. `corpus$metadata$embedding` records the model, its Hugging Face
+  id and snapshot revision, the text and prefix used, the versions of the
+  Python packages and the time (see `?sm_corpus`). `sm_certificate()`
+  reports them in `embedding_info`, whose `method` now names the package or
+  service that made the embeddings, or is `"unknown"` for embeddings
+  without such a record (before: `"recorded"`).
+- `sm_embed_works()` leaves works without text out of the embeddings, with
+  a warning giving their number: with the default `text = "title_abstract"`
+  the works with neither a title nor an abstract, with `"title"` or
+  `"abstract"` the works without that field (blank text counts as none).
+  Before, they were all embedded as the same empty text, so they became
+  each other's nearest neighbours, formed a cluster of their own and
+  stopped `sm_plot_landscape(reducer = "tsne")`. The row names of
+  `corpus$embeddings` are the embedded works, and the clustering functions
+  give the other works no cluster (`NA`), as they do for works missing from
+  a cache loaded with `sm_embed_load()`.
+- `sm_embed_works()` works on a corpus with a single work; before, it
+  failed with "length of 'dimnames' [1] not equal to array extent".
+- `sm_enrich_specter()` fetches the SPECTER v2 vectors of Semantic Scholar
+  instead of the API's default SPECTER v1 and records them in
+  `metadata$embedding`. It fills gaps only in embeddings from the same
+  source: for embeddings of another model, or of a model that is not
+  recorded, it stops unless you set `replace = TRUE` (replace them by
+  SPECTER v2 vectors for every work with a DOI) or `mix_models = TRUE`
+  (keep them and add SPECTER v2 vectors for the other works, recorded as a
+  mix). Before, it silently mixed the vectors of two models when their
+  widths matched, and discarded every existing embedding, with only a
+  warning, when they did not. It now warns about failed requests also with
+  `verbose = FALSE`, tries a request once more after a short wait when
+  Semantic Scholar answers HTTP 429, and records its provenance rows as an
+  enrichment, which `sm_rebuild_from_cert()` does not replay.
+- `sm_bind_corpora()` and `sm_build_corpus()` gain `mix_models`. They stop
+  when the embeddings of two corpora record different models in
+  `metadata$embedding`, or when only one of them records its model, unless
+  `mix_models = TRUE`, which binds them and records a mix; embeddings of
+  corpora that record no model bind as before. `sm_embed_save()` keeps the record with the cache and
+  `sm_embed_load()` restores it, or leaves the model unrecorded for a cache
+  without one, and `sm_fetch_semantic_scholar(include_embeddings = TRUE)`
+  records its SPECTER v1 vectors.
 
 # scimapR 0.4.0
 

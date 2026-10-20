@@ -28,7 +28,10 @@ supplied.}
 \code{SEMANTIC_SCHOLAR_API_KEY} env var by default.}
 
 \item{include_embeddings}{Logical; if \code{TRUE}, request SPECTER embeddings
-for each paper and attach as an embedding matrix.}
+for each paper and attach as an embedding matrix. These are the API's
+default SPECTER v1 vectors, recorded in \code{metadata$embedding} with the
+model id \code{"embedding.specter_v1"} (see \code{\link[=sm_corpus]{sm_corpus()}});
+\code{\link[=sm_enrich_specter]{sm_enrich_specter()}} fetches SPECTER v2 vectors.}
 
 \item{verbose}{Print progress messages?}
 

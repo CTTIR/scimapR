@@ -4,12 +4,16 @@
 \alias{sm_build_corpus}
 \title{Build a corpus from multiple sources}
 \usage{
-sm_build_corpus(..., dedupe = TRUE, verbose = TRUE)
+sm_build_corpus(..., dedupe = TRUE, mix_models = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{...}{One or more \code{sm_corpus} objects or file paths.}
 
 \item{dedupe}{Logical; deduplicate by DOI after combining?}
+
+\item{mix_models}{Logical; bind embeddings that come from different
+models (or of which only one input records its model)? Passed to
+\code{\link[=sm_bind_corpora]{sm_bind_corpora()}}. Defaults to \code{FALSE}.}
 
 \item{verbose}{Logical; show progress messages?}
 }
@@ -19,6 +23,13 @@ An \code{sm_corpus} object.
 \description{
 Combine multiple file reads and/or API fetches into a single
 deduplicated \code{sm_corpus}.
+}
+\details{
+The inputs are bound in turn with \code{\link[=sm_bind_corpora]{sm_bind_corpora()}}, so its rules for
+embeddings apply: embeddings that record different models in
+\code{metadata$embedding}, or of which only one input records its model,
+stop the function (class \code{scimapR_embedding_model_mismatch}) unless
+\code{mix_models = TRUE}.
 }
 \examples{
 c1 <- sm_example_corpus(n_works = 50, seed = 1)

@@ -14,7 +14,8 @@
 #' @param call Caller environment for error reporting.
 #'
 #' @return The input `corpus` with a `cluster_id` column added to
-#'   `corpus$works`.
+#'   `corpus$works`. Works that are not nodes of the network, such as works
+#'   without a row in `corpus$embeddings`, get `NA`.
 #'
 #' @details
 #' The Leiden algorithm (Traag et al., 2019) is a refinement of the Louvain

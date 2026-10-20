@@ -31,6 +31,19 @@
 #' tables) or ISO 8601 text. A missing or implausible value is written as
 #' `NA`.
 #'
+#' `embedding_info` describes `corpus$embeddings`: its size (`n_works`,
+#' `n_dimensions`) and, from the record in `corpus$metadata$embedding`
+#' (see [sm_corpus()]), the model behind it: `model`, `model_id`,
+#' `base_model_id`, `revision`, `base_revision`, `text`, `prefix`,
+#' `models`, `versions` and `created`. `method` names how the embeddings
+#' were made: `"sentence-transformers"` or `"adapters"` ([sm_embed_works()]),
+#' `"semantic-scholar"` ([sm_enrich_specter()],
+#' [sm_fetch_semantic_scholar()]) or `"mixed"` for rows of several models;
+#' it is `"unknown"` for embeddings without a record that fits them (such
+#' as embeddings made by earlier versions of scimapR, or a matrix replaced
+#' by hand) and `"none"` when the corpus has no embeddings. In these two
+#' cases `model` and `model_id` say the same.
+#'
 #' @param corpus An `sm_corpus` object.
 #' @param path Character. Optional file path to write the certificate YAML.
 #'   If `NULL`, the certificate is returned but not written to disk.
@@ -111,16 +124,8 @@ sm_certificate <- function(corpus,
     list()
   }
 
-  # Embedding info
-  embedding_info <- if (!is.null(corpus$embeddings)) {
-    list(
-      n_works = nrow(corpus$embeddings),
-      n_dimensions = ncol(corpus$embeddings),
-      method = "recorded"
-    )
-  } else {
-    list(n_works = 0L, n_dimensions = 0L, method = "none")
-  }
+  # Embedding info: the matrix and the record of its model
+  embedding_info <- .cert_embedding_info(corpus)
 
   cert <- structure(
     list(
@@ -408,6 +413,13 @@ print.sm_certificate <- function(x, ...) {
   cli::cli_text("{.strong Authors:} {x$n_authors}")
   cli::cli_text("{.strong References:} {x$n_references}")
   cli::cli_text("{.strong Queries:} {length(x$queries)}")
+  emb <- x$embedding_info
+  if (isTRUE(emb$n_works > 0)) {
+    cli::cli_text(
+      "{.strong Embeddings:} {emb$n_works} x {emb$n_dimensions}
+       ({.val {emb$model_id %||% 'unknown'}})"
+    )
+  }
 
   if (!is.na(x$question_id %||% NA_character_)) {
     cli::cli_text("{.strong Question ID:} {x$question_id}")
@@ -439,6 +451,46 @@ print.sm_cert_verification <- function(x, ...) {
   }
 
   invisible(x)
+}
+
+#' The embeddings of a corpus and the model behind them, for a certificate
+#'
+#' `n_works` and `n_dimensions` give the size of `corpus$embeddings`; the
+#' other entries come from `corpus$metadata$embedding` when it describes
+#' the matrix (`.embedding_record()`). `method` is the backend, `"unknown"`
+#' for embeddings without such a record and `"none"` without embeddings.
+#' @noRd
+.cert_embedding_info <- function(corpus) {
+  emb <- corpus$embeddings
+  none <- is.null(emb) || nrow(emb) == 0L
+  rec <- if (none) NULL else .embedding_record(corpus)
+  label <- if (none) "none" else "unknown"
+  field <- function(x) {
+    if (is.character(x) && length(x) == 1L) x else NA_character_
+  }
+  list(
+    n_works = if (none) 0L else nrow(emb),
+    n_dimensions = if (none) 0L else ncol(emb),
+    method = rec$backend %||% label,
+    model = rec$model %||% label,
+    model_id = rec$model_id %||% label,
+    base_model_id = field(rec$base_model_id),
+    revision = field(rec$revision),
+    base_revision = field(rec$base_revision),
+    text = field(rec$text),
+    prefix = field(rec$prefix),
+    models = if (is.null(rec)) {
+      if (none) character() else "unknown"
+    } else {
+      as.character(rec$models %||% rec$model_id)
+    },
+    versions = as.list(rec$versions %||% list()),
+    created = if (is.null(rec)) {
+      NA_character_
+    } else {
+      .format_utc_time(rec$created, what = "metadata$embedding$created")
+    }
+  )
 }
 
 #' Convert certificate S3 to plain list for YAML

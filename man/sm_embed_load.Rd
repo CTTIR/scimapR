@@ -15,12 +15,20 @@ created by \code{\link[=sm_embed_save]{sm_embed_save()}}).}
 \item{call}{Caller environment for error reporting.}
 }
 \value{
-The input \code{corpus} with \code{corpus$embeddings} updated.
+The input \code{corpus} with \code{corpus$embeddings} and
+\code{corpus$metadata$embedding} updated. Works without a cached row get no
+row, so the clustering functions give them no cluster (\code{NA}).
 }
 \description{
 Loads a previously saved embeddings matrix from an RDS file and attaches
 it to the corpus. Only embeddings for works present in the corpus are
 loaded; mismatches are reported.
+
+The loaded embeddings replace any the corpus had, and so does the record
+of their model (\code{corpus$metadata$embedding}, see \code{\link[=sm_corpus]{sm_corpus()}}): the
+cache's record when it describes the cached matrix, else none, so the
+model of embeddings from an older cache or a bare matrix counts as not
+recorded (\code{"unknown"} in \code{\link[=sm_certificate]{sm_certificate()}}).
 }
 \examples{
 \dontrun{

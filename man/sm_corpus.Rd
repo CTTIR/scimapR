@@ -275,8 +275,14 @@ Required:\tabular{lll}{
 For MeSH headings \code{score} is 1 for a major topic and 0 otherwise.
 Optional: none so far.
 
-\strong{\code{embeddings}}: \code{NULL} or a numeric matrix with one row per work,
-named by \code{work_id}.
+\strong{\code{embeddings}}: \code{NULL} or a numeric matrix with one row per embedded
+work, named by its \code{work_id}, and one column per dimension. Works may
+have no row: works without text to embed (\code{\link[=sm_embed_works]{sm_embed_works()}}), works
+missing from a cache (\code{\link[=sm_embed_load]{sm_embed_load()}}) or works for which a service
+has no vector (\code{\link[=sm_enrich_specter]{sm_enrich_specter()}}). The clustering functions give
+them no cluster (\code{NA}), and \code{\link[=sm_network_semantic]{sm_network_semantic()}} and
+\code{\link[=sm_plot_landscape]{sm_plot_landscape()}} leave them out. \code{metadata$embedding} records the
+model (see below).
 
 \strong{\code{provenance}}: one row per work and source. Required:\tabular{lll}{
    Column \tab Type \tab Content \cr
@@ -348,6 +354,42 @@ the readers add, such as \code{source_file} and \code{reader}.
 1970-01-01 UTC, as corpora restored from tables store them, ISO 8601
 text or dates; \code{\link[=sm_certificate]{sm_certificate()}} and the citation-maturity cut-offs
 read all of these.
+
+Optional: \code{embedding}, the record of the model behind \code{embeddings}, a
+list that \code{\link[=sm_embed_works]{sm_embed_works()}}, \code{\link[=sm_enrich_specter]{sm_enrich_specter()}},
+\code{\link[=sm_fetch_semantic_scholar]{sm_fetch_semantic_scholar()}}, \code{\link[=sm_embed_load]{sm_embed_load()}} (from the cache of
+\code{\link[=sm_embed_save]{sm_embed_save()}}) and \code{\link[=sm_bind_corpora]{sm_bind_corpora()}} write and
+\code{\link[=sm_certificate]{sm_certificate()}} reports:\tabular{lll}{
+   Entry \tab Type \tab Content \cr
+   \code{model} \tab character \tab Short model name, \code{"mixed"} for several \cr
+   \code{model_id} \tab character \tab Hugging Face id or Semantic Scholar field \cr
+   \code{base_model_id} \tab character \tab Base model of an adapter, else \code{NA} \cr
+   \code{revision} \tab character \tab Commit of the model snapshot, or \code{NA} \cr
+   \code{base_revision} \tab character \tab Commit of the base model, or \code{NA} \cr
+   \code{backend} \tab character \tab The Python package or the service used \cr
+   \code{text} \tab character \tab The text embedded, such as \code{"title_abstract"} \cr
+   \code{prefix} \tab character \tab Input prefix, else \code{""} \cr
+   \code{versions} \tab list \tab Versions of the Python packages used \cr
+   \code{models} \tab character \tab The model ids behind the rows \cr
+   \code{n_works}, \code{n_dimensions} \tab integer \tab Size of the matrix when made \cr
+   \code{created} \tab POSIXct \tab When the record was written (UTC) \cr
+}
+
+
+\code{model_id} is the Hugging Face id of the model (for \code{"specter2"} that
+of the adapter, whose base model is \code{base_model_id}) or the Semantic
+Scholar field of the vectors (\code{"embedding.specter_v2"} or
+\code{"embedding.specter_v1"}), whose \code{revision} is the model version that
+Semantic Scholar reports. \code{backend} is \code{"sentence-transformers"},
+\code{"adapters"}, \code{"semantic-scholar"} or \code{"mixed"}; a mix lists its models
+in \code{models}. \code{prefix} is \code{"query: "} for \code{"multilingual-e5"}.
+A record whose \code{n_dimensions} differs from the width of \code{embeddings},
+or whose \code{n_works} is smaller than its number of rows, no longer
+describes the matrix and counts as no record. Embeddings without a
+record, such as those made by earlier versions of scimapR, have a model
+that is not recorded: \code{\link[=sm_certificate]{sm_certificate()}} reports it as \code{"unknown"}, and
+the functions that combine embeddings combine them with recorded ones
+only when asked to (\code{mix_models}).
 }
 \examples{
 corpus <- sm_corpus(

@@ -116,3 +116,75 @@ test_that("binding and deduplicating keep the yearly citation counts", {
                    sort(deduped$works$work_id))
   expect_identical(nrow(deduped$citations_by_year), 3L)
 })
+
+test_that("sm_bind_corpora binds embeddings of one recorded model", {
+  c1 <- sm_example_corpus(n_works = 10, n_authors = 5,
+                          with_embeddings = TRUE, seed = 1)
+  c2 <- sm_example_corpus(n_works = 10, n_authors = 5,
+                          with_embeddings = TRUE, seed = 2)
+  record <- function(id, corpus) {
+    .new_embedding_record(id, id, "sentence-transformers",
+                          n_works = nrow(corpus$embeddings),
+                          n_dimensions = ncol(corpus$embeddings))
+  }
+  c1$metadata$embedding <- record("mpnet", c1)
+  c2$metadata$embedding <- record("mpnet", c2)
+  bound <- sm_bind_corpora(c1, c2)
+  expect_identical(nrow(bound$embeddings), 20L)
+  expect_identical(bound$metadata$embedding$model_id, "mpnet")
+  expect_identical(bound$metadata$embedding$n_works, 20L)
+
+  # two models, or a recorded and an unrecorded one, are not bound
+  c2$metadata$embedding <- record("scincl", c2)
+  expect_error(sm_bind_corpora(c1, c2), "mix_models = TRUE",
+               class = "scimapR_embedding_model_mismatch")
+  plain <- c2
+  plain$metadata$embedding <- NULL
+  expect_error(sm_bind_corpora(c1, plain), "not recorded",
+               class = "scimapR_embedding_model_mismatch")
+
+  # unless asked: the bound rows are a recorded mix
+  mixed <- sm_bind_corpora(c1, c2, mix_models = TRUE)
+  expect_identical(nrow(mixed$embeddings), 20L)
+  expect_identical(mixed$metadata$embedding$model_id, "mixed")
+  expect_identical(mixed$metadata$embedding$models, c("mpnet", "scincl"))
+  expect_error(sm_bind_corpora(c1, c2, mix_models = NA), "TRUE")
+})
+
+test_that("sm_bind_corpora keeps no record for embeddings it drops", {
+  c1 <- sm_example_corpus(n_works = 10, n_authors = 5,
+                          with_embeddings = TRUE, seed = 1)
+  c2 <- sm_example_corpus(n_works = 10, n_authors = 5,
+                          with_embeddings = FALSE, seed = 2)
+  c1$metadata$embedding <- .new_embedding_record(
+    "mpnet", "mpnet", "sentence-transformers",
+    n_works = 10, n_dimensions = ncol(c1$embeddings)
+  )
+  bound <- sm_bind_corpora(c1, c2)
+  expect_null(bound$embeddings)
+  expect_null(bound$metadata$embedding)
+})
+
+test_that("sm_build_corpus passes mix_models on to sm_bind_corpora", {
+  c1 <- sm_example_corpus(n_works = 10, n_authors = 5,
+                          with_embeddings = TRUE, seed = 1)
+  c2 <- sm_example_corpus(n_works = 10, n_authors = 5,
+                          with_embeddings = TRUE, seed = 2)
+  c1$metadata$embedding <- .new_embedding_record(
+    "mpnet", "mpnet", "sentence-transformers",
+    n_works = nrow(c1$embeddings), n_dimensions = ncol(c1$embeddings)
+  )
+
+  # a recorded and an unrecorded model stop the build, and the hint names
+  # an argument that sm_build_corpus() has
+  expect_error(sm_build_corpus(c1, c2, dedupe = FALSE, verbose = FALSE),
+               "mix_models = TRUE",
+               class = "scimapR_embedding_model_mismatch")
+  built <- sm_build_corpus(c1, c2, dedupe = FALSE, mix_models = TRUE,
+                           verbose = FALSE)
+  expect_identical(nrow(built$embeddings), 20L)
+  expect_identical(built$metadata$embedding$model_id, "mixed")
+  expect_identical(built$metadata$embedding$models, c("mpnet", "unknown"))
+  expect_error(sm_build_corpus(c1, c2, mix_models = NA, verbose = FALSE),
+               "mix_models")
+})

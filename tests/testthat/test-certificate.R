@@ -104,6 +104,49 @@ test_that("sm_certificate records no embeddings for an embedding-free corpus", {
   cert <- suppressMessages(sm_certificate(corpus))
   expect_equal(cert$embedding_info$method, "none")
   expect_equal(cert$embedding_info$n_dimensions, 0L)
+  expect_identical(cert$embedding_info$model_id, "none")
+})
+
+test_that("embeddings without a record of their model are reported unknown", {
+  # embeddings made before the record existed, or replaced by hand
+  corpus <- sm_example_corpus(n_works = 10, n_authors = 5,
+                              with_embeddings = TRUE, seed = 1)
+  info <- suppressMessages(sm_certificate(corpus))$embedding_info
+  expect_identical(info$method, "unknown")
+  expect_identical(info$model_id, "unknown")
+  expect_identical(info$n_works, 10L)
+
+  corpus$metadata$embedding <- .new_embedding_record(
+    "minilm-l6", "sentence-transformers/all-MiniLM-L6-v2",
+    "sentence-transformers", n_works = 10, n_dimensions = 384
+  )
+  info <- suppressMessages(sm_certificate(corpus))$embedding_info
+  expect_identical(info$model_id, "unknown")
+})
+
+test_that("sm_certificate reports the recorded embedding model", {
+  corpus <- sm_example_corpus(n_works = 10, n_authors = 5,
+                              with_embeddings = TRUE, seed = 2)
+  corpus$metadata$embedding <- .new_embedding_record(
+    "specter2", "allenai/specter2", "adapters", n_works = 10,
+    n_dimensions = ncol(corpus$embeddings),
+    base_model_id = "allenai/specter2_base", revision = "abc123",
+    text = "title_abstract", prefix = "",
+    versions = list(adapters = "1.2.0")
+  )
+  tmp <- withr::local_tempfile(fileext = ".yaml")
+  cert <- suppressMessages(sm_certificate(corpus, path = tmp))
+  info <- cert$embedding_info
+  expect_identical(info$method, "adapters")
+  expect_identical(info$model, "specter2")
+  expect_identical(info$base_model_id, "allenai/specter2_base")
+  expect_identical(info$revision, "abc123")
+  expect_identical(info$models, "allenai/specter2")
+  expect_match(info$created, "^[0-9]{4}-[0-9]{2}-[0-9]{2}T.*Z$")
+  loaded <- yaml::read_yaml(tmp)$embedding_info
+  expect_identical(loaded$model_id, "allenai/specter2")
+  expect_identical(loaded$versions$adapters, "1.2.0")
+  expect_identical(loaded$n_dimensions, ncol(corpus$embeddings))
 })
 
 test_that("sm_certificate writes a YAML file when given a path", {

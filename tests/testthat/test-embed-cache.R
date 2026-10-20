@@ -131,3 +131,50 @@ test_that("sm_embed_load errors when no work IDs overlap", {
   saveRDS(list(embeddings = mat), path)
   expect_error(sm_embed_load(corpus, path), "No overlap")
 })
+
+test_that("the cache keeps the record of the model", {
+  corpus <- sm_example_corpus(n_works = 12, with_embeddings = TRUE, seed = 15)
+  corpus$metadata$embedding <- .new_embedding_record(
+    "mpnet", "sentence-transformers/all-mpnet-base-v2",
+    "sentence-transformers", n_works = 12,
+    n_dimensions = ncol(corpus$embeddings), text = "title_abstract"
+  )
+  path <- withr::local_tempfile(fileext = ".rds")
+  suppressMessages(sm_embed_save(corpus, path))
+  expect_identical(readRDS(path)$embedding$model_id,
+                   "sentence-transformers/all-mpnet-base-v2")
+
+  # loaded into a corpus of 10 of the works, which had no record
+  target <- corpus[1:10]
+  target$embeddings <- NULL
+  target$metadata$embedding <- NULL
+  expect_message(out <- sm_embed_load(target, path), "all-mpnet-base-v2")
+  rec <- out$metadata$embedding
+  expect_identical(rec$model_id, "sentence-transformers/all-mpnet-base-v2")
+  expect_identical(rec$n_works, 10L)
+  expect_identical(nrow(out$embeddings), 10L)
+})
+
+test_that("embeddings from a cache without a record have no recorded model", {
+  corpus <- sm_example_corpus(n_works = 10, with_embeddings = TRUE, seed = 16)
+  path <- withr::local_tempfile(fileext = ".rds")
+  saveRDS(corpus$embeddings, path)
+  # the corpus records another model, which the loaded matrix replaces
+  corpus$metadata$embedding <- .new_embedding_record(
+    "mpnet", "sentence-transformers/all-mpnet-base-v2",
+    "sentence-transformers", n_works = 10,
+    n_dimensions = ncol(corpus$embeddings)
+  )
+  expect_message(out <- sm_embed_load(corpus, path), "not recorded")
+  expect_null(out$metadata$embedding)
+
+  # a record that does not fit the cached matrix counts as none
+  stale <- list(embeddings = corpus$embeddings,
+                embedding = .new_embedding_record(
+                  "minilm-l6", "sentence-transformers/all-MiniLM-L6-v2",
+                  "sentence-transformers", n_works = 10, n_dimensions = 384
+                ))
+  saveRDS(stale, path)
+  out <- suppressMessages(sm_embed_load(corpus, path))
+  expect_null(out$metadata$embedding)
+})

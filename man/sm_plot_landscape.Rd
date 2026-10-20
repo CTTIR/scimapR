@@ -27,7 +27,8 @@ sm_plot_landscape(
 \item{...}{Additional arguments.}
 }
 \value{
-A \code{ggplot} object.
+A \code{ggplot} object with one point per row of
+\code{corpus$embeddings}, so works without an embedding are not shown.
 }
 \description{
 UMAP/t-SNE/PCA scatter plot of work embeddings, coloured by cluster.

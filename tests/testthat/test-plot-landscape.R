@@ -68,3 +68,12 @@ test_that("dark mode renders a ggplot", {
   p <- sm_plot_landscape(corpus, reducer = "pca", dark = TRUE)
   expect_s3_class(p, "ggplot")
 })
+
+test_that("the landscape shows the works that have an embedding row", {
+  # a partial matrix, as sm_embed_works() leaves for works without text
+  corpus <- sm_example_corpus(n_works = 40, n_authors = 10,
+                              with_embeddings = TRUE, seed = 7)
+  corpus$embeddings <- corpus$embeddings[-(1:4), , drop = FALSE]
+  p <- sm_plot_landscape(corpus, reducer = "pca")
+  expect_identical(sort(p$data$work_id), sort(corpus$works$work_id[-(1:4)]))
+})

@@ -73,3 +73,18 @@ test_that("sm_cluster_leiden higher resolution gives >= clusters", {
   n_hi <- length(unique(out_hi$works$cluster_id))
   expect_gte(n_hi, n_lo)
 })
+
+test_that("works without an embedding row are no node and get no cluster", {
+  skip_if_not_installed("igraph")
+  # a partial matrix, as sm_embed_works() leaves for works without text
+  corpus <- sm_example_corpus(n_works = 40, n_clusters = 3,
+                              with_embeddings = TRUE, seed = 9)
+  corpus$embeddings <- corpus$embeddings[-(1:4), , drop = FALSE]
+  net <- sm_network_semantic(corpus, k = 5L)
+  nodes <- tibble::as_tibble(tidygraph::activate(net, "nodes"))
+  expect_identical(nodes$name, corpus$works$work_id[-(1:4)])
+  out <- suppressMessages(sm_cluster_leiden(corpus))
+  expect_identical(nrow(out$works), 40L)
+  expect_true(all(is.na(out$works$cluster_id[1:4])))
+  expect_false(anyNA(out$works$cluster_id[-(1:4)]))
+})

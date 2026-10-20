@@ -73,6 +73,19 @@ one it was written from. The corpus timestamps may be stored as POSIXct, a
 Date, numeric seconds since 1970-01-01 UTC (as in corpora restored from
 tables) or ISO 8601 text. A missing or implausible value is written as
 \code{NA}.
+
+\code{embedding_info} describes \code{corpus$embeddings}: its size (\code{n_works},
+\code{n_dimensions}) and, from the record in \code{corpus$metadata$embedding}
+(see \code{\link[=sm_corpus]{sm_corpus()}}), the model behind it: \code{model}, \code{model_id},
+\code{base_model_id}, \code{revision}, \code{base_revision}, \code{text}, \code{prefix},
+\code{models}, \code{versions} and \code{created}. \code{method} names how the embeddings
+were made: \code{"sentence-transformers"} or \code{"adapters"} (\code{\link[=sm_embed_works]{sm_embed_works()}}),
+\code{"semantic-scholar"} (\code{\link[=sm_enrich_specter]{sm_enrich_specter()}},
+\code{\link[=sm_fetch_semantic_scholar]{sm_fetch_semantic_scholar()}}) or \code{"mixed"} for rows of several models;
+it is \code{"unknown"} for embeddings without a record that fits them (such
+as embeddings made by earlier versions of scimapR, or a matrix replaced
+by hand) and \code{"none"} when the corpus has no embeddings. In these two
+cases \code{model} and \code{model_id} say the same.
 }
 \examples{
 \dontshow{if (requireNamespace("yaml", quietly = TRUE)) withAutoprint(\{ # examplesIf}

@@ -86,3 +86,14 @@ test_that("sm_cluster_kmeans replaces an existing cluster_id column", {
   expect_equal(sum(names(out2$works) == "cluster_id"), 1L)
   expect_equal(length(unique(out2$works$cluster_id)), 4L)
 })
+
+test_that("works without an embedding row get no cluster", {
+  # a partial matrix, as sm_embed_works() leaves for works without text
+  corpus <- sm_example_corpus(n_works = 30, with_embeddings = TRUE, seed = 7)
+  corpus$embeddings <- corpus$embeddings[-(1:4), , drop = FALSE]
+  set.seed(1)
+  out <- suppressMessages(sm_cluster_kmeans(corpus, k = 3, reducer = "pca"))
+  expect_identical(nrow(out$works), 30L)
+  expect_true(all(is.na(out$works$cluster_id[1:4])))
+  expect_false(anyNA(out$works$cluster_id[-(1:4)]))
+})

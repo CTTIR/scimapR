@@ -28,6 +28,7 @@ similarity between the connected works.
 \details{
 Embeddings must be present in \code{corpus$embeddings} (a numeric matrix with
 row names matching \code{work_id}). Use \code{\link[=sm_embed_works]{sm_embed_works()}} to compute them.
+Works without a row, such as works without text, are not nodes.
 
 The function computes cosine similarity via matrix multiplication on
 L2-normalised vectors and selects the top-\code{k} neighbours for each work.
