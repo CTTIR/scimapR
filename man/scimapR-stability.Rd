@@ -37,7 +37,17 @@ scimapR 0.4.0).}
 \code{n_both}, \code{n_only_a}, \code{n_only_b}, \code{jaccard}.}
 \item{\code{\link[=sm_metric_summary]{sm_metric_summary()}}}{A one-row tibble: \code{metric}, \code{n}, \code{mean},
 \code{median}, and (when \code{robust = TRUE}) \code{median_ci_low}, \code{median_ci_high},
-\code{pp_top10}, \code{n_boot}.}
+\code{pp_top10}, \code{n_boot}. It carries the attribute \code{impact_source}
+(character): where the summarised values come from, such as
+\code{"works$fwci (OpenAlex)"} for \code{metric = "cnci"} on a corpus with
+OpenAlex impact fields, and \code{NA} on the \code{n = 0} row (added after
+scimapR 0.4.0, without changing the columns).}
+\item{\code{\link[=sm_citation_window]{sm_citation_window()}}}{A tibble with one row per work, in the
+order of \code{corpus$works}: \code{work_id} (character), \code{year} and \code{window}
+(integer), \code{citations} (integer, \code{NA} for a work without yearly
+counts or publication year) and \code{complete} (logical); a 0-row tibble
+with these columns for a corpus without works (added after scimapR
+0.4.0).}
 \item{\code{\link[=sm_self_citation]{sm_self_citation()}} (\code{by_entity} / \code{by_work} / \code{provenance})}{Tidy
 tibbles with the columns documented at \code{\link[=sm_self_citation]{sm_self_citation()}}.}
 }

@@ -91,3 +91,28 @@ test_that("sm_dedupe preserves works with NA DOI", {
   na_count <- sum(is.na(deduped$works$doi))
   expect_gte(na_count, 3L)
 })
+
+test_that("binding and deduplicating keep the yearly citation counts", {
+  yearly <- function(ids) {
+    tibble::tibble(work_id = ids, year = 2022L, cited_by_count = 1L)
+  }
+  works <- function(ids, dois) tibble::tibble(work_id = ids, doi = dois)
+  c1 <- sm_corpus(works(c("W1", "W2"), c("10.9999/a", "10.9999/b")),
+                  citations_by_year = yearly(c("W1", "W2")))
+  c2 <- sm_corpus(works(c("W3", "W4"), c("10.9999/c", "10.9999/a")),
+                  citations_by_year = yearly(c("W3", "W4")))
+  plain <- sm_corpus(tibble::tibble(work_id = "W5", doi = "10.9999/e"))
+
+  bound <- sm_bind_corpora(c1, c2)
+  expect_identical(bound$citations_by_year$work_id, c("W1", "W2", "W3", "W4"))
+  expect_identical(sm_bind_corpora(plain, c2)$citations_by_year$work_id,
+                   c("W3", "W4"))
+  expect_false("citations_by_year" %in% names(sm_bind_corpora(plain, plain)))
+  # a work in both corpora keeps one row per year
+  expect_identical(nrow(sm_bind_corpora(c1, c1)$citations_by_year), 2L)
+
+  deduped <- sm_dedupe(bound, verbose = FALSE)
+  expect_identical(sort(deduped$citations_by_year$work_id),
+                   sort(deduped$works$work_id))
+  expect_identical(nrow(deduped$citations_by_year), 3L)
+})

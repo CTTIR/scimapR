@@ -21,13 +21,18 @@
 #' @param work_ids Optional character vector restricting to a subset of works.
 #' @param institutions,lead_role Focal institutions (or `NULL`) and the
 #'   author role that leads a work, for `"leadership"`.
+#' @param min_cell For `"cnci"`: passed to [sm_metric_fnci()] when the
+#'   impact is derived from citation counts.
 #' @param call Caller environment.
 #' @return A list: `series` (a tibble with columns `year` (integer), `value`,
-#'   `n_works`) and `dropped_years` (sorted integer vector).
+#'   `n_works`), `dropped_years` (sorted integer vector) and
+#'   `impact_source` (the label of the impact values for `"cnci"`, else
+#'   `NA`).
 #' @noRd
 .sm_yearly_outcome <- function(corpus, outcome, work_ids = NULL,
                                institutions = NULL,
                                lead_role = "corresponding",
+                               min_cell = NULL,
                                call = rlang::caller_env()) {
   works <- corpus$works
   corpus_years <- as.integer(works$year[!is.na(works$year)])
@@ -46,15 +51,18 @@
     }
     n <- tabulate(match(works$year, grid), nbins = length(grid))
     series <- tibble::tibble(year = grid, value = as.double(n), n_works = n)
-    return(list(series = series, dropped_years = integer()))
+    return(list(series = series, dropped_years = integer(),
+                impact_source = NA_character_))
   }
 
   empty <- tibble::tibble(year = integer(), value = double(),
                           n_works = integer())
   if (nrow(works) == 0L) {
-    return(list(series = empty, dropped_years = integer()))
+    return(list(series = empty, dropped_years = integer(),
+                impact_source = NA_character_))
   }
 
+  impact_source <- NA_character_
   series <- switch(outcome,
     share_q1 = {
       qcol <- intersect(c("quartile", "jif_quartile", "sjr_quartile"),
@@ -76,7 +84,8 @@
         dplyr::arrange(.data$year)
     },
     cnci = {
-      res <- .resolve_impact_values(corpus, call = call)
+      res <- .resolve_impact_values(corpus, min_cell = min_cell, call = call)
+      impact_source <- res$source
       # works without a finite impact value stay out of the yearly mean
       res$values$value[!is.finite(res$values$value)] <- NA_real_
       works %>%
@@ -94,7 +103,9 @@
     leadership = .sm_leadership_series(corpus, works, institutions,
                                        lead_role, call = call)
   )
-  .sm_drop_unusable_years(series, works$year)
+  out <- .sm_drop_unusable_years(series, works$year)
+  out$impact_source <- impact_source
+  out
 }
 
 #' Drop the years of a yearly series that have no usable outcome
@@ -257,23 +268,29 @@
 #'
 #' @description
 #' Searches the corpus for impact data in a documented order and uses the first
-#' populated source: (1) a precomputed `works$cnci` column; (2) a dedicated
-#' `corpus$metrics` table (`cnci`/`fnci`/`value` column keyed by `work_id`);
-#' (3) `works$cited_by_count`, from which a field-normalised impact (FNCI) is
-#' derived via [sm_metric_fnci()]. If none is populated it raises an
-#' informative error naming the exact columns inspected -- instead of letting
-#' the downstream series collapse to "0 observations".
+#' populated source: (1) a precomputed impact column on `works`: `cnci`, then
+#' `fwci` (OpenAlex), then `fnci`, `rcr`, `cnci_value`, `ncs`, `mncs` and
+#' `field_citation_ratio`; (2) a dedicated `corpus$metrics` table
+#' (`cnci`/`fnci`/`value` column keyed by `work_id`); (3)
+#' `works$cited_by_count`, from which a field-normalised impact (FNCI) is
+#' derived via [sm_metric_fnci()] (with `min_cell`). If none is populated it
+#' raises an informative error (class `scimapR_no_impact_data`) naming the
+#' exact columns inspected -- instead of letting the downstream series
+#' collapse to "0 observations". Shared by sm_its(), sm_did(), sm_synth()
+#' and sm_metric_summary().
 #'
 #' @return A list with `values` (tibble of `work_id`, `value`) and `source`
 #'   (a human-readable label of the location used).
 #' @noRd
-.resolve_impact_values <- function(corpus, call = rlang::caller_env()) {
+.resolve_impact_values <- function(corpus, min_cell = NULL,
+                                   call = rlang::caller_env()) {
   works <- corpus$works
   checked <- character()
 
   # documented impact column names searched on `works` and a metrics table
-  impact_cols <- c("cnci", "fnci", "rcr", "cnci_value", "ncs", "mncs",
-                   "field_citation_ratio")
+  impact_cols <- c("cnci", "fwci", "fnci", "rcr", "cnci_value", "ncs",
+                   "mncs", "field_citation_ratio")
+  labels <- c(fwci = "works$fwci (OpenAlex)")
 
   # 1. a precomputed impact column on works (cnci preferred, then siblings)
   wcol <- intersect(impact_cols, names(works))
@@ -283,11 +300,15 @@
       return(list(
         values = tibble::tibble(work_id = works$work_id,
                                 value = as.numeric(works[[col]])),
-        source = paste0("works$", col)
+        source = if (col %in% names(labels)) {
+          labels[[col]]
+        } else {
+          paste0("works$", col)
+        }
       ))
     }
   }
-  if (length(wcol) == 0L) checked <- c(checked, "works$cnci")
+  if (length(wcol) == 0L) checked <- c(checked, "works$cnci", "works$fwci")
 
   # 2. dedicated metrics table, if the corpus carries one
   checked <- c(checked, "corpus$metrics")
@@ -308,7 +329,7 @@
   checked <- c(checked, "works$cited_by_count")
   if ("cited_by_count" %in% names(works) &&
       any(!is.na(works$cited_by_count))) {
-    fnci <- sm_metric_fnci(corpus, call = call)
+    fnci <- sm_metric_fnci(corpus, min_cell = min_cell, call = call)
     if (any(!is.na(fnci$fnci))) {
       return(list(
         values = tibble::tibble(work_id = fnci$work_id, value = fnci$fnci),
@@ -320,8 +341,22 @@
   cli::cli_abort(c(
     "Outcome {.val cnci} has no usable impact data in this corpus.",
     "i" = "Looked for, in order: {.field {checked}}.",
-    "i" = "Populate {.code works$cnci}, a {.code corpus$metrics} table, or {.code works$cited_by_count}; enrich citations (e.g. {.fn sm_enrich_opencitations}) or supply impact via {.fn sm_metric_summary}."
-  ), call = call)
+    "i" = paste0(
+      "Populate {.code works$cnci}, {.code works$fwci} (e.g. with ",
+      "{.fn sm_enrich_openalex_impact}), a {.code corpus$metrics} table, ",
+      "or {.code works$cited_by_count}; enrich citations (e.g. ",
+      "{.fn sm_enrich_opencitations}) or supply impact via ",
+      "{.fn sm_metric_summary}."
+    )
+  ), class = "scimapR_no_impact_data", call = call)
+}
+
+#' Print the impact source of a cnci result (nothing when it is NA)
+#' @noRd
+.sm_print_impact_source <- function(source) {
+  if (is.null(source) || is.na(source)) return(invisible(NULL))
+  cli::cli_text("{.strong Impact source:} ", .sm_cli_escape(source))
+  invisible(NULL)
 }
 
 #' Default GLM family for an outcome
@@ -357,12 +392,18 @@
 #'       quartile; needs a journal-quartile column on `works` (`quartile`,
 #'       `jif_quartile`, or `sjr_quartile`).}
 #'     \item{`"cnci"`}{Mean field-normalised citation impact per year. Impact is
-#'       resolved from the first populated of `works$cnci`, a `corpus$metrics`
-#'       table (`cnci`/`fnci`/`value` keyed by `work_id`), or
+#'       resolved from the first populated of `works$cnci`, `works$fwci`
+#'       (OpenAlex; see [sm_enrich_openalex_impact()]), the other impact
+#'       columns `fnci`, `rcr`, `cnci_value`, `ncs`, `mncs` and
+#'       `field_citation_ratio`, a `corpus$metrics` table
+#'       (`cnci`/`fnci`/`value` keyed by `work_id`), or
 #'       `works$cited_by_count` (from which FNCI is derived via
-#'       [sm_metric_fnci()]). If none is populated, an informative error names
-#'       the columns inspected. Works without a finite impact value are left
-#'       out of the yearly mean.}
+#'       [sm_metric_fnci()], with `min_cell`). If none is populated, an
+#'       informative error (class `scimapR_no_impact_data`) names the
+#'       columns inspected. [sm_metric_summary()] (`metric = "cnci"`)
+#'       resolves impact in the same order, and the result names the source
+#'       used (`impact_source`). Works without a finite impact value are
+#'       left out of the yearly mean.}
 #'     \item{`"leadership"`}{Share of works led through the author role
 #'       `lead_role` (by default the corresponding author,
 #'       `authorships$is_corresponding`), by one of `institutions` when
@@ -389,6 +430,11 @@
 #'   the lowest and the highest `position` of the work, `"first_or_last"`
 #'   either, and `"any_lead"` the first, last or corresponding author.
 #'   Roles other than `"corresponding"` need `institutions`.
+#' @param min_cell For `outcome = "cnci"`: `NULL` (default) or a positive
+#'   integer, passed to [sm_metric_fnci()] when the impact is derived from
+#'   `works$cited_by_count`, so that works in field-year cells with fewer
+#'   works fall back to larger baselines. Not used when the corpus carries
+#'   stored impact values.
 #' @param call Caller environment for error reporting.
 #'
 #' @details
@@ -454,6 +500,10 @@
 #'   labels the institutions of the corpus, `institution_match`,
 #'   `institution_name` or `institution_id`, the first with a value; `NA`
 #'   without `institutions`), and is `NULL` for the other outcomes.
+#'   `impact_source` (character) names where the impact values of
+#'   `outcome = "cnci"` come from, such as `"works$fwci (OpenAlex)"` or
+#'   `"works$cited_by_count (field-normalised)"`; `NA` for the other
+#'   outcomes.
 #'
 #' @family causal
 #' @seealso [sm_did()], [sm_citation_maturity()]
@@ -484,9 +534,11 @@ sm_its <- function(corpus,
                    institutions = NULL,
                    lead_role = c("corresponding", "first", "last",
                                  "first_or_last", "any_lead"),
+                   min_cell = NULL,
                    call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   outcome <- rlang::arg_match(outcome, error_call = call)
+  .check_min_cell(min_cell, call = call)
   given <- c("institutions", "lead_role")[c(!is.null(institutions),
                                             !missing(lead_role))]
   lead_role <- rlang::arg_match(lead_role, error_call = call)
@@ -502,7 +554,8 @@ sm_its <- function(corpus,
   }
 
   yearly <- .sm_yearly_outcome(corpus, outcome, institutions = institutions,
-                               lead_role = lead_role, call = call)
+                               lead_role = lead_role, min_cell = min_cell,
+                               call = call)
   series <- yearly$series
   dropped_years <- yearly$dropped_years
 
@@ -587,7 +640,8 @@ sm_its <- function(corpus,
       lag = lag,
       provisional_years = provisional_years,
       dropped_years = dropped_years,
-      leadership = leadership
+      leadership = leadership,
+      impact_source = yearly$impact_source
     ),
     class = "sm_its"
   )
@@ -637,6 +691,7 @@ print.sm_its <- function(x, ...) {
     cli::cli_text("{.strong Leadership:} ",
                   .sm_cli_escape(.sm_leadership_text(x$leadership)))
   }
+  .sm_print_impact_source(x$impact_source)
   if (length(x$dropped_years) > 0L) {
     cli::cli_text("{.strong Dropped (no usable data):} {x$dropped_years}")
   }

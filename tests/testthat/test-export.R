@@ -109,3 +109,17 @@ test_that("sm_export_csv rejects non-corpus input", {
   tmpdir <- withr::local_tempdir()
   expect_error(sm_export_csv("not_a_corpus", tmpdir), "sm_corpus")
 })
+
+test_that("sm_export_csv writes the yearly citation counts when present", {
+  dir <- withr::local_tempdir()
+  fix <- realuse_corpus()
+  suppressMessages(sm_export_csv(fix, dir))
+  path <- file.path(dir, "citations_by_year.csv")
+  expect_true(file.exists(path))
+  back <- readr::read_csv(path, col_types = "cii", progress = FALSE)
+  expect_identical(nrow(back), nrow(fix$citations_by_year))
+
+  plain <- withr::local_tempdir()
+  suppressMessages(sm_export_csv(sm_example_corpus(n_works = 5), plain))
+  expect_false(file.exists(file.path(plain, "citations_by_year.csv")))
+})

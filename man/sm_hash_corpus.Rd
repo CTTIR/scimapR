@@ -20,6 +20,10 @@ from the hash to allow comparing corpus content across sessions.
 
 Two corpora with identical scientific content will produce the same hash,
 regardless of when they were built.
+
+The yearly citation counts (\code{citations_by_year}) enter the hash only when
+the corpus has some, so a corpus without them hashes as it did before
+the element existed.
 }
 \examples{
 corpus <- sm_example_corpus()

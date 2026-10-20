@@ -70,7 +70,8 @@ test_that("a share_q1 year without quartiles is dropped and reported", {
   corpus$works$quartile <- rep(c("Q1", "Q2", "Q1", NA), 5)
   corpus$works$quartile[corpus$works$year == 2018L] <- NA
   res <- .sm_yearly_outcome(corpus, "share_q1")
-  expect_named(res, c("series", "dropped_years"))
+  expect_named(res, c("series", "dropped_years", "impact_source"))
+  expect_identical(res$impact_source, NA_character_)
   expect_identical(res$dropped_years, 2018L)
   expect_identical(res$series$year, c(2016L, 2017L, 2019L, 2020L))
   # the share is over works with a quartile; n_works counts every work
@@ -893,4 +894,109 @@ test_that("sm_did and sm_synth leave out citation-immature cnci years", {
   )
   expect_identical(res$provisional_years, c(2023L, 2024L))
   expect_false(any(res$panel$year %in% c(2023L, 2024L)))
+})
+
+# ---- impact source and min_cell of the cnci outcome -------------------------
+
+test_that("works$fwci comes right after works$cnci in the resolver", {
+  corpus <- sm_example_corpus(n_works = 120, seed = 1)
+  corpus$works$rcr <- 5
+  corpus$metrics <- tibble::tibble(work_id = corpus$works$work_id, cnci = 7)
+  corpus$works$fwci <- 2
+  expect_identical(.resolve_impact_values(corpus)$source,
+                   "works$fwci (OpenAlex)")
+  corpus$works$cnci <- 3
+  expect_identical(.resolve_impact_values(corpus)$source, "works$cnci")
+  # an all-NA fwci column is passed over
+  corpus$works$cnci <- NULL
+  corpus$works$fwci <- NA_real_
+  expect_identical(.resolve_impact_values(corpus)$source, "works$rcr")
+})
+
+test_that("the no-impact error has a class and names works$fwci", {
+  corpus <- sm_example_corpus(n_works = 60, seed = 1)
+  corpus$works$cited_by_count <- NA_integer_
+  err <- expect_error(sm_its(corpus, 2020, "cnci"),
+                      class = "scimapR_no_impact_data")
+  expect_match(conditionMessage(err), "works$fwci", fixed = TRUE)
+  expect_match(conditionMessage(err), "sm_enrich_openalex_impact",
+               fixed = TRUE)
+})
+
+test_that("sm_its, sm_did and sm_synth keep and print the impact source", {
+  corpus <- did_corpus()
+  corpus$works$fwci <- stats::runif(nrow(corpus$works), 0.5, 2)
+  its <- sm_its(corpus, 2019, "cnci")
+  expect_identical(its$impact_source, "works$fwci (OpenAlex)")
+  out <- cli::cli_fmt(print(its))
+  expect_true(any(grepl("Impact source: works$fwci (OpenAlex)", out,
+                        fixed = TRUE)))
+  count <- suppressWarnings(sm_its(corpus, 2019, "count"),
+                            classes = "scimapR_overdispersion")
+  expect_identical(count$impact_source, NA_character_)
+  expect_false(any(grepl("Impact source", cli::cli_fmt(print(count)),
+                         fixed = TRUE)))
+
+  did <- sm_did(corpus, "Inst A", "Inst B", 2020, "cnci", shared = "keep")
+  expect_identical(did$impact_source, "works$fwci (OpenAlex)")
+  expect_true(any(grepl("Impact source", cli::cli_fmt(print(did)),
+                        fixed = TRUE)))
+  plain <- suppressMessages(
+    sm_did(did_corpus(), "Inst A", "Inst B", 2020, "cnci", shared = "keep"),
+    classes = "scimapR_fnci_small_cells"
+  )
+  expect_identical(plain$impact_source,
+                   "works$cited_by_count (field-normalised)")
+
+  synth <- synth_corpus()
+  synth$works$fwci <- 1
+  res <- .sm_synth_panel(synth, synth_units, "cnci", 2020L, lag = 2L)
+  expect_identical(res$impact_source, "works$fwci (OpenAlex)")
+  expect_identical(.sm_synth_panel(synth, synth_units, "count",
+                                   2020L)$impact_source, NA_character_)
+})
+
+test_that("sm_its(outcome = 'cnci') on the fixture uses its works$fwci", {
+  # The real-use fixture carries OpenAlex fwci and no cnci: the outcome is
+  # the yearly mean of the stored fwci instead of a within-corpus FNCI, and
+  # sm_metric_summary(metric = "cnci") names the same source.
+  fix <- realuse_corpus()
+  expect_false("cnci" %in% names(fix$works))
+  its <- sm_its(fix, 2021, "cnci")
+  expect_identical(its$impact_source, "works$fwci (OpenAlex)")
+  fwci <- fix$works$fwci[fix$works$year == 2020L]
+  expect_equal(its$series$observed[its$series$year == 2020L],
+               mean(fwci[is.finite(fwci)]))
+  expect_message(summary <- sm_metric_summary(fix, "cnci", robust = FALSE),
+                 class = "scimapR_impact_source")
+  expect_identical(attr(summary, "impact_source"), its$impact_source)
+})
+
+test_that("min_cell reaches the FNCI fallback of the yearly outcome", {
+  corpus <- did_corpus()
+  expect_message(sm_its(corpus, 2019, "cnci"),
+                 class = "scimapR_fnci_small_cells")
+  expect_no_message(
+    sm_its(corpus, 2019, "cnci", min_cell = 10),
+    class = "scimapR_fnci_small_cells"
+  )
+  pooled <- sm_its(corpus, 2019, "cnci", min_cell = 10)
+  fnci <- suppressMessages(sm_metric_fnci(corpus, min_cell = 10))
+  yearly <- tapply(fnci$fnci, corpus$works$year[match(fnci$work_id,
+                                                      corpus$works$work_id)],
+                   mean, na.rm = TRUE)
+  first <- pooled$series$year[1]
+  expect_equal(pooled$series$observed[1],
+               unname(yearly[as.character(first)]))
+  expect_no_message(
+    sm_did(corpus, "Inst A", "Inst B", 2020, "cnci", shared = "keep",
+           min_cell = 10),
+    class = "scimapR_fnci_small_cells"
+  )
+  expect_error(sm_its(corpus, 2019, "cnci", min_cell = -1), "min_cell")
+  expect_error(sm_did(corpus, "Inst A", "Inst B", 2020, "count",
+                      min_cell = 0.5), "min_cell")
+  skip_if_not_installed("tidysynth")
+  expect_error(sm_synth(corpus, "Inst A", "Inst B", 2020, "count",
+                        min_cell = "x"), "min_cell")
 })

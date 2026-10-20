@@ -53,9 +53,10 @@
 #' cell gets FNCI = 1 by construction. When `min_cell` is `NULL` and more
 #' than 25% of the works with a citation count sit in cells with fewer than
 #' 10 such works, a message (class `scimapR_fnci_small_cells`) gives that
-#' share. [sm_its()] (`outcome = "cnci"`) and [sm_metric_summary()]
-#' (`metric = "cnci"`) show it too when they derive impact from citation
-#' counts.
+#' share. [sm_its()], [sm_did()] and [sm_synth()] (`outcome = "cnci"`) and
+#' [sm_metric_summary()] (`metric = "cnci"`) show it too when they derive
+#' impact from citation counts; their own `min_cell` argument is passed on
+#' here.
 #'
 #' @section Fallback baselines:
 #' With `min_cell` set, each work gets the most specific baseline that has at
@@ -135,14 +136,7 @@ sm_metric_fnci <- function(corpus,
                            call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   classification <- rlang::arg_match(classification, error_call = call)
-  bad_min_cell <- !is.null(min_cell) &&
-    !(rlang::is_integerish(min_cell, n = 1, finite = TRUE) && min_cell >= 1)
-  if (bad_min_cell) {
-    cli::cli_abort(
-      "{.arg min_cell} must be {.code NULL} or a positive integer.",
-      call = call
-    )
-  }
+  .check_min_cell(min_cell, call = call)
   if (!rlang::is_bool(by_type)) {
     cli::cli_abort("{.arg by_type} must be {.code TRUE} or {.code FALSE}.",
                    call = call)
@@ -184,6 +178,25 @@ sm_metric_fnci <- function(corpus,
   result[names(template)]
 }
 
+
+#' Abort unless `min_cell` is `NULL` or a positive integer
+#'
+#' Shared by sm_metric_fnci() and the functions that pass `min_cell` on to
+#' it (sm_its(), sm_did(), sm_synth(), sm_metric_summary()), so that a bad
+#' value is reported even when stored impact values make the FNCI
+#' unnecessary.
+#' @noRd
+.check_min_cell <- function(min_cell, call = rlang::caller_env()) {
+  bad <- !is.null(min_cell) &&
+    !(rlang::is_integerish(min_cell, n = 1, finite = TRUE) && min_cell >= 1)
+  if (bad) {
+    cli::cli_abort(
+      "{.arg min_cell} must be {.code NULL} or a positive integer.",
+      call = call
+    )
+  }
+  invisible(min_cell)
+}
 
 #' Baseline levels of the min_cell fallback, most specific first
 #' @noRd

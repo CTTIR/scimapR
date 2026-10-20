@@ -14,6 +14,7 @@ sm_synth(
   lag = NULL,
   institution_aware = FALSE,
   lead_role = c("corresponding", "first", "last", "first_or_last", "any_lead"),
+  min_cell = NULL,
   call = rlang::caller_env()
 )
 
@@ -46,6 +47,10 @@ corresponding author.}
 a work, as in \code{\link[=sm_its]{sm_its()}}. Roles other than \code{"corresponding"} need
 \code{institution_aware = TRUE}.}
 
+\item{min_cell}{For \code{outcome = "cnci"}: \code{NULL} (default) or a positive
+integer, passed to \code{\link[=sm_metric_fnci]{sm_metric_fnci()}} when the impact is derived from
+citation counts, as in \code{\link[=sm_its]{sm_its()}}.}
+
 \item{call}{Caller environment for error reporting.}
 
 \item{x}{An \code{sm_synth} object.}
@@ -60,7 +65,9 @@ value, whose years were dropped for every unit), \code{provisional_years}
 (integer; the citation-immature years excluded for \code{"cnci"}),
 \code{leadership} (the leadership definition, as in \code{\link[=sm_its]{sm_its()}}, with
 \code{institutions} the unit labels when \code{institution_aware}; \code{NULL} for
-the other outcomes), and metadata.
+the other outcomes), \code{impact_source} (where the impact values of
+\code{"cnci"} come from, as in \code{\link[=sm_its]{sm_its()}}; \code{NA} for the other outcomes),
+and metadata.
 
 \code{print} returns \code{x} invisibly.
 }

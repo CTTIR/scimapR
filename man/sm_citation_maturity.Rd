@@ -42,6 +42,7 @@ table(corpus$works$cnci_provisional)
 \code{\link[=sm_its]{sm_its()}}, \code{\link[=sm_metric_fnci]{sm_metric_fnci()}}
 
 Other counting:
+\code{\link[=sm_citation_window]{sm_citation_window()}},
 \code{\link[=sm_count]{sm_count()}},
 \code{\link[=sm_metric_summary]{sm_metric_summary()}}
 }

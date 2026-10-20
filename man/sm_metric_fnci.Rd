@@ -72,9 +72,10 @@ A cell with few works gives an unstable baseline, and a work alone in its
 cell gets FNCI = 1 by construction. When \code{min_cell} is \code{NULL} and more
 than 25\% of the works with a citation count sit in cells with fewer than
 10 such works, a message (class \code{scimapR_fnci_small_cells}) gives that
-share. \code{\link[=sm_its]{sm_its()}} (\code{outcome = "cnci"}) and \code{\link[=sm_metric_summary]{sm_metric_summary()}}
-(\code{metric = "cnci"}) show it too when they derive impact from citation
-counts.
+share. \code{\link[=sm_its]{sm_its()}}, \code{\link[=sm_did]{sm_did()}} and \code{\link[=sm_synth]{sm_synth()}} (\code{outcome = "cnci"}) and
+\code{\link[=sm_metric_summary]{sm_metric_summary()}} (\code{metric = "cnci"}) show it too when they derive
+impact from citation counts; their own \code{min_cell} argument is passed on
+here.
 }
 
 \section{Fallback baselines}{

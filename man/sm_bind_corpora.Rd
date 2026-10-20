@@ -15,7 +15,8 @@ sm_bind_corpora(corpus1, corpus2)
 An \code{sm_corpus} object.
 }
 \description{
-Row-bind all tables of two \code{sm_corpus} objects.
+Row-bind all tables of two \code{sm_corpus} objects, the yearly citation
+counts (\code{citations_by_year}) too when either corpus has them.
 }
 \seealso{
 Other corpus:

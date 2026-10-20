@@ -334,6 +334,68 @@
   Before, an author with two address rows counted twice, so a
   single-author work did not count as single-authored and the authors per
   work disagreed with `sm_metric_collab_index()`.
+- OpenAlex fetches and `sm_read_openalex_json()` keep FWCI, citation
+  percentiles and yearly citation counts (new corpus element
+  `citations_by_year`); new `sm_enrich_openalex_impact()` adds them to any
+  corpus by identifier and stops cleanly on HTTP 429; new
+  `sm_citation_window()`. The works gain the columns `fwci`,
+  `citation_percentile`, `is_top_10pct`, `is_top_1pct` and
+  `citations_as_of` (the date of these values); the openalexR engine has
+  no percentile. `sm_fetch_openalex()` now stops with the same message on
+  HTTP 429, naming the reset time, the remaining budget and the
+  `OPENALEX_API_KEY` setting, instead of a generic error (native engine) or
+  an empty corpus (openalexR engine), and its openalexR engine now uses
+  `OPENALEX_API_KEY` too and needs openalexR 3.1.1 or later.
+  `sm_enrich_openalex_impact()` sends identifiers only, joins nothing when
+  a request fails, and records its step in provenance with the source
+  `"openalex_impact"` and the kind `"enrichment"`, which
+  `sm_rebuild_from_cert()` never replays; certificates record the kind of
+  each step. `sm_corpus()`, `sm_corpus_from_tables()`, subsetting,
+  `sm_bind_corpora()`, `sm_dedupe()`, `sm_export_csv()`, `sm_validate()`
+  and `sm_hash_corpus()` carry `citations_by_year`; corpora without it keep
+  their hash.
+- `sm_metric_summary(metric = "cnci")` resolves impact like `sm_its()` and
+  reports its source as an attribute; both now use `works$fwci` when
+  `works$cnci` is absent (ahead of other impact columns and
+  `corpus$metrics`), which changes `sm_its()`, `sm_did()` and `sm_synth()`
+  results with `outcome = "cnci"` for such corpora. The attribute
+  `impact_source` is `NA` on the `n = 0` row, which a corpus without usable
+  impact data still gives; a message names the source for `"cnci"` and the
+  new `metric = "fwci"`, and the results of `sm_its()`, `sm_did()` and
+  `sm_synth()` keep it as `impact_source` and print it. `sm_its()`,
+  `sm_did()`, `sm_synth()` and `sm_metric_summary()` gain `min_cell`,
+  passed to `sm_metric_fnci()` when they derive impact from citation
+  counts (default `NULL`, as before). The error for a corpus without impact
+  data has the class `scimapR_no_impact_data`.
+- `sm_fetch_openalex()` and `sm_read_openalex_json()` fill
+  `authorships$raw_affiliation` from OpenAlex's `raw_affiliation_strings`
+  (joined with `"; "`), else from `affiliations[].raw_affiliation_string`,
+  else from the institution names. Before, `sm_fetch_openalex()` read a
+  field OpenAlex no longer has, so `raw_affiliation` was `NA` for every
+  fetched authorship and `sm_affiliation_match()` matched nothing, and
+  `sm_read_openalex_json()` kept only the name of the first institution,
+  without the department and unit text that dictionaries match.
+- `sm_read_openalex_json()` links works to their source (`works$source_id`).
+  Before, it was `NA` for every work, so source counts, the source plots
+  and h-index, ISSN lookups in `sm_coverage_audit()` and `SO` in
+  `sm_to_bibliometrix()` came out empty. Sources with the same name but
+  different OpenAlex ids now stay apart.
+- `sm_read_openalex_json()` reads a saved API response (an object whose
+  `results` hold the works, compact or pretty-printed), a single work
+  object and newline-delimited files whose lines are responses; before, a
+  saved response gave one empty work or a parse error. It also reads
+  abstracts from `abstract_inverted_index` when a record has no plain
+  `abstract`; before, such a record stopped the reader with an error.
+- `sm_fetch_openalex()` stores ORCIDs without the `https://orcid.org/`
+  prefix, as the other readers do, and `sm_author_trajectory(orcid =)`
+  accepts an ORCID in either form, so `sm_researcher_profile()` finds its
+  researcher; before, it aborted with "No author found with ORCID" for
+  every researcher with 5 or more works. `sm_researcher_profile()` gains
+  `n_max` (default 200, as before).
+- Timestamps given as ISO 8601 text with more than three decimals of a
+  second, such as `2026-10-01T04:12:33.123456` (the form of OpenAlex's
+  `updated_date`), are read, for example in `metadata$last_refresh`;
+  before, they counted as missing.
 
 # scimapR 0.4.0
 

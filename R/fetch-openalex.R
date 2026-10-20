@@ -6,8 +6,38 @@
 #'
 #' Supports both free-text search (`query`) and structured filter syntax
 #' (`filter`). Uses cursor-based pagination to retrieve up to `n_max` works.
-#' An API key (polite pool) and a `mailto` address are strongly recommended
-#' for higher rate limits.
+#' Set an OpenAlex API key (see "API key and rate limits").
+#'
+#' Besides `cited_by_count`, the works keep OpenAlex's field-weighted
+#' citation impact (`fwci`), its citation percentile (`citation_percentile`,
+#' 0 to 1, with the flags `is_top_10pct` and `is_top_1pct`) and the date of
+#' these values (`citations_as_of`), and the corpus gets the yearly citation
+#' counts as `citations_by_year` (see [sm_corpus()] and
+#' [sm_citation_window()]). The openalexR engine has no percentile, so its
+#' three percentile columns are `NA`. To add these fields to a corpus from
+#' another source, use [sm_enrich_openalex_impact()].
+#'
+#' @section API key and rate limits:
+#' OpenAlex expects a free API key. Requests without one share one small
+#' daily budget with everyone on the same network address; once it is used
+#' up, OpenAlex answers HTTP 429 (too many requests) until the budget
+#' resets at midnight UTC. Set the key in the
+#' `OPENALEX_API_KEY` environment variable (for example in `~/.Renviron`)
+#' or pass it as `api_key`. It is sent in the `Authorization` header,
+#' never in the URL, and it is stored nowhere in the corpus.
+#'
+#' On HTTP 429 the function stops at once with an error of class
+#' `scimapR_openalex_rate_limit` instead of waiting: the message gives the
+#' reset time and the remaining budget that OpenAlex reports (the fields
+#' `reset_at` and `remaining` of the condition) and says whether a key was
+#' sent. Only a wait of up to two seconds (OpenAlex also limits requests per
+#' second) is waited out, once. Other failed requests stop with class
+#' `scimapR_openalex_failed`; both classes inherit from
+#' `scimapR_openalex_error`. With `engine = "openalexR"` the
+#' \pkg{openalexR} package (version 3.1.1 or later) sends the requests: it
+#' gets the key too and its own retries are switched off, but it does not
+#' pass on the response headers, so the reset time and the budget are not
+#' known.
 #'
 #' @param query Free-text search query passed to the `search` parameter.
 #'   If `NULL`, `filter` must be supplied.
@@ -15,12 +45,15 @@
 #'   `"from_publication_date:2020-01-01,type:journal-article"`.
 #' @param n_max Maximum number of works to return (default 200).
 #' @param per_page Number of results per page (max 200).
-#' @param mailto Email address for the polite pool. Read from
-#'   `SCIMAPR_MAILTO` env var by default.
-#' @param api_key OpenAlex API key. Read from `OPENALEX_API_KEY` env var.
+#' @param mailto Contact address sent with each request as the `mailto`
+#'   parameter. Read from the `SCIMAPR_MAILTO` environment variable by
+#'   default. OpenAlex no longer gives such requests a larger budget (the
+#'   API key does), and the openalexR engine does not send it.
+#' @param api_key OpenAlex API key. Read from the `OPENALEX_API_KEY`
+#'   environment variable by default; see "API key and rate limits".
 #' @param engine One of `"native"` (built-in httr2 client), `"openalexR"`
-#'   (use the openalexR package), or `"auto"` (use openalexR if available,
-#'   otherwise native).
+#'   (use the openalexR package), or `"auto"` (use openalexR if version
+#'   3.1.1 or later is installed, otherwise native).
 #' @param batch_size Integer; maximum number of `|`-joined values allowed in a
 #'   single OpenAlex filter clause before the request is automatically split
 #'   into multiple batched requests. OpenAlex limits the number of values in an
@@ -33,6 +66,7 @@
 #' @return An `sm_corpus` object.
 #'
 #' @family fetchers
+#' @seealso [sm_enrich_openalex_impact()], [sm_citation_window()]
 #' @export
 #' @examples
 #' \dontrun{
@@ -63,13 +97,17 @@ sm_fetch_openalex <- function(query = NULL,
   }
 
   if (engine == "auto") {
-    engine <- if (rlang::is_installed("openalexR")) "openalexR" else "native"
+    engine <- if (rlang::is_installed("openalexR", version = "3.1.1")) {
+      "openalexR"
+    } else {
+      "native"
+    }
   }
 
   if (engine == "openalexR") {
-    return(.fetch_openalex_openalexR(
+    return(.fetch_openalex_openalexr(
       query = query, filter = filter, n_max = n_max,
-      mailto = mailto, batch_size = batch_size,
+      api_key = api_key, batch_size = batch_size,
       verbose = verbose, call = call
     ))
   }
@@ -83,37 +121,22 @@ sm_fetch_openalex <- function(query = NULL,
   n_fetched <- 0L
 
   repeat {
-    req <- httr2::request("https://api.openalex.org/works") |>
-      httr2::req_url_query(per_page = min(per_page, n_max - n_fetched),
-                           cursor = cursor) |>
-      httr2::req_headers(`User-Agent` = .sm_user_agent()) |>
-      httr2::req_throttle(rate = 10 / 1)
-
-    if (!is.null(query) && nzchar(query)) {
-      req <- httr2::req_url_query(req, search = query)
-    }
-    if (!is.null(filter) && nzchar(filter)) {
-      req <- httr2::req_url_query(req, filter = filter)
-    }
-    if (nzchar(mailto)) {
-      req <- httr2::req_url_query(req, mailto = mailto)
-    }
-    if (nzchar(api_key)) {
-      req <- httr2::req_headers(req, `Authorization` = paste("Bearer", api_key))
-    }
-
-    resp <- tryCatch(
-      httr2::req_perform(req),
-      error = function(e) {
-        cli::cli_abort(
-          c("OpenAlex API request failed.",
-            "i" = conditionMessage(e)),
+    params <- list(per_page = min(per_page, n_max - n_fetched),
+                   cursor = cursor)
+    if (!is.null(query) && nzchar(query)) params$search <- query
+    if (!is.null(filter) && nzchar(filter)) params$filter <- filter
+    body <- tryCatch(
+      .openalex_request("works", params, api_key = api_key, mailto = mailto,
+                        call = call),
+      scimapR_openalex_rate_limit = function(cnd) {
+        .openalex_abort_rate_limit(
+          cnd, key_set = cnd$key_set, n_fetched = n_fetched,
+          context = sprintf("%d works had been fetched; none are returned.",
+                            n_fetched),
           call = call
         )
       }
     )
-
-    body <- httr2::resp_body_json(resp)
     results <- body[["results"]]
 
     if (length(results) == 0L) break
@@ -186,8 +209,13 @@ sm_fetch_openalex <- function(query = NULL,
   )
 }
 
+#' Parse OpenAlex work records from the API into an sm_corpus
+#'
+#' @param fetched When the records were fetched: the as-of date of their
+#'   impact fields when a record has no `updated_date`.
 #' @noRd
-.parse_openalex_results <- function(results, query_text, verbose, call) {
+.parse_openalex_results <- function(results, query_text, verbose, call,
+                                    fetched = Sys.time()) {
   n <- length(results)
   work_ids <- .generate_work_id(n)
 
@@ -222,6 +250,10 @@ sm_fetch_openalex <- function(query = NULL,
     last_refreshed = Sys.time()
   )
 
+  # ---- impact fields and yearly citation counts ----
+  impact <- .openalex_impact_fields(results, work_ids, fetched = fetched)
+  works <- dplyr::bind_cols(works, impact$works[-1])
+
   # ---- authors & authorships ----
   author_data <- .parse_openalex_authorships(results, work_ids)
 
@@ -252,8 +284,120 @@ sm_fetch_openalex <- function(query = NULL,
     sources = sources,
     references = references,
     concepts = concepts,
-    provenance = provenance
+    provenance = provenance,
+    citations_by_year = impact$citations_by_year
   )
+}
+
+#' The impact fields of OpenAlex work records
+#'
+#' `fwci`, the citation percentile (`citation_normalized_percentile`: its
+#' `value` and the flags `is_in_top_10_percent` and `is_in_top_1_percent`),
+#' the as-of date of these values and the yearly citation counts
+#' (`counts_by_year`), with `NA` (and no yearly rows) where a record lacks
+#' them. Shared by the native fetcher, [sm_read_openalex_json()] and
+#' [sm_enrich_openalex_impact()].
+#'
+#' The as-of date is the day of the record's `updated_date`; a record
+#' without one gets the day of `fetched`, or `NA` when `fetched` is `NULL`
+#' (records read from a file). The yearly counts are kept as OpenAlex gives
+#' them: the ten most recent years, without the years that have no
+#' citations.
+#'
+#' @param results OpenAlex work records (lists, as parsed from JSON).
+#' @param work_ids The corpus `work_id` of each record.
+#' @param fetched `NULL`, or when the records were fetched (POSIXct).
+#' @return A list: `works` (tibble: `work_id`, `fwci`,
+#'   `citation_percentile`, `is_top_10pct`, `is_top_1pct`,
+#'   `citations_as_of`) and `citations_by_year` (tibble: `work_id`, `year`,
+#'   `cited_by_count`, sorted).
+#' @noRd
+.openalex_impact_fields <- function(results, work_ids, fetched = NULL) {
+  number <- function(x) {
+    if (is.null(x) || length(x) != 1L || is.list(x)) return(NA_real_)
+    suppressWarnings(as.numeric(x))
+  }
+  flag <- function(x) {
+    if (is.logical(x) && length(x) == 1L) x else NA
+  }
+  percentile <- lapply(results, function(w) {
+    p <- w[["citation_normalized_percentile"]]
+    if (is.list(p)) p else list()
+  })
+  fallback <- if (is.null(fetched)) {
+    as.Date(NA)
+  } else {
+    as.Date(.as_utc_time(fetched, what = "fetch time"), tz = "UTC")
+  }
+  as_of <- vapply(results, function(w) {
+    updated <- w[["updated_date"]]
+    if (!is.character(updated) || length(updated) != 1L) {
+      return(as.numeric(fallback))
+    }
+    day <- as.Date(.as_utc_time(updated, what = "updated_date"), tz = "UTC")
+    as.numeric(if (is.na(day)) fallback else day)
+  }, numeric(1))
+
+  works <- tibble::tibble(
+    work_id = as.character(work_ids),
+    fwci = vapply(results, function(w) number(w[["fwci"]]), numeric(1)),
+    citation_percentile = vapply(percentile, function(p) {
+      number(p[["value"]])
+    }, numeric(1)),
+    is_top_10pct = vapply(percentile, function(p) {
+      flag(p[["is_in_top_10_percent"]])
+    }, logical(1)),
+    is_top_1pct = vapply(percentile, function(p) {
+      flag(p[["is_in_top_1_percent"]])
+    }, logical(1)),
+    citations_as_of = as.Date(as_of, origin = "1970-01-01")
+  )
+
+  rows <- lapply(seq_along(results), function(i) {
+    counts <- results[[i]][["counts_by_year"]]
+    if (!is.list(counts) || length(counts) == 0L) return(NULL)
+    year <- vapply(counts, function(e) number(e[["year"]]), numeric(1))
+    cited <- vapply(counts, function(e) {
+      number(e[["cited_by_count"]])
+    }, numeric(1))
+    ok <- is.finite(year) & is.finite(cited) & cited >= 0 &
+      year == round(year) & cited == round(cited)
+    tibble::tibble(work_id = as.character(work_ids[i]),
+                   year = as.integer(year[ok]),
+                   cited_by_count = as.integer(cited[ok]))
+  })
+  yearly <- .sm_bind_rows(rows, template = .empty_citations_by_year())
+  yearly <- yearly[!duplicated(yearly[c("work_id", "year")]), , drop = FALSE]
+  yearly <- yearly[order(yearly$work_id, yearly$year, method = "radix"), ,
+                   drop = FALSE]
+  list(works = works, citations_by_year = yearly)
+}
+
+#' The affiliation text of one OpenAlex authorship
+#'
+#' The authorship's `raw_affiliation_strings`, else the older single
+#' `raw_affiliation_string`, else the `raw_affiliation_string` of its
+#' `affiliations`, else the names of its institutions; several strings are
+#' joined with `"; "`. `NA` when there is none.
+#' @noRd
+.openalex_raw_affiliation <- function(a) {
+  text <- function(x) {
+    x <- trimws(as.character(unlist(x, use.names = FALSE)))
+    unique(x[!is.na(x) & nzchar(x)])
+  }
+  found <- text(a[["raw_affiliation_strings"]])
+  if (length(found) == 0L) found <- text(a[["raw_affiliation_string"]])
+  if (length(found) == 0L) {
+    found <- text(lapply(a[["affiliations"]] %||% list(), function(x) {
+      if (is.list(x)) x[["raw_affiliation_string"]]
+    }))
+  }
+  if (length(found) == 0L) {
+    found <- text(lapply(a[["institutions"]] %||% list(), function(x) {
+      if (is.list(x)) x[["display_name"]]
+    }))
+  }
+  if (length(found) == 0L) NA_character_ else paste(found, collapse = "; ")
 }
 
 #' Reconstruct abstract from an OpenAlex inverted index
@@ -322,15 +466,14 @@ sm_fetch_openalex <- function(query = NULL,
         aid <- paste0("A", formatC(length(author_map) + 1L, width = 9, flag = "0"))
         author_map[[oa_author_id]] <- list(
           author_id = aid,
-          orcid = au[["orcid"]] %||% NA_character_,
+          orcid = .normalize_orcid(au[["orcid"]]),
           display_name = au[["display_name"]] %||% NA_character_
         )
       }
 
       inst <- a[["institutions"]]
       inst_id <- if (length(inst) > 0) inst[[1]][["id"]] %||% NA_character_ else NA_character_
-      raw_aff <- a[["raw_affiliation_string"]] %||% NA_character_
-      if (is.list(raw_aff)) raw_aff <- raw_aff[[1]] %||% NA_character_
+      raw_aff <- .openalex_raw_affiliation(a)
 
       cc <- NA_character_
       if (length(inst) > 0) {
@@ -507,14 +650,38 @@ sm_fetch_openalex <- function(query = NULL,
   })
 }
 
+#' The openalexR engine of sm_fetch_openalex()
+#'
+#' openalexR (3.1.1 or later) retries an HTTP 429 a few times, then warns
+#' (class `openalexR_429`) and returns an empty result. Here its retries
+#' are switched off (`openalexR.max_tries = 1`, as option and environment
+#' variable, restored on exit) and the warning becomes the same rate-limit
+#' abort as in the native engine. openalexR reads the key for every page
+#' but the first from `openalexR.apikey`, so a given `api_key` is set there
+#' for the duration of the call as well; an empty `api_key` leaves the
+#' user's own openalexR setting in force.
 #' @noRd
-.fetch_openalex_openalexR <- function(query, filter, n_max, mailto,
+.fetch_openalex_openalexr <- function(query, filter, n_max, api_key = "",
                                       batch_size = 50L, verbose, call) {
-  rlang::check_installed("openalexR",
+  rlang::check_installed("openalexR", version = "3.1.1",
                          reason = "to use engine = 'openalexR'",
                          call = call)
 
   .sm_verbose("Fetching via openalexR...", verbose)
+
+  api_key <- .openalex_setting(api_key)
+  old_tries <- Sys.getenv("openalexR.max_tries", unset = NA)
+  old_key <- Sys.getenv("openalexR.apikey", unset = NA)
+  old_options <- options(openalexR.max_tries = 1L)
+  on.exit({
+    options(old_options)
+    .restore_envvar("openalexR.max_tries", old_tries)
+    .restore_envvar("openalexR.apikey", old_key)
+  }, add = TRUE)
+  Sys.setenv(openalexR.max_tries = "1")
+  if (nzchar(api_key)) Sys.setenv(openalexR.apikey = api_key)
+  key_set <- nzchar(Sys.getenv("openalexR.apikey")) ||
+    !is.null(getOption("openalexR.apikey"))
 
   parsed <- .parse_openalex_filter(filter)
   batches <- .batch_openalex_filter(parsed, batch_size = batch_size)
@@ -524,18 +691,33 @@ sm_fetch_openalex <- function(query = NULL,
                 verbose)
   }
 
+  n_rows <- 0L
   tryCatch({
     raw_list <- lapply(seq_along(batches), function(bi) {
       b_filter <- batches[[bi]]
-      openalexR::oa_fetch(
+      args <- list(
         entity = "works",
         search = query,
         filter = b_filter,
         count_only = FALSE,
-        per_page = 200L,
-        mailto = if (nzchar(mailto)) mailto else NULL,
+        options = openalexR::oa_options(per_page = 200L),
         verbose = verbose
       )
+      if (nzchar(api_key)) args$api_key <- api_key
+      raw <- withCallingHandlers(
+        do.call(openalexR::oa_fetch, args),
+        openalexR_429 = function(w) {
+          .openalex_abort_rate_limit(
+            list(), key_set = key_set, engine = "openalexR",
+            context = sprintf("%d of %d batch%s had been fetched.", bi - 1L,
+                              n_batches, if (n_batches == 1L) "" else "es"),
+            n_done = bi - 1L, n_batches = n_batches, n_fetched = n_rows,
+            call = call
+          )
+        }
+      )
+      n_rows <<- n_rows + NROW(raw)
+      raw
     })
 
     raw_list <- raw_list[!vapply(raw_list, is.null, logical(1))]
@@ -562,7 +744,8 @@ sm_fetch_openalex <- function(query = NULL,
       work_id = work_ids,
       doi = .normalize_doi(raw[["doi"]] %||% rep(NA_character_, n)),
       title = raw[["display_name"]] %||% rep(NA_character_, n),
-      abstract = raw[["ab"]] %||% rep(NA_character_, n),
+      abstract = raw[["abstract"]] %||% raw[["ab"]] %||%
+        rep(NA_character_, n),
       year = as.integer(raw[["publication_year"]] %||% rep(NA_integer_, n)),
       type = raw[["type"]] %||% rep(NA_character_, n),
       source_id = NA_character_,
@@ -577,6 +760,15 @@ sm_fetch_openalex <- function(query = NULL,
       last_refreshed = Sys.time()
     )
 
+    # openalexR keeps fwci and the yearly counts (a data frame per work)
+    # but no percentile and no updated_date
+    records <- lapply(seq_len(n), function(i) {
+      list(fwci = raw[["fwci"]][i],
+           counts_by_year = .openalexr_counts(raw[["counts_by_year"]][i]))
+    })
+    impact <- .openalex_impact_fields(records, work_ids, fetched = Sys.time())
+    works <- dplyr::bind_cols(works, impact$works[-1])
+
     provenance <- .make_provenance_rows(
       work_ids, "openalex", works$openalex_id, query, "openalexR"
     )
@@ -587,13 +779,41 @@ sm_fetch_openalex <- function(query = NULL,
       works = works,
       authors = .empty_authors(),
       authorships = .empty_authorships(),
-      provenance = provenance
+      provenance = provenance,
+      citations_by_year = impact$citations_by_year
     )
   }, error = function(e) {
+    if (inherits(e, "scimapR_openalex_error")) stop(e)
     cli::cli_abort(
       c("openalexR fetch failed.",
-        "i" = conditionMessage(e)),
+        "i" = .sm_cli_escape(conditionMessage(e))),
       call = call
     )
+  })
+}
+
+#' Restore an environment variable saved with `Sys.getenv(unset = NA)`
+#' @noRd
+.restore_envvar <- function(name, old) {
+  if (is.na(old)) {
+    Sys.unsetenv(name)
+  } else {
+    do.call(Sys.setenv, stats::setNames(list(old), name))
+  }
+  invisible(NULL)
+}
+
+#' The yearly counts of one openalexR row as OpenAlex records
+#'
+#' openalexR stores `counts_by_year` as a data frame per work (`year`,
+#' `cited_by_count`), or `NA` when the work has none.
+#' @noRd
+.openalexr_counts <- function(cell) {
+  df <- if (is.list(cell)) cell[[1]] else NULL
+  if (!is.data.frame(df) || !all(c("year", "cited_by_count") %in% names(df))) {
+    return(list())
+  }
+  lapply(seq_len(nrow(df)), function(j) {
+    list(year = df$year[j], cited_by_count = df$cited_by_count[j])
   })
 }

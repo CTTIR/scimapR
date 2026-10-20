@@ -1,0 +1,122 @@
+[
+  {
+    "id": "https://openalex.org/W9999100001",
+    "doi": "https://doi.org/10.9999/oaimp.2020.001",
+    "title": "Field triage of heat illness in a reserve battalion",
+    "publication_year": 2020,
+    "type": "article",
+    "cited_by_count": 12,
+    "fwci": 2.4,
+    "citation_normalized_percentile": {
+      "value": 0.97,
+      "is_in_top_1_percent": false,
+      "is_in_top_10_percent": true
+    },
+    "counts_by_year": [
+      {"year": 2024, "cited_by_count": 3},
+      {"year": 2023, "cited_by_count": 5},
+      {"year": 2021, "cited_by_count": 4}
+    ],
+    "updated_date": "2026-10-01T04:12:33.123456",
+    "primary_location": {
+      "source": {
+        "id": "https://openalex.org/S9999100001",
+        "display_name": "Journal of Invented Field Medicine",
+        "issn_l": "9999-0001",
+        "type": "journal"
+      }
+    },
+    "authorships": [
+      {"author_position": "first",
+       "author": {"id": "https://openalex.org/A9999100001",
+                  "display_name": "Lena Brightwater",
+                  "orcid": "https://orcid.org/0000-0002-9999-001X"},
+       "institutions": [{"id": "https://openalex.org/I9999100001",
+                         "display_name": "Northtown Field Hospital",
+                         "country_code": "DE"}],
+       "raw_affiliation_strings": [
+         "Northtown Field Hospital, Dept. of Emergency Medicine, Northtown",
+         "Reserve Medical Company 7, Northtown"
+       ],
+       "affiliations": [
+         {"raw_affiliation_string": "Northtown Field Hospital, Dept. of Emergency Medicine, Northtown",
+          "institution_ids": ["https://openalex.org/I9999100001"]}
+       ],
+       "is_corresponding": true},
+      {"author_position": "last",
+       "author": {"id": "https://openalex.org/A9999100002",
+                  "display_name": "Piet Vandermolen"},
+       "institutions": [],
+       "raw_affiliation_strings": [],
+       "affiliations": [
+         {"raw_affiliation_string": "Institute of Invented Microbiology, Southcity",
+          "institution_ids": []}
+       ],
+       "is_corresponding": false}
+    ]
+  },
+  {
+    "id": "https://openalex.org/W9999100002",
+    "doi": "https://doi.org/10.9999/oaimp.2023.002",
+    "title": "Hand hygiene audits on a training ground",
+    "publication_year": 2023,
+    "type": "article",
+    "cited_by_count": 0,
+    "fwci": null,
+    "citation_normalized_percentile": null,
+    "counts_by_year": [],
+    "updated_date": "2026-09-30T00:00:00",
+    "primary_location": {
+      "source": {
+        "id": "https://openalex.org/S9999100001",
+        "display_name": "Journal of Invented Field Medicine",
+        "issn_l": "9999-0001",
+        "type": "journal"
+      }
+    },
+    "authorships": [
+      {"author_position": "first",
+       "author": {"id": "https://openalex.org/A9999100003",
+                  "display_name": "Ines Okafor"},
+       "institutions": [{"id": "https://openalex.org/I9999100002",
+                         "display_name": "Southcity University Hospital",
+                         "country_code": "NL"}],
+       "is_corresponding": false}
+    ]
+  },
+  {
+    "id": "https://openalex.org/W9999100003",
+    "doi": "https://doi.org/10.9999/oaimp.2024.003",
+    "title": "Blood supply logistics for a field exercise",
+    "publication_year": 2024,
+    "type": "article",
+    "cited_by_count": 1,
+    "fwci": 0.35,
+    "citation_normalized_percentile": {
+      "value": 0.41,
+      "is_in_top_1_percent": false,
+      "is_in_top_10_percent": false
+    },
+    "counts_by_year": [
+      {"year": 2025, "cited_by_count": 1}
+    ],
+    "primary_location": {
+      "source": {
+        "id": "https://openalex.org/S9999100002",
+        "display_name": "Journal of Invented Field Medicine",
+        "issn_l": "9999-0002",
+        "type": "journal"
+      }
+    },
+    "authorships": [
+      {"author_position": "first",
+       "author": {"id": "https://openalex.org/A9999100001",
+                  "display_name": "Lena Brightwater",
+                  "orcid": "https://orcid.org/0000-0002-9999-001X"},
+       "institutions": [{"id": "https://openalex.org/I9999100001",
+                         "display_name": "Northtown Field Hospital",
+                         "country_code": "DE"}],
+       "is_corresponding": true}
+    ]
+  }
+]

@@ -105,5 +105,9 @@ str.sm_corpus <- function(object, ...) {
   cli::cli_text("  embeddings:   {emb_txt}")
   cli::cli_text("  provenance:   {nrow(object$provenance)} x {ncol(object$provenance)} tibble")
   cli::cli_text("  screening:    {nrow(object$screening)} x {ncol(object$screening)} tibble")
+  yearly <- object$citations_by_year
+  if (!is.null(yearly)) {
+    cli::cli_text("  citations_by_year: {nrow(yearly)} x {ncol(yearly)} tibble")
+  }
   invisible(object)
 }

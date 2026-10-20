@@ -63,3 +63,15 @@ test_that("sm_validate detects orphan references", {
 test_that("sm_validate rejects non-corpus input", {
   expect_error(sm_validate("not_a_corpus"), "sm_corpus")
 })
+
+test_that("sm_validate detects yearly counts of works not in works", {
+  works <- tibble::tibble(work_id = c("W1", "W2"), title = "x", year = 2020L)
+  corpus <- sm_corpus(works, citations_by_year = tibble::tibble(
+    work_id = c("W1", "W9", "W9"), year = c(2021L, 2021L, 2022L),
+    cited_by_count = 1L
+  ))
+  issues <- sm_validate(corpus)
+  expect_identical(issues$table, "citations_by_year")
+  expect_identical(issues$n_affected, 1L)
+  expect_identical(nrow(sm_validate(corpus[1:2])), 0L)
+})

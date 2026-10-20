@@ -37,6 +37,18 @@
   ifelse(nzchar(doi), tolower(doi), NA_character_)
 }
 
+#' ORCID iDs without the `https://orcid.org/` prefix, in upper case (the
+#' check character `X`); `NA` for missing or empty values and for `NULL`
+#' @noRd
+.normalize_orcid <- function(orcid) {
+  if (is.null(orcid)) return(NA_character_)
+  x <- trimws(as.character(unlist(orcid, use.names = FALSE)))
+  x <- sub("^https?://(www\\.)?orcid\\.org/", "", x, ignore.case = TRUE)
+  x <- toupper(x)
+  x[!is.na(x) & !nzchar(x)] <- NA_character_
+  x
+}
+
 #' DOI of each cited-reference string, from its Web of Science "DOI 10.x/y"
 #' part (trailing periods dropped), normalised; NA where there is none
 #' @noRd

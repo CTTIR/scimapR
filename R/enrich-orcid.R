@@ -41,7 +41,7 @@ sm_enrich_orcid <- function(corpus,
   target_author_ids <- corpus$authors$author_id[has_orcid]
 
   # Clean ORCID format
-  target_orcids <- sub("^https?://orcid\\.org/", "", target_orcids)
+  target_orcids <- .normalize_orcid(target_orcids)
 
   .sm_verbose(
     "Enriching {length(target_orcids)} authors from ORCID...",

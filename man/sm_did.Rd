@@ -18,6 +18,7 @@ sm_did(
   institution_aware = FALSE,
   lead_role = c("corresponding", "first", "last", "first_or_last", "any_lead"),
   shared = c("keep", "exclude", "lead"),
+  min_cell = NULL,
   call = rlang::caller_env()
 )
 
@@ -67,6 +68,10 @@ both, and \code{"lead"} puts each in the series of the group whose
 institution holds its author in the role \code{lead_role} (a work led from
 both groups or from neither leaves both series).}
 
+\item{min_cell}{For \code{outcome = "cnci"}: \code{NULL} (default) or a positive
+integer, passed to \code{\link[=sm_metric_fnci]{sm_metric_fnci()}} when the impact is derived from
+citation counts, as in \code{\link[=sm_its]{sm_its()}}.}
+
 \item{call}{Caller environment for error reporting.}
 
 \item{x}{An \code{sm_did} object.}
@@ -86,8 +91,10 @@ the citation-immature years excluded for \code{"cnci"}), \code{shared_works}
 went: \code{"both"}, \code{"treated"}, \code{"control"} or \code{"none"}), \code{shared} (the
 policy), \code{leadership} (the leadership definition, as in \code{\link[=sm_its]{sm_its()}},
 with \code{institutions} the labels of each group when \code{institution_aware};
-\code{NULL} for the other outcomes), and metadata (\code{outcome},
-\code{intervention_year}, \code{family}, \code{lag}).
+\code{NULL} for the other outcomes), \code{impact_source} (where the impact
+values of \code{"cnci"} come from, as in \code{\link[=sm_its]{sm_its()}}; \code{NA} for the other
+outcomes), and metadata (\code{outcome}, \code{intervention_year}, \code{family},
+\code{lag}).
 
 \code{print} returns \code{x} invisibly.
 

@@ -23,6 +23,10 @@
 #' @param provenance A tibble tracking data lineage. If `NULL`, empty.
 #' @param screening A tibble of screening decisions. If `NULL`, empty.
 #' @param metadata A list of corpus-level metadata.
+#' @param citations_by_year `NULL` (default: the corpus has no yearly
+#'   citation counts) or a tibble of yearly citation counts: `work_id`,
+#'   `year` and `cited_by_count`, one row per work and year. Whole numbers
+#'   are stored as integers. See Details.
 #'
 #' @details
 #' A corpus is a list of tables that share identifiers: `work_id` links
@@ -57,7 +61,27 @@
 #' `fnci`, `rcr` and other impact columns (see [sm_its()]); `field` (for
 #' `sm_metric_fnci(classification = "manual")`); `citation_mature` and
 #' `cnci_provisional` ([sm_citation_maturity()]); `cluster_id` and
-#' `cluster_label` (the clustering functions).
+#' `cluster_label` (the clustering functions). The OpenAlex readers and
+#' [sm_enrich_openalex_impact()] write these impact columns:
+#'
+#' | Column | Type | Content |
+#' | --- | --- | --- |
+#' | `fwci` | double | Field-weighted citation impact from OpenAlex |
+#' | `citation_percentile` | double | OpenAlex citation percentile, 0 to 1 |
+#' | `is_top_10pct` | logical | Among the 10% most cited of field and year |
+#' | `is_top_1pct` | logical | Among the 1% most cited of field and year |
+#' | `citations_as_of` | Date | Date of these values and the yearly counts |
+#'
+#' The openalexR engine of [sm_fetch_openalex()] has no percentile, so its
+#' `citation_percentile`, `is_top_10pct` and `is_top_1pct` are `NA`.
+#' `citations_as_of` is the day of the OpenAlex record's `updated_date`, or
+#' of the fetch when the record has none; [sm_read_openalex_json()] leaves
+#' it `NA` for records without `updated_date`. [sm_citation_window()] reads
+#' it to tell complete citation windows from partial ones. A corpus
+#' restored with [sm_corpus_from_tables()] can hold it as a day count (days
+#' since 1970-01-01, as SQLite keeps dates) or as ISO 8601 text;
+#' [sm_citation_window()] and [sm_enrich_openalex_impact()] read both as
+#' the date they stand for.
 #'
 #' **`authors`**: one row per author. Required:
 #'
@@ -183,7 +207,11 @@
 #'
 #' `source_id_external` is, for example, the Web of Science accession
 #' number (UT); `prompt_hash` is `NA` for records that no prompt
-#' produced. Optional: none so far.
+#' produced. Optional: `kind` (character), the kind of step that wrote the
+#' row: `"enrichment"` for [sm_enrich_openalex_impact()], whose rows have
+#' the source `"openalex_impact"`. [sm_certificate()] records the kind of
+#' each step, inferred from the source for rows without `kind`, and
+#' [sm_rebuild_from_cert()] replays only searches, never an enrichment.
 #'
 #' **`screening`**: one row per screening decision. Required:
 #'
@@ -198,6 +226,24 @@
 #' | `decided_at` | POSIXct | When |
 #'
 #' Optional: none so far.
+#'
+#' **`citations_by_year`**: optional (`NULL` when the corpus has no yearly
+#' citation counts); one row per work and citation year, as the OpenAlex
+#' readers, [sm_enrich_openalex_impact()] and [sm_corpus_from_tables()]
+#' write it:
+#'
+#' | Column | Type | Content |
+#' | --- | --- | --- |
+#' | `work_id` | character | The cited work |
+#' | `year` | integer | The year of the citations |
+#' | `cited_by_count` | integer | Citations received in that year, 0 or more |
+#'
+#' `work_id` and `year` may not be missing, and each pair appears once.
+#' OpenAlex gives the counts of the ten most recent years and leaves out
+#' the years without citations, so a missing year counts 0 for a work with
+#' yearly counts (see `works$citations_as_of` and [sm_citation_window()]).
+#' Subsetting keeps the rows of the kept works, [sm_bind_corpora()] binds
+#' them and [sm_hash_corpus()] includes them when there are any.
 #'
 #' **`metadata`**: a list. Required:
 #'
@@ -253,7 +299,8 @@ sm_corpus <- function(works,
                       embeddings = NULL,
                       provenance = NULL,
                       screening = NULL,
-                      metadata = list()) {
+                      metadata = list(),
+                      citations_by_year = NULL) {
   if (!tibble::is_tibble(works)) {
     works <- tibble::as_tibble(works)
   }
@@ -273,7 +320,8 @@ sm_corpus <- function(works,
     embeddings = embeddings,
     provenance = provenance,
     screening = screening,
-    metadata = metadata
+    metadata = metadata,
+    citations_by_year = .as_citations_by_year(citations_by_year)
   )
 
   validate_sm_corpus(corpus)
@@ -281,6 +329,9 @@ sm_corpus <- function(works,
 }
 
 #' Low-level constructor for sm_corpus
+#'
+#' `citations_by_year` is an optional element: a corpus without yearly
+#' counts has no such element at all, so its structure stays as before.
 #' @noRd
 new_sm_corpus <- function(works,
                           authors,
@@ -292,26 +343,98 @@ new_sm_corpus <- function(works,
                           embeddings = NULL,
                           provenance = NULL,
                           screening = NULL,
-                          metadata = list()) {
+                          metadata = list(),
+                          citations_by_year = NULL) {
   md <- .safe_metadata()
   md[names(metadata)] <- metadata
 
-  structure(
-    list(
-      works = works,
-      authors = authors,
-      authorships = authorships,
-      institutions = institutions %||% .empty_institutions(),
-      sources = sources %||% .empty_sources(),
-      references = references %||% .empty_references(),
-      concepts = concepts %||% .empty_concepts(),
-      embeddings = embeddings,
-      provenance = provenance %||% .empty_provenance(),
-      screening = screening %||% .empty_screening(),
-      metadata = md
-    ),
-    class = "sm_corpus"
+  corpus <- list(
+    works = works,
+    authors = authors,
+    authorships = authorships,
+    institutions = institutions %||% .empty_institutions(),
+    sources = sources %||% .empty_sources(),
+    references = references %||% .empty_references(),
+    concepts = concepts %||% .empty_concepts(),
+    embeddings = embeddings,
+    provenance = provenance %||% .empty_provenance(),
+    screening = screening %||% .empty_screening(),
+    metadata = md
   )
+  if (!is.null(citations_by_year)) {
+    corpus$citations_by_year <- citations_by_year
+  }
+  structure(corpus, class = "sm_corpus")
+}
+
+#' Yearly citation counts with whole numbers stored as integers
+#'
+#' For tables given to sm_corpus(): a data frame becomes a tibble and the
+#' `work_id`, `year` and `cited_by_count` columns get their schema types
+#' when their values allow it; validate_sm_corpus() reports the rest.
+#' @noRd
+.as_citations_by_year <- function(x) {
+  if (is.null(x) || !is.data.frame(x)) return(x)
+  x <- tibble::as_tibble(x)
+  if ("work_id" %in% names(x) && is.factor(x$work_id)) {
+    x$work_id <- as.character(x$work_id)
+  }
+  for (col in intersect(c("year", "cited_by_count"), names(x))) {
+    if (is.double(x[[col]]) && rlang::is_integerish(x[[col]])) {
+      x[[col]] <- as.integer(x[[col]])
+    }
+  }
+  x
+}
+
+#' Check the optional citations_by_year element
+#' @noRd
+.check_citations_by_year <- function(x, call = rlang::caller_env()) {
+  if (!is.data.frame(x)) {
+    cli::cli_abort(
+      "{.field citations_by_year} must be a data frame or {.code NULL}.",
+      call = call
+    )
+  }
+  missing <- setdiff(c("work_id", "year", "cited_by_count"), names(x))
+  if (length(missing) > 0L) {
+    cli::cli_abort(
+      "{.field citations_by_year} lacks the column{?s} {.field {missing}}.",
+      call = call
+    )
+  }
+  ok <- c(work_id = is.character(x$work_id), year = is.integer(x$year),
+          cited_by_count = is.integer(x$cited_by_count))
+  wrong <- names(ok)[!ok]
+  if (length(wrong) > 0L) {
+    cli::cli_abort(c(
+      paste0("{.field citations_by_year} has columns of the wrong type: ",
+             "{.field {wrong}}."),
+      "i" = paste0("{.field work_id} is character, {.field year} and ",
+                   "{.field cited_by_count} are integer.")
+    ), call = call)
+  }
+  if (anyNA(x$work_id) || anyNA(x$year)) {
+    cli::cli_abort(
+      paste0("{.field citations_by_year} has rows without a ",
+             "{.field work_id} or {.field year}."),
+      call = call
+    )
+  }
+  if (any(x$cited_by_count < 0L, na.rm = TRUE) || anyNA(x$cited_by_count)) {
+    cli::cli_abort(
+      paste0("{.field citations_by_year$cited_by_count} must be 0 or more, ",
+             "without missing values."),
+      call = call
+    )
+  }
+  if (anyDuplicated(x[c("work_id", "year")]) > 0L) {
+    cli::cli_abort(
+      "{.field citations_by_year} has more than one row for a work and year.",
+      call = call
+    )
+  }
+  invisible(x)
 }
 
 #' Validate an sm_corpus object
@@ -353,6 +476,10 @@ validate_sm_corpus <- function(x, call = rlang::caller_env()) {
 
   if (!is.list(x$metadata)) {
     cli::cli_abort("{.field metadata} must be a list.", call = call)
+  }
+
+  if (!is.null(x$citations_by_year)) {
+    .check_citations_by_year(x$citations_by_year, call = call)
   }
 
   invisible(x)
@@ -397,8 +524,17 @@ is_sm_corpus <- function(x) {
     },
     provenance = dplyr::filter(x$provenance, .data$work_id %in% keep_ids),
     screening = dplyr::filter(x$screening, .data$work_id %in% keep_ids),
-    metadata = x$metadata
+    metadata = x$metadata,
+    citations_by_year = .filter_citations_by_year(x$citations_by_year,
+                                                  keep_ids)
   )
+}
+
+#' The yearly citation counts of the kept works (`NULL` stays `NULL`)
+#' @noRd
+.filter_citations_by_year <- function(x, keep_ids) {
+  if (is.null(x)) return(NULL)
+  x[x$work_id %in% keep_ids, , drop = FALSE]
 }
 
 #' @rdname sm_corpus

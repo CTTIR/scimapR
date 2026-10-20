@@ -214,3 +214,68 @@ test_that("the low-level constructor used by readers does not rename", {
   )
   expect_identical(corpus$concepts$vocabulary, "keywords-author")
 })
+
+# ---- citations_by_year: the optional yearly citation counts ----------------
+
+yearly_counts <- function(work_id = c("W1", "W1", "W2"),
+                          year = c(2021L, 2022L, 2023L),
+                          cited_by_count = c(2L, 3L, 1L)) {
+  tibble::tibble(work_id = work_id, year = year,
+                 cited_by_count = cited_by_count)
+}
+
+test_that("sm_corpus carries citations_by_year and validates it", {
+  works <- tibble::tibble(work_id = c("W1", "W2", "W3"), title = "x",
+                          year = 2020L)
+  corpus <- sm_corpus(works, citations_by_year = yearly_counts())
+  expect_identical(corpus$citations_by_year, yearly_counts())
+  # whole numbers are stored as integers
+  doubles <- yearly_counts(year = c(2021, 2022, 2023),
+                           cited_by_count = c(2, 3, 1))
+  expect_identical(sm_corpus(works, citations_by_year = doubles)$
+                     citations_by_year, yearly_counts())
+  # without it the corpus has no such element, as before
+  plain <- sm_corpus(works)
+  expect_false("citations_by_year" %in% names(plain))
+  expect_null(plain$citations_by_year)
+  expect_no_error(validate_sm_corpus(plain))
+
+  expect_error(sm_corpus(works, citations_by_year = yearly_counts()[-3]),
+               "cited_by_count")
+  expect_error(
+    sm_corpus(works, citations_by_year = yearly_counts(year = c(2021.5, 1, 2))),
+    "wrong type"
+  )
+  expect_error(
+    sm_corpus(works, citations_by_year = yearly_counts(year = c(NA, 1L, 2L))),
+    "without a"
+  )
+  negative <- yearly_counts(cited_by_count = c(-1L, 1L, 1L))
+  expect_error(sm_corpus(works, citations_by_year = negative), "0 or more")
+  twice <- yearly_counts(year = c(2021L, 2021L, 2023L))
+  expect_error(sm_corpus(works, citations_by_year = twice),
+               "more than one row")
+  expect_error(sm_corpus(works, citations_by_year = "2021"),
+               "data frame")
+})
+
+test_that("subsetting keeps the yearly counts of the kept works only", {
+  fix <- realuse_corpus()
+  sub <- fix[1:10]
+  expect_true(all(sub$citations_by_year$work_id %in% sub$works$work_id))
+  expect_identical(
+    sub$citations_by_year,
+    fix$citations_by_year[fix$citations_by_year$work_id %in%
+                            fix$works$work_id[1:10], ]
+  )
+  expect_gt(nrow(sub$citations_by_year), 0L)
+  works <- tibble::tibble(work_id = c("W1", "W2"), title = "x")
+  expect_false("citations_by_year" %in% names(sm_corpus(works)[1]))
+})
+
+test_that("as_sm_corpus() rebuilds a corpus with yearly counts from a list", {
+  works <- tibble::tibble(work_id = c("W1", "W2"), title = "x", year = 2020L)
+  corpus <- sm_corpus(works, citations_by_year = yearly_counts())
+  back <- as_sm_corpus(unclass(corpus))
+  expect_identical(back$citations_by_year, corpus$citations_by_year)
+})

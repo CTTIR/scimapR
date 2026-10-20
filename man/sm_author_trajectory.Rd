@@ -21,8 +21,10 @@ sm_author_trajectory(
 \arguments{
 \item{corpus}{An \code{sm_corpus} object.}
 
-\item{orcid}{Character. ORCID of the author to analyse. Either \code{orcid}
-or \code{author_id} must be supplied.}
+\item{orcid}{Character. ORCID of the author to analyse, with or without
+the \verb{https://orcid.org/} prefix (both the argument and the corpus
+ORCIDs are compared without it). Either \code{orcid} or \code{author_id} must be
+supplied.}
 
 \item{author_id}{Character. Internal author ID. Either \code{orcid} or
 \code{author_id} must be supplied.}

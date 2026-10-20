@@ -2,10 +2,24 @@
 #'
 #' @description
 #' Parse OpenAlex JSON export files into an `sm_corpus` object. Handles
-#' both JSON arrays of works and newline-delimited JSON (JSONL) files.
+#' JSON arrays of works, a saved API response (an object whose `results`
+#' hold the works, compact or pretty-printed), a single work object and
+#' newline-delimited JSON (JSONL, one work or one response per line).
 #' Extracts fields from the OpenAlex works schema including id, doi, title,
 #' publication year, type, cited_by_count, authorships, host venue,
 #' concepts, open access status, and referenced works.
+#'
+#' The works also keep OpenAlex's field-weighted citation impact (`fwci`),
+#' its citation percentile (`citation_percentile`, 0 to 1, with the flags
+#' `is_top_10pct` and `is_top_1pct`) and the day of the record's
+#' `updated_date` (`citations_as_of`, `NA` when the file has none), all `NA`
+#' where a record lacks them, and the corpus gets the yearly citation
+#' counts (`counts_by_year`) as `citations_by_year` (see [sm_corpus()]).
+#' Each authorship's `raw_affiliation` holds its `raw_affiliation_strings`
+#' (joined with `"; "`), else the `raw_affiliation_string` of its
+#' `affiliations`, else the names of its institutions. Works are linked to
+#' their source (`works$source_id`), and sources are told apart by their
+#' OpenAlex id, else by their name.
 #'
 #' @param path Character scalar. Path to a `.json` or `.jsonl` file.
 #' @param encoding Character scalar. File encoding (default `"UTF-8"`).
@@ -17,9 +31,9 @@
 #' @section Implementation:
 #' The parser reads the OpenAlex works JSON schema as documented at
 #' \url{https://developers.openalex.org/api-entities/works/work-object}.
-#' Both standard JSON arrays and newline-delimited JSON (one work per line)
-#' are supported. No bibliometrix engine is available since OpenAlex is not
-#' a shared bibliometric export format.
+#' The whole file is parsed first; only when that fails is it read as
+#' newline-delimited JSON, one value per line. No bibliometrix engine is
+#' available since OpenAlex is not a shared bibliometric export format.
 #'
 #' @references
 #' Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for
@@ -27,12 +41,13 @@
 #' 11(4), 959--975. \doi{10.1016/j.joi.2017.08.007}
 #'
 #' @family readers
+#' @seealso [sm_fetch_openalex()], [sm_enrich_openalex_impact()]
 #' @export
 #' @examples
-#' \dontrun{
-#' corpus <- sm_read_openalex_json("openalex_works.json")
-#' corpus$works
-#' }
+#' path <- system.file("extdata", "example_openalex_inverted.json",
+#'                     package = "scimapR")
+#' corpus <- sm_read_openalex_json(path, verbose = FALSE)
+#' corpus$works[c("title", "year", "cited_by_count")]
 sm_read_openalex_json <- function(path,
                                   encoding = "UTF-8",
                                   verbose = TRUE,
@@ -43,24 +58,29 @@ sm_read_openalex_json <- function(path,
 
   .sm_verbose("Reading OpenAlex JSON: {.file {path}}", verbose)
 
-  # Read and parse JSON - support both array and JSONL
+  # Read and parse JSON: a whole-file value (array, API response or one
+  # work) first, newline-delimited JSON when that fails
   raw <- readr::read_file(path, locale = readr::locale(encoding = encoding))
   raw <- trimws(raw)
 
-  works_list <- if (startsWith(raw, "[")) {
-    # Standard JSON array
-    jsonlite::fromJSON(raw, simplifyVector = FALSE)
-  } else if (startsWith(raw, "{")) {
-    # Might be a single object or JSONL
-    lines <- readr::read_lines(path,
-      locale = readr::locale(encoding = encoding))
-    lines <- lines[nzchar(trimws(lines))]
-    lapply(lines, function(l) jsonlite::fromJSON(l, simplifyVector = FALSE))
-  } else {
+  if (!startsWith(raw, "[") && !startsWith(raw, "{")) {
     cli::cli_abort(
       "Cannot parse OpenAlex JSON: file does not start with '[' or '{{'}.",
       call = call
     )
+  }
+  whole <- tryCatch(jsonlite::fromJSON(raw, simplifyVector = FALSE),
+                    error = function(e) NULL)
+  works_list <- if (!is.null(whole)) {
+    .openalex_json_works(whole)
+  } else {
+    lines <- readr::read_lines(
+      path, locale = readr::locale(encoding = encoding)
+    )
+    lines <- lines[nzchar(trimws(lines))]
+    unlist(lapply(lines, function(l) {
+      .openalex_json_works(jsonlite::fromJSON(l, simplifyVector = FALSE))
+    }), recursive = FALSE)
   }
 
   if (length(works_list) == 0L) {
@@ -71,11 +91,6 @@ sm_read_openalex_json <- function(path,
       authorships = .empty_authorships(),
       metadata = list(source_file = path, reader = "sm_read_openalex_json")
     ))
-  }
-
-  # If the JSON had a top-level "results" key (API response envelope)
-  if (is.list(works_list) && "results" %in% names(works_list)) {
-    works_list <- works_list[["results"]]
   }
 
   n <- length(works_list)
@@ -89,54 +104,70 @@ sm_read_openalex_json <- function(path,
   works <- tibble::tibble(
     work_id   = work_ids,
     doi       = .normalize_doi(vapply(works_list, function(w) {
-      .safe(w$doi)
+      .safe(w[["doi"]])
     }, character(1))),
-    title     = vapply(works_list, function(w) .safe(w$title), character(1)),
+    title     = vapply(works_list, function(w) {
+      .safe(w[["title"]])
+    }, character(1)),
     abstract  = vapply(works_list, function(w) {
-      # OpenAlex uses abstract_inverted_index; some exports have plain abstract
-      if (!is.null(w$abstract)) return(w$abstract)
-      if (!is.null(w$abstract_inverted_index)) {
-        return(.openalex_reconstruct_abstract(w$abstract_inverted_index))
+      # OpenAlex uses abstract_inverted_index; some exports have plain
+      # abstract (`$` would match abstract_inverted_index too)
+      if (!is.null(w[["abstract"]])) return(w[["abstract"]])
+      if (!is.null(w[["abstract_inverted_index"]])) {
+        inv <- w[["abstract_inverted_index"]]
+        return(.openalex_reconstruct_abstract(inv))
       }
       NA_character_
     }, character(1)),
     year      = suppressWarnings(as.integer(vapply(works_list, function(w) {
-      .safe(w$publication_year, NA_integer_)
+      .safe(w[["publication_year"]], NA_integer_)
     }, integer(1)))),
-    type      = vapply(works_list, function(w) .safe(w$type), character(1)),
+    type      = vapply(works_list, function(w) {
+      .safe(w[["type"]])
+    }, character(1)),
     source_id = NA_character_,
     cited_by_count = suppressWarnings(as.integer(vapply(works_list, function(w) {
-      .safe(w$cited_by_count, NA_integer_)
+      .safe(w[["cited_by_count"]], NA_integer_)
     }, integer(1)))),
     oa_status = vapply(works_list, function(w) {
-      oa <- w$open_access
-      if (!is.null(oa) && !is.null(oa$oa_status)) oa$oa_status
+      oa <- w[["open_access"]]
+      if (!is.null(oa) && !is.null(oa[["oa_status"]])) oa[["oa_status"]]
       else NA_character_
     }, character(1)),
-    language  = vapply(works_list, function(w) .safe(w$language), character(1)),
+    language  = vapply(works_list, function(w) {
+      .safe(w[["language"]])
+    }, character(1)),
     pmid      = vapply(works_list, function(w) {
-      ids <- w$ids
-      if (!is.null(ids) && !is.null(ids$pmid)) {
-        sub("^https://pubmed\\.ncbi\\.nlm\\.nih\\.gov/", "", ids$pmid)
+      ids <- w[["ids"]]
+      if (!is.null(ids) && !is.null(ids[["pmid"]])) {
+        sub("^https://pubmed\\.ncbi\\.nlm\\.nih\\.gov/", "", ids[["pmid"]])
       } else {
         NA_character_
       }
     }, character(1)),
     arxiv_id  = NA_character_,
-    openalex_id = vapply(works_list, function(w) .safe(w$id), character(1)),
+    openalex_id = vapply(works_list, function(w) {
+      .safe(w[["id"]])
+    }, character(1)),
     is_retracted = vapply(works_list, function(w) {
-      isTRUE(w$is_retracted)
+      isTRUE(w[["is_retracted"]])
     }, logical(1)),
     retraction_date = as.Date(NA),
     last_refreshed = Sys.time()
   )
   works <- .ensure_works_schema(works)
 
+  # --- impact fields and yearly citation counts ------------------------------
+  impact <- .openalex_impact_fields(works_list, work_ids)
+  works <- dplyr::bind_cols(works, impact$works[-1])
+
   # --- authors & authorships -----------------------------------------------
   auth_result <- .openalex_build_authors(works_list, work_ids)
 
   # --- sources (host venue) ------------------------------------------------
-  sources <- .openalex_build_sources(works_list, work_ids, works)
+  src_result <- .openalex_build_sources(works_list)
+  sources <- src_result$sources
+  works$source_id <- src_result$source_id
 
   # --- concepts -------------------------------------------------------------
   concepts <- .openalex_build_concepts(works_list, work_ids)
@@ -148,7 +179,7 @@ sm_read_openalex_json <- function(path,
   provenance <- tibble::tibble(
     work_id   = work_ids,
     source    = "openalex",
-    source_id_external = vapply(works_list, function(w) .safe(w$id),
+    source_id_external = vapply(works_list, function(w) .safe(w[["id"]]),
                                  character(1)),
     fetch_date = Sys.time(),
     query     = path,
@@ -170,8 +201,21 @@ sm_read_openalex_json <- function(path,
     references  = references,
     concepts    = concepts,
     provenance  = provenance,
-    metadata    = list(source_file = path, reader = "sm_read_openalex_json")
+    metadata    = list(source_file = path, reader = "sm_read_openalex_json"),
+    citations_by_year = impact$citations_by_year
   )
+}
+
+#' The works in one parsed OpenAlex JSON value
+#'
+#' An unnamed list is a list of works; a named list is an API response
+#' (its `results`) or a single work.
+#' @noRd
+.openalex_json_works <- function(x) {
+  if (!is.list(x)) return(list())
+  if (is.null(names(x))) return(x)
+  if ("results" %in% names(x)) return(x[["results"]] %||% list())
+  list(x)
 }
 
 # ---- OpenAlex helpers -------------------------------------------------------
@@ -225,12 +269,7 @@ sm_read_openalex_json <- function(path,
       display_name <- author_info$display_name %||% NA_character_
       if (is.na(display_name) || !nzchar(display_name)) next
 
-      orcid_raw <- author_info$orcid %||% NA_character_
-      orcid <- if (!is.na(orcid_raw)) {
-        sub("^https://orcid\\.org/", "", orcid_raw)
-      } else {
-        NA_character_
-      }
+      orcid <- .normalize_orcid(author_info$orcid)
 
       oa_id <- author_info$id %||% NA_character_
 
@@ -238,14 +277,13 @@ sm_read_openalex_json <- function(path,
       all_orcids <- c(all_orcids, orcid)
       all_oa_ids <- c(all_oa_ids, oa_id)
 
-      # Affiliation from institutions
-      raw_aff <- NA_character_
+      # Affiliation text, and the first institution's id and country
+      raw_aff <- .openalex_raw_affiliation(a)
       country <- NA_character_
       inst_id <- NA_character_
       insts <- a$institutions
       if (!is.null(insts) && length(insts) > 0L) {
         first_inst <- insts[[1]]
-        raw_aff <- first_inst$display_name %||% NA_character_
         country <- first_inst$country_code %||% NA_character_
         inst_id <- first_inst$id %||% NA_character_
       }
@@ -312,23 +350,32 @@ sm_read_openalex_json <- function(path,
 }
 
 #' Build sources from OpenAlex host_venue / primary_location
+#'
+#' Sources are told apart by their OpenAlex id, else by their name, and
+#' get generated ids (`S000000001`, ...).
+#' @return A list: `sources` (the sources table) and `source_id` (the
+#'   source of each work, `NA` for none).
 #' @noRd
-.openalex_build_sources <- function(works_list, work_ids, works_tbl) {
+.openalex_build_sources <- function(works_list) {
   source_data <- list()
+  work_source <- rep(NA_character_, length(works_list))
 
   for (i in seq_along(works_list)) {
     w <- works_list[[i]]
 
     # Try primary_location first (newer schema), then host_venue
     loc <- w$primary_location %||% w$host_venue
-    if (is.null(loc)) next
+    if (!is.list(loc)) next
 
-    src <- loc$source %||% loc
-    sname <- src$display_name %||% NA_character_
-    if (is.na(sname)) next
+    src <- loc[["source"]] %||% loc
+    if (!is.list(src)) next
+    sname <- src[["display_name"]] %||% NA_character_
+    oa_id <- src[["id"]] %||% NA_character_
+    if (is.na(sname) && is.na(oa_id)) next
 
+    work_source[i] <- if (is.na(oa_id)) paste0("name:", sname) else oa_id
     source_data[[length(source_data) + 1L]] <- list(
-      work_idx = i,
+      key = work_source[i],
       display_name = sname,
       issn_l = src$issn_l %||% NA_character_,
       issn = src$issn %||% list(),
@@ -338,14 +385,16 @@ sm_read_openalex_json <- function(path,
     )
   }
 
-  if (length(source_data) == 0L) return(.empty_sources())
+  if (length(source_data) == 0L) {
+    return(list(sources = .empty_sources(), source_id = work_source))
+  }
 
-  src_names <- vapply(source_data, function(s) s$display_name, character(1))
-  unames <- unique(src_names)
-  sids <- .generate_source_id(length(unames))
+  src_keys <- vapply(source_data, function(s) s$key, character(1))
+  ukeys <- unique(src_keys)
+  sids <- .generate_source_id(length(ukeys))
 
   # Build source table from first occurrence
-  first_idx <- match(unames, src_names)
+  first_idx <- match(ukeys, src_keys)
   sources <- tibble::tibble(
     source_id = sids,
     issn_l = vapply(first_idx, function(j) source_data[[j]]$issn_l, character(1)),
@@ -353,7 +402,9 @@ sm_read_openalex_json <- function(path,
       is <- source_data[[j]]$issn
       if (is.null(is)) character() else unlist(is)
     }),
-    display_name = unames,
+    display_name = vapply(first_idx, function(j) {
+      source_data[[j]]$display_name
+    }, character(1)),
     type = vapply(first_idx, function(j) source_data[[j]]$type, character(1)),
     is_oa = vapply(first_idx, function(j) {
       v <- source_data[[j]]$is_oa
@@ -363,13 +414,8 @@ sm_read_openalex_json <- function(path,
     publisher_country = NA_character_
   )
 
-  # Map works to source_ids
-  name_to_sid <- stats::setNames(sids, unames)
-  for (sd in source_data) {
-    works_tbl$source_id[sd$work_idx] <- unname(name_to_sid[sd$display_name])
-  }
-
-  sources
+  list(sources = sources,
+       source_id = unname(sids[match(work_source, ukeys)]))
 }
 
 #' Build concepts from OpenAlex concepts/topics

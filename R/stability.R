@@ -33,7 +33,17 @@
 #'     `n_both`, `n_only_a`, `n_only_b`, `jaccard`.}
 #'   \item{[sm_metric_summary()]}{A one-row tibble: `metric`, `n`, `mean`,
 #'     `median`, and (when `robust = TRUE`) `median_ci_low`, `median_ci_high`,
-#'     `pp_top10`, `n_boot`.}
+#'     `pp_top10`, `n_boot`. It carries the attribute `impact_source`
+#'     (character): where the summarised values come from, such as
+#'     `"works$fwci (OpenAlex)"` for `metric = "cnci"` on a corpus with
+#'     OpenAlex impact fields, and `NA` on the `n = 0` row (added after
+#'     scimapR 0.4.0, without changing the columns).}
+#'   \item{[sm_citation_window()]}{A tibble with one row per work, in the
+#'     order of `corpus$works`: `work_id` (character), `year` and `window`
+#'     (integer), `citations` (integer, `NA` for a work without yearly
+#'     counts or publication year) and `complete` (logical); a 0-row tibble
+#'     with these columns for a corpus without works (added after scimapR
+#'     0.4.0).}
 #'   \item{[sm_self_citation()] (`by_entity` / `by_work` / `provenance`)}{Tidy
 #'     tibbles with the columns documented at [sm_self_citation()].}
 #' }

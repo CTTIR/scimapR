@@ -31,8 +31,12 @@ Web of Science style addresses (ten of them German strings with
 non-ASCII letters), one corresponding author per work, sources, Web
 of Science style cited references and keyword and category concepts.
 Extra \code{works} columns are \code{quartile} (\code{NA} for every 2026 work),
-\code{fwci}, \code{field} (the first Web of Science category), \code{volume} and
-\code{first_page}; \code{work_id} holds the Web of Science accession number.
+\code{fwci}, \code{field} (the first Web of Science category), \code{volume},
+\code{first_page} and \code{citations_as_of}; \code{work_id} holds the Web of
+Science accession number. \code{citations_by_year} holds yearly citation
+counts shaped like OpenAlex's, dated 2026-10-17 (\code{citations_as_of})
+for the works with a DOI: the years 2017 to 2026, without the years
+that have no citations (see \code{\link[=sm_citation_window]{sm_citation_window()}}).
 \code{metadata$last_refresh} is a numeric time stamp in seconds since
 1970-01-01 UTC.}
 \item{\code{example_realuse_reference.csv}}{A reference list in the style of

@@ -178,3 +178,103 @@ test_that("sm_read_openalex_json reads the corresponding author", {
   expect_identical(unname(flags), list(c(FALSE, TRUE, FALSE), c(NA, NA),
                                        c(NA, NA), c(FALSE, TRUE)))
 })
+
+# ---- impact fields, affiliations, sources, envelopes ------------------------
+
+test_that("sm_read_openalex_json keeps fwci, percentiles and yearly counts", {
+  corpus <- sm_read_openalex_json(test_path("fixtures", "openalex-impact.json"),
+                                  verbose = FALSE)
+  w <- corpus$works
+  expect_equal(w$fwci, c(2.4, NA, 0.35))
+  expect_equal(w$citation_percentile, c(0.97, NA, 0.41))
+  expect_identical(w$is_top_10pct, c(TRUE, NA, FALSE))
+  expect_identical(w$is_top_1pct, c(FALSE, NA, FALSE))
+  # a file has no fetch date: a record without updated_date gets NA
+  expect_identical(w$citations_as_of,
+                   as.Date(c("2026-10-01", "2026-09-30", NA)))
+  yearly <- corpus$citations_by_year
+  expect_identical(yearly$work_id, w$work_id[c(1, 1, 1, 3)])
+  expect_identical(yearly$year, c(2021L, 2023L, 2024L, 2025L))
+  expect_identical(sum(yearly$cited_by_count), 13L)
+})
+
+test_that("sm_read_openalex_json reads raw affiliation strings", {
+  corpus <- sm_read_openalex_json(test_path("fixtures", "openalex-impact.json"),
+                                  verbose = FALSE)
+  a <- corpus$authorships
+  expect_identical(a$raw_affiliation, c(
+    paste("Northtown Field Hospital, Dept. of Emergency Medicine, Northtown;",
+          "Reserve Medical Company 7, Northtown"),
+    "Institute of Invented Microbiology, Southcity",
+    "Southcity University Hospital",
+    "Northtown Field Hospital"
+  ))
+  # the raw strings carry the unit text that dictionaries match
+  dict <- data.frame(institution = "Reserve Medical Company 7",
+                     pattern = "Reserve Medical Company 7",
+                     email_domain = NA_character_)
+  matched <- suppressMessages(sm_affiliation_match(corpus, dict))
+  expect_identical(sum(matched$authorships$institution_match %in%
+                         "Reserve Medical Company 7"), 1L)
+})
+
+test_that("sm_read_openalex_json links works to their sources by id", {
+  corpus <- sm_read_openalex_json(test_path("fixtures", "openalex-impact.json"),
+                                  verbose = FALSE)
+  # works 1 and 2 share a source; work 3 has another source of the same name
+  expect_false(anyNA(corpus$works$source_id))
+  expect_identical(nrow(corpus$sources), 2L)
+  expect_identical(corpus$works$source_id[1], corpus$works$source_id[2])
+  expect_false(identical(corpus$works$source_id[1], corpus$works$source_id[3]))
+  expect_true(all(corpus$works$source_id %in% corpus$sources$source_id))
+  expect_identical(
+    corpus$sources$issn_l[match(corpus$works$source_id,
+                                corpus$sources$source_id)],
+    c("9999-0001", "9999-0001", "9999-0002")
+  )
+  expect_identical(sm_summary_works(corpus)$n_sources, 2L)
+})
+
+test_that("sm_read_openalex_json unwraps saved API responses", {
+  works <- jsonlite::read_json(test_path("fixtures", "openalex-impact.json"))
+  envelope <- list(meta = list(count = 3L, next_cursor = NULL),
+                   results = works, group_by = list())
+  compact <- withr::local_tempfile(fileext = ".json")
+  jsonlite::write_json(envelope, compact, auto_unbox = TRUE, null = "null",
+                       digits = NA)
+  pretty <- withr::local_tempfile(fileext = ".json")
+  jsonlite::write_json(envelope, pretty, auto_unbox = TRUE, null = "null",
+                       digits = NA, pretty = TRUE)
+  jsonl <- withr::local_tempfile(fileext = ".jsonl")
+  writeLines(c(
+    jsonlite::toJSON(list(meta = list(count = 2L), results = works[1:2]),
+                     auto_unbox = TRUE, null = "null", digits = NA),
+    jsonlite::toJSON(works[[3]], auto_unbox = TRUE, null = "null",
+                     digits = NA)
+  ), jsonl)
+  for (path in c(compact, pretty, jsonl)) {
+    corpus <- sm_read_openalex_json(path, verbose = FALSE)
+    expect_identical(nrow(corpus$works), 3L, info = path)
+    expect_identical(corpus$works$title[3],
+                     "Blood supply logistics for a field exercise",
+                     info = path)
+    expect_equal(corpus$works$fwci, c(2.4, NA, 0.35), info = path)
+  }
+
+  bundled <- sm_read_openalex_json(
+    system.file("extdata", "example_openalex_inverted.json",
+                package = "scimapR"),
+    verbose = FALSE
+  )
+  expect_identical(nrow(bundled$works), 3L)
+  expect_false(is.na(bundled$works$abstract[1]))
+  expect_identical(bundled$works$cited_by_count, c(7L, 0L, 1L))
+
+  single <- withr::local_tempfile(fileext = ".json")
+  jsonlite::write_json(works[[2]], single, auto_unbox = TRUE, null = "null",
+                       pretty = TRUE)
+  expect_identical(
+    sm_read_openalex_json(single, verbose = FALSE)$works$title,
+    "Hand hygiene audits on a training ground"
+  )
+})

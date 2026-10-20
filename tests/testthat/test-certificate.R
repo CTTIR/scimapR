@@ -25,6 +25,36 @@ test_that("sm_hash_corpus ignores last_refreshed timestamps", {
   expect_identical(sm_hash_corpus(corpus), h_before)
 })
 
+test_that("sm_hash_corpus of a corpus without yearly counts is unchanged", {
+  # pinned on dev/0.5.0 before citations_by_year existed: corpora without
+  # the element, or with an empty one, keep their hash
+  corpus <- sm_corpus(
+    works = tibble::tibble(
+      work_id = c("W1", "W2"), doi = c("10.9999/hash.1", NA),
+      title = c("Alpha", "Beta"), year = c(2020L, 2021L),
+      cited_by_count = c(3L, 0L)
+    ),
+    authors = tibble::tibble(author_id = "A1", orcid = NA_character_,
+                             display_name = "Ann Roe"),
+    authorships = tibble::tibble(
+      work_id = c("W1", "W2"), author_id = "A1", position = 1L,
+      is_corresponding = NA, institution_id = NA_character_,
+      raw_affiliation = "Univ A", country_code = "DE"
+    )
+  )
+  pinned <- "cc28f4d904342c64bc186ad78c6ecb7e75d7173efd757d1f231296022efa000e"
+  expect_identical(sm_hash_corpus(corpus), pinned)
+  corpus$citations_by_year <- scimapR:::.empty_citations_by_year()
+  expect_identical(sm_hash_corpus(corpus), pinned)
+
+  corpus$citations_by_year <- tibble::tibble(work_id = "W1", year = 2021L,
+                                             cited_by_count = 2L)
+  with_counts <- sm_hash_corpus(corpus)
+  expect_false(identical(with_counts, pinned))
+  corpus$citations_by_year$cited_by_count <- 3L
+  expect_false(identical(sm_hash_corpus(corpus), with_counts))
+})
+
 test_that("sm_hash_corpus changes when content changes", {
   corpus <- sm_example_corpus(n_works = 20, n_authors = 8, seed = 4)
   h_before <- sm_hash_corpus(corpus)

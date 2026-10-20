@@ -28,14 +28,17 @@ If \code{NULL}, \code{filter} must be supplied.}
 
 \item{per_page}{Number of results per page (max 200).}
 
-\item{mailto}{Email address for the polite pool. Read from
-\code{SCIMAPR_MAILTO} env var by default.}
+\item{mailto}{Contact address sent with each request as the \code{mailto}
+parameter. Read from the \code{SCIMAPR_MAILTO} environment variable by
+default. OpenAlex no longer gives such requests a larger budget (the
+API key does), and the openalexR engine does not send it.}
 
-\item{api_key}{OpenAlex API key. Read from \code{OPENALEX_API_KEY} env var.}
+\item{api_key}{OpenAlex API key. Read from the \code{OPENALEX_API_KEY}
+environment variable by default; see "API key and rate limits".}
 
 \item{engine}{One of \code{"native"} (built-in httr2 client), \code{"openalexR"}
-(use the openalexR package), or \code{"auto"} (use openalexR if available,
-otherwise native).}
+(use the openalexR package), or \code{"auto"} (use openalexR if version
+3.1.1 or later is installed, otherwise native).}
 
 \item{batch_size}{Integer; maximum number of \code{|}-joined values allowed in a
 single OpenAlex filter clause before the request is automatically split
@@ -57,9 +60,41 @@ return the results as an \code{sm_corpus}.
 
 Supports both free-text search (\code{query}) and structured filter syntax
 (\code{filter}). Uses cursor-based pagination to retrieve up to \code{n_max} works.
-An API key (polite pool) and a \code{mailto} address are strongly recommended
-for higher rate limits.
+Set an OpenAlex API key (see "API key and rate limits").
+
+Besides \code{cited_by_count}, the works keep OpenAlex's field-weighted
+citation impact (\code{fwci}), its citation percentile (\code{citation_percentile},
+0 to 1, with the flags \code{is_top_10pct} and \code{is_top_1pct}) and the date of
+these values (\code{citations_as_of}), and the corpus gets the yearly citation
+counts as \code{citations_by_year} (see \code{\link[=sm_corpus]{sm_corpus()}} and
+\code{\link[=sm_citation_window]{sm_citation_window()}}). The openalexR engine has no percentile, so its
+three percentile columns are \code{NA}. To add these fields to a corpus from
+another source, use \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}}.
 }
+\section{API key and rate limits}{
+
+OpenAlex expects a free API key. Requests without one share one small
+daily budget with everyone on the same network address; once it is used
+up, OpenAlex answers HTTP 429 (too many requests) until the budget
+resets at midnight UTC. Set the key in the
+\code{OPENALEX_API_KEY} environment variable (for example in \verb{~/.Renviron})
+or pass it as \code{api_key}. It is sent in the \code{Authorization} header,
+never in the URL, and it is stored nowhere in the corpus.
+
+On HTTP 429 the function stops at once with an error of class
+\code{scimapR_openalex_rate_limit} instead of waiting: the message gives the
+reset time and the remaining budget that OpenAlex reports (the fields
+\code{reset_at} and \code{remaining} of the condition) and says whether a key was
+sent. Only a wait of up to two seconds (OpenAlex also limits requests per
+second) is waited out, once. Other failed requests stop with class
+\code{scimapR_openalex_failed}; both classes inherit from
+\code{scimapR_openalex_error}. With \code{engine = "openalexR"} the
+\pkg{openalexR} package (version 3.1.1 or later) sends the requests: it
+gets the key too and its own retries are switched off, but it does not
+pass on the response headers, so the reset time and the budget are not
+known.
+}
+
 \examples{
 \dontrun{
 corpus <- sm_fetch_openalex(query = "bibliometrics", n_max = 10)
@@ -67,6 +102,8 @@ print(corpus)
 }
 }
 \seealso{
+\code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}}, \code{\link[=sm_citation_window]{sm_citation_window()}}
+
 Other fetchers:
 \code{\link[=sm_fetch_arxiv]{sm_fetch_arxiv()}},
 \code{\link[=sm_fetch_biorxiv]{sm_fetch_biorxiv()}},

@@ -15,8 +15,11 @@ sm_corpus_from_tables(
 \arguments{
 \item{tables}{A named list of data frames. Recognised names are \code{works},
 \code{authors}, \code{authorships}, \code{institutions}, \code{sources}, \code{references},
-\code{concepts}, \code{provenance}, \code{screening}. \code{works} is required (and must have,
-or be coercible to, a \code{work_id} column; if absent, work ids are generated).}
+\code{concepts}, \code{provenance}, \code{screening} and \code{citations_by_year} (yearly
+citation counts: \code{work_id}, \code{year}, \code{cited_by_count}; see
+\code{\link[=sm_corpus]{sm_corpus()}}). \code{works} is required (and must have, or be coercible
+to, a \code{work_id} column; if absent, work ids are generated). A corpus
+built without a \code{citations_by_year} table has no such element.}
 
 \item{schema}{Optional named list of empty template tibbles overriding the
 built-in schema (advanced use). Defaults to the standard \code{sm_corpus}

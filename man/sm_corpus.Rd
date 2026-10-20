@@ -25,7 +25,8 @@ sm_corpus(
   embeddings = NULL,
   provenance = NULL,
   screening = NULL,
-  metadata = list()
+  metadata = list(),
+  citations_by_year = NULL
 )
 
 \method{[}{sm_corpus}(x, i, ...)
@@ -74,6 +75,11 @@ time a corpus is built from them; name a vocabulary of your own
 \item{screening}{A tibble of screening decisions. If \code{NULL}, empty.}
 
 \item{metadata}{A list of corpus-level metadata.}
+
+\item{citations_by_year}{\code{NULL} (default: the corpus has no yearly
+citation counts) or a tibble of yearly citation counts: \code{work_id},
+\code{year} and \code{cited_by_count}, one row per work and year. Whole numbers
+are stored as integers. See Details.}
 
 \item{x, object}{An \code{sm_corpus} object.}
 
@@ -141,7 +147,27 @@ quartiles such as \code{"Q1"}, for \code{sm_its(outcome = "share_q1")}); \code{c
 \code{fnci}, \code{rcr} and other impact columns (see \code{\link[=sm_its]{sm_its()}}); \code{field} (for
 \code{sm_metric_fnci(classification = "manual")}); \code{citation_mature} and
 \code{cnci_provisional} (\code{\link[=sm_citation_maturity]{sm_citation_maturity()}}); \code{cluster_id} and
-\code{cluster_label} (the clustering functions).
+\code{cluster_label} (the clustering functions). The OpenAlex readers and
+\code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}} write these impact columns:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{fwci} \tab double \tab Field-weighted citation impact from OpenAlex \cr
+   \code{citation_percentile} \tab double \tab OpenAlex citation percentile, 0 to 1 \cr
+   \code{is_top_10pct} \tab logical \tab Among the 10\% most cited of field and year \cr
+   \code{is_top_1pct} \tab logical \tab Among the 1\% most cited of field and year \cr
+   \code{citations_as_of} \tab Date \tab Date of these values and the yearly counts \cr
+}
+
+
+The openalexR engine of \code{\link[=sm_fetch_openalex]{sm_fetch_openalex()}} has no percentile, so its
+\code{citation_percentile}, \code{is_top_10pct} and \code{is_top_1pct} are \code{NA}.
+\code{citations_as_of} is the day of the OpenAlex record's \code{updated_date}, or
+of the fetch when the record has none; \code{\link[=sm_read_openalex_json]{sm_read_openalex_json()}} leaves
+it \code{NA} for records without \code{updated_date}. \code{\link[=sm_citation_window]{sm_citation_window()}} reads
+it to tell complete citation windows from partial ones. A corpus
+restored with \code{\link[=sm_corpus_from_tables]{sm_corpus_from_tables()}} can hold it as a day count (days
+since 1970-01-01, as SQLite keeps dates) or as ISO 8601 text;
+\code{\link[=sm_citation_window]{sm_citation_window()}} and \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}} read both as
+the date they stand for.
 
 \strong{\code{authors}}: one row per author. Required:\tabular{lll}{
    Column \tab Type \tab Content \cr
@@ -267,7 +293,11 @@ named by \code{work_id}.
 
 \code{source_id_external} is, for example, the Web of Science accession
 number (UT); \code{prompt_hash} is \code{NA} for records that no prompt
-produced. Optional: none so far.
+produced. Optional: \code{kind} (character), the kind of step that wrote the
+row: \code{"enrichment"} for \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}}, whose rows have
+the source \code{"openalex_impact"}. \code{\link[=sm_certificate]{sm_certificate()}} records the kind of
+each step, inferred from the source for rows without \code{kind}, and
+\code{\link[=sm_rebuild_from_cert]{sm_rebuild_from_cert()}} replays only searches, never an enrichment.
 
 \strong{\code{screening}}: one row per screening decision. Required:\tabular{lll}{
    Column \tab Type \tab Content \cr
@@ -282,6 +312,24 @@ produced. Optional: none so far.
 
 
 Optional: none so far.
+
+\strong{\code{citations_by_year}}: optional (\code{NULL} when the corpus has no yearly
+citation counts); one row per work and citation year, as the OpenAlex
+readers, \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}} and \code{\link[=sm_corpus_from_tables]{sm_corpus_from_tables()}}
+write it:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{work_id} \tab character \tab The cited work \cr
+   \code{year} \tab integer \tab The year of the citations \cr
+   \code{cited_by_count} \tab integer \tab Citations received in that year, 0 or more \cr
+}
+
+
+\code{work_id} and \code{year} may not be missing, and each pair appears once.
+OpenAlex gives the counts of the ten most recent years and leaves out
+the years without citations, so a missing year counts 0 for a work with
+yearly counts (see \code{works$citations_as_of} and \code{\link[=sm_citation_window]{sm_citation_window()}}).
+Subsetting keeps the rows of the kept works, \code{\link[=sm_bind_corpora]{sm_bind_corpora()}} binds
+them and \code{\link[=sm_hash_corpus]{sm_hash_corpus()}} includes them when there are any.
 
 \strong{\code{metadata}}: a list. Required:\tabular{lll}{
    Entry \tab Type \tab Content \cr

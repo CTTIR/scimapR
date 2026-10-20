@@ -51,3 +51,10 @@ test_that("str.sm_corpus runs without error", {
                               with_embeddings = FALSE, seed = 1)
   expect_no_error(capture.output(str(corpus)))
 })
+
+test_that("str() lists the yearly citation counts only when present", {
+  out <- cli::cli_fmt(str(realuse_corpus()))
+  expect_true(any(grepl("citations_by_year:", out, fixed = TRUE)))
+  out <- cli::cli_fmt(str(sm_example_corpus(n_works = 5)))
+  expect_false(any(grepl("citations_by_year", out, fixed = TRUE)))
+})

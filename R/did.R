@@ -61,6 +61,9 @@
 #'   both, and `"lead"` puts each in the series of the group whose
 #'   institution holds its author in the role `lead_role` (a work led from
 #'   both groups or from neither leaves both series).
+#' @param min_cell For `outcome = "cnci"`: `NULL` (default) or a positive
+#'   integer, passed to [sm_metric_fnci()] when the impact is derived from
+#'   citation counts, as in [sm_its()].
 #' @param call Caller environment for error reporting.
 #'
 #' @details
@@ -96,8 +99,10 @@
 #'   went: `"both"`, `"treated"`, `"control"` or `"none"`), `shared` (the
 #'   policy), `leadership` (the leadership definition, as in [sm_its()],
 #'   with `institutions` the labels of each group when `institution_aware`;
-#'   `NULL` for the other outcomes), and metadata (`outcome`,
-#'   `intervention_year`, `family`, `lag`).
+#'   `NULL` for the other outcomes), `impact_source` (where the impact
+#'   values of `"cnci"` come from, as in [sm_its()]; `NA` for the other
+#'   outcomes), and metadata (`outcome`, `intervention_year`, `family`,
+#'   `lag`).
 #'
 #' @family causal
 #' @seealso [sm_its()], [sm_synth()]
@@ -123,10 +128,12 @@ sm_did <- function(corpus,
                    lead_role = c("corresponding", "first", "last",
                                  "first_or_last", "any_lead"),
                    shared = c("keep", "exclude", "lead"),
+                   min_cell = NULL,
                    call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   outcome <- rlang::arg_match(outcome, error_call = call)
   .check_flag(institution_aware, call = call)
+  .check_min_cell(min_cell, call = call)
   role_given <- !missing(lead_role)
   lead_role <- rlang::arg_match(lead_role, error_call = call)
   shared_given <- !missing(shared)
@@ -187,11 +194,14 @@ sm_did <- function(corpus,
   .fnci_inform_once({
     y_t <- .sm_yearly_outcome(corpus, outcome, treated_works,
                               institutions = if (aware) treated,
-                              lead_role = lead_role, call = call)
+                              lead_role = lead_role, min_cell = min_cell,
+                              call = call)
     y_c <- .sm_yearly_outcome(corpus, outcome, control_works,
                               institutions = if (aware) control,
-                              lead_role = lead_role, call = call)
+                              lead_role = lead_role, min_cell = min_cell,
+                              call = call)
   })
+  impact_source <- .sm_first_source(list(y_t, y_c))
   # citation-maturity exclusion, as in sm_its(), after the unusable years
   provisional_years <- integer()
   if (outcome == "cnci") {
@@ -279,6 +289,7 @@ sm_did <- function(corpus,
       shared_works = groups_of$shared_works,
       shared = shared,
       leadership = leadership,
+      impact_source = impact_source,
       outcome = outcome,
       intervention_year = intervention_year,
       family = fam$family,
@@ -286,6 +297,19 @@ sm_did <- function(corpus,
     ),
     class = "sm_did"
   )
+}
+
+#' The impact source of grouped yearly series: the first that is known
+#'
+#' Every series of one corpus resolves its impact in the same place, so the
+#' first known label stands for all of them.
+#' @noRd
+.sm_first_source <- function(yearly) {
+  sources <- vapply(yearly, function(y) {
+    y$impact_source %||% NA_character_
+  }, character(1))
+  sources <- sources[!is.na(sources)]
+  if (length(sources) == 0L) NA_character_ else sources[[1]]
 }
 
 #' Apply the policy for works that belong to both DiD groups
@@ -350,6 +374,7 @@ print.sm_did <- function(x, ...) {
     cli::cli_text("{.strong Leadership:} ",
                   .sm_cli_escape(.sm_leadership_text(x$leadership, own)))
   }
+  .sm_print_impact_source(x$impact_source)
   dropped <- x$dropped_years
   if (!is.null(dropped) && nrow(dropped) > 0L) {
     txt <- paste(.sm_unit_years(dropped$group, dropped$year), collapse = "; ")
@@ -422,12 +447,13 @@ autoplot.sm_did <- function(object, ...) {
 #'
 #' @param units Unit labels, the treated unit first.
 #' @return A list: `panel` (tibble: `unit`, `year`, `value`),
-#'   `dropped_years` (tibble: `unit`, `year`) and `provisional_years`
-#'   (integer).
+#'   `dropped_years` (tibble: `unit`, `year`), `provisional_years`
+#'   (integer) and `impact_source` (as in sm_its(); `NA` unless `"cnci"`).
 #' @noRd
 .sm_synth_panel <- function(corpus, units, outcome, intervention_year,
                             lag = 2L, institution_aware = FALSE,
                             lead_role = "corresponding",
+                            min_cell = NULL,
                             call = rlang::caller_env()) {
   units <- as.character(units)
   ids <- lapply(units, function(u) {
@@ -445,7 +471,8 @@ autoplot.sm_did <- function(object, ...) {
   yearly <- .fnci_inform_once(Map(function(w, u) {
     .sm_yearly_outcome(corpus, outcome, w,
                        institutions = if (institution_aware) u,
-                       lead_role = lead_role, call = call)
+                       lead_role = lead_role, min_cell = min_cell,
+                       call = call)
   }, ids, units))
   years <- sort(unique(unlist(lapply(yearly, function(y) {
     c(y$series$year, y$dropped_years)
@@ -486,7 +513,8 @@ autoplot.sm_did <- function(object, ...) {
     tibble::tibble(unit = rep(u, nrow(s)), year = s$year, value = s$value)
   }, yearly, units))
   list(panel = panel, dropped_years = dropped_years,
-       provisional_years = provisional_years)
+       provisional_years = provisional_years,
+       impact_source = .sm_first_source(yearly))
 }
 
 #' Synthetic control for a treated institution
@@ -515,6 +543,9 @@ autoplot.sm_did <- function(object, ...) {
 #' @param lead_role For `outcome = "leadership"`: the author role that leads
 #'   a work, as in [sm_its()]. Roles other than `"corresponding"` need
 #'   `institution_aware = TRUE`.
+#' @param min_cell For `outcome = "cnci"`: `NULL` (default) or a positive
+#'   integer, passed to [sm_metric_fnci()] when the impact is derived from
+#'   citation counts, as in [sm_its()].
 #' @param call Caller environment for error reporting.
 #'
 #' @details
@@ -538,7 +569,9 @@ autoplot.sm_did <- function(object, ...) {
 #'   (integer; the citation-immature years excluded for `"cnci"`),
 #'   `leadership` (the leadership definition, as in [sm_its()], with
 #'   `institutions` the unit labels when `institution_aware`; `NULL` for
-#'   the other outcomes), and metadata.
+#'   the other outcomes), `impact_source` (where the impact values of
+#'   `"cnci"` come from, as in [sm_its()]; `NA` for the other outcomes),
+#'   and metadata.
 #'
 #' @family causal
 #' @seealso [sm_did()]
@@ -558,10 +591,12 @@ sm_synth <- function(corpus,
                      institution_aware = FALSE,
                      lead_role = c("corresponding", "first", "last",
                                    "first_or_last", "any_lead"),
+                     min_cell = NULL,
                      call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   outcome <- rlang::arg_match(outcome, error_call = call)
   .check_flag(institution_aware, call = call)
+  .check_min_cell(min_cell, call = call)
   given <- c("institution_aware", "lead_role")[c(institution_aware,
                                                  !missing(lead_role))]
   lead_role <- rlang::arg_match(lead_role, error_call = call)
@@ -590,7 +625,7 @@ sm_synth <- function(corpus,
   built <- .sm_synth_panel(corpus, c(treated, donors), outcome,
                            intervention_year, lag = lag,
                            institution_aware = aware, lead_role = lead_role,
-                           call = call)
+                           min_cell = min_cell, call = call)
   panel <- built$panel
   dropped_years <- built$dropped_years
   if (nrow(dropped_years) > 0L) {
@@ -621,6 +656,7 @@ sm_synth <- function(corpus,
       dropped_years = dropped_years,
       provisional_years = built$provisional_years,
       leadership = leadership,
+      impact_source = built$impact_source,
       treated = treated,
       donors = donors,
       outcome = outcome,
@@ -645,6 +681,7 @@ print.sm_synth <- function(x, ...) {
     cli::cli_text("{.strong Leadership:} ",
                   .sm_cli_escape(.sm_leadership_text(x$leadership)))
   }
+  .sm_print_impact_source(x$impact_source)
   cli::cli_text("{.strong Panel:} {nrow(x$panel)} unit-year rows")
   dropped <- x$dropped_years
   if (!is.null(dropped) && nrow(dropped) > 0L) {

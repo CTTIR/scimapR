@@ -12,9 +12,14 @@
     references = .empty_references(),
     concepts = .empty_concepts(),
     provenance = .empty_provenance(),
-    screening = .empty_screening()
+    screening = .empty_screening(),
+    citations_by_year = .empty_citations_by_year()
   )
 }
+
+#' Tables that stay absent (`NULL`) in the corpus unless they are supplied
+#' @noRd
+.sm_optional_tables <- "citations_by_year"
 
 #' Typed NA of the same class as a template column
 #' @noRd
@@ -112,8 +117,11 @@
 #'
 #' @param tables A named list of data frames. Recognised names are `works`,
 #'   `authors`, `authorships`, `institutions`, `sources`, `references`,
-#'   `concepts`, `provenance`, `screening`. `works` is required (and must have,
-#'   or be coercible to, a `work_id` column; if absent, work ids are generated).
+#'   `concepts`, `provenance`, `screening` and `citations_by_year` (yearly
+#'   citation counts: `work_id`, `year`, `cited_by_count`; see
+#'   [sm_corpus()]). `works` is required (and must have, or be coercible
+#'   to, a `work_id` column; if absent, work ids are generated). A corpus
+#'   built without a `citations_by_year` table has no such element.
 #' @param schema Optional named list of empty template tibbles overriding the
 #'   built-in schema (advanced use). Defaults to the standard `sm_corpus`
 #'   schema.
@@ -174,13 +182,14 @@ sm_corpus_from_tables <- function(tables,
     ), call = call)
   }
 
-  # coerce each provided table; fall back to the empty template otherwise
+  # coerce each provided table; fall back to the empty template otherwise,
+  # except for the optional elements, which stay absent
   built <- list()
   for (tn in known) {
     if (tn %in% names(tables) && !is.null(tables[[tn]])) {
       built[[tn]] <- .coerce_table(tables[[tn]], templates[[tn]], tn,
                                    .coerce, call = call)
-    } else {
+    } else if (!tn %in% .sm_optional_tables) {
       built[[tn]] <- templates[[tn]]
     }
   }
@@ -205,7 +214,8 @@ sm_corpus_from_tables <- function(tables,
     concepts = built$concepts,
     provenance = built$provenance,
     screening = built$screening,
-    metadata = metadata
+    metadata = metadata,
+    citations_by_year = built$citations_by_year
   )
 
   validate_sm_corpus(corpus, call = call)

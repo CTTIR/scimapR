@@ -5,5 +5,5 @@
     Condition
       Error:
       ! `tables` must include a works table.
-      i Recognised tables: works, authors, authorships, institutions, sources, references, concepts, provenance, and screening.
+      i Recognised tables: works, authors, authorships, institutions, sources, references, concepts, provenance, screening, and citations_by_year.
 
