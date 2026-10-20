@@ -96,6 +96,7 @@ Suggests:
     ggraph,
     ggrepel,
     tidytext,
+    stopwords,
     uwot,
     dbscan,
     openxlsx2,

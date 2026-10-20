@@ -60,9 +60,11 @@
 #' quartiles such as `"Q1"`, for `sm_its(outcome = "share_q1")`); `cnci`,
 #' `fnci`, `rcr` and other impact columns (see [sm_its()]); `field` (for
 #' `sm_metric_fnci(classification = "manual")`); `citation_mature` and
-#' `cnci_provisional` ([sm_citation_maturity()]); `cluster_id` and
-#' `cluster_label` (the clustering functions). The OpenAlex readers and
-#' [sm_enrich_openalex_impact()] write these impact columns:
+#' `cnci_provisional` ([sm_citation_maturity()]); `cluster_id` (the
+#' clustering functions); `cluster_label` and `cluster_label_basis`, a
+#' cluster's label and how it was made ([sm_cluster_label()]). The
+#' OpenAlex readers and [sm_enrich_openalex_impact()] write these impact
+#' columns:
 #'
 #' | Column | Type | Content |
 #' | --- | --- | --- |

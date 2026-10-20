@@ -339,7 +339,6 @@ test_that("H14: dictionary patterns match non-ASCII affiliations", {
 })
 
 test_that("H15: one paper cannot name a cluster; keyword labels; noise", {
-  skip("H15 pending - prompt A15")
   skip_if_not_installed("tidytext")
   # Intent: with the theme clustering, the token one heat-theme abstract
   # repeats 15 times ("quillotyrase") is in no tf-idf label, the keyword

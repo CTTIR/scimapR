@@ -46,6 +46,23 @@
   invisible(as.integer(x))
 }
 
+#' Check the `noise` argument of the clustering consumers
+#'
+#' A single non-missing cluster id, or `NULL` for none.
+#' @noRd
+.check_noise_id <- function(noise, arg = rlang::caller_arg(noise),
+                            call = rlang::caller_env()) {
+  bad <- !is.null(noise) &&
+    (!is.atomic(noise) || length(noise) != 1L || is.na(noise))
+  if (bad) {
+    cli::cli_abort(
+      "{.arg {arg}} must be a single cluster id or {.code NULL}.",
+      call = call
+    )
+  }
+  invisible(noise)
+}
+
 .check_installed_soft <- function(pkg, reason = NULL,
                                   call = rlang::caller_env()) {
   rlang::check_installed(pkg, reason = reason, call = call)

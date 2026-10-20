@@ -495,6 +495,30 @@
   algorithm (`version = 1`), so they stay verifiable. The documentation now
   says that the hash leaves out the provenance table, which records fetch
   dates, and the metadata, the local inputs included.
+- `sm_cluster_label()` ignores noise, scores terms by the share of a
+  cluster's works that use them (so one paper cannot name a cluster),
+  supports bigrams and non-English stop words, and gains
+  `method = "keywords"`. The labels of the default `method = "tfidf"`
+  change: they hold single words and pairs of adjacent words (new argument
+  `ngram`, default `1:2`), or the longer phrase that two overlapping terms
+  form (such as "exertional heat illness" for "exertional heat" and "heat
+  illness"), that occur in at least 3 of the cluster's works or 5% of
+  them, whichever is more (new argument `min_works`), count singular and
+  plural as one term, and leave out the stop words of each work's language
+  in `works$language` as well as the English ones, from the stopwords
+  package when it is installed; `method = "yake"` leaves out
+  these stop words too. The works of the noise cluster (new argument
+  `noise`, default `0L`, as `sm_cluster_hdbscan()` assigns) get the label
+  `NA` from every method and no longer count for the labels of the other
+  clusters, so `sm_plot_thematic_map(by = "cluster_label")` leaves them
+  out; a cluster whose works share no term gets `NA` too, with a message.
+  The new column `cluster_label_basis` says how each label was made, for
+  example `"tfidf (relaxed)"` when no term reached `min_works` and the
+  terms occur in as few as 2 works, while `cluster_label` still holds only
+  the terms joined with `"; "`. `method = "keywords"` labels clusters by
+  their author and indexer keywords (such as Keywords Plus), and a cluster
+  without keywords by the terms of its titles; the new argument
+  `stop_terms` leaves out terms such as words every cluster shares.
 
 # scimapR 0.4.0
 

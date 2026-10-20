@@ -6,9 +6,13 @@
 \usage{
 sm_cluster_label(
   corpus,
-  method = c("tfidf", "yake", "llm"),
+  method = c("tfidf", "keywords", "yake", "llm"),
   n_terms = 5L,
   llm_provider = NULL,
+  min_works = NULL,
+  ngram = 1:2,
+  stop_terms = NULL,
+  noise = 0L,
   call = rlang::caller_env()
 )
 }
@@ -17,7 +21,7 @@ sm_cluster_label(
 \code{corpus$works}.}
 
 \item{method}{Character; labelling method. One of \code{"tfidf"} (default),
-\code{"yake"}, or \code{"llm"}.}
+\code{"keywords"}, \code{"yake"}, or \code{"llm"}.}
 
 \item{n_terms}{Integer; number of top terms to include in each cluster
 label. Defaults to \code{5L}.}
@@ -26,25 +30,120 @@ label. Defaults to \code{5L}.}
 \code{ellmer::chat_openai()}). Required when \code{method = "llm"}, ignored
 otherwise.}
 
+\item{min_works}{For \code{"tfidf"} and \code{"keywords"}: the number of a
+cluster's works a term must occur in to enter its label. \code{NULL}
+(default) takes 3 or 5\% of the cluster's works, whichever is more.
+When no term of a cluster reaches it, terms that occur in 2 of its
+works are used instead, as \code{cluster_label_basis} records.}
+
+\item{ngram}{For \code{"tfidf"}: the lengths of the terms it scores, in
+words, as whole numbers from 1 to 3. The default \code{1:2} scores single
+words and pairs of adjacent words; \code{1} gives labels of single words.
+Two terms that overlap can be shown as the longer phrase they form
+(see Details). \code{"keywords"} uses it for the titles it falls back to.}
+
+\item{stop_terms}{Character vector of terms to leave out of the labels,
+such as generic words that every cluster shares; \code{NULL} (default)
+leaves out none. Each is compared with whole terms, ignoring case and
+the difference between singular and plural. Not used by \code{"llm"}.}
+
+\item{noise}{The \code{cluster_id} that marks noise, the works no cluster
+claims: \code{0L} by default, as \code{\link[=sm_cluster_hdbscan]{sm_cluster_hdbscan()}} assigns. Noise gets
+no label and does not count for the labels of the other clusters.
+\code{NULL} labels every id as a cluster; set it for clusterings that use
+another noise label or a real cluster 0.}
+
 \item{call}{Caller environment for error reporting.}
 }
 \value{
-The input \code{corpus} with a \code{cluster_label} column added to
-\code{corpus$works}, containing a character string of representative terms
-for each cluster.
+The input \code{corpus} with two columns added to \code{corpus$works}, in
+place of earlier ones:
+\describe{
+\item{\code{cluster_label}}{The terms of the work's cluster joined with
+\code{"; "}, the best first; \code{NA} for noise, for works without a
+cluster and for clusters that got no label.}
+\item{\code{cluster_label_basis}}{How the label was made: \code{"tfidf"} or
+\code{"keywords"} when every term occurs in at least \code{min_works} of the
+cluster's works; \code{"tfidf (relaxed)"} or \code{"keywords (relaxed)"}
+when no term reached \code{min_works}, so that the terms occur in at
+least 2 works; \code{"tfidf (fallback)"} or
+\code{"tfidf (fallback, relaxed)"} when \code{method = "keywords"} found no
+keyword in 2 or more of the cluster's works and took the terms of
+its titles; \code{"yake"} or \code{"llm"} for these methods; \code{NA} where
+\code{cluster_label} is \code{NA}.}
+}
 }
 \description{
 Assigns human-readable labels to clusters by extracting representative
-terms. Supports TF-IDF-based extraction (default), YAKE keyword extraction,
+terms. Supports TF-IDF-based extraction (default), labels from the
+author and indexer keywords of the corpus, YAKE keyword extraction,
 or LLM-generated labels via the \pkg{ellmer} package.
 }
 \details{
-\strong{TF-IDF method}: For each cluster, concatenates titles and abstracts of
-member works, tokenises into unigrams, computes TF-IDF scores where each
-cluster is treated as a document, and selects the top \code{n_terms}.
+\strong{Noise and clusters without a label}: works whose \code{cluster_id} is
+\code{NA} or \code{noise} get no label from any method, and the \code{"tfidf"} and
+\code{"keywords"} methods leave them out of the works that make a term
+common or rare in the corpus. A cluster whose works share no term, such
+as a cluster of a single work, gets no label either, with a message.
+
+\strong{TF-IDF method}: Splits the titles and abstracts of the works into
+terms of \code{ngram} words. A term's score in a cluster is the share of the
+cluster's works that contain it times \code{log(N / n)}, where \code{N} is the
+number of clustered works and \code{n} the number of them that contain the
+term. As the score counts works, not occurrences, and a term must occur
+in at least \code{min_works} works of the cluster, a term that one paper
+repeats cannot name a cluster. The \code{n_terms} terms with the highest
+scores form the label; ties go to the term that occurs more often in the
+cluster, then to the first in alphabetical order. A longer term takes
+the place of a shorter one it contains when it occurs in at least 40\% of
+the shorter term's works ("cancer" gives way to "testicular cancer", and
+to "metastatic testicular cancer" only if that also occurs in 40\% of the
+works with "cancer"), and a term contained in one already chosen is
+skipped. When a term overlaps one already chosen, as "heat illness"
+overlaps "exertional heat", the phrase they form ("exertional heat
+illness") counts as a longer term that contains both, also beyond the
+lengths in \code{ngram}, if it occurs in enough of the cluster's works to be
+a term of the label; so one phrase does not fill two places of a label.
+
+Words of fewer than 3 characters, numbers and stop words are left out,
+and no term spans one of them, the end of a sentence or clause, or the
+border between title and abstract. The stop words of every work are the
+English ones of \code{tidytext::stop_words}, plus the Snowball list of the
+\pkg{stopwords} package for the work's own language in \code{works$language},
+given as a name such as \code{"German"}, an ISO 639-1 code such as \code{"de"} or
+an ISO 639-2 code such as \code{"ger"}. Works without a language get the
+English list only, and the lists of other languages are never pooled, so
+German stop words such as "war" or "die" stay in English text. Without
+the \pkg{stopwords} package, or for a language it has no list for, only
+the English list is used, with a message.
+
+Singular and plural count as one term: a final "ies" becomes "y", and a
+final "s" is dropped after a letter other than s, i, u, o, a and y, so
+"fractures" counts with "fracture" and "ticks" with "tick", while
+"diagnosis", "virus", "class" and "days" stay as they are. A possessive
+"'s" is dropped as well, and words such as "species", "series",
+"diabetes", "measles" or "aids" are kept as written, as are names of
+fields such as "logistics", "genetics", "genomics" or "pediatrics", which
+would otherwise count with the adjectives "logistic", "genetic",
+"genomic" or "pediatric". A label shows each term in the spelling the
+cluster's works use most often.
+
+\strong{Keyword method}: The same scoring on the author keywords and the
+indexer keywords (such as Keywords Plus or MeSH) in \code{corpus$concepts},
+the families \code{"author_keyword"} and \code{"indexer_keyword"} of
+\code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}}. Keywords are compared ignoring case, with
+hyphens read as spaces and plurals folded as above, and containment is
+checked on whole words; keywords that overlap form no phrase. A work
+counts once for each keyword, however many of its vocabularies give it.
+A keyword is shown as an author keyword spells it, or else in lower
+case. A cluster without a keyword in
+at least 2 of its works gets the TF-IDF terms of its titles instead;
+when the clustered works have no such keywords at all, every cluster
+does, with a message.
 
 \strong{YAKE method}: Uses a simplified YAKE-like scoring based on term frequency,
-position, and spread across works within each cluster.
+position, and spread across works within each cluster, with the stop
+words of the TF-IDF method.
 
 \strong{LLM method}: Sends titles and abstracts of each cluster to an LLM with
 a prompt asking for a concise topical label. Requires the \pkg{ellmer} package
@@ -56,7 +155,14 @@ and a configured provider.
 corpus <- sm_example_corpus(with_embeddings = TRUE)
 corpus <- sm_cluster_kmeans(corpus, k = 5)
 corpus <- sm_cluster_label(corpus, method = "tfidf", n_terms = 3L)
-head(corpus$works[, c("work_id", "cluster_id", "cluster_label")])
+unique(corpus$works[, c("cluster_id", "cluster_label",
+                        "cluster_label_basis")])
+
+# keyword labels: the real-use example corpus grouped by journal category
+fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
+fix$works$cluster_id <- match(fix$works$field, unique(fix$works$field))
+fix <- sm_cluster_label(fix, method = "keywords", n_terms = 3L)
+unique(fix$works[, c("field", "cluster_label", "cluster_label_basis")])
 }
 \dontshow{\}) # examplesIf}
 }

@@ -146,9 +146,11 @@ Optional: \code{quartile}, \code{jif_quartile} or \code{sjr_quartile} (journal
 quartiles such as \code{"Q1"}, for \code{sm_its(outcome = "share_q1")}); \code{cnci},
 \code{fnci}, \code{rcr} and other impact columns (see \code{\link[=sm_its]{sm_its()}}); \code{field} (for
 \code{sm_metric_fnci(classification = "manual")}); \code{citation_mature} and
-\code{cnci_provisional} (\code{\link[=sm_citation_maturity]{sm_citation_maturity()}}); \code{cluster_id} and
-\code{cluster_label} (the clustering functions). The OpenAlex readers and
-\code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}} write these impact columns:\tabular{lll}{
+\code{cnci_provisional} (\code{\link[=sm_citation_maturity]{sm_citation_maturity()}}); \code{cluster_id} (the
+clustering functions); \code{cluster_label} and \code{cluster_label_basis}, a
+cluster's label and how it was made (\code{\link[=sm_cluster_label]{sm_cluster_label()}}). The
+OpenAlex readers and \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}} write these impact
+columns:\tabular{lll}{
    Column \tab Type \tab Content \cr
    \code{fwci} \tab double \tab Field-weighted citation impact from OpenAlex \cr
    \code{citation_percentile} \tab double \tab OpenAlex citation percentile, 0 to 1 \cr
