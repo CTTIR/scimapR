@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "count": 3,
+    "db_response_time_ms": 12,
+    "page": null,
+    "per_page": 100,
+    "next_cursor": null,
+    "groups_count": null
+  },
+  "results": [
+    {
+      "id": "https://openalex.org/W9999200011",
+      "doi": "https://doi.org/10.9999/ENR.001",
+      "fwci": 0.2,
+      "citation_normalized_percentile": {
+        "value": 0.3,
+        "is_in_top_1_percent": false,
+        "is_in_top_10_percent": false
+      },
+      "counts_by_year": [
+        {
+          "year": 2021,
+          "cited_by_count": 1
+        }
+      ],
+      "updated_date": "2026-10-15T01:02:03.456789"
+    },
+    {
+      "id": "https://openalex.org/W9999200001",
+      "doi": "https://doi.org/10.9999/enr.001",
+      "fwci": 1.7,
+      "citation_normalized_percentile": {
+        "value": 0.91,
+        "is_in_top_1_percent": false,
+        "is_in_top_10_percent": true
+      },
+      "counts_by_year": [
+        {
+          "year": 2023,
+          "cited_by_count": 2
+        },
+        {
+          "year": 2021,
+          "cited_by_count": 4
+        },
+        {
+          "year": 2020,
+          "cited_by_count": 3
+        }
+      ],
+      "updated_date": "2026-10-15T01:02:03.456789"
+    },
+    {
+      "id": "https://openalex.org/W9999200002",
+      "doi": "https://doi.org/10.9999/enr.002",
+      "fwci": null,
+      "citation_normalized_percentile": null,
+      "counts_by_year": [],
+      "updated_date": "2026-10-14T22:00:00.000000"
+    }
+  ],
+  "group_by": []
+}

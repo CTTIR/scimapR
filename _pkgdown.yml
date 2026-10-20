@@ -103,6 +103,7 @@ reference:
   - title: "Counting and robust impact"
     contents:
       - sm_citation_maturity
+      - sm_citation_window
       - sm_count
       - sm_metric_summary
   - title: "Reproducible reporting"

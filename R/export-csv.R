@@ -1,7 +1,9 @@
 #' Export corpus tables as CSV files
 #'
 #' @description
-#' Write each corpus table as a separate CSV file in a directory.
+#' Write each corpus table as a separate CSV file in a directory, the
+#' yearly citation counts (`citations_by_year.csv`) too when the corpus
+#' has them.
 #'
 #' @param corpus An `sm_corpus` object.
 #' @param dir Output directory.
@@ -20,7 +22,8 @@ sm_export_csv <- function(corpus, dir, ...) {
   fs::dir_create(dir)
 
   tables <- c("works", "authors", "authorships", "institutions",
-               "sources", "references", "concepts", "provenance", "screening")
+              "sources", "references", "concepts", "provenance", "screening",
+              "citations_by_year")
 
   for (tbl_name in tables) {
     tbl <- corpus[[tbl_name]]

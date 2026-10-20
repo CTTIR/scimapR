@@ -6,12 +6,13 @@
 \usage{
 sm_metric_summary(
   corpus,
-  metric = c("citations", "cnci", "rcr"),
+  metric = c("citations", "cnci", "rcr", "fwci"),
   robust = TRUE,
   n_boot = 2000L,
   conf = 0.95,
   top_pct = 0.1,
   seed = NULL,
+  min_cell = NULL,
   call = rlang::caller_env()
 )
 }
@@ -19,8 +20,12 @@ sm_metric_summary(
 \item{corpus}{An \code{sm_corpus}.}
 
 \item{metric}{Which work-level metric to summarise: \code{"citations"}
-(\code{cited_by_count}), \code{"cnci"} (field-normalised citation impact via
-\code{\link[=sm_metric_fnci]{sm_metric_fnci()}}), or \code{"rcr"} (\code{\link[=sm_metric_rcr]{sm_metric_rcr()}}).}
+(\code{cited_by_count}), \code{"cnci"} (field-normalised citation impact,
+resolved as in \code{\link[=sm_its]{sm_its()}}: a stored impact column such as \code{works$cnci}
+or \code{works$fwci}, a \code{corpus$metrics} table, else the FNCI that
+\code{\link[=sm_metric_fnci]{sm_metric_fnci()}} derives from citation counts), \code{"rcr"}
+(\code{\link[=sm_metric_rcr]{sm_metric_rcr()}}) or \code{"fwci"} (OpenAlex's field-weighted citation
+impact, \code{works$fwci}; see \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}}).}
 
 \item{robust}{Logical (default \code{TRUE}). When \code{TRUE}, report the median with a
 bootstrap CI and \code{pp_top10}. When \code{FALSE}, report only \code{n}, \code{mean}, and
@@ -38,13 +43,24 @@ the top 10\% of works by citation count within the corpus).}
 supplied, the RNG state is saved and restored so the call has no global
 side effect (mirroring scimapR's reproducibility guarantees).}
 
+\item{min_cell}{For \code{metric = "cnci"}: \code{NULL} (default) or a positive
+integer, passed to \code{\link[=sm_metric_fnci]{sm_metric_fnci()}} when the impact is derived from
+citation counts, as in \code{\link[=sm_its]{sm_its()}}.}
+
 \item{call}{Caller environment for error reporting.}
 }
 \value{
 A one-row tibble: \code{metric}, \code{n}, \code{mean}, \code{median}, and -- when
 \code{robust = TRUE} -- \code{median_ci_low}, \code{median_ci_high}, \code{pp_top10},
-\code{n_boot}. Type-stable: an empty corpus returns a one-row tibble with \code{n = 0}
-and \code{NA} statistics.
+\code{n_boot}. Type-stable: an empty corpus, or for \code{"cnci"} a corpus
+without usable impact data, returns a one-row tibble with \code{n = 0} and
+\code{NA} statistics. The attribute \code{impact_source} (character) names where
+the values come from: for \code{"cnci"} the same label as the
+\code{impact_source} of \code{\link[=sm_its]{sm_its()}} (such as \code{"works$fwci (OpenAlex)"}), for
+\code{"fwci"} \code{"works$fwci (OpenAlex)"}, for \code{"citations"}
+\code{"works$cited_by_count"} and for \code{"rcr"} \code{"sm_metric_rcr()"}; it is
+\code{NA} on the \code{n = 0} row. For \code{"cnci"} and \code{"fwci"} a message (class
+\code{scimapR_impact_source}) names the source too.
 }
 \description{
 Summarises a work-level impact metric robustly. Citation-based metrics are
@@ -58,16 +74,27 @@ The bootstrap uses base-R resampling by default; if the optional \pkg{boot}
 package is installed it is used instead (percentile interval). \code{pp_top10} is
 computed against the within-corpus citation distribution (the global top-10\%
 threshold is the upper \code{top_pct} quantile of \code{cited_by_count}).
+
+For \code{"cnci"} and \code{"fwci"} only works with a finite value count, and for
+\code{"cnci"} only works of \code{corpus$works} (a \code{corpus$metrics} table may hold
+others). \code{metric = "fwci"} aborts (class \code{scimapR_no_fwci}) when the
+works have no \code{fwci} value.
 }
 \examples{
 corpus <- sm_example_corpus(n_works = 100, seed = 1)
 sm_metric_summary(corpus, metric = "citations", seed = 1)
+
+# the real-use fixture carries OpenAlex's FWCI, which "cnci" then uses
+fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
+s <- sm_metric_summary(fix, metric = "cnci", robust = FALSE)
+attr(s, "impact_source")
 }
 \seealso{
 \code{\link[=sm_summary_works]{sm_summary_works()}}, \code{\link[=sm_count]{sm_count()}}
 
 Other counting:
 \code{\link[=sm_citation_maturity]{sm_citation_maturity()}},
+\code{\link[=sm_citation_window]{sm_citation_window()}},
 \code{\link[=sm_count]{sm_count()}}
 }
 \concept{counting}

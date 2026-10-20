@@ -26,8 +26,7 @@ sm_fetch_orcid <- function(orcid,
   .check_string(orcid, call = call)
 
   # Validate ORCID format
-  orcid <- trimws(orcid)
-  orcid <- sub("^https?://orcid\\.org/", "", orcid)
+  orcid <- .normalize_orcid(orcid)
   if (!grepl("^\\d{4}-\\d{4}-\\d{4}-\\d{3}[0-9X]$", orcid)) {
     cli::cli_abort(
       "{.arg orcid} must be a valid ORCID (e.g., {.val 0000-0001-8006-9742}).",

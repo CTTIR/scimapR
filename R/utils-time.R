@@ -1,5 +1,6 @@
 # Internal helpers for the timestamps stored in corpus metadata and
-# certificates (build_date, last_refresh, created).
+# certificates (build_date, last_refresh, created), and for date columns
+# such as works$citations_as_of.
 
 #' One UTC form for written timestamps (certificates)
 #' @noRd
@@ -98,7 +99,9 @@
   shape <- paste0("^[0-9]{4}-[0-9]{2}-[0-9]{2}",
                   "(([T ])[0-9]{2}:[0-9]{2}(:[0-9]{2}(\\.[0-9]+)?)?",
                   "([+-][0-9]{4})?)?$")
-  parts <- regmatches(s, regexec(shape, s))[[1]]
+  # PCRE reports unmatched optional groups as ""; the default engine
+  # mistook the last digit of a long fraction (.123456) for an offset
+  parts <- regmatches(s, regexec(shape, s, perl = TRUE))[[1]]
   if (length(parts) == 0L) return(NA_real_)
   fmt <- paste0(
     "%Y-%m-%d", parts[3],
@@ -124,4 +127,54 @@
 #' @noRd
 .utc_year <- function(time) {
   as.integer(format(time, "%Y", tz = "UTC"))
+}
+
+#' Read a stored date column as one Date per value
+#'
+#' For columns documented as Date, such as `works$citations_as_of`, which
+#' a table store can give back in another form. A Date stays as it is; a
+#' POSIXct or POSIXlt gives its day in UTC; a number counts days since
+#' 1970-01-01, as R keeps dates and as SQLite (through RSQLite) and other
+#' table stores write them; text or a factor is read as ISO 8601 by
+#' `.as_utc_time()`, one value at a time; anything else gives NA. Unlike
+#' `.as_utc_time()`, which reads numbers as seconds, it reads them as days,
+#' so a day count after next year (epoch seconds or milliseconds read as
+#' days) gives NA, with one message.
+#'
+#' @param x The stored values.
+#' @param what Name of the values, used in the message.
+#' @return A Date vector along `x`.
+#' @noRd
+.as_day_dates <- function(x, what = "date") {
+  if (inherits(x, "Date")) return(x)
+  if (inherits(x, "POSIXt")) return(as.Date(as.POSIXct(x), tz = "UTC"))
+  if (is.factor(x)) x <- as.character(x)
+  days <- if (is.numeric(x)) {
+    as.numeric(x)
+  } else if (is.character(x)) {
+    vapply(x, function(s) {
+      as.numeric(as.Date(.as_utc_time(s, what = what), tz = "UTC"))
+    }, numeric(1), USE.NAMES = FALSE)
+  } else {
+    rep(NA_real_, length(x))
+  }
+  days[!is.finite(days)] <- NA_real_
+
+  if (is.numeric(x)) {
+    this_year <- as.integer(format(Sys.time(), "%Y", tz = "UTC"))
+    beyond <- as.numeric(as.Date(sprintf("%d-01-01", this_year + 2L)))
+    late <- !is.na(days) & days >= beyond
+    if (any(late)) {
+      cli::cli_inform(
+        c(
+          "!" = "{.field {what}}: ignoring {sum(late)} value{?s} after
+                 {this_year + 1L} when read as days since 1970-01-01.",
+          "i" = "Epoch seconds and milliseconds are not day counts."
+        ),
+        class = "scimapR_implausible_time"
+      )
+      days[late] <- NA_real_
+    }
+  }
+  as.Date(days, origin = "1970-01-01")
 }

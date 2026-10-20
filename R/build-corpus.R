@@ -45,7 +45,8 @@ sm_build_corpus <- function(..., dedupe = TRUE, verbose = TRUE) {
 #' Bind two corpora together
 #'
 #' @description
-#' Row-bind all tables of two `sm_corpus` objects.
+#' Row-bind all tables of two `sm_corpus` objects, the yearly citation
+#' counts (`citations_by_year`) too when either corpus has them.
 #'
 #' @param corpus1 An `sm_corpus`.
 #' @param corpus2 An `sm_corpus`.
@@ -57,6 +58,18 @@ sm_build_corpus <- function(..., dedupe = TRUE, verbose = TRUE) {
 sm_bind_corpora <- function(corpus1, corpus2) {
   .check_sm_corpus(corpus1)
   .check_sm_corpus(corpus2)
+
+  # yearly citation counts: one row per work and year, the first corpus's
+  # for a work in both
+  yearly <- list(corpus1$citations_by_year, corpus2$citations_by_year)
+  yearly <- if (all(vapply(yearly, is.null, logical(1)))) {
+    NULL
+  } else {
+    dplyr::distinct(
+      dplyr::bind_rows(.empty_citations_by_year(), yearly),
+      .data$work_id, .data$year, .keep_all = TRUE
+    )
+  }
 
   emb <- NULL
   if (!is.null(corpus1$embeddings) && !is.null(corpus2$embeddings) &&
@@ -78,7 +91,8 @@ sm_bind_corpora <- function(corpus1, corpus2) {
     embeddings = emb,
     provenance = dplyr::bind_rows(corpus1$provenance, corpus2$provenance),
     screening = dplyr::bind_rows(corpus1$screening, corpus2$screening),
-    metadata = corpus1$metadata
+    metadata = corpus1$metadata,
+    citations_by_year = yearly
   )
 }
 
@@ -141,6 +155,8 @@ sm_dedupe <- function(corpus, by = "doi", verbose = TRUE) {
                                 .data$work_id %in% keep_ids),
     screening = dplyr::filter(corpus$screening,
                                .data$work_id %in% keep_ids),
-    metadata = corpus$metadata
+    metadata = corpus$metadata,
+    citations_by_year = .filter_citations_by_year(corpus$citations_by_year,
+                                                  keep_ids)
   )
 }

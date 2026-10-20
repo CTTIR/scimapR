@@ -55,6 +55,24 @@ test_that("sm_author_trajectory resolves an author by orcid", {
   expect_equal(traj$orcid, the_orcid)
 })
 
+test_that("sm_author_trajectory finds an ORCID with or without its URL", {
+  # fetched corpora stored ORCIDs as https://orcid.org/ URLs, so a bare
+  # ORCID, as sm_researcher_profile() passes it, found nobody
+  corpus <- sm_example_corpus(n_works = 30, n_authors = 6,
+                              with_embeddings = FALSE, seed = 1)
+  with_orcid <- which(!is.na(corpus$authors$orcid))
+  skip_if(length(with_orcid) == 0L, "No author with ORCID in this seed")
+  bare <- corpus$authors$orcid[with_orcid[1]]
+  url_corpus <- corpus
+  url_corpus$authors$orcid[with_orcid[1]] <- paste0("https://orcid.org/", bare)
+  traj <- sm_author_trajectory(url_corpus, orcid = bare, n_periods = 3L)
+  expect_identical(traj$author_id, corpus$authors$author_id[with_orcid[1]])
+  traj <- sm_author_trajectory(corpus, orcid = paste0("http://orcid.org/",
+                                                      tolower(bare)),
+                               n_periods = 3L)
+  expect_identical(traj$author_id, corpus$authors$author_id[with_orcid[1]])
+})
+
 test_that("sm_author_trajectory builds a full trajectory for the seeded author", {
   corpus <- sm_example_corpus(n_works = 60, n_authors = 20,
                               with_embeddings = FALSE, seed = 7)

@@ -204,10 +204,7 @@ sm_fetch_crossref <- function(query = NULL,
       a <- authors_raw[[j]]
       name <- paste(a[["given"]] %||% "", a[["family"]] %||% "")
       name <- trimws(name)
-      orcid <- a[["ORCID"]] %||% NA_character_
-      if (!is.na(orcid)) {
-        orcid <- sub("^https?://orcid\\.org/", "", orcid)
-      }
+      orcid <- .normalize_orcid(a[["ORCID"]])
 
       key <- if (!is.na(orcid)) orcid else tolower(name)
       if (is.null(author_map[[key]])) {

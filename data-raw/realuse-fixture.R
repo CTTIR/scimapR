@@ -40,6 +40,12 @@
 # - References are reader-shaped: cited_work_id is NA; local citations
 #   carry the cited work's DOI in cited_doi and in the CR string.
 # - Two works have no provenance row.
+# - Yearly citation counts (citations_by_year) shaped like OpenAlex's
+#   counts_by_year as of 2026-10-17 for the works with a DOI: each work's
+#   cited_by_count spread over its years since publication, only the ten
+#   years 2017-2026 kept and years without citations left out.
+#   works$citations_as_of is 2026-10-17 for these works and NA for the
+#   three without a DOI.
 
 out_dir <- file.path("inst", "extdata")
 twin_dir <- file.path("tests", "testthat", "fixtures")
@@ -988,12 +994,31 @@ provenance <- tibble::tibble(
   prompt_hash = NA_character_
 )
 
+# ---- yearly citation counts -------------------------------------------------
+
+seed_block(13L)
+counts_as_of <- as.Date("2026-10-17")
+horizon <- seq.int(2017L, 2026L)
+enriched <- which(!is.na(doi))
+citations_by_year <- do.call(rbind, lapply(enriched, function(i) {
+  span <- seq.int(years[i], 2026L)
+  age <- span - years[i]
+  weight <- (age + 1) * exp(-age / 2.5)
+  n <- as.vector(stats::rmultinom(1L, cited_by_count[i], weight))
+  keep <- span %in% horizon & n > 0L
+  data.frame(work_id = rep(work_id[i], sum(keep)), year = span[keep],
+             cited_by_count = as.integer(n[keep]), stringsAsFactors = FALSE)
+}))
+rownames(citations_by_year) <- NULL
+works$citations_as_of <- rep(counts_as_of, n_works)
+works$citations_as_of[is.na(doi)] <- as.Date(NA)
+
 # ---- build the corpus ------------------------------------------------------
 
 corpus <- suppressMessages(scimapR::sm_corpus_from_tables(
   list(works = works, authors = authors, authorships = authorships,
        sources = sources, references = references, concepts = concepts,
-       provenance = provenance),
+       provenance = provenance, citations_by_year = citations_by_year),
   metadata = list(
     scimapR_version = "0.5.0",
     build_date = as.POSIXct("2026-01-01", tz = "UTC"),

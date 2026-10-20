@@ -15,6 +15,7 @@ sm_its(
   lag = NULL,
   institutions = NULL,
   lead_role = c("corresponding", "first", "last", "first_or_last", "any_lead"),
+  min_cell = NULL,
   call = rlang::caller_env()
 )
 
@@ -38,12 +39,18 @@ The expected source columns are:
 quartile; needs a journal-quartile column on \code{works} (\code{quartile},
 \code{jif_quartile}, or \code{sjr_quartile}).}
 \item{\code{"cnci"}}{Mean field-normalised citation impact per year. Impact is
-resolved from the first populated of \code{works$cnci}, a \code{corpus$metrics}
-table (\code{cnci}/\code{fnci}/\code{value} keyed by \code{work_id}), or
+resolved from the first populated of \code{works$cnci}, \code{works$fwci}
+(OpenAlex; see \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}}), the other impact
+columns \code{fnci}, \code{rcr}, \code{cnci_value}, \code{ncs}, \code{mncs} and
+\code{field_citation_ratio}, a \code{corpus$metrics} table
+(\code{cnci}/\code{fnci}/\code{value} keyed by \code{work_id}), or
 \code{works$cited_by_count} (from which FNCI is derived via
-\code{\link[=sm_metric_fnci]{sm_metric_fnci()}}). If none is populated, an informative error names
-the columns inspected. Works without a finite impact value are left
-out of the yearly mean.}
+\code{\link[=sm_metric_fnci]{sm_metric_fnci()}}, with \code{min_cell}). If none is populated, an
+informative error (class \code{scimapR_no_impact_data}) names the
+columns inspected. \code{\link[=sm_metric_summary]{sm_metric_summary()}} (\code{metric = "cnci"})
+resolves impact in the same order, and the result names the source
+used (\code{impact_source}). Works without a finite impact value are
+left out of the yearly mean.}
 \item{\code{"leadership"}}{Share of works led through the author role
 \code{lead_role} (by default the corresponding author,
 \code{authorships$is_corresponding}), by one of \code{institutions} when
@@ -75,6 +82,12 @@ the lowest and the highest \code{position} of the work, \code{"first_or_last"}
 either, and \code{"any_lead"} the first, last or corresponding author.
 Roles other than \code{"corresponding"} need \code{institutions}.}
 
+\item{min_cell}{For \code{outcome = "cnci"}: \code{NULL} (default) or a positive
+integer, passed to \code{\link[=sm_metric_fnci]{sm_metric_fnci()}} when the impact is derived from
+\code{works$cited_by_count}, so that works in field-year cells with fewer
+works fall back to larger baselines. Not used when the corpus carries
+stored impact values.}
+
 \item{call}{Caller environment for error reporting.}
 
 \item{x}{An \code{sm_its} object.}
@@ -98,6 +111,10 @@ list of \code{lead_role}, \code{institution_aware} (\code{FALSE}), \code{institu
 labels the institutions of the corpus, \code{institution_match},
 \code{institution_name} or \code{institution_id}, the first with a value; \code{NA}
 without \code{institutions}), and is \code{NULL} for the other outcomes.
+\code{impact_source} (character) names where the impact values of
+\code{outcome = "cnci"} come from, such as \code{"works$fwci (OpenAlex)"} or
+\code{"works$cited_by_count (field-normalised)"}; \code{NA} for the other
+outcomes.
 
 \code{print} returns \code{x} invisibly.
 

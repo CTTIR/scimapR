@@ -102,6 +102,7 @@ sm_count(matched, method = "fractional", level = "institution")
 
 Other counting:
 \code{\link[=sm_citation_maturity]{sm_citation_maturity()}},
+\code{\link[=sm_citation_window]{sm_citation_window()}},
 \code{\link[=sm_metric_summary]{sm_metric_summary()}}
 }
 \concept{counting}

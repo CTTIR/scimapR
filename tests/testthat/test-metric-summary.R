@@ -218,3 +218,126 @@ test_that(".bootstrap_median_ci returns NA for fewer than two values", {
   expect_equal(f(numeric(0)), c(NA_real_, NA_real_))
   expect_equal(f(5), c(NA_real_, NA_real_))
 })
+
+# --- sm_metric_summary: impact resolved as in sm_its() ------------------
+
+impact_corpus <- function() {
+  sm_example_corpus(n_works = 60, n_authors = 12, with_embeddings = FALSE,
+                    seed = 4)
+}
+
+test_that("metric = 'cnci' resolves impact like sm_its()", {
+  corpus <- impact_corpus()
+  corpus$works$fwci <- seq(0.1, 6, length.out = 60)
+  expect_message(
+    out <- sm_metric_summary(corpus, "cnci", robust = FALSE),
+    "works$fwci (OpenAlex)", fixed = TRUE, class = "scimapR_impact_source"
+  )
+  expect_named(out, c("metric", "n", "mean", "median"))
+  expect_identical(attr(out, "impact_source"), "works$fwci (OpenAlex)")
+  expect_equal(out$median, round(stats::median(corpus$works$fwci), 4))
+  expect_identical(out$n, 60L)
+
+  # works$cnci comes before works$fwci
+  corpus$works$cnci <- 2
+  out <- suppressMessages(sm_metric_summary(corpus, "cnci", robust = FALSE))
+  expect_identical(attr(out, "impact_source"), "works$cnci")
+  expect_identical(out$median, 2)
+
+  # a metrics table counts only the works of the corpus
+  corpus$works$cnci <- NULL
+  corpus$works$fwci <- NULL
+  corpus$metrics <- tibble::tibble(
+    work_id = c(corpus$works$work_id[1:3], "W999999999"),
+    cnci = c(1, 2, 3, 100)
+  )
+  out <- suppressMessages(sm_metric_summary(corpus, "cnci", robust = FALSE))
+  expect_identical(attr(out, "impact_source"), "corpus$metrics$cnci")
+  expect_identical(out$n, 3L)
+  expect_identical(out$mean, 2)
+
+  # without stored impact, the FNCI from citation counts, as before
+  corpus$metrics <- NULL
+  out <- suppressMessages(sm_metric_summary(corpus, "cnci", robust = FALSE))
+  expect_identical(attr(out, "impact_source"),
+                   "works$cited_by_count (field-normalised)")
+  fnci <- suppressMessages(sm_metric_fnci(corpus))$fnci
+  expect_identical(out$n, sum(!is.na(fnci)))
+})
+
+test_that("sm_metric_summary and sm_its report the same impact source", {
+  corpus <- impact_corpus()
+  for (stored in c(TRUE, FALSE)) {
+    if (stored) corpus$works$fwci <- seq(0.5, 2, length.out = 60)
+    if (!stored) corpus$works$fwci <- NULL
+    out <- suppressMessages(sm_metric_summary(corpus, "cnci", robust = FALSE))
+    its <- suppressMessages(sm_its(corpus, 2020, "cnci"))
+    expect_identical(attr(out, "impact_source"), its$impact_source)
+  }
+})
+
+test_that("cnci gives the n = 0 row without works or usable impact data", {
+  corpus <- impact_corpus()
+  corpus$works$cited_by_count <- NA_integer_
+  out <- sm_metric_summary(corpus, "cnci")
+  expect_identical(out$n, 0L)
+  expect_true(is.na(out$median))
+  expect_named(out, c("metric", "n", "mean", "median", "median_ci_low",
+                      "median_ci_high", "pp_top10", "n_boot"))
+  expect_identical(attr(out, "impact_source"), NA_character_)
+
+  empty <- sm_corpus(works = scimapR:::.empty_works())
+  for (metric in c("citations", "cnci", "rcr", "fwci")) {
+    out <- sm_metric_summary(empty, metric, robust = FALSE)
+    expect_identical(out$n, 0L, info = metric)
+    expect_named(out, c("metric", "n", "mean", "median"))
+    expect_identical(attr(out, "impact_source"), NA_character_)
+  }
+})
+
+test_that("metric = 'fwci' summarises works$fwci and needs it", {
+  corpus <- impact_corpus()
+  corpus$works$fwci <- c(rep(NA, 10), seq_len(50) / 10)
+  expect_message(out <- sm_metric_summary(corpus, "fwci", robust = FALSE),
+                 class = "scimapR_impact_source")
+  expect_identical(out$metric, "fwci")
+  expect_identical(out$n, 50L)
+  expect_identical(attr(out, "impact_source"), "works$fwci (OpenAlex)")
+  # "fwci" comes last, so the default metric is still "citations"
+  default <- sm_metric_summary(corpus, robust = FALSE)
+  expect_identical(default$metric, "citations")
+  expect_identical(attr(default, "impact_source"), "works$cited_by_count")
+  expect_no_message(sm_metric_summary(corpus, robust = FALSE))
+
+  corpus$works$fwci <- NULL
+  expect_error(sm_metric_summary(corpus, "fwci"), class = "scimapR_no_fwci")
+  corpus$works$fwci <- NA_real_
+  expect_error(sm_metric_summary(corpus, "fwci"), class = "scimapR_no_fwci")
+})
+
+test_that("non-finite impact values stay out of the summary", {
+  corpus <- impact_corpus()
+  corpus$works$cnci <- c(Inf, NaN, -Inf, rep(1, 57))
+  out <- suppressMessages(sm_metric_summary(corpus, "cnci", robust = FALSE))
+  expect_identical(out$n, 57L)
+  expect_identical(out$mean, 1)
+})
+
+test_that("min_cell reaches the FNCI of the summary and is checked", {
+  corpus <- impact_corpus()
+  pooled <- suppressMessages(
+    sm_metric_summary(corpus, "cnci", robust = FALSE, min_cell = 10)
+  )
+  fnci <- suppressMessages(sm_metric_fnci(corpus, min_cell = 10))$fnci
+  expect_identical(pooled$n, sum(!is.na(fnci)))
+  expect_equal(pooled$median, round(stats::median(fnci, na.rm = TRUE), 4))
+  expect_no_message(
+    sm_metric_summary(corpus, "cnci", robust = FALSE, min_cell = 10),
+    class = "scimapR_fnci_small_cells"
+  )
+  expect_error(sm_metric_summary(corpus, "cnci", min_cell = 0), "min_cell")
+  # checked even when stored impact values leave it unused
+  corpus$works$cnci <- 1
+  expect_error(sm_metric_summary(corpus, "cnci", min_cell = "a"),
+               "min_cell")
+})

@@ -10,7 +10,8 @@ sm_researcher_profile(
   enrich = c("oa_status"),
   embed = FALSE,
   trajectory = TRUE,
-  mailto = Sys.getenv("SCIMAPR_MAILTO")
+  mailto = Sys.getenv("SCIMAPR_MAILTO"),
+  n_max = 200L
 )
 }
 \arguments{
@@ -24,7 +25,12 @@ sm_researcher_profile(
 
 \item{trajectory}{Logical; build trajectory analysis?}
 
-\item{mailto}{Email for API polite pool.}
+\item{mailto}{Contact address sent to OpenAlex (see
+\code{\link[=sm_fetch_openalex]{sm_fetch_openalex()}}).}
+
+\item{n_max}{Maximum number of works to fetch (default \code{200}, as in
+\code{\link[=sm_fetch_openalex]{sm_fetch_openalex()}}). A researcher with more works gets a profile of
+the first \code{n_max} only, so raise it for long careers.}
 }
 \value{
 An \code{sm_corpus} with trajectory attached as attribute.

@@ -9,6 +9,10 @@
 #' Two corpora with identical scientific content will produce the same hash,
 #' regardless of when they were built.
 #'
+#' The yearly citation counts (`citations_by_year`) enter the hash only when
+#' the corpus has some, so a corpus without them hashes as it did before
+#' the element existed.
+#'
 #' @param corpus An `sm_corpus` object.
 #'
 #' @return A single character string containing the hex-encoded SHA-256 hash.
@@ -39,6 +43,11 @@ sm_hash_corpus <- function(corpus) {
       round(corpus$embeddings, digits = 8)
     }
   )
+  # appended only when present, so that other hashes stay unchanged
+  yearly <- corpus$citations_by_year
+  if (!is.null(yearly) && nrow(yearly) > 0L) {
+    content$citations_by_year <- .canonicalize_tibble(yearly)
+  }
 
   digest::digest(content, algo = "sha256")
 }

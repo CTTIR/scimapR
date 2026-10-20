@@ -50,9 +50,18 @@ interaction used to produce a corpus. It enables exact re-derivation
 of the corpus from scratch.
 
 \code{sm_certificate()} creates a certificate from a corpus.
-\code{sm_rebuild_from_cert()} re-runs every recorded step to reconstruct
+\code{sm_rebuild_from_cert()} re-runs every recorded search to reconstruct
 the corpus. \code{sm_verify_certificate()} compares a live corpus against
 a certificate to detect divergence.
+
+Each recorded step (\code{queries}) has a \code{source}, \code{query}, \code{engine} and
+\code{kind}: \code{"api_query"} for searches and file reads, \code{"enrichment"} for
+steps such as \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}} that added fields to works
+already in the corpus, \code{"refresh"} for \code{\link[=sm_refresh]{sm_refresh()}} and \code{"manual"}
+for synthetic records. The kind comes from the provenance column
+\code{kind}, else from the source label. \code{sm_rebuild_from_cert()} replays
+only the \code{"api_query"} steps; for a certificate without kinds it infers
+them from the source.
 }
 \details{
 Certificates write their timestamps (\code{created} and the corpus's

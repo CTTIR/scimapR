@@ -7,9 +7,18 @@
 #' of the corpus from scratch.
 #'
 #' `sm_certificate()` creates a certificate from a corpus.
-#' `sm_rebuild_from_cert()` re-runs every recorded step to reconstruct
+#' `sm_rebuild_from_cert()` re-runs every recorded search to reconstruct
 #' the corpus. `sm_verify_certificate()` compares a live corpus against
 #' a certificate to detect divergence.
+#'
+#' Each recorded step (`queries`) has a `source`, `query`, `engine` and
+#' `kind`: `"api_query"` for searches and file reads, `"enrichment"` for
+#' steps such as [sm_enrich_openalex_impact()] that added fields to works
+#' already in the corpus, `"refresh"` for [sm_refresh()] and `"manual"`
+#' for synthetic records. The kind comes from the provenance column
+#' `kind`, else from the source label. `sm_rebuild_from_cert()` replays
+#' only the `"api_query"` steps; for a certificate without kinds it infers
+#' them from the source.
 #'
 #' @details
 #' Certificates write their timestamps (`created` and the corpus's
@@ -56,17 +65,20 @@ sm_certificate <- function(corpus,
     tryCatch(as.character(utils::packageVersion("scimapR")),
              error = function(e) "0.1.0")
 
-  # Collect all queries from provenance
+  # Collect all queries from provenance, with the kind of each step
   queries <- if (nrow(corpus$provenance) > 0L) {
+    prov <- corpus$provenance
+    prov$kind <- .provenance_kind(prov$source, prov[["kind"]])
     unique_queries <- dplyr::distinct(
-      corpus$provenance,
-      .data$source, .data$query, .data$engine
+      prov,
+      .data$source, .data$query, .data$engine, .data$kind
     )
     lapply(seq_len(nrow(unique_queries)), function(i) {
       list(
         source = unique_queries$source[i],
         query = unique_queries$query[i],
-        engine = unique_queries$engine[i]
+        engine = unique_queries$engine[i],
+        kind = unique_queries$kind[i]
       )
     })
   } else {
@@ -214,9 +226,18 @@ sm_rebuild_from_cert <- function(cert,
       verbose
     )
 
-    # Skip synthetic/refresh sources
-    if (src %in% c("synthetic", "manual") ||
-        grepl("_refresh$", src)) {
+    # Replay searches only: never an enrichment, a refresh or a manual
+    # step (older certificates record no kind, so it comes from the source)
+    kind <- q$kind %||% .provenance_kind(src)
+    if (identical(kind, "enrichment")) {
+      .sm_verbose(
+        paste0("  Skipping enrichment step {.val {src}}: a rebuild replays ",
+               "searches only."),
+        verbose
+      )
+      next
+    }
+    if (!identical(kind, "api_query")) {
       .sm_verbose("  Skipping non-API source: {.val {src}}", verbose)
       next
     }

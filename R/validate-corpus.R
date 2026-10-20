@@ -50,6 +50,20 @@ sm_validate <- function(corpus, call = rlang::caller_env()) {
     ))
   }
 
+  yearly <- corpus$citations_by_year
+  orphan_cby <- if (is.null(yearly)) {
+    character()
+  } else {
+    setdiff(yearly$work_id, corpus$works$work_id)
+  }
+  if (length(orphan_cby) > 0) {
+    issues <- dplyr::bind_rows(issues, tibble::tibble(
+      table = "citations_by_year",
+      issue = "work_id not in works",
+      n_affected = length(orphan_cby)
+    ))
+  }
+
   dup_wid <- sum(duplicated(corpus$works$work_id))
   if (dup_wid > 0) {
     issues <- dplyr::bind_rows(issues, tibble::tibble(

@@ -11,7 +11,10 @@ sm_provenance(corpus)
 }
 \value{
 A tibble with columns \code{work_id}, \code{source}, \code{source_id_external},
-\code{fetch_date}, \code{query}, \code{engine}, \code{scimapR_version}, and \code{prompt_hash}.
+\code{fetch_date}, \code{query}, \code{engine}, \code{scimapR_version}, and \code{prompt_hash},
+and the optional column \code{kind} (the kind of step, such as
+\code{"enrichment"} for \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}}; \code{NA} for rows that
+do not record one).
 }
 \description{
 Returns the full provenance table from a corpus, documenting the data

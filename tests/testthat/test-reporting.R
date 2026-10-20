@@ -162,3 +162,50 @@ test_that("sm_corpus_from_tables does not inform for canonical vocabularies", {
   expect_length(msgs, 0L)
   expect_identical(corpus$concepts$vocabulary, "wos-category")
 })
+
+test_that("sm_corpus_from_tables recognises citations_by_year", {
+  works <- data.frame(work_id = c("W1", "W2"), title = c("a", "b"),
+                      year = c(2020L, 2021L))
+  yearly <- data.frame(work_id = c("W1", "W1", "W2"),
+                       year = c("2021", "2022", "2022"),
+                       cited_by_count = c(1, 4, 2))
+  corpus <- suppressMessages(
+    sm_corpus_from_tables(list(works = works, citations_by_year = yearly))
+  )
+  expect_identical(corpus$citations_by_year$year, c(2021L, 2022L, 2022L))
+  expect_identical(corpus$citations_by_year$cited_by_count, c(1L, 4L, 2L))
+  expect_no_warning(suppressMessages(
+    sm_corpus_from_tables(list(works = works, citations_by_year = yearly))
+  ))
+  # without the table the corpus has no such element, not a 0-row one
+  plain <- suppressMessages(sm_corpus_from_tables(list(works = works)))
+  expect_false("citations_by_year" %in% names(plain))
+  bad <- yearly
+  bad$year[2] <- "2021"
+  expect_error(
+    suppressMessages(
+      sm_corpus_from_tables(list(works = works, citations_by_year = bad))
+    ),
+    "more than one row"
+  )
+})
+
+test_that("a legacy metrics table still feeds the impact outcome", {
+  # corpus$metrics stays outside the schema: from_tables ignores it with a
+  # warning, while the impact resolver keeps reading it (test-v040.R)
+  works <- data.frame(work_id = c("W1", "W2"), title = c("a", "b"))
+  expect_warning(
+    suppressMessages(
+      sm_corpus_from_tables(list(works = works,
+                                 metrics = data.frame(work_id = "W1")))
+    ),
+    "metrics"
+  )
+  corpus <- sm_example_corpus(n_works = 60, seed = 1)
+  corpus$works$cited_by_count <- NA_integer_
+  corpus$metrics <- tibble::tibble(work_id = corpus$works$work_id,
+                                   cnci = seq_len(60) / 30)
+  res <- .resolve_impact_values(corpus)
+  expect_identical(res$source, "corpus$metrics$cnci")
+  expect_false("metrics" %in% names(corpus[1:5]))
+})

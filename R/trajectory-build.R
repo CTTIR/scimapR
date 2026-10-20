@@ -20,8 +20,10 @@
 #'   corpus-wide mean for the same years.
 #'
 #' @param corpus An `sm_corpus` object.
-#' @param orcid Character. ORCID of the author to analyse. Either `orcid`
-#'   or `author_id` must be supplied.
+#' @param orcid Character. ORCID of the author to analyse, with or without
+#'   the `https://orcid.org/` prefix (both the argument and the corpus
+#'   ORCIDs are compared without it). Either `orcid` or `author_id` must be
+#'   supplied.
 #' @param author_id Character. Internal author ID. Either `orcid` or
 #'   `author_id` must be supplied.
 #' @param n_periods Integer. Number of career periods to divide the
@@ -54,7 +56,11 @@ sm_author_trajectory <- function(corpus,
   }
 
   if (!is.null(orcid)) {
-    match_row <- dplyr::filter(corpus$authors, .data$orcid == !!orcid)
+    wanted <- .normalize_orcid(orcid)
+    match_row <- corpus$authors[
+      .normalize_orcid(corpus$authors$orcid) %in% wanted[!is.na(wanted)], ,
+      drop = FALSE
+    ]
     if (nrow(match_row) == 0L) {
       cli::cli_abort(
         "No author found with ORCID {.val {orcid}}.",

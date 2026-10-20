@@ -25,25 +25,39 @@ An \link{sm_corpus} object.
 }
 \description{
 Parse OpenAlex JSON export files into an \code{sm_corpus} object. Handles
-both JSON arrays of works and newline-delimited JSON (JSONL) files.
+JSON arrays of works, a saved API response (an object whose \code{results}
+hold the works, compact or pretty-printed), a single work object and
+newline-delimited JSON (JSONL, one work or one response per line).
 Extracts fields from the OpenAlex works schema including id, doi, title,
 publication year, type, cited_by_count, authorships, host venue,
 concepts, open access status, and referenced works.
+
+The works also keep OpenAlex's field-weighted citation impact (\code{fwci}),
+its citation percentile (\code{citation_percentile}, 0 to 1, with the flags
+\code{is_top_10pct} and \code{is_top_1pct}) and the day of the record's
+\code{updated_date} (\code{citations_as_of}, \code{NA} when the file has none), all \code{NA}
+where a record lacks them, and the corpus gets the yearly citation
+counts (\code{counts_by_year}) as \code{citations_by_year} (see \code{\link[=sm_corpus]{sm_corpus()}}).
+Each authorship's \code{raw_affiliation} holds its \code{raw_affiliation_strings}
+(joined with \code{"; "}), else the \code{raw_affiliation_string} of its
+\code{affiliations}, else the names of its institutions. Works are linked to
+their source (\code{works$source_id}), and sources are told apart by their
+OpenAlex id, else by their name.
 }
 \section{Implementation}{
 
 The parser reads the OpenAlex works JSON schema as documented at
 \url{https://developers.openalex.org/api-entities/works/work-object}.
-Both standard JSON arrays and newline-delimited JSON (one work per line)
-are supported. No bibliometrix engine is available since OpenAlex is not
-a shared bibliometric export format.
+The whole file is parsed first; only when that fails is it read as
+newline-delimited JSON, one value per line. No bibliometrix engine is
+available since OpenAlex is not a shared bibliometric export format.
 }
 
 \examples{
-\dontrun{
-corpus <- sm_read_openalex_json("openalex_works.json")
-corpus$works
-}
+path <- system.file("extdata", "example_openalex_inverted.json",
+                    package = "scimapR")
+corpus <- sm_read_openalex_json(path, verbose = FALSE)
+corpus$works[c("title", "year", "cited_by_count")]
 }
 \references{
 Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for
@@ -51,6 +65,8 @@ comprehensive science mapping analysis. \emph{Journal of Informetrics},
 11(4), 959--975. \doi{10.1016/j.joi.2017.08.007}
 }
 \seealso{
+\code{\link[=sm_fetch_openalex]{sm_fetch_openalex()}}, \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}}
+
 Other readers:
 \code{\link[=sm_read_auto]{sm_read_auto()}},
 \code{\link[=sm_read_bib]{sm_read_bib()}},

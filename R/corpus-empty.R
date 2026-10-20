@@ -112,6 +112,15 @@
   )
 }
 
+# Yearly citation counts, the optional corpus element citations_by_year
+.empty_citations_by_year <- function() {
+  tibble::tibble(
+    work_id = character(),
+    year = integer(),
+    cited_by_count = integer()
+  )
+}
+
 .empty_screening <- function() {
   tibble::tibble(
     work_id = character(),

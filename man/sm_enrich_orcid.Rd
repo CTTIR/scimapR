@@ -37,6 +37,7 @@ corpus <- sm_enrich_orcid(corpus)
 Other enrichers:
 \code{\link[=sm_enrich_altmetric]{sm_enrich_altmetric()}},
 \code{\link[=sm_enrich_concepts]{sm_enrich_concepts()}},
+\code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}},
 \code{\link[=sm_enrich_opencitations]{sm_enrich_opencitations()}},
 \code{\link[=sm_enrich_retraction]{sm_enrich_retraction()}},
 \code{\link[=sm_enrich_ror]{sm_enrich_ror()}},

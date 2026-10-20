@@ -1,0 +1,34 @@
+{
+  "meta": {
+    "count": 1,
+    "db_response_time_ms": 12,
+    "page": null,
+    "per_page": 100,
+    "next_cursor": null,
+    "groups_count": null
+  },
+  "results": [
+    {
+      "id": "https://openalex.org/W9999200003",
+      "doi": "https://doi.org/10.9999/enr.003",
+      "fwci": 1.1,
+      "citation_normalized_percentile": {
+        "value": 0.8,
+        "is_in_top_1_percent": false,
+        "is_in_top_10_percent": false
+      },
+      "counts_by_year": [
+        {
+          "year": 2023,
+          "cited_by_count": 3
+        },
+        {
+          "year": 2022,
+          "cited_by_count": 2
+        }
+      ],
+      "updated_date": "2026-10-15T01:02:03.456789"
+    }
+  ],
+  "group_by": []
+}

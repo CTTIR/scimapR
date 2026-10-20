@@ -28,6 +28,17 @@ test_that(".as_utc_time reads date-times, dates, numbers and ISO text", {
                    utc(1792237500.5))
 })
 
+test_that(".as_utc_time reads long fractions of a second", {
+  # OpenAlex writes updated_date with six decimals and no offset; the last
+  # digit of the fraction was read as an offset, so the time was NA
+  expect_equal(as.numeric(.as_utc_time("2026-10-17T11:45:00.123456")),
+               1792237500.123456, tolerance = 1e-6)
+  expect_equal(as.numeric(.as_utc_time("2026-10-17 13:45:00.1234+02:00")),
+               1792237500.1234, tolerance = 1e-6)
+  expect_identical(.as_utc_time("2026-10-17T11:45:00.25"), utc(1792237500.25))
+  expect_true(is.na(.as_utc_time("2026-10-17T11:45:00.")))
+})
+
 test_that("a 1 January timestamp keeps its year west and east of UTC", {
   for (tz in c("America/Los_Angeles", "Pacific/Auckland")) {
     withr::with_timezone(tz, {
@@ -128,4 +139,37 @@ test_that(".format_utc_time writes one UTC ISO 8601 form and reads it back", {
   expect_identical(.as_utc_time(written), utc(1792237500))
   expect_identical(.format_utc_time(NA), NA_character_)
   expect_identical(.format_utc_time(1792237500, "%Y-%m-%d"), "2026-10-17")
+})
+
+test_that(".as_day_dates reads dates, day counts and ISO text", {
+  withr::local_timezone("America/Los_Angeles")
+  day <- as.Date("2026-10-17")
+  expect_identical(.as_day_dates(day), day)
+  # numbers are days since 1970-01-01, as SQLite and other table stores
+  # keep dates, not seconds as in .as_utc_time()
+  expect_identical(.as_day_dates(as.numeric(day)), day)
+  expect_identical(.as_day_dates(as.integer(day)), day)
+  expect_identical(
+    .as_day_dates(c("2026-10-17", "2026-10-17T23:30:00-02:00", "17.10.2026",
+                    NA)),
+    as.Date(c("2026-10-17", "2026-10-18", NA, NA))
+  )
+  expect_identical(.as_day_dates(factor("2026-10-17")), day)
+  late <- as.POSIXct("2026-10-17 23:30:00", tz = "America/New_York")
+  expect_identical(.as_day_dates(late), as.Date("2026-10-18"))
+  expect_identical(.as_day_dates(c(NA, NA)), as.Date(c(NA, NA)))
+  expect_identical(.as_day_dates(numeric()), as.Date(character()))
+  expect_identical(.as_day_dates(list(1, 2)), as.Date(c(NA, NA)))
+
+  # epoch seconds read as days fall far in the future: NA, one message
+  expect_message(
+    out <- .as_day_dates(as.numeric(day) * c(1, 86400, 86400000),
+                         "works$citations_as_of"),
+    "ignoring 2 values",
+    class = "scimapR_implausible_time"
+  )
+  expect_identical(out, as.Date(c("2026-10-17", NA, NA)))
+  # days before 1970 are negative and kept
+  expect_no_message(old <- .as_day_dates(as.numeric(as.Date("1950-06-01"))))
+  expect_identical(old, as.Date("1950-06-01"))
 })

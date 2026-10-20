@@ -249,11 +249,7 @@ sm_fetch_pubmed <- function(query,
       name <- trimws(paste(fore %||% "", last %||% ""))
 
       orcid_node <- xml2::xml_find_first(node, ".//Identifier[@Source='ORCID']")
-      orcid_val <- if (!is.na(xml2::xml_text(orcid_node))) {
-        sub("^https?://orcid\\.org/", "", xml2::xml_text(orcid_node))
-      } else {
-        NA_character_
-      }
+      orcid_val <- .normalize_orcid(xml2::xml_text(orcid_node))
 
       key <- if (!is.na(orcid_val)) orcid_val else tolower(name)
       if (is.null(author_map[[key]])) {

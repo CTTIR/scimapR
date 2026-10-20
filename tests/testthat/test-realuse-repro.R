@@ -137,7 +137,6 @@ test_that("H5: leadership can be restricted to a focal institution", {
 })
 
 test_that("H6: OpenAlex impact fields survive parsing", {
-  skip("H6 pending - prompt A07")
   # Intent: a saved OpenAlex work keeps fwci, the citation percentile with
   # its top-10% flag and the yearly citation counts instead of dropping
   # them; a work without them gets NA and no yearly rows.
@@ -236,7 +235,6 @@ test_that("H9: version metadata agree and print formats refresh times", {
 })
 
 test_that("H10: the cnci summary uses stored fwci, like sm_its()", {
-  skip("H10 pending - prompt A07")
   # Intent: with works$fwci populated and no works$cnci, the robust summary
   # resolves impact like sm_its() instead of recomputing a within-corpus
   # FNCI; the summary rounds to four digits.
