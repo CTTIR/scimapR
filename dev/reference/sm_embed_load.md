@@ -4,6 +4,14 @@ Loads a previously saved embeddings matrix from an RDS file and attaches
 it to the corpus. Only embeddings for works present in the corpus are
 loaded; mismatches are reported.
 
+The loaded embeddings replace any the corpus had, and so does the record
+of their model (`corpus$metadata$embedding`, see
+[`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md)):
+the cache's record when it describes the cached matrix, else none, so
+the model of embeddings from an older cache or a bare matrix counts as
+not recorded (`"unknown"` in
+[`sm_certificate()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)).
+
 ## Usage
 
 ``` r
@@ -30,7 +38,9 @@ sm_embed_load(corpus, path, call = rlang::caller_env())
 
 ## Value
 
-The input `corpus` with `corpus$embeddings` updated.
+The input `corpus` with `corpus$embeddings` and
+`corpus$metadata$embedding` updated. Works without a cached row get no
+row, so the clustering functions give them no cluster (`NA`).
 
 ## See also
 

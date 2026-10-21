@@ -63,6 +63,7 @@ installed an informative error explains how to install it.</p>
 <span>  lag <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  institution_aware <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  lead_role <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"corresponding"</span>, <span class="st">"first"</span>, <span class="st">"last"</span>, <span class="st">"first_or_last"</span>, <span class="st">"any_lead"</span><span class="op">)</span>,</span>
+<span>  min_cell <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -116,6 +117,12 @@ a work, as in <code><a href="sm_its.html">sm_its()</a></code>. Roles other than 
 <code>institution_aware = TRUE</code>.</p></dd>
 
 
+<dt id="arg-min-cell">min_cell<a class="anchor" aria-label="anchor" href="#arg-min-cell"></a></dt>
+<dd><p>For <code>outcome = "cnci"</code>: <code>NULL</code> (default) or a positive
+integer, passed to <code><a href="sm_metric_fnci.html">sm_metric_fnci()</a></code> when the impact is derived from
+citation counts, as in <code><a href="sm_its.html">sm_its()</a></code>.</p></dd>
+
+
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
 <dd><p>Caller environment for error reporting.</p></dd>
 
@@ -137,7 +144,9 @@ value, whose years were dropped for every unit), <code>provisional_years</code>
 (integer; the citation-immature years excluded for <code>"cnci"</code>),
 <code>leadership</code> (the leadership definition, as in <code><a href="sm_its.html">sm_its()</a></code>, with
 <code>institutions</code> the unit labels when <code>institution_aware</code>; <code>NULL</code> for
-the other outcomes), and metadata.</p>
+the other outcomes), <code>impact_source</code> (where the impact values of
+<code>"cnci"</code> come from, as in <code><a href="sm_its.html">sm_its()</a></code>; <code>NA</code> for the other outcomes),
+and metadata.</p>
 <p><code>print</code> returns <code>x</code> invisibly.</p>
     </div>
     <div class="section level2">

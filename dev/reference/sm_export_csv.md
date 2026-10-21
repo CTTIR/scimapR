@@ -1,6 +1,8 @@
 # Export corpus tables as CSV files
 
-Write each corpus table as a separate CSV file in a directory.
+Write each corpus table as a separate CSV file in a directory, the
+yearly citation counts (`citations_by_year.csv`) too when the corpus has
+them.
 
 ## Usage
 
@@ -45,5 +47,5 @@ Other export:
 corpus <- sm_example_corpus(n_works = 10)
 dir <- tempdir()
 sm_export_csv(corpus, dir)
-#> ✔ Corpus tables saved to /tmp/RtmpusxX3b
+#> ✔ Corpus tables saved to /tmp/Rtmpyx9yI3
 ```

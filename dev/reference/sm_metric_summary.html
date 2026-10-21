@@ -59,12 +59,13 @@ comparison.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sm_metric_summary</span><span class="op">(</span></span>
 <span>  <span class="va">corpus</span>,</span>
-<span>  metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"citations"</span>, <span class="st">"cnci"</span>, <span class="st">"rcr"</span><span class="op">)</span>,</span>
+<span>  metric <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"citations"</span>, <span class="st">"cnci"</span>, <span class="st">"rcr"</span>, <span class="st">"fwci"</span><span class="op">)</span>,</span>
 <span>  robust <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  n_boot <span class="op">=</span> <span class="fl">2000L</span>,</span>
 <span>  conf <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  top_pct <span class="op">=</span> <span class="fl">0.1</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  min_cell <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -79,8 +80,12 @@ comparison.</p>
 
 <dt id="arg-metric">metric<a class="anchor" aria-label="anchor" href="#arg-metric"></a></dt>
 <dd><p>Which work-level metric to summarise: <code>"citations"</code>
-(<code>cited_by_count</code>), <code>"cnci"</code> (field-normalised citation impact via
-<code><a href="sm_metric_fnci.html">sm_metric_fnci()</a></code>), or <code>"rcr"</code> (<code><a href="sm_metric_rcr.html">sm_metric_rcr()</a></code>).</p></dd>
+(<code>cited_by_count</code>), <code>"cnci"</code> (field-normalised citation impact,
+resolved as in <code><a href="sm_its.html">sm_its()</a></code>: a stored impact column such as <code>works$cnci</code>
+or <code>works$fwci</code>, a <code>corpus$metrics</code> table, else the FNCI that
+<code><a href="sm_metric_fnci.html">sm_metric_fnci()</a></code> derives from citation counts), <code>"rcr"</code>
+(<code><a href="sm_metric_rcr.html">sm_metric_rcr()</a></code>) or <code>"fwci"</code> (OpenAlex's field-weighted citation
+impact, <code>works$fwci</code>; see <code><a href="sm_enrich_openalex_impact.html">sm_enrich_openalex_impact()</a></code>).</p></dd>
 
 
 <dt id="arg-robust">robust<a class="anchor" aria-label="anchor" href="#arg-robust"></a></dt>
@@ -109,6 +114,12 @@ supplied, the RNG state is saved and restored so the call has no global
 side effect (mirroring scimapR's reproducibility guarantees).</p></dd>
 
 
+<dt id="arg-min-cell">min_cell<a class="anchor" aria-label="anchor" href="#arg-min-cell"></a></dt>
+<dd><p>For <code>metric = "cnci"</code>: <code>NULL</code> (default) or a positive
+integer, passed to <code><a href="sm_metric_fnci.html">sm_metric_fnci()</a></code> when the impact is derived from
+citation counts, as in <code><a href="sm_its.html">sm_its()</a></code>.</p></dd>
+
+
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
 <dd><p>Caller environment for error reporting.</p></dd>
 
@@ -117,8 +128,15 @@ side effect (mirroring scimapR's reproducibility guarantees).</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A one-row tibble: <code>metric</code>, <code>n</code>, <code>mean</code>, <code>median</code>, and – when
 <code>robust = TRUE</code> – <code>median_ci_low</code>, <code>median_ci_high</code>, <code>pp_top10</code>,
-<code>n_boot</code>. Type-stable: an empty corpus returns a one-row tibble with <code>n = 0</code>
-and <code>NA</code> statistics.</p>
+<code>n_boot</code>. Type-stable: an empty corpus, or for <code>"cnci"</code> a corpus
+without usable impact data, returns a one-row tibble with <code>n = 0</code> and
+<code>NA</code> statistics. The attribute <code>impact_source</code> (character) names where
+the values come from: for <code>"cnci"</code> the same label as the
+<code>impact_source</code> of <code><a href="sm_its.html">sm_its()</a></code> (such as <code>"works$fwci (OpenAlex)"</code>), for
+<code>"fwci"</code> <code>"works$fwci (OpenAlex)"</code>, for <code>"citations"</code>
+<code>"works$cited_by_count"</code> and for <code>"rcr"</code> <code>"sm_metric_rcr()"</code>; it is
+<code>NA</code> on the <code>n = 0</code> row. For <code>"cnci"</code> and <code>"fwci"</code> a message (class
+<code>scimapR_impact_source</code>) names the source too.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -126,12 +144,17 @@ and <code>NA</code> statistics.</p>
 package is installed it is used instead (percentile interval). <code>pp_top10</code> is
 computed against the within-corpus citation distribution (the global top-10%
 threshold is the upper <code>top_pct</code> quantile of <code>cited_by_count</code>).</p>
+<p>For <code>"cnci"</code> and <code>"fwci"</code> only works with a finite value count, and for
+<code>"cnci"</code> only works of <code>corpus$works</code> (a <code>corpus$metrics</code> table may hold
+others). <code>metric = "fwci"</code> aborts (class <code>scimapR_no_fwci</code>) when the
+works have no <code>fwci</code> value.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="sm_summary_works.html">sm_summary_works()</a></code>, <code><a href="sm_count.html">sm_count()</a></code></p>
 <p>Other counting:
 <code><a href="sm_citation_maturity.html">sm_citation_maturity()</a></code>,
+<code><a href="sm_citation_window.html">sm_citation_window()</a></code>,
 <code><a href="sm_count.html">sm_count()</a></code></p></div>
     </div>
 
@@ -143,6 +166,13 @@ threshold is the upper <code>top_pct</code> quantile of <code>cited_by_count</co
 <span class="r-out co"><span class="r-pr">#&gt;</span>   metric        n  mean median median_ci_low median_ci_high pp_top10 n_boot</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> citations   100  15.9     12          10.5             16      0.1   <span style="text-decoration: underline;">2</span>000</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># the real-use fixture carries OpenAlex's FWCI, which "cnci" then uses</span></span></span>
+<span class="r-in"><span><span class="va">fix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="sm_example_files.html">sm_example_files</a></span><span class="op">(</span><span class="st">"example_realuse_corpus.rds"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu">sm_metric_summary</span><span class="op">(</span><span class="va">fix</span>, metric <span class="op">=</span> <span class="st">"cnci"</span>, robust <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Impact source: <span style="color: #00BB00;">works$fwci (OpenAlex)</span>.</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">s</span>, <span class="st">"impact_source"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "works$fwci (OpenAlex)"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

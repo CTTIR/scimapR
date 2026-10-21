@@ -83,8 +83,10 @@
 </h2>
 <p>Every bibliometric analysis starts with a corpus, but most analyses
 don’t document <em>how</em> the corpus was built. scimapR’s corpus
-certificates solve this: they are structured YAML documents that another
-researcher can use to re-derive the exact same corpus.</p>
+certificates solve this: they are structured YAML documents that record
+the corpus hash, the steps behind the corpus and the local files it was
+built from, so that another researcher can check a corpus against them
+and run its searches again.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/CTTIR/scimapR" class="external-link">scimapR</a></span><span class="op">)</span></span>
 <span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_example_corpus.html">sm_example_corpus</a></span><span class="op">(</span>seed <span class="op">=</span> <span class="fl">42</span><span class="op">)</span></span></code></pre></div>
@@ -98,12 +100,12 @@ researcher can use to re-derive the exact same corpus.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 8</span></span></span>
 <span><span class="co">#&gt;   work_id    source    source_id_external fetch_date          query       engine</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> W000000001 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:42</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> W000000002 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:42</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> W000000003 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:42</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> W000000004 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:42</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> W000000005 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:42</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> W000000006 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:42</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> W000000001 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:24:02</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> W000000002 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:24:02</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> W000000003 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:24:02</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> W000000004 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:24:02</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> W000000005 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:24:02</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> W000000006 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:24:02</span> sm_example… native</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: scimapR_version &lt;chr&gt;, prompt_hash &lt;chr&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -111,22 +113,23 @@ researcher can use to re-derive the exact same corpus.</p>
 </h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sm_hash_corpus.html">sm_hash_corpus</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "ea446b5f44659ca0804636faa6e2c6cb66dacc49278ed0ffb03b415cac54dee4"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "017544b82f936536e14ed0f83a6ecd62acad9bd817d0a11e4b712ad833165c20"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="creating-a-certificate">Creating a certificate<a class="anchor" aria-label="anchor" href="#creating-a-certificate"></a>
 </h2>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cert</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_certificate.html">sm_certificate</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Certificate created. Corpus hash: ea446b5f4465</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Certificate created. Corpus hash: 017544b82f93</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">cert</span>, max.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="co">#&gt; List of 18</span></span>
+<span><span class="co">#&gt; List of 20</span></span>
 <span><span class="co">#&gt;  $ certificate_version: chr "1.0"</span></span>
-<span><span class="co">#&gt;  $ created            : POSIXct[1:1], format: "2026-10-19 23:45:42"</span></span>
+<span><span class="co">#&gt;  $ created            : POSIXct[1:1], format: "2026-10-21 09:24:02"</span></span>
 <span><span class="co">#&gt;  $ scimapR_version    : chr "0.4.0.9000"</span></span>
 <span><span class="co">#&gt;  $ r_version          : chr "4.6.1"</span></span>
 <span><span class="co">#&gt;  $ platform           : chr "unix"</span></span>
-<span><span class="co">#&gt;  $ corpus_hash        : chr "ea446b5f44659ca0804636faa6e2c6cb66dacc49278ed0ffb03b415cac54dee4"</span></span>
+<span><span class="co">#&gt;  $ corpus_hash        : chr "017544b82f936536e14ed0f83a6ecd62acad9bd817d0a11e4b712ad833165c20"</span></span>
+<span><span class="co">#&gt;  $ hash_version       : int 2</span></span>
 <span><span class="co">#&gt;  $ n_works            : int 200</span></span>
 <span><span class="co">#&gt;  $ n_authors          : int 80</span></span>
 <span><span class="co">#&gt;  $ n_institutions     : int 0</span></span>
@@ -136,7 +139,8 @@ researcher can use to re-derive the exact same corpus.</p>
 <span><span class="co">#&gt;  $ queries            :List of 1</span></span>
 <span><span class="co">#&gt;  $ provenance_summary :List of 1</span></span>
 <span><span class="co">#&gt;  $ screening_summary  : list()</span></span>
-<span><span class="co">#&gt;  $ embedding_info     :List of 3</span></span>
+<span><span class="co">#&gt;  $ embedding_info     :List of 13</span></span>
+<span><span class="co">#&gt;  $ local_inputs       : tibble [0 × 9] (S3: tbl_df/tbl/data.frame)</span></span>
 <span><span class="co">#&gt;  $ is_locked          : logi FALSE</span></span>
 <span><span class="co">#&gt;  $ metadata           :List of 2</span></span>
 <span><span class="co">#&gt;  - attr(*, "class")= chr "sm_certificate"</span></span></code></pre></div>
@@ -146,16 +150,63 @@ researcher can use to re-derive the exact same corpus.</p>
 </h2>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_certificate.html">sm_verify_certificate</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">cert</span><span class="op">)</span></span>
-<span><span class="va">result</span><span class="op">$</span><span class="va">matches</span></span>
-<span><span class="co">#&gt; NULL</span></span></code></pre></div>
+<span><span class="va">result</span><span class="op">$</span><span class="va">pass</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="va">result</span><span class="op">$</span><span class="va">checks</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"check"</span>, <span class="st">"expected"</span>, <span class="st">"actual"</span>, <span class="st">"status"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 4</span></span></span>
+<span><span class="co">#&gt;   check          expected         actual           status</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> corpus_hash    017544b82f936536 017544b82f936536 pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> n_works        200              200              pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> n_authors      80               80               pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> n_institutions 0                0                pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> n_references   1869             1869             pass</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="local-input-files">Local input files<a class="anchor" aria-label="anchor" href="#local-input-files"></a>
+</h2>
+<p>A corpus built from local files, such as a database snapshot, an
+institutional export or an affiliation dictionary, records each file
+with its SHA-256 hash. <code>sm_corpus_from_tables(inputs = )</code>
+registers the files the tables come from;
+<code><a href="../reference/sm_register_input.html">sm_register_input()</a></code> adds any other file.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">tracker</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".csv"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doi,unit"</span>, <span class="st">"10.9999/example.1,Unit A"</span><span class="op">)</span>, <span class="va">tracker</span><span class="op">)</span></span>
+<span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_register_input.html">sm_register_input</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">tracker</span>, role <span class="op">=</span> <span class="st">"publication tracker"</span>,</span>
+<span>                            builder <span class="op">=</span> <span class="st">"R/01_import.R::read_tracker"</span><span class="op">)</span></span>
+<span><span class="va">cert</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_certificate.html">sm_certificate</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Certificate created. Corpus hash: 017544b82f93</span></span>
+<span><span class="fu"><a href="../reference/sm_certificate.html">sm_verify_certificate</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">cert</span><span class="op">)</span><span class="op">$</span><span class="va">checks</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"check"</span>, <span class="st">"status"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 2</span></span></span>
+<span><span class="co">#&gt;   check                     status</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> corpus_hash               pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> n_works                   pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> n_authors                 pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> n_institutions            pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> n_references              pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> input:file3030205f59e.csv pass</span></span>
+<span></span>
+<span><span class="co"># once the file changes, its check fails</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"10.9999/example.2,Unit B\n"</span>, file <span class="op">=</span> <span class="va">tracker</span>, append <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/sm_certificate.html">sm_verify_certificate</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">cert</span><span class="op">)</span><span class="op">$</span><span class="va">pass</span></span>
+<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<p>A file that verification cannot find is reported as
+<code>"not checked"</code>, with a warning; its relative path is looked
+for in <code>base_dir</code>, in the folder of the certificate file and
+in the working directory. <code><a href="../reference/sm_certificate.html">sm_rebuild_from_cert()</a></code> replays
+the recorded searches of OpenAlex, PubMed and Crossref, but it cannot
+replay local files or file reads: for a corpus built only from them it
+stops and names the files and the code that read them.</p>
 </div>
 <div class="section level2">
 <h2 id="saving-and-loading">Saving and loading<a class="anchor" aria-label="anchor" href="#saving-and-loading"></a>
 </h2>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/sm_save_corpus.html">sm_save_corpus</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">tmp</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus saved to <span style="color: #0000BB;">/tmp/Rtmprpy2RQ/file2df849f633b4.rds</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus saved to <span style="color: #0000BB;">/tmp/RtmpSvoa47/file3030275a59fe.rds</span></span></span>
 <span><span class="va">loaded</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_save_corpus.html">sm_load_corpus</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">loaded</span><span class="op">$</span><span class="va">works</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 200</span></span></code></pre></div>
@@ -163,24 +214,24 @@ researcher can use to re-derive the exact same corpus.</p>
 <div class="section level2">
 <h2 id="snapshot-and-diff">Snapshot and diff<a class="anchor" aria-label="anchor" href="#snapshot-and-diff"></a>
 </h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">snap_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/sm_snapshot.html">sm_snapshot</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">snap_path</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus snapshot saved to <span style="color: #0000BB;">/tmp/Rtmprpy2RQ/file2df842ed05d7.rds</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Size: 122K | Hash: ea446b5f4465</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus snapshot saved to <span style="color: #0000BB;">/tmp/RtmpSvoa47/file3030506ebac6.rds</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Size: 122K | Hash: 017544b82f93</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sm_cite_corpus.html">sm_cite_corpus</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Corpus assembled using scimapR v0.4.0.9000 on 2026-10-19. Contains 200 works by</span></span>
-<span><span class="co">#&gt; 80 authors (2015-2024). Data sources: synthetic. Corpus hash: ea446b5f4465.</span></span></code></pre></div>
+<span><span class="co">#&gt; Corpus assembled using scimapR v0.4.0.9000 on 2026-10-21. Contains 200 works by</span></span>
+<span><span class="co">#&gt; 80 authors (2015-2024). Data sources: synthetic. Corpus hash: 017544b82f93.</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="locking-a-corpus">Locking a corpus<a class="anchor" aria-label="anchor" href="#locking-a-corpus"></a>
 </h2>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">locked</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_lock.html">sm_lock</a></span><span class="op">(</span><span class="va">corpus</span>, reason <span class="op">=</span> <span class="st">"Final version for publication"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus locked.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Reason: Final version for publication</span></span>

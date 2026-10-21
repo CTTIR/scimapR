@@ -62,6 +62,7 @@ pre-intervention trend projected forward).</p>
 <span>  lag <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  institutions <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  lead_role <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"corresponding"</span>, <span class="st">"first"</span>, <span class="st">"last"</span>, <span class="st">"first_or_last"</span>, <span class="st">"any_lead"</span><span class="op">)</span>,</span>
+<span>  min_cell <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -100,12 +101,18 @@ quartile; needs a journal-quartile column on <code>works</code> (<code>quartile<
 
 <dt><code>"cnci"</code></dt>
 <dd><p>Mean field-normalised citation impact per year. Impact is
-resolved from the first populated of <code>works$cnci</code>, a <code>corpus$metrics</code>
-table (<code>cnci</code>/<code>fnci</code>/<code>value</code> keyed by <code>work_id</code>), or
+resolved from the first populated of <code>works$cnci</code>, <code>works$fwci</code>
+(OpenAlex; see <code><a href="sm_enrich_openalex_impact.html">sm_enrich_openalex_impact()</a></code>), the other impact
+columns <code>fnci</code>, <code>rcr</code>, <code>cnci_value</code>, <code>ncs</code>, <code>mncs</code> and
+<code>field_citation_ratio</code>, a <code>corpus$metrics</code> table
+(<code>cnci</code>/<code>fnci</code>/<code>value</code> keyed by <code>work_id</code>), or
 <code>works$cited_by_count</code> (from which FNCI is derived via
-<code><a href="sm_metric_fnci.html">sm_metric_fnci()</a></code>). If none is populated, an informative error names
-the columns inspected. Works without a finite impact value are left
-out of the yearly mean.</p></dd>
+<code><a href="sm_metric_fnci.html">sm_metric_fnci()</a></code>, with <code>min_cell</code>). If none is populated, an
+informative error (class <code>scimapR_no_impact_data</code>) names the
+columns inspected. <code><a href="sm_metric_summary.html">sm_metric_summary()</a></code> (<code>metric = "cnci"</code>)
+resolves impact in the same order, and the result names the source
+used (<code>impact_source</code>). Works without a finite impact value are
+left out of the yearly mean.</p></dd>
 
 <dt><code>"leadership"</code></dt>
 <dd><p>Share of works led through the author role
@@ -150,6 +157,14 @@ either, and <code>"any_lead"</code> the first, last or corresponding author.
 Roles other than <code>"corresponding"</code> need <code>institutions</code>.</p></dd>
 
 
+<dt id="arg-min-cell">min_cell<a class="anchor" aria-label="anchor" href="#arg-min-cell"></a></dt>
+<dd><p>For <code>outcome = "cnci"</code>: <code>NULL</code> (default) or a positive
+integer, passed to <code><a href="sm_metric_fnci.html">sm_metric_fnci()</a></code> when the impact is derived from
+<code>works$cited_by_count</code>, so that works in field-year cells with fewer
+works fall back to larger baselines. Not used when the corpus carries
+stored impact values.</p></dd>
+
+
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
 <dd><p>Caller environment for error reporting.</p></dd>
 
@@ -181,7 +196,11 @@ list of <code>lead_role</code>, <code>institution_aware</code> (<code>FALSE</cod
 (the focal labels or <code>NULL</code>) and <code>label_column</code> (the column that
 labels the institutions of the corpus, <code>institution_match</code>,
 <code>institution_name</code> or <code>institution_id</code>, the first with a value; <code>NA</code>
-without <code>institutions</code>), and is <code>NULL</code> for the other outcomes.</p>
+without <code>institutions</code>), and is <code>NULL</code> for the other outcomes.
+<code>impact_source</code> (character) names where the impact values of
+<code>outcome = "cnci"</code> come from, such as <code>"works$fwci (OpenAlex)"</code> or
+<code>"works$cited_by_count (field-normalised)"</code>; <code>NA</code> for the other
+outcomes.</p>
 <p><code>print</code> returns <code>x</code> invisibly.</p>
 <p><code>summary</code> returns the tidy coefficient tibble.</p>
 <p><code>autoplot</code> returns a <code>ggplot</code>.</p>

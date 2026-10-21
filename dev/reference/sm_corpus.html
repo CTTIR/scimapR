@@ -65,7 +65,8 @@ provenance, screening decisions, and metadata.</p>
 <span>  embeddings <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  provenance <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  screening <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  metadata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  metadata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  citations_by_year <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># S3 method for class 'sm_corpus'</span></span>
@@ -150,6 +151,13 @@ time a corpus is built from them; name a vocabulary of your own
 <dd><p>A list of corpus-level metadata.</p></dd>
 
 
+<dt id="arg-citations-by-year">citations_by_year<a class="anchor" aria-label="anchor" href="#arg-citations-by-year"></a></dt>
+<dd><p><code>NULL</code> (default: the corpus has no yearly
+citation counts) or a tibble of yearly citation counts: <code>work_id</code>,
+<code>year</code> and <code>cited_by_count</code>, one row per work and year. Whole numbers
+are stored as integers. See Details.</p></dd>
+
+
 <dt id="arg-x-object">x, object<a class="anchor" aria-label="anchor" href="#arg-x-object"></a></dt>
 <dd><p>An <code>sm_corpus</code> object.</p></dd>
 
@@ -189,8 +197,20 @@ write or read. <code>sm_corpus()</code> adds the missing required columns of
 quartiles such as <code>"Q1"</code>, for <code>sm_its(outcome = "share_q1")</code>); <code>cnci</code>,
 <code>fnci</code>, <code>rcr</code> and other impact columns (see <code><a href="sm_its.html">sm_its()</a></code>); <code>field</code> (for
 <code>sm_metric_fnci(classification = "manual")</code>); <code>citation_mature</code> and
-<code>cnci_provisional</code> (<code><a href="sm_citation_maturity.html">sm_citation_maturity()</a></code>); <code>cluster_id</code> and
-<code>cluster_label</code> (the clustering functions).</p>
+<code>cnci_provisional</code> (<code><a href="sm_citation_maturity.html">sm_citation_maturity()</a></code>); <code>cluster_id</code> (the
+clustering functions); <code>cluster_label</code> and <code>cluster_label_basis</code>, a
+cluster's label and how it was made (<code><a href="sm_cluster_label.html">sm_cluster_label()</a></code>). The
+OpenAlex readers and <code><a href="sm_enrich_openalex_impact.html">sm_enrich_openalex_impact()</a></code> write these impact
+columns:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>fwci</code></td><td>double</td><td>Field-weighted citation impact from OpenAlex</td></tr><tr><td><code>citation_percentile</code></td><td>double</td><td>OpenAlex citation percentile, 0 to 1</td></tr><tr><td><code>is_top_10pct</code></td><td>logical</td><td>Among the 10% most cited of field and year</td></tr><tr><td><code>is_top_1pct</code></td><td>logical</td><td>Among the 1% most cited of field and year</td></tr><tr><td><code>citations_as_of</code></td><td>Date</td><td>Date of these values and the yearly counts</td></tr></table><p>The openalexR engine of <code><a href="sm_fetch_openalex.html">sm_fetch_openalex()</a></code> has no percentile, so its
+<code>citation_percentile</code>, <code>is_top_10pct</code> and <code>is_top_1pct</code> are <code>NA</code>.
+<code>citations_as_of</code> is the day of the OpenAlex record's <code>updated_date</code>, or
+of the fetch when the record has none; <code><a href="sm_read_openalex_json.html">sm_read_openalex_json()</a></code> leaves
+it <code>NA</code> for records without <code>updated_date</code>. <code><a href="sm_citation_window.html">sm_citation_window()</a></code> reads
+it to tell complete citation windows from partial ones. A corpus
+restored with <code><a href="sm_corpus_from_tables.html">sm_corpus_from_tables()</a></code> can hold it as a day count (days
+since 1970-01-01, as SQLite keeps dates) or as ISO 8601 text;
+<code><a href="sm_citation_window.html">sm_citation_window()</a></code> and <code><a href="sm_enrich_openalex_impact.html">sm_enrich_openalex_impact()</a></code> read both as
+the date they stand for.</p>
 <p><strong><code>authors</code></strong>: one row per author. Required:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>author_id</code></td><td>character</td><td>Identifier, unique within the corpus</td></tr><tr><td><code>orcid</code></td><td>character</td><td>ORCID iD</td></tr><tr><td><code>display_name</code></td><td>character</td><td>Name</td></tr><tr><td><code>display_name_alternatives</code></td><td>list of character</td><td>Other spellings</td></tr><tr><td><code>inferred_gender</code>, <code>gender_method</code></td><td>character</td><td>Gender and its method</td></tr><tr><td><code>gender_confidence</code></td><td>double</td><td>Confidence of <code>inferred_gender</code></td></tr></table><p><code>display_name_alternatives</code> holds, for example, the names as a Web of
 Science file writes them, and <code>sm_audit_gender(method = "manual")</code>
 reads the gender columns. Optional: none so far.</p>
@@ -224,18 +244,67 @@ bibliometrix conversion and exported by <code><a href="sm_to_bibliometrix.html">
 <p><strong><code>concepts</code></strong>: one row per keyword, category or concept of a work.
 Required:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>work_id</code></td><td>character</td><td>The work</td></tr><tr><td><code>concept_id</code></td><td>character</td><td>Identifier in its vocabulary</td></tr><tr><td><code>concept_name</code></td><td>character</td><td>The keyword, category or concept</td></tr><tr><td><code>level</code></td><td>integer</td><td>Level in the hierarchy of the vocabulary</td></tr><tr><td><code>score</code></td><td>double</td><td>Weight given by the source</td></tr><tr><td><code>vocabulary</code></td><td>character</td><td>One of <code><a href="sm_concept_vocabularies.html">sm_concept_vocabularies()</a></code></td></tr></table><p>For MeSH headings <code>score</code> is 1 for a major topic and 0 otherwise.
 Optional: none so far.</p>
-<p><strong><code>embeddings</code></strong>: <code>NULL</code> or a numeric matrix with one row per work,
-named by <code>work_id</code>.</p>
+<p><strong><code>embeddings</code></strong>: <code>NULL</code> or a numeric matrix with one row per embedded
+work, named by its <code>work_id</code>, and one column per dimension. Works may
+have no row: works without text to embed (<code><a href="sm_embed_works.html">sm_embed_works()</a></code>), works
+missing from a cache (<code><a href="sm_embed_load.html">sm_embed_load()</a></code>) or works for which a service
+has no vector (<code><a href="sm_enrich_specter.html">sm_enrich_specter()</a></code>). The clustering functions give
+them no cluster (<code>NA</code>), and <code><a href="sm_network_semantic.html">sm_network_semantic()</a></code> and
+<code><a href="sm_plot_landscape.html">sm_plot_landscape()</a></code> leave them out. <code>metadata$embedding</code> records the
+model (see below).</p>
 <p><strong><code>provenance</code></strong>: one row per work and source. Required:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>work_id</code></td><td>character</td><td>The work</td></tr><tr><td><code>source</code></td><td>character</td><td>Where the record comes from, such as <code>"wos"</code></td></tr><tr><td><code>source_id_external</code></td><td>character</td><td>Its identifier at the source</td></tr><tr><td><code>fetch_date</code></td><td>POSIXct</td><td>When it was read or fetched</td></tr><tr><td><code>query</code></td><td>character</td><td>The query or file it came from</td></tr><tr><td><code>engine</code></td><td>character</td><td>The parser or client that read it</td></tr><tr><td><code>scimapR_version</code></td><td>character</td><td>The scimapR version that read it</td></tr><tr><td><code>prompt_hash</code></td><td>character</td><td>Hash of a prompt behind the record</td></tr></table><p><code>source_id_external</code> is, for example, the Web of Science accession
 number (UT); <code>prompt_hash</code> is <code>NA</code> for records that no prompt
-produced. Optional: none so far.</p>
+produced. Optional:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>kind</code></td><td>character</td><td>The kind of step that wrote the row (see below)</td></tr><tr><td><code>filter</code></td><td>character</td><td>The filter of a search, else <code>NA</code></td></tr><tr><td><code>n_max</code></td><td>integer</td><td>The maximum number of works of a search</td></tr></table><p><code>kind</code> is <code>"api_query"</code> for the searches of <code><a href="sm_fetch_openalex.html">sm_fetch_openalex()</a></code>,
+<code><a href="sm_fetch_pubmed.html">sm_fetch_pubmed()</a></code>, <code><a href="sm_fetch_crossref.html">sm_fetch_crossref()</a></code> and
+<code><a href="sm_corpus_for_question.html">sm_corpus_for_question()</a></code>, which also write <code>filter</code> and <code>n_max</code>;
+<code>"file"</code> for the file readers, whose <code>query</code> holds the file relative to
+the working directory when it lies below it, else its name; and
+<code>"enrichment"</code> for the enrichers, such as <code><a href="sm_enrich_openalex_impact.html">sm_enrich_openalex_impact()</a></code>,
+whose rows have the source <code>"openalex_impact"</code>. <code><a href="sm_certificate.html">sm_certificate()</a></code>
+records the kind of each step, inferred from the source, query and
+engine for rows without <code>kind</code>, and <code><a href="sm_certificate.html">sm_rebuild_from_cert()</a></code> replays
+only searches, never a file read or an enrichment.</p>
 <p><strong><code>screening</code></strong>: one row per screening decision. Required:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>work_id</code></td><td>character</td><td>The work</td></tr><tr><td><code>stage</code></td><td>character</td><td>Stage, such as <code>"title-abstract"</code> or <code>"full-text"</code></td></tr><tr><td><code>decision</code></td><td>character</td><td><code>"include"</code>, <code>"exclude"</code> or <code>"unclear"</code></td></tr><tr><td><code>reason</code></td><td>character</td><td>Reason for the decision</td></tr><tr><td><code>confidence</code></td><td>double</td><td>Confidence of the decision</td></tr><tr><td><code>source</code></td><td>character</td><td>Who or what decided</td></tr><tr><td><code>decided_at</code></td><td>POSIXct</td><td>When</td></tr></table><p>Optional: none so far.</p>
+<p><strong><code>citations_by_year</code></strong>: optional (<code>NULL</code> when the corpus has no yearly
+citation counts); one row per work and citation year, as the OpenAlex
+readers, <code><a href="sm_enrich_openalex_impact.html">sm_enrich_openalex_impact()</a></code> and <code><a href="sm_corpus_from_tables.html">sm_corpus_from_tables()</a></code>
+write it:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>work_id</code></td><td>character</td><td>The cited work</td></tr><tr><td><code>year</code></td><td>integer</td><td>The year of the citations</td></tr><tr><td><code>cited_by_count</code></td><td>integer</td><td>Citations received in that year, 0 or more</td></tr></table><p><code>work_id</code> and <code>year</code> may not be missing, and each pair appears once.
+OpenAlex gives the counts of the ten most recent years and leaves out
+the years without citations, so a missing year counts 0 for a work with
+yearly counts (see <code>works$citations_as_of</code> and <code><a href="sm_citation_window.html">sm_citation_window()</a></code>).
+Subsetting keeps the rows of the kept works, <code><a href="sm_bind_corpora.html">sm_bind_corpora()</a></code> binds
+them and <code><a href="sm_hash_corpus.html">sm_hash_corpus()</a></code> includes them when there are any.</p>
 <p><strong><code>metadata</code></strong>: a list. Required:</p><table class="table table"><tr><td>Entry</td><td>Type</td><td>Content</td></tr><tr><td><code>scimapR_version</code></td><td>character</td><td>The scimapR version that built the corpus</td></tr><tr><td><code>build_date</code></td><td>POSIXct</td><td>When the corpus was built</td></tr><tr><td><code>corpus_hash</code></td><td>character</td><td>Hash of the content (<code><a href="sm_hash_corpus.html">sm_hash_corpus()</a></code>)</td></tr><tr><td><code>is_locked</code></td><td>logical</td><td>Whether <code><a href="sm_lock.html">sm_lock()</a></code> locked the corpus</td></tr><tr><td><code>last_refresh</code></td><td>POSIXct</td><td>When <code><a href="sm_refresh.html">sm_refresh()</a></code> last ran</td></tr><tr><td><code>question_id</code></td><td>character</td><td>Id of its <code><a href="sm_question.html">sm_question()</a></code></td></tr></table><p><code>question_id</code> is set by <code><a href="sm_corpus_for_question.html">sm_corpus_for_question()</a></code>. Optional: entries
-the readers add, such as <code>source_file</code> and <code>reader</code>.
+the readers add, such as <code>source_file</code> and <code>reader</code>;
+<code>hash_version</code> (integer), the algorithm of <code>corpus_hash</code>
+(<code><a href="sm_hash_corpus.html">sm_hash_corpus()</a></code>), which <code><a href="sm_snapshot.html">sm_snapshot()</a></code> writes (a snapshot without
+it used version 1); and <code>local_inputs</code>, a tibble of the local files the
+corpus was built from, with their SHA-256 hashes, which
+<code><a href="sm_register_input.html">sm_register_input()</a></code> and <code><a href="sm_corpus_from_tables.html">sm_corpus_from_tables()</a></code> (<code>inputs</code>) write,
+<code><a href="sm_certificate.html">sm_certificate()</a></code> records and <code><a href="sm_certificate.html">sm_verify_certificate()</a></code> checks (see
+<code><a href="sm_register_input.html">sm_register_input()</a></code> for its columns).
 <code>build_date</code> and <code>last_refresh</code> may also be numbers of seconds since
 1970-01-01 UTC, as corpora restored from tables store them, ISO 8601
 text or dates; <code><a href="sm_certificate.html">sm_certificate()</a></code> and the citation-maturity cut-offs
 read all of these.</p>
+<p>Optional: <code>embedding</code>, the record of the model behind <code>embeddings</code>, a
+list that <code><a href="sm_embed_works.html">sm_embed_works()</a></code>, <code><a href="sm_enrich_specter.html">sm_enrich_specter()</a></code>,
+<code><a href="sm_fetch_semantic_scholar.html">sm_fetch_semantic_scholar()</a></code>, <code><a href="sm_embed_load.html">sm_embed_load()</a></code> (from the cache of
+<code><a href="sm_embed_save.html">sm_embed_save()</a></code>) and <code><a href="sm_bind_corpora.html">sm_bind_corpora()</a></code> write and
+<code><a href="sm_certificate.html">sm_certificate()</a></code> reports:</p><table class="table table"><tr><td>Entry</td><td>Type</td><td>Content</td></tr><tr><td><code>model</code></td><td>character</td><td>Short model name, <code>"mixed"</code> for several</td></tr><tr><td><code>model_id</code></td><td>character</td><td>Hugging Face id or Semantic Scholar field</td></tr><tr><td><code>base_model_id</code></td><td>character</td><td>Base model of an adapter, else <code>NA</code></td></tr><tr><td><code>revision</code></td><td>character</td><td>Commit of the model snapshot, or <code>NA</code></td></tr><tr><td><code>base_revision</code></td><td>character</td><td>Commit of the base model, or <code>NA</code></td></tr><tr><td><code>backend</code></td><td>character</td><td>The Python package or the service used</td></tr><tr><td><code>text</code></td><td>character</td><td>The text embedded, such as <code>"title_abstract"</code></td></tr><tr><td><code>prefix</code></td><td>character</td><td>Input prefix, else <code>""</code></td></tr><tr><td><code>versions</code></td><td>list</td><td>Versions of the Python packages used</td></tr><tr><td><code>models</code></td><td>character</td><td>The model ids behind the rows</td></tr><tr><td><code>n_works</code>, <code>n_dimensions</code></td><td>integer</td><td>Size of the matrix when made</td></tr><tr><td><code>created</code></td><td>POSIXct</td><td>When the record was written (UTC)</td></tr></table><p><code>model_id</code> is the Hugging Face id of the model (for <code>"specter2"</code> that
+of the adapter, whose base model is <code>base_model_id</code>) or the Semantic
+Scholar field of the vectors (<code>"embedding.specter_v2"</code> or
+<code>"embedding.specter_v1"</code>), whose <code>revision</code> is the model version that
+Semantic Scholar reports. <code>backend</code> is <code>"sentence-transformers"</code>,
+<code>"adapters"</code>, <code>"semantic-scholar"</code> or <code>"mixed"</code>; a mix lists its models
+in <code>models</code>. <code>prefix</code> is <code>"query: "</code> for <code>"multilingual-e5"</code>.
+A record whose <code>n_dimensions</code> differs from the width of <code>embeddings</code>,
+or whose <code>n_works</code> is smaller than its number of rows, no longer
+describes the matrix and counts as no record. Embeddings without a
+record, such as those made by earlier versions of scimapR, have a model
+that is not recorded: <code><a href="sm_certificate.html">sm_certificate()</a></code> reports it as <code>"unknown"</code>, and
+the functions that combine embeddings combine them with recorded ones
+only when asked to (<code>mix_models</code>).</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -129,7 +129,7 @@ Research landscape coloured by cluster
 <span><span class="co">#&gt; <span style="font-weight: bold;">Sources (journals):</span> 10</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Embeddings:</span> 6 x 64</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Provenance:</span> synthetic (6)</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Status:</span> Unlocked (last refreshed: 2026-10-19 23:45:24)</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Status:</span> Unlocked (last refreshed: 2026-10-21 09:23:42)</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -148,12 +148,13 @@ Strategic diagram
 </h2>
 <p>For production use, compute embeddings with SPECTER2:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Requires Python + sentence-transformers</span></span>
+<code class="sourceCode R"><span><span class="co"># Requires Python with the packages torch, transformers and adapters</span></span>
 <span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_embed_works.html">sm_embed_works</a></span><span class="op">(</span><span class="va">corpus</span>, model <span class="op">=</span> <span class="st">"specter2"</span><span class="op">)</span></span></code></pre></div>
 <p>Alternatively, fetch pre-computed SPECTER embeddings from Semantic
 Scholar:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_enrich_specter.html">sm_enrich_specter</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="co"># replace = TRUE: the corpus already has embeddings of another model</span></span>
+<span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_enrich_specter.html">sm_enrich_specter</a></span><span class="op">(</span><span class="va">corpus</span>, replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

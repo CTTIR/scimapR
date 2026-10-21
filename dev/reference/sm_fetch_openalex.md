@@ -5,8 +5,19 @@ return the results as an `sm_corpus`.
 
 Supports both free-text search (`query`) and structured filter syntax
 (`filter`). Uses cursor-based pagination to retrieve up to `n_max`
-works. An API key (polite pool) and a `mailto` address are strongly
-recommended for higher rate limits.
+works. Set an OpenAlex API key (see "API key and rate limits").
+
+Besides `cited_by_count`, the works keep OpenAlex's field-weighted
+citation impact (`fwci`), its citation percentile
+(`citation_percentile`, 0 to 1, with the flags `is_top_10pct` and
+`is_top_1pct`) and the date of these values (`citations_as_of`), and the
+corpus gets the yearly citation counts as `citations_by_year` (see
+[`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md)
+and
+[`sm_citation_window()`](https://cttir.github.io/scimapR/dev/reference/sm_citation_window.md)).
+The openalexR engine has no percentile, so its three percentile columns
+are `NA`. To add these fields to a corpus from another source, use
+[`sm_enrich_openalex_impact()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_openalex_impact.md).
 
 ## Usage
 
@@ -47,18 +58,21 @@ sm_fetch_openalex(
 
 - mailto:
 
-  Email address for the polite pool. Read from `SCIMAPR_MAILTO` env var
-  by default.
+  Contact address sent with each request as the `mailto` parameter. Read
+  from the `SCIMAPR_MAILTO` environment variable by default. OpenAlex no
+  longer gives such requests a larger budget (the API key does), and the
+  openalexR engine does not send it.
 
 - api_key:
 
-  OpenAlex API key. Read from `OPENALEX_API_KEY` env var.
+  OpenAlex API key. Read from the `OPENALEX_API_KEY` environment
+  variable by default; see "API key and rate limits".
 
 - engine:
 
   One of `"native"` (built-in httr2 client), `"openalexR"` (use the
-  openalexR package), or `"auto"` (use openalexR if available, otherwise
-  native).
+  openalexR package), or `"auto"` (use openalexR if version 3.1.1 or
+  later is installed, otherwise native).
 
 - batch_size:
 
@@ -80,9 +94,37 @@ sm_fetch_openalex(
 
 ## Value
 
-An `sm_corpus` object.
+An `sm_corpus` object. Its provenance records the search (`query`,
+`filter`, `n_max` and `engine`), so that
+[`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+can run it again.
+
+## API key and rate limits
+
+OpenAlex expects a free API key. Requests without one share one small
+daily budget with everyone on the same network address; once it is used
+up, OpenAlex answers HTTP 429 (too many requests) until the budget
+resets at midnight UTC. Set the key in the `OPENALEX_API_KEY`
+environment variable (for example in `~/.Renviron`) or pass it as
+`api_key`. It is sent in the `Authorization` header, never in the URL,
+and it is stored nowhere in the corpus.
+
+On HTTP 429 the function stops at once with an error of class
+`scimapR_openalex_rate_limit` instead of waiting: the message gives the
+reset time and the remaining budget that OpenAlex reports (the fields
+`reset_at` and `remaining` of the condition) and says whether a key was
+sent. Only a wait of up to two seconds (OpenAlex also limits requests
+per second) is waited out, once. Other failed requests stop with class
+`scimapR_openalex_failed`; both classes inherit from
+`scimapR_openalex_error`. With `engine = "openalexR"` the openalexR
+package (version 3.1.1 or later) sends the requests: it gets the key too
+and its own retries are switched off, but it does not pass on the
+response headers, so the reset time and the budget are not known.
 
 ## See also
+
+[`sm_enrich_openalex_impact()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_openalex_impact.md),
+[`sm_citation_window()`](https://cttir.github.io/scimapR/dev/reference/sm_citation_window.md)
 
 Other fetchers:
 [`sm_fetch_arxiv()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_arxiv.md),

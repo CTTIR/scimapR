@@ -48,6 +48,7 @@ the columns with 0 rows.
 [`sm_metric_fnci()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_fnci.md)
 
 Other counting:
+[`sm_citation_window()`](https://cttir.github.io/scimapR/dev/reference/sm_citation_window.md),
 [`sm_count()`](https://cttir.github.io/scimapR/dev/reference/sm_count.md),
 [`sm_metric_summary()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_summary.md)
 

@@ -48,7 +48,7 @@ deduplicated <code>sm_corpus</code>.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sm_build_corpus</span><span class="op">(</span><span class="va">...</span>, dedupe <span class="op">=</span> <span class="cn">TRUE</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sm_build_corpus</span><span class="op">(</span><span class="va">...</span>, dedupe <span class="op">=</span> <span class="cn">TRUE</span>, mix_models <span class="op">=</span> <span class="cn">FALSE</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -63,6 +63,12 @@ deduplicated <code>sm_corpus</code>.</p>
 <dd><p>Logical; deduplicate by DOI after combining?</p></dd>
 
 
+<dt id="arg-mix-models">mix_models<a class="anchor" aria-label="anchor" href="#arg-mix-models"></a></dt>
+<dd><p>Logical; bind embeddings that come from different
+models (or of which only one input records its model)? Passed to
+<code><a href="sm_bind_corpora.html">sm_bind_corpora()</a></code>. Defaults to <code>FALSE</code>.</p></dd>
+
+
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Logical; show progress messages?</p></dd>
 
@@ -70,6 +76,14 @@ deduplicated <code>sm_corpus</code>.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An <code>sm_corpus</code> object.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>The inputs are bound in turn with <code><a href="sm_bind_corpora.html">sm_bind_corpora()</a></code>, so its rules for
+embeddings apply: embeddings that record different models in
+<code>metadata$embedding</code>, or of which only one input records its model,
+stop the function (class <code>scimapR_embedding_model_mismatch</code>) unless
+<code>mix_models = TRUE</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

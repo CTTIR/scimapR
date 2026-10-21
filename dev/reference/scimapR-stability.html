@@ -104,7 +104,19 @@ scimapR 0.4.0).</p></dd>
 <dt><code><a href="sm_metric_summary.html">sm_metric_summary()</a></code></dt>
 <dd><p>A one-row tibble: <code>metric</code>, <code>n</code>, <code>mean</code>,
 <code>median</code>, and (when <code>robust = TRUE</code>) <code>median_ci_low</code>, <code>median_ci_high</code>,
-<code>pp_top10</code>, <code>n_boot</code>.</p></dd>
+<code>pp_top10</code>, <code>n_boot</code>. It carries the attribute <code>impact_source</code>
+(character): where the summarised values come from, such as
+<code>"works$fwci (OpenAlex)"</code> for <code>metric = "cnci"</code> on a corpus with
+OpenAlex impact fields, and <code>NA</code> on the <code>n = 0</code> row (added after
+scimapR 0.4.0, without changing the columns).</p></dd>
+
+<dt><code><a href="sm_citation_window.html">sm_citation_window()</a></code></dt>
+<dd><p>A tibble with one row per work, in the
+order of <code>corpus$works</code>: <code>work_id</code> (character), <code>year</code> and <code>window</code>
+(integer), <code>citations</code> (integer, <code>NA</code> for a work without yearly
+counts or publication year) and <code>complete</code> (logical); a 0-row tibble
+with these columns for a corpus without works (added after scimapR
+0.4.0).</p></dd>
 
 <dt><code><a href="sm_self_citation.html">sm_self_citation()</a></code> (<code>by_entity</code> / <code>by_work</code> / <code>provenance</code>)</dt>
 <dd><p>Tidy

@@ -494,6 +494,285 @@
   per work disagreed with
   [`sm_metric_collab_index()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_collab_index.md).
 
+- OpenAlex fetches and
+  [`sm_read_openalex_json()`](https://cttir.github.io/scimapR/dev/reference/sm_read_openalex_json.md)
+  keep FWCI, citation percentiles and yearly citation counts (new corpus
+  element `citations_by_year`); new
+  [`sm_enrich_openalex_impact()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_openalex_impact.md)
+  adds them to any corpus by identifier and stops cleanly on HTTP 429;
+  new
+  [`sm_citation_window()`](https://cttir.github.io/scimapR/dev/reference/sm_citation_window.md).
+  The works gain the columns `fwci`, `citation_percentile`,
+  `is_top_10pct`, `is_top_1pct` and `citations_as_of` (the date of these
+  values); the openalexR engine has no percentile.
+  [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_openalex.md)
+  now stops with the same message on HTTP 429, naming the reset time,
+  the remaining budget and the `OPENALEX_API_KEY` setting, instead of a
+  generic error (native engine) or an empty corpus (openalexR engine),
+  and its openalexR engine now uses `OPENALEX_API_KEY` too and needs
+  openalexR 3.1.1 or later.
+  [`sm_enrich_openalex_impact()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_openalex_impact.md)
+  sends identifiers only, joins nothing when a request fails, and
+  records its step in provenance with the source `"openalex_impact"` and
+  the kind `"enrichment"`, which
+  [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+  never replays; certificates record the kind of each step.
+  [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md),
+  [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_from_tables.md),
+  subsetting,
+  [`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md),
+  [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md),
+  [`sm_export_csv()`](https://cttir.github.io/scimapR/dev/reference/sm_export_csv.md),
+  [`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md)
+  and
+  [`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md)
+  carry `citations_by_year`; corpora without it keep their hash.
+
+- `sm_metric_summary(metric = "cnci")` resolves impact like
+  [`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md)
+  and reports its source as an attribute; both now use `works$fwci` when
+  `works$cnci` is absent (ahead of other impact columns and
+  `corpus$metrics`), which changes
+  [`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md),
+  [`sm_did()`](https://cttir.github.io/scimapR/dev/reference/sm_did.md)
+  and
+  [`sm_synth()`](https://cttir.github.io/scimapR/dev/reference/sm_synth.md)
+  results with `outcome = "cnci"` for such corpora. The attribute
+  `impact_source` is `NA` on the `n = 0` row, which a corpus without
+  usable impact data still gives; a message names the source for
+  `"cnci"` and the new `metric = "fwci"`, and the results of
+  [`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md),
+  [`sm_did()`](https://cttir.github.io/scimapR/dev/reference/sm_did.md)
+  and
+  [`sm_synth()`](https://cttir.github.io/scimapR/dev/reference/sm_synth.md)
+  keep it as `impact_source` and print it.
+  [`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md),
+  [`sm_did()`](https://cttir.github.io/scimapR/dev/reference/sm_did.md),
+  [`sm_synth()`](https://cttir.github.io/scimapR/dev/reference/sm_synth.md)
+  and
+  [`sm_metric_summary()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_summary.md)
+  gain `min_cell`, passed to
+  [`sm_metric_fnci()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_fnci.md)
+  when they derive impact from citation counts (default `NULL`, as
+  before). The error for a corpus without impact data has the class
+  `scimapR_no_impact_data`.
+
+- [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_openalex.md)
+  and
+  [`sm_read_openalex_json()`](https://cttir.github.io/scimapR/dev/reference/sm_read_openalex_json.md)
+  fill `authorships$raw_affiliation` from OpenAlex’s
+  `raw_affiliation_strings` (joined with `"; "`), else from
+  `affiliations[].raw_affiliation_string`, else from the institution
+  names. Before,
+  [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_openalex.md)
+  read a field OpenAlex no longer has, so `raw_affiliation` was `NA` for
+  every fetched authorship and
+  [`sm_affiliation_match()`](https://cttir.github.io/scimapR/dev/reference/sm_affiliation_match.md)
+  matched nothing, and
+  [`sm_read_openalex_json()`](https://cttir.github.io/scimapR/dev/reference/sm_read_openalex_json.md)
+  kept only the name of the first institution, without the department
+  and unit text that dictionaries match.
+
+- [`sm_read_openalex_json()`](https://cttir.github.io/scimapR/dev/reference/sm_read_openalex_json.md)
+  links works to their source (`works$source_id`). Before, it was `NA`
+  for every work, so source counts, the source plots and h-index, ISSN
+  lookups in
+  [`sm_coverage_audit()`](https://cttir.github.io/scimapR/dev/reference/sm_coverage_audit.md)
+  and `SO` in
+  [`sm_to_bibliometrix()`](https://cttir.github.io/scimapR/dev/reference/sm_to_bibliometrix.md)
+  came out empty. Sources with the same name but different OpenAlex ids
+  now stay apart.
+
+- [`sm_read_openalex_json()`](https://cttir.github.io/scimapR/dev/reference/sm_read_openalex_json.md)
+  reads a saved API response (an object whose `results` hold the works,
+  compact or pretty-printed), a single work object and newline-delimited
+  files whose lines are responses; before, a saved response gave one
+  empty work or a parse error. It also reads abstracts from
+  `abstract_inverted_index` when a record has no plain `abstract`;
+  before, such a record stopped the reader with an error.
+
+- [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_openalex.md)
+  stores ORCIDs without the `https://orcid.org/` prefix, as the other
+  readers do, and `sm_author_trajectory(orcid =)` accepts an ORCID in
+  either form, so
+  [`sm_researcher_profile()`](https://cttir.github.io/scimapR/dev/reference/sm_researcher_profile.md)
+  finds its researcher; before, it aborted with “No author found with
+  ORCID” for every researcher with 5 or more works.
+  [`sm_researcher_profile()`](https://cttir.github.io/scimapR/dev/reference/sm_researcher_profile.md)
+  gains `n_max` (default 200, as before).
+
+- Timestamps given as ISO 8601 text with more than three decimals of a
+  second, such as `2026-10-01T04:12:33.123456` (the form of OpenAlex’s
+  `updated_date`), are read, for example in `metadata$last_refresh`;
+  before, they counted as missing.
+
+- [`sm_embed_works()`](https://cttir.github.io/scimapR/dev/reference/sm_embed_works.md)
+  with the default model `specter2` loads the SPECTER2 adapter through
+  the Python `adapters` package as the model card describes; it
+  previously failed in `SentenceTransformer()`. This model needs the
+  Python packages `torch`, `transformers` and `adapters`
+  (`install_deps = TRUE` installs `torch` and `adapters`), the other
+  models need `sentence-transformers` as before, and the error for a
+  missing package names it. A model that does not load now stops with an
+  error that names the model and gives the Python error.
+
+- [`sm_embed_works()`](https://cttir.github.io/scimapR/dev/reference/sm_embed_works.md)
+  gains multilingual models (`multilingual-mpnet`, `multilingual-e5`),
+  informs when an English-only model meets a multilingual corpus, warns
+  about works without text, and records the model in the corpus metadata
+  and certificate. Texts for `multilingual-e5` start with `"query: "`,
+  the prefix its model card gives for clustering. The message appears
+  when more than 10% of the works with a known language are not in
+  English; it reads language names such as `"German"`, ISO 639-1 codes
+  such as `"de"` and ISO 639-2 codes such as `"ger"`.
+  `corpus$metadata$embedding` records the model, its Hugging Face id and
+  snapshot revision, the text and prefix used, the versions of the
+  Python packages and the time (see
+  [`?sm_corpus`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md)).
+  [`sm_certificate()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+  reports them in `embedding_info`, whose `method` now names the package
+  or service that made the embeddings, or is `"unknown"` for embeddings
+  without such a record (before: `"recorded"`).
+
+- [`sm_embed_works()`](https://cttir.github.io/scimapR/dev/reference/sm_embed_works.md)
+  leaves works without text out of the embeddings, with a warning giving
+  their number: with the default `text = "title_abstract"` the works
+  with neither a title nor an abstract, with `"title"` or `"abstract"`
+  the works without that field (blank text counts as none). Before, they
+  were all embedded as the same empty text, so they became each other’s
+  nearest neighbours, formed a cluster of their own and stopped
+  `sm_plot_landscape(reducer = "tsne")`. The row names of
+  `corpus$embeddings` are the embedded works, and the clustering
+  functions give the other works no cluster (`NA`), as they do for works
+  missing from a cache loaded with
+  [`sm_embed_load()`](https://cttir.github.io/scimapR/dev/reference/sm_embed_load.md).
+
+- [`sm_embed_works()`](https://cttir.github.io/scimapR/dev/reference/sm_embed_works.md)
+  works on a corpus with a single work; before, it failed with “length
+  of ‘dimnames’ \[1\] not equal to array extent”.
+
+- [`sm_enrich_specter()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_specter.md)
+  fetches the SPECTER v2 vectors of Semantic Scholar instead of the
+  API’s default SPECTER v1 and records them in `metadata$embedding`. It
+  fills gaps only in embeddings from the same source: for embeddings of
+  another model, or of a model that is not recorded, it stops unless you
+  set `replace = TRUE` (replace them by SPECTER v2 vectors for every
+  work with a DOI) or `mix_models = TRUE` (keep them and add SPECTER v2
+  vectors for the other works, recorded as a mix). Before, it silently
+  mixed the vectors of two models when their widths matched, and
+  discarded every existing embedding, with only a warning, when they did
+  not. It now warns about failed requests also with `verbose = FALSE`,
+  tries a request once more after a short wait when Semantic Scholar
+  answers HTTP 429, and records its provenance rows as an enrichment,
+  which
+  [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+  does not replay.
+
+- [`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md)
+  and
+  [`sm_build_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_build_corpus.md)
+  gain `mix_models`. They stop when the embeddings of two corpora record
+  different models in `metadata$embedding`, or when only one of them
+  records its model, unless `mix_models = TRUE`, which binds them and
+  records a mix; embeddings of corpora that record no model bind as
+  before.
+  [`sm_embed_save()`](https://cttir.github.io/scimapR/dev/reference/sm_embed_save.md)
+  keeps the record with the cache and
+  [`sm_embed_load()`](https://cttir.github.io/scimapR/dev/reference/sm_embed_load.md)
+  restores it, or leaves the model unrecorded for a cache without one,
+  and `sm_fetch_semantic_scholar(include_embeddings = TRUE)` records its
+  SPECTER v1 vectors.
+
+- Certificates record local input files with SHA-256
+  ([`sm_register_input()`](https://cttir.github.io/scimapR/dev/reference/sm_register_input.md),
+  `sm_corpus_from_tables(inputs =)`);
+  [`sm_verify_certificate()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+  checks them (`base_dir`), reports a `status` per check and warns about
+  inputs it could not find;
+  [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+  names the local inputs it cannot replay. The `checks` of a
+  verification gain the columns `status` (`"pass"`, `"fail"` or
+  `"not checked"`) and `location`, and the result gains `n_not_checked`:
+  a check that was not made has `pass = NA`, and the overall result
+  passes unless a check failed. A relative input path is looked for in
+  `base_dir`, in the folder of the certificate file, in the working
+  directory and last at the absolute path recorded at registration.
+  Printing a verification now shows a symbol for each check, and
+  printing a certificate the number of local inputs.
+  [`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md)
+  keeps the local inputs of both corpora.
+
+- [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+  replays only the searches of OpenAlex, PubMed and Crossref, through
+  [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_openalex.md),
+  [`sm_fetch_pubmed()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_pubmed.md)
+  or
+  [`sm_fetch_crossref()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_crossref.md)
+  with the engine, filter and `n_max` they were made with. Before, it
+  cut every search at 1,000 works and sent the file paths of file reads
+  and the placeholder queries of enrichments to the APIs as search text.
+  [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_openalex.md),
+  [`sm_fetch_pubmed()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_pubmed.md),
+  [`sm_fetch_crossref()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_crossref.md)
+  and
+  [`sm_corpus_for_question()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_for_question.md)
+  now record `kind`, `filter` and `n_max` in provenance, and
+  [`sm_corpus_for_question()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_for_question.md)
+  records the client package that ran each search (`"openalexR"`,
+  `"rentrez"` or `"rcrossref"`) as its `engine` instead of `"native"`,
+  and for Crossref an `n_max` of at most 1,000, the most its single
+  request returns; the file readers record the kind `"file"` and the
+  file relative to the working directory, or its name, instead of the
+  path as given; the enrichers record the kind `"enrichment"`; and
+  certificates write file steps without absolute paths. A message names
+  the steps and local inputs that were not replayed. When a certificate
+  has no search to replay but records file reads or local inputs, the
+  rebuild stops with an error that names them instead of returning an
+  empty corpus; a certificate of only synthetic records, enrichments,
+  refreshes or searches of other sources still gives an empty corpus. A
+  search without a recorded `n_max`, as in certificates of earlier
+  versions, fetches up to the number of works of the certified corpus.
+  The rebuilt corpus holds the works of the searches and their
+  provenance only.
+
+- [`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md)
+  no longer depends on the order of the columns of a table or of the
+  rows of the embeddings (hash version 2; new argument `version`), so
+  hashes of new certificates and snapshots differ from earlier ones for
+  the same content. Certificates and snapshots record `hash_version`,
+  and those written without it are checked with the earlier algorithm
+  (`version = 1`), so they stay verifiable. The documentation now says
+  that the hash leaves out the provenance table, which records fetch
+  dates, and the metadata, the local inputs included.
+
+- [`sm_cluster_label()`](https://cttir.github.io/scimapR/dev/reference/sm_cluster_label.md)
+  ignores noise, scores terms by the share of a cluster’s works that use
+  them (so one paper cannot name a cluster), supports bigrams and
+  non-English stop words, and gains `method = "keywords"`. The labels of
+  the default `method = "tfidf"` change: they hold single words and
+  pairs of adjacent words (new argument `ngram`, default `1:2`), or the
+  longer phrase that two overlapping terms form (such as “exertional
+  heat illness” for “exertional heat” and “heat illness”), that occur in
+  at least 3 of the cluster’s works or 5% of them, whichever is more
+  (new argument `min_works`), count singular and plural as one term, and
+  leave out the stop words of each work’s language in `works$language`
+  as well as the English ones, from the stopwords package when it is
+  installed; `method = "yake"` leaves out these stop words too. The
+  works of the noise cluster (new argument `noise`, default `0L`, as
+  [`sm_cluster_hdbscan()`](https://cttir.github.io/scimapR/dev/reference/sm_cluster_hdbscan.md)
+  assigns) get the label `NA` from every method and no longer count for
+  the labels of the other clusters, so
+  `sm_plot_thematic_map(by = "cluster_label")` leaves them out; a
+  cluster whose works share no term gets `NA` too, with a message. The
+  new column `cluster_label_basis` says how each label was made, for
+  example `"tfidf (relaxed)"` when no term reached `min_works` and the
+  terms occur in as few as 2 works, while `cluster_label` still holds
+  only the terms joined with `"; "`. `method = "keywords"` labels
+  clusters by their author and indexer keywords (such as Keywords Plus),
+  and a cluster without keywords by the terms of its titles; the new
+  argument `stop_terms` leaves out terms such as words every cluster
+  shares.
+
 ## scimapR 0.4.0
 
 Stability contracts, an enrichment materializer, and

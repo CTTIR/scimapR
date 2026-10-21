@@ -1,17 +1,22 @@
 # Label clusters with representative terms
 
 Assigns human-readable labels to clusters by extracting representative
-terms. Supports TF-IDF-based extraction (default), YAKE keyword
-extraction, or LLM-generated labels via the ellmer package.
+terms. Supports TF-IDF-based extraction (default), labels from the
+author and indexer keywords of the corpus, YAKE keyword extraction, or
+LLM-generated labels via the ellmer package.
 
 ## Usage
 
 ``` r
 sm_cluster_label(
   corpus,
-  method = c("tfidf", "yake", "llm"),
+  method = c("tfidf", "keywords", "yake", "llm"),
   n_terms = 5L,
   llm_provider = NULL,
+  min_works = NULL,
+  ngram = 1:2,
+  stop_terms = NULL,
+  noise = 0L,
   call = rlang::caller_env()
 )
 ```
@@ -26,8 +31,8 @@ sm_cluster_label(
 
 - method:
 
-  Character; labelling method. One of `"tfidf"` (default), `"yake"`, or
-  `"llm"`.
+  Character; labelling method. One of `"tfidf"` (default), `"keywords"`,
+  `"yake"`, or `"llm"`.
 
 - n_terms:
 
@@ -40,24 +45,131 @@ sm_cluster_label(
   [`ellmer::chat_openai()`](https://ellmer.tidyverse.org/reference/chat_openai.html)).
   Required when `method = "llm"`, ignored otherwise.
 
+- min_works:
+
+  For `"tfidf"` and `"keywords"`: the number of a cluster's works a term
+  must occur in to enter its label. `NULL` (default) takes 3 or 5% of
+  the cluster's works, whichever is more. When no term of a cluster
+  reaches it, terms that occur in 2 of its works are used instead, as
+  `cluster_label_basis` records.
+
+- ngram:
+
+  For `"tfidf"`: the lengths of the terms it scores, in words, as whole
+  numbers from 1 to 3. The default `1:2` scores single words and pairs
+  of adjacent words; `1` gives labels of single words. Two terms that
+  overlap can be shown as the longer phrase they form (see Details).
+  `"keywords"` uses it for the titles it falls back to.
+
+- stop_terms:
+
+  Character vector of terms to leave out of the labels, such as generic
+  words that every cluster shares; `NULL` (default) leaves out none.
+  Each is compared with whole terms, ignoring case and the difference
+  between singular and plural. Not used by `"llm"`.
+
+- noise:
+
+  The `cluster_id` that marks noise, the works no cluster claims: `0L`
+  by default, as
+  [`sm_cluster_hdbscan()`](https://cttir.github.io/scimapR/dev/reference/sm_cluster_hdbscan.md)
+  assigns. Noise gets no label and does not count for the labels of the
+  other clusters. `NULL` labels every id as a cluster; set it for
+  clusterings that use another noise label or a real cluster 0.
+
 - call:
 
   Caller environment for error reporting.
 
 ## Value
 
-The input `corpus` with a `cluster_label` column added to
-`corpus$works`, containing a character string of representative terms
-for each cluster.
+The input `corpus` with two columns added to `corpus$works`, in place of
+earlier ones:
+
+- `cluster_label`:
+
+  The terms of the work's cluster joined with `"; "`, the best first;
+  `NA` for noise, for works without a cluster and for clusters that got
+  no label.
+
+- `cluster_label_basis`:
+
+  How the label was made: `"tfidf"` or `"keywords"` when every term
+  occurs in at least `min_works` of the cluster's works;
+  `"tfidf (relaxed)"` or `"keywords (relaxed)"` when no term reached
+  `min_works`, so that the terms occur in at least 2 works;
+  `"tfidf (fallback)"` or `"tfidf (fallback, relaxed)"` when
+  `method = "keywords"` found no keyword in 2 or more of the cluster's
+  works and took the terms of its titles; `"yake"` or `"llm"` for these
+  methods; `NA` where `cluster_label` is `NA`.
 
 ## Details
 
-**TF-IDF method**: For each cluster, concatenates titles and abstracts
-of member works, tokenises into unigrams, computes TF-IDF scores where
-each cluster is treated as a document, and selects the top `n_terms`.
+**Noise and clusters without a label**: works whose `cluster_id` is `NA`
+or `noise` get no label from any method, and the `"tfidf"` and
+`"keywords"` methods leave them out of the works that make a term common
+or rare in the corpus. A cluster whose works share no term, such as a
+cluster of a single work, gets no label either, with a message.
+
+**TF-IDF method**: Splits the titles and abstracts of the works into
+terms of `ngram` words. A term's score in a cluster is the share of the
+cluster's works that contain it times `log(N / n)`, where `N` is the
+number of clustered works and `n` the number of them that contain the
+term. As the score counts works, not occurrences, and a term must occur
+in at least `min_works` works of the cluster, a term that one paper
+repeats cannot name a cluster. The `n_terms` terms with the highest
+scores form the label; ties go to the term that occurs more often in the
+cluster, then to the first in alphabetical order. A longer term takes
+the place of a shorter one it contains when it occurs in at least 40% of
+the shorter term's works ("cancer" gives way to "testicular cancer", and
+to "metastatic testicular cancer" only if that also occurs in 40% of the
+works with "cancer"), and a term contained in one already chosen is
+skipped. When a term overlaps one already chosen, as "heat illness"
+overlaps "exertional heat", the phrase they form ("exertional heat
+illness") counts as a longer term that contains both, also beyond the
+lengths in `ngram`, if it occurs in enough of the cluster's works to be
+a term of the label; so one phrase does not fill two places of a label.
+
+Words of fewer than 3 characters, numbers and stop words are left out,
+and no term spans one of them, the end of a sentence or clause, or the
+border between title and abstract. The stop words of every work are the
+English ones of
+[`tidytext::stop_words`](https://juliasilge.github.io/tidytext/reference/stop_words.html),
+plus the Snowball list of the stopwords package for the work's own
+language in `works$language`, given as a name such as `"German"`, an ISO
+639-1 code such as `"de"` or an ISO 639-2 code such as `"ger"`. Works
+without a language get the English list only, and the lists of other
+languages are never pooled, so German stop words such as "war" or "die"
+stay in English text. Without the stopwords package, or for a language
+it has no list for, only the English list is used, with a message.
+
+Singular and plural count as one term: a final "ies" becomes "y", and a
+final "s" is dropped after a letter other than s, i, u, o, a and y, so
+"fractures" counts with "fracture" and "ticks" with "tick", while
+"diagnosis", "virus", "class" and "days" stay as they are. A possessive
+"'s" is dropped as well, and words such as "species", "series",
+"diabetes", "measles" or "aids" are kept as written, as are names of
+fields such as "logistics", "genetics", "genomics" or "pediatrics",
+which would otherwise count with the adjectives "logistic", "genetic",
+"genomic" or "pediatric". A label shows each term in the spelling the
+cluster's works use most often.
+
+**Keyword method**: The same scoring on the author keywords and the
+indexer keywords (such as Keywords Plus or MeSH) in `corpus$concepts`,
+the families `"author_keyword"` and `"indexer_keyword"` of
+[`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md).
+Keywords are compared ignoring case, with hyphens read as spaces and
+plurals folded as above, and containment is checked on whole words;
+keywords that overlap form no phrase. A work counts once for each
+keyword, however many of its vocabularies give it. A keyword is shown as
+an author keyword spells it, or else in lower case. A cluster without a
+keyword in at least 2 of its works gets the TF-IDF terms of its titles
+instead; when the clustered works have no such keywords at all, every
+cluster does, with a message.
 
 **YAKE method**: Uses a simplified YAKE-like scoring based on term
-frequency, position, and spread across works within each cluster.
+frequency, position, and spread across works within each cluster, with
+the stop words of the TF-IDF method.
 
 **LLM method**: Sends titles and abstracts of each cluster to an LLM
 with a prompt asking for a concise topical label. Requires the ellmer
@@ -81,15 +193,33 @@ corpus <- sm_cluster_kmeans(corpus, k = 5)
 #> ℹ 5 clusters, sizes range from 27 to 49.
 corpus <- sm_cluster_label(corpus, method = "tfidf", n_terms = 3L)
 #> ✔ 5 clusters labelled using "tfidf" method.
-head(corpus$works[, c("work_id", "cluster_id", "cluster_label")])
-#> # A tibble: 6 × 3
-#>   work_id    cluster_id cluster_label                 
-#>   <chr>           <int> <chr>                         
-#> 1 W000000001          5 analysis; analyzed; approaches
-#> 2 W000000002          1 analysis; analyzed; approaches
-#> 3 W000000003          5 analysis; analyzed; approaches
-#> 4 W000000004          5 analysis; analyzed; approaches
-#> 5 W000000005          3 analysis; analyzed; approaches
-#> 6 W000000006          4 analysis; analyzed; approaches
+unique(corpus$works[, c("cluster_id", "cluster_label",
+                        "cluster_label_basis")])
+#> # A tibble: 5 × 3
+#>   cluster_id cluster_label                                   cluster_label_basis
+#>        <int> <chr>                                           <chr>              
+#> 1          5 drug resistance; clinical outcomes; cross sect… tfidf              
+#> 2          1 cohort study; investigates drug; machine learn… tfidf              
+#> 3          3 meta analysis; spatial transcriptomics; prospe… tfidf              
+#> 4          4 meta analysis; investigates spatial transcript… tfidf              
+#> 5          2 trial approaches; cross sectional study; immun… tfidf              
+
+# keyword labels: the real-use example corpus grouped by journal category
+fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
+fix$works$cluster_id <- match(fix$works$field, unique(fix$works$field))
+fix <- sm_cluster_label(fix, method = "keywords", n_terms = 3L)
+#> ✔ 8 clusters labelled using "keywords" method.
+unique(fix$works[, c("field", "cluster_label", "cluster_label_basis")])
+#> # A tibble: 8 × 3
+#>   field                                       cluster_label  cluster_label_basis
+#>   <chr>                                       <chr>          <chr>              
+#> 1 Microbiology                                transmission;… keywords           
+#> 2 Medicine, General & Internal                injury; hemor… keywords           
+#> 3 Public, Environmental & Occupational Health zoonotic surv… keywords           
+#> 4 Infectious Diseases                         antibodies; o… keywords           
+#> 5 Toxicology                                  workforce; ed… keywords           
+#> 6 Physiology                                  recruits; exe… keywords           
+#> 7 Surgery                                     hemorrhage co… keywords           
+#> 8 Emergency Medicine                          damage contro… keywords           
 # }
 ```

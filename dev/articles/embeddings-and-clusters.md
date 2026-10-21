@@ -69,7 +69,7 @@ head(labels)
 #> Sources (journals): 10
 #> Embeddings: 6 x 64
 #> Provenance: synthetic (6)
-#> Status: Unlocked (last refreshed: 2026-10-19 23:45:24)
+#> Status: Unlocked (last refreshed: 2026-10-21 09:23:42)
 ```
 
 ## Thematic map
@@ -90,7 +90,7 @@ For production use, compute embeddings with SPECTER2:
 
 ``` r
 
-# Requires Python + sentence-transformers
+# Requires Python with the packages torch, transformers and adapters
 corpus <- sm_embed_works(corpus, model = "specter2")
 ```
 
@@ -99,5 +99,6 @@ Scholar:
 
 ``` r
 
-corpus <- sm_enrich_specter(corpus)
+# replace = TRUE: the corpus already has embeddings of another model
+corpus <- sm_enrich_specter(corpus, replace = TRUE)
 ```

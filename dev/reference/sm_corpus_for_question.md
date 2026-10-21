@@ -51,7 +51,10 @@ sm_corpus_for_question(
 ## Value
 
 An `sm_corpus` with `metadata$question_id` set to the question's
-content-hash ID.
+content-hash ID. Its provenance records each search (`query`, `n_max`
+and, as `engine`, the client package that ran it), so that
+[`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+can run it again.
 
 ## See also
 

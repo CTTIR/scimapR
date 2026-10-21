@@ -53,6 +53,10 @@ sm_cluster_hdbscan(
 
 The input `corpus` with a `cluster_id` column added to `corpus$works`.
 Noise points (not assigned to any cluster) receive `cluster_id = 0L`.
+Works without a row in `corpus$embeddings` (such as works without text,
+see
+[`sm_embed_works()`](https://cttir.github.io/scimapR/dev/reference/sm_embed_works.md))
+get `NA`.
 
 ## Details
 

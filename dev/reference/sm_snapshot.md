@@ -7,6 +7,13 @@ traceability.
 `sm_snapshot_load()` reads a previously saved snapshot and validates
 that the loaded object is a well-formed `sm_corpus`.
 
+The snapshot stores the corpus hash
+([`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md))
+in `metadata$corpus_hash` and the version of the hash algorithm in
+`metadata$hash_version`. `sm_snapshot_load()` recomputes the hash with
+that version, or with version 1 for snapshots written before scimapR
+0.5.0, and warns when it differs.
+
 ## Usage
 
 ``` r
@@ -53,7 +60,8 @@ Other reproducibility:
 [`sm_cite_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_cite_corpus.md),
 [`sm_diff_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_diff_corpora.md),
 [`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md),
-[`sm_provenance()`](https://cttir.github.io/scimapR/dev/reference/sm_provenance.md)
+[`sm_provenance()`](https://cttir.github.io/scimapR/dev/reference/sm_provenance.md),
+[`sm_register_input()`](https://cttir.github.io/scimapR/dev/reference/sm_register_input.md)
 
 ## Examples
 
@@ -61,11 +69,11 @@ Other reproducibility:
 corpus <- sm_example_corpus()
 path <- tempfile(fileext = ".rds")
 sm_snapshot(corpus, path = path)
-#> ✔ Corpus snapshot saved to /tmp/RtmpusxX3b/file21bf54c0764f.rds.
-#> ℹ Size: 122K | Hash: ea446b5f4465
+#> ✔ Corpus snapshot saved to /tmp/Rtmpyx9yI3/file23d441613d9f.rds.
+#> ℹ Size: 122K | Hash: 017544b82f93
 
 loaded <- sm_snapshot_load(path)
-#> ✔ Loaded corpus from /tmp/RtmpusxX3b/file21bf54c0764f.rds.
+#> ✔ Loaded corpus from /tmp/Rtmpyx9yI3/file23d441613d9f.rds.
 #> ℹ 200 works, 80 authors.
 identical(nrow(corpus$works), nrow(loaded$works))
 #> [1] TRUE

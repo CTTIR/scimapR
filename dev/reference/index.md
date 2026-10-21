@@ -95,6 +95,8 @@
   : Enrich corpus with Altmetric attention data
 - [`sm_enrich_concepts()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_concepts.md)
   : Enrich corpus with concepts from OpenAlex or MeSH
+- [`sm_enrich_openalex_impact()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_openalex_impact.md)
+  : Add OpenAlex impact fields to any corpus
 - [`sm_enrich_opencitations()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_opencitations.md)
   : Enrich corpus with OpenCitations citation data
 - [`sm_enrich_orcid()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_orcid.md)
@@ -304,6 +306,8 @@
 
 - [`sm_citation_maturity()`](https://cttir.github.io/scimapR/dev/reference/sm_citation_maturity.md)
   : Flag citation-immature recent years
+- [`sm_citation_window()`](https://cttir.github.io/scimapR/dev/reference/sm_citation_window.md)
+  : Citations within a fixed window after publication
 - [`sm_count()`](https://cttir.github.io/scimapR/dev/reference/sm_count.md)
   : Full and fractional output / impact counting
 - [`sm_metric_summary()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_summary.md)
@@ -332,6 +336,8 @@
   [`print(`*`<sm_certificate>`*`)`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
   [`print(`*`<sm_cert_verification>`*`)`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
   : Create, rebuild from, and verify corpus certificates
+- [`sm_register_input()`](https://cttir.github.io/scimapR/dev/reference/sm_register_input.md)
+  : Register a local input file of a corpus
 - [`sm_provenance()`](https://cttir.github.io/scimapR/dev/reference/sm_provenance.md)
   : Get corpus provenance
 - [`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md)

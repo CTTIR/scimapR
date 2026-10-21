@@ -88,11 +88,14 @@ its cell gets FNCI = 1 by construction. When `min_cell` is `NULL` and
 more than 25% of the works with a citation count sit in cells with fewer
 than 10 such works, a message (class `scimapR_fnci_small_cells`) gives
 that share.
-[`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md)
+[`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md),
+[`sm_did()`](https://cttir.github.io/scimapR/dev/reference/sm_did.md)
+and
+[`sm_synth()`](https://cttir.github.io/scimapR/dev/reference/sm_synth.md)
 (`outcome = "cnci"`) and
 [`sm_metric_summary()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_summary.md)
 (`metric = "cnci"`) show it too when they derive impact from citation
-counts.
+counts; their own `min_cell` argument is passed on here.
 
 ## Fallback baselines
 

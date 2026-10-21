@@ -19,8 +19,10 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 Every bibliometric analysis starts with a corpus, but most analyses
 don’t document *how* the corpus was built. scimapR’s corpus certificates
-solve this: they are structured YAML documents that another researcher
-can use to re-derive the exact same corpus.
+solve this: they are structured YAML documents that record the corpus
+hash, the steps behind the corpus and the local files it was built from,
+so that another researcher can check a corpus against them and run its
+searches again.
 
 ``` r
 
@@ -38,12 +40,12 @@ head(sm_provenance(corpus))
 #> # A tibble: 6 × 8
 #>   work_id    source    source_id_external fetch_date          query       engine
 #>   <chr>      <chr>     <chr>              <dttm>              <chr>       <chr> 
-#> 1 W000000001 synthetic NA                 2026-10-19 23:45:42 sm_example… native
-#> 2 W000000002 synthetic NA                 2026-10-19 23:45:42 sm_example… native
-#> 3 W000000003 synthetic NA                 2026-10-19 23:45:42 sm_example… native
-#> 4 W000000004 synthetic NA                 2026-10-19 23:45:42 sm_example… native
-#> 5 W000000005 synthetic NA                 2026-10-19 23:45:42 sm_example… native
-#> 6 W000000006 synthetic NA                 2026-10-19 23:45:42 sm_example… native
+#> 1 W000000001 synthetic NA                 2026-10-21 09:24:02 sm_example… native
+#> 2 W000000002 synthetic NA                 2026-10-21 09:24:02 sm_example… native
+#> 3 W000000003 synthetic NA                 2026-10-21 09:24:02 sm_example… native
+#> 4 W000000004 synthetic NA                 2026-10-21 09:24:02 sm_example… native
+#> 5 W000000005 synthetic NA                 2026-10-21 09:24:02 sm_example… native
+#> 6 W000000006 synthetic NA                 2026-10-21 09:24:02 sm_example… native
 #> # ℹ 2 more variables: scimapR_version <chr>, prompt_hash <chr>
 ```
 
@@ -52,7 +54,7 @@ head(sm_provenance(corpus))
 ``` r
 
 sm_hash_corpus(corpus)
-#> [1] "ea446b5f44659ca0804636faa6e2c6cb66dacc49278ed0ffb03b415cac54dee4"
+#> [1] "017544b82f936536e14ed0f83a6ecd62acad9bd817d0a11e4b712ad833165c20"
 ```
 
 ## Creating a certificate
@@ -60,15 +62,16 @@ sm_hash_corpus(corpus)
 ``` r
 
 cert <- sm_certificate(corpus)
-#> ✔ Certificate created. Corpus hash: ea446b5f4465
+#> ✔ Certificate created. Corpus hash: 017544b82f93
 str(cert, max.level = 1)
-#> List of 18
+#> List of 20
 #>  $ certificate_version: chr "1.0"
-#>  $ created            : POSIXct[1:1], format: "2026-10-19 23:45:42"
+#>  $ created            : POSIXct[1:1], format: "2026-10-21 09:24:02"
 #>  $ scimapR_version    : chr "0.4.0.9000"
 #>  $ r_version          : chr "4.6.1"
 #>  $ platform           : chr "unix"
-#>  $ corpus_hash        : chr "ea446b5f44659ca0804636faa6e2c6cb66dacc49278ed0ffb03b415cac54dee4"
+#>  $ corpus_hash        : chr "017544b82f936536e14ed0f83a6ecd62acad9bd817d0a11e4b712ad833165c20"
+#>  $ hash_version       : int 2
 #>  $ n_works            : int 200
 #>  $ n_authors          : int 80
 #>  $ n_institutions     : int 0
@@ -78,7 +81,8 @@ str(cert, max.level = 1)
 #>  $ queries            :List of 1
 #>  $ provenance_summary :List of 1
 #>  $ screening_summary  : list()
-#>  $ embedding_info     :List of 3
+#>  $ embedding_info     :List of 13
+#>  $ local_inputs       : tibble [0 × 9] (S3: tbl_df/tbl/data.frame)
 #>  $ is_locked          : logi FALSE
 #>  $ metadata           :List of 2
 #>  - attr(*, "class")= chr "sm_certificate"
@@ -89,9 +93,60 @@ str(cert, max.level = 1)
 ``` r
 
 result <- sm_verify_certificate(corpus, cert)
-result$matches
-#> NULL
+result$pass
+#> [1] TRUE
+result$checks[, c("check", "expected", "actual", "status")]
+#> # A tibble: 5 × 4
+#>   check          expected         actual           status
+#>   <chr>          <chr>            <chr>            <chr> 
+#> 1 corpus_hash    017544b82f936536 017544b82f936536 pass  
+#> 2 n_works        200              200              pass  
+#> 3 n_authors      80               80               pass  
+#> 4 n_institutions 0                0                pass  
+#> 5 n_references   1869             1869             pass
 ```
+
+## Local input files
+
+A corpus built from local files, such as a database snapshot, an
+institutional export or an affiliation dictionary, records each file
+with its SHA-256 hash. `sm_corpus_from_tables(inputs = )` registers the
+files the tables come from;
+[`sm_register_input()`](https://cttir.github.io/scimapR/dev/reference/sm_register_input.md)
+adds any other file.
+
+``` r
+
+tracker <- tempfile(fileext = ".csv")
+writeLines(c("doi,unit", "10.9999/example.1,Unit A"), tracker)
+corpus <- sm_register_input(corpus, tracker, role = "publication tracker",
+                            builder = "R/01_import.R::read_tracker")
+cert <- sm_certificate(corpus)
+#> ✔ Certificate created. Corpus hash: 017544b82f93
+sm_verify_certificate(corpus, cert)$checks[, c("check", "status")]
+#> # A tibble: 6 × 2
+#>   check                     status
+#>   <chr>                     <chr> 
+#> 1 corpus_hash               pass  
+#> 2 n_works                   pass  
+#> 3 n_authors                 pass  
+#> 4 n_institutions            pass  
+#> 5 n_references              pass  
+#> 6 input:file3030205f59e.csv pass
+
+# once the file changes, its check fails
+cat("10.9999/example.2,Unit B\n", file = tracker, append = TRUE)
+sm_verify_certificate(corpus, cert)$pass
+#> [1] FALSE
+```
+
+A file that verification cannot find is reported as `"not checked"`,
+with a warning; its relative path is looked for in `base_dir`, in the
+folder of the certificate file and in the working directory.
+[`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+replays the recorded searches of OpenAlex, PubMed and Crossref, but it
+cannot replay local files or file reads: for a corpus built only from
+them it stops and names the files and the code that read them.
 
 ## Saving and loading
 
@@ -99,7 +154,7 @@ result$matches
 
 tmp <- tempfile(fileext = ".rds")
 sm_save_corpus(corpus, tmp)
-#> ✔ Corpus saved to /tmp/Rtmprpy2RQ/file2df849f633b4.rds
+#> ✔ Corpus saved to /tmp/RtmpSvoa47/file3030275a59fe.rds
 loaded <- sm_load_corpus(tmp)
 nrow(loaded$works)
 #> [1] 200
@@ -111,8 +166,8 @@ nrow(loaded$works)
 
 snap_path <- tempfile(fileext = ".rds")
 sm_snapshot(corpus, snap_path)
-#> ✔ Corpus snapshot saved to /tmp/Rtmprpy2RQ/file2df842ed05d7.rds.
-#> ℹ Size: 122K | Hash: ea446b5f4465
+#> ✔ Corpus snapshot saved to /tmp/RtmpSvoa47/file3030506ebac6.rds.
+#> ℹ Size: 122K | Hash: 017544b82f93
 ```
 
 ## Citation
@@ -120,8 +175,8 @@ sm_snapshot(corpus, snap_path)
 ``` r
 
 sm_cite_corpus(corpus)
-#> Corpus assembled using scimapR v0.4.0.9000 on 2026-10-19. Contains 200 works by
-#> 80 authors (2015-2024). Data sources: synthetic. Corpus hash: ea446b5f4465.
+#> Corpus assembled using scimapR v0.4.0.9000 on 2026-10-21. Contains 200 works by
+#> 80 authors (2015-2024). Data sources: synthetic. Corpus hash: 017544b82f93.
 ```
 
 ## Locking a corpus

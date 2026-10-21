@@ -4,6 +4,10 @@ Saves the embeddings matrix from an `sm_corpus` to an RDS file on disk.
 This allows caching expensive embedding computations for later reuse
 with
 [`sm_embed_load()`](https://cttir.github.io/scimapR/dev/reference/sm_embed_load.md).
+The cache keeps the record of the model behind the embeddings
+(`corpus$metadata$embedding`, see
+[`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md))
+when the corpus has one.
 
 ## Usage
 

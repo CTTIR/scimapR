@@ -79,8 +79,12 @@ Web of Science style addresses (ten of them German strings with
 non-ASCII letters), one corresponding author per work, sources, Web
 of Science style cited references and keyword and category concepts.
 Extra <code>works</code> columns are <code>quartile</code> (<code>NA</code> for every 2026 work),
-<code>fwci</code>, <code>field</code> (the first Web of Science category), <code>volume</code> and
-<code>first_page</code>; <code>work_id</code> holds the Web of Science accession number.
+<code>fwci</code>, <code>field</code> (the first Web of Science category), <code>volume</code>,
+<code>first_page</code> and <code>citations_as_of</code>; <code>work_id</code> holds the Web of
+Science accession number. <code>citations_by_year</code> holds yearly citation
+counts shaped like OpenAlex's, dated 2026-10-17 (<code>citations_as_of</code>)
+for the works with a DOI: the years 2017 to 2026, without the years
+that have no citations (see <code><a href="sm_citation_window.html">sm_citation_window()</a></code>).
 <code>metadata$last_refresh</code> is a numeric time stamp in seconds since
 1970-01-01 UTC.</p></dd>
 

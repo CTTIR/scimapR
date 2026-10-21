@@ -44,6 +44,10 @@ sm_cluster_kmeans(
 ## Value
 
 The input `corpus` with a `cluster_id` column added to `corpus$works`.
+Works without a row in `corpus$embeddings` (such as works without text,
+see
+[`sm_embed_works()`](https://cttir.github.io/scimapR/dev/reference/sm_embed_works.md))
+get `NA`.
 
 ## Details
 

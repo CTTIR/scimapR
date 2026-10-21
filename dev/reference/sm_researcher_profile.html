@@ -54,7 +54,8 @@ embed, and build a trajectory analysis.</p>
 <span>  enrich <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"oa_status"</span><span class="op">)</span>,</span>
 <span>  embed <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  trajectory <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  mailto <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"SCIMAPR_MAILTO"</span><span class="op">)</span></span>
+<span>  mailto <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"SCIMAPR_MAILTO"</span><span class="op">)</span>,</span>
+<span>  n_max <span class="op">=</span> <span class="fl">200L</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -83,7 +84,14 @@ embed, and build a trajectory analysis.</p>
 
 
 <dt id="arg-mailto">mailto<a class="anchor" aria-label="anchor" href="#arg-mailto"></a></dt>
-<dd><p>Email for API polite pool.</p></dd>
+<dd><p>Contact address sent to OpenAlex (see
+<code><a href="sm_fetch_openalex.html">sm_fetch_openalex()</a></code>).</p></dd>
+
+
+<dt id="arg-n-max">n_max<a class="anchor" aria-label="anchor" href="#arg-n-max"></a></dt>
+<dd><p>Maximum number of works to fetch (default <code>200</code>, as in
+<code><a href="sm_fetch_openalex.html">sm_fetch_openalex()</a></code>). A researcher with more works gets a profile of
+the first <code>n_max</code> only, so raise it for long careers.</p></dd>
 
 </dl></div>
     <div class="section level2">

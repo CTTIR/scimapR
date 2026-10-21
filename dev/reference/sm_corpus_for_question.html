@@ -101,7 +101,9 @@ for each source (<code>openalexR</code> for OpenAlex, <code>rcrossref</code> for
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An <code>sm_corpus</code> with <code>metadata$question_id</code> set to the
-question's content-hash ID.</p>
+question's content-hash ID. Its provenance records each search
+(<code>query</code>, <code>n_max</code> and, as <code>engine</code>, the client package that ran it), so
+that <code><a href="sm_certificate.html">sm_rebuild_from_cert()</a></code> can run it again.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

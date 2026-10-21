@@ -128,9 +128,10 @@ spelled <code>"MEDLINE"</code> (requires MeSH data in concepts; see below). For
 cell gets FNCI = 1 by construction. When <code>min_cell</code> is <code>NULL</code> and more
 than 25% of the works with a citation count sit in cells with fewer than
 10 such works, a message (class <code>scimapR_fnci_small_cells</code>) gives that
-share. <code><a href="sm_its.html">sm_its()</a></code> (<code>outcome = "cnci"</code>) and <code><a href="sm_metric_summary.html">sm_metric_summary()</a></code>
-(<code>metric = "cnci"</code>) show it too when they derive impact from citation
-counts.</p>
+share. <code><a href="sm_its.html">sm_its()</a></code>, <code><a href="sm_did.html">sm_did()</a></code> and <code><a href="sm_synth.html">sm_synth()</a></code> (<code>outcome = "cnci"</code>) and
+<code><a href="sm_metric_summary.html">sm_metric_summary()</a></code> (<code>metric = "cnci"</code>) show it too when they derive
+impact from citation counts; their own <code>min_cell</code> argument is passed on
+here.</p>
     </div>
     <div class="section level2">
     <h2 id="fallback-baselines">Fallback baselines<a class="anchor" aria-label="anchor" href="#fallback-baselines"></a></h2>

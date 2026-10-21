@@ -80,6 +80,7 @@ Other reproducibility:
 [`sm_cite_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_cite_corpus.md),
 [`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md),
 [`sm_provenance()`](https://cttir.github.io/scimapR/dev/reference/sm_provenance.md),
+[`sm_register_input()`](https://cttir.github.io/scimapR/dev/reference/sm_register_input.md),
 [`sm_snapshot()`](https://cttir.github.io/scimapR/dev/reference/sm_snapshot.md)
 
 ## Examples
@@ -102,7 +103,7 @@ print(d)
 #> References: 1932 -> 1846
 #> Screening: 0 -> 0
 #> 
-#> Hash (before): 8c148d1bfae1
-#> Hash (after): 5d1d1da46a2d
+#> Hash (before): a502a9ec1851
+#> Hash (after): 418d27a45ce9
 # }
 ```

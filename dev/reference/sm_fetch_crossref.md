@@ -56,7 +56,10 @@ sm_fetch_crossref(
 
 ## Value
 
-An `sm_corpus` object.
+An `sm_corpus` object. Its provenance records the search (`query`,
+`filter`, `n_max` and `engine`), so that
+[`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+can run it again.
 
 ## See also
 

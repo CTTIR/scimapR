@@ -39,7 +39,7 @@ print(rq)
 #> ── <sm_question> ───────────────────────────────────────────────────────────────
 #> ID: Q-ecd0161dbb634ba3
 #> Framework: PICO
-#> Created: 2026-10-19 23:45:37
+#> Created: 2026-10-21 09:23:57
 #> 
 #> Question:
 #> Does spatial transcriptomics improve outcome prediction in colorectal cancer?

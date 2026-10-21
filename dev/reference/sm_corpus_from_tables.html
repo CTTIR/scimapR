@@ -83,6 +83,7 @@ a corpus is built from them; name a vocabulary of your own <code>"custom"</code>
 <span>  schema <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  .coerce <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  metadata <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  inputs <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -94,8 +95,11 @@ a corpus is built from them; name a vocabulary of your own <code>"custom"</code>
 <dl><dt id="arg-tables">tables<a class="anchor" aria-label="anchor" href="#arg-tables"></a></dt>
 <dd><p>A named list of data frames. Recognised names are <code>works</code>,
 <code>authors</code>, <code>authorships</code>, <code>institutions</code>, <code>sources</code>, <code>references</code>,
-<code>concepts</code>, <code>provenance</code>, <code>screening</code>. <code>works</code> is required (and must have,
-or be coercible to, a <code>work_id</code> column; if absent, work ids are generated).</p></dd>
+<code>concepts</code>, <code>provenance</code>, <code>screening</code> and <code>citations_by_year</code> (yearly
+citation counts: <code>work_id</code>, <code>year</code>, <code>cited_by_count</code>; see
+<code><a href="sm_corpus.html">sm_corpus()</a></code>). <code>works</code> is required (and must have, or be coercible
+to, a <code>work_id</code> column; if absent, work ids are generated). A corpus
+built without a <code>citations_by_year</code> table has no such element.</p></dd>
 
 
 <dt id="arg-schema">schema<a class="anchor" aria-label="anchor" href="#arg-schema"></a></dt>
@@ -113,6 +117,17 @@ renamed).</p></dd>
 
 <dt id="arg-metadata">metadata<a class="anchor" aria-label="anchor" href="#arg-metadata"></a></dt>
 <dd><p>Optional list of corpus-level metadata.</p></dd>
+
+
+<dt id="arg-inputs">inputs<a class="anchor" aria-label="anchor" href="#arg-inputs"></a></dt>
+<dd><p><code>NULL</code> (default) or the local files the tables come from,
+such as a database snapshot or a publication tracker, registered with
+<code><a href="sm_register_input.html">sm_register_input()</a></code> after the corpus is built: a character vector of
+paths, whose names (where given) become the <code>role</code> of each file, or a
+data frame with a <code>path</code> column and optional <code>role</code> and <code>builder</code>
+columns. Files already listed in <code>metadata$local_inputs</code> are kept, and
+a file registered again replaces its row. <code><a href="sm_certificate.html">sm_certificate()</a></code> records
+them with their SHA-256 hashes.</p></dd>
 
 
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
@@ -172,6 +187,22 @@ renamed).</p></dd>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Sources (journals):</span> 0</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Embeddings:</span> none</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Status:</span> Unlocked (last refreshed: never)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># record the file the tables were read from</span></span></span>
+<span class="r-in"><span><span class="va">snapshot</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".csv"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">works</span>, <span class="va">snapshot</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu">sm_corpus_from_tables</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>works <span class="op">=</span> <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/read.table.html" class="external-link">read.csv</a></span><span class="op">(</span><span class="va">snapshot</span><span class="op">)</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  inputs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"source table"</span> <span class="op">=</span> <span class="va">snapshot</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> <span style="color: #00BB00;">works</span>: filled missing column <span style="color: #00BB00;">abstract</span>, <span style="color: #00BB00;">type</span>, <span style="color: #00BB00;">source_id</span>, <span style="color: #00BB00;">cited_by_count</span>,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">oa_status</span>, <span style="color: #00BB00;">language</span>, <span style="color: #00BB00;">pmid</span>, <span style="color: #00BB00;">arxiv_id</span>, <span style="color: #00BB00;">openalex_id</span>, <span style="color: #00BB00;">is_retracted</span>,</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   <span style="color: #00BB00;">retraction_date</span>, and <span style="color: #00BB00;">last_refreshed</span> with typed `NA`.</span>
+<span class="r-in"><span><span class="va">corpus</span><span class="op">$</span><span class="va">metadata</span><span class="op">$</span><span class="va">local_inputs</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"basename"</span>, <span class="st">"role"</span>, <span class="st">"sha256"</span><span class="op">)</span><span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   basename            role         sha256                                       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> file23d4eca763e.csv source table 9bb0667922c6df1d6b32720e3a67d05d4e6e79d9977b…</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

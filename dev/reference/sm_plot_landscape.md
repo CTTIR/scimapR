@@ -43,7 +43,8 @@ sm_plot_landscape(
 
 ## Value
 
-A `ggplot` object.
+A `ggplot` object with one point per row of `corpus$embeddings`, so
+works without an embedding are not shown.
 
 ## See also
 

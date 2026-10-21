@@ -42,6 +42,7 @@
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_chat.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_chat_render.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_citation_maturity.html</loc></url>
+<url><loc>https://cttir.github.io/scimapR/dev/reference/sm_citation_window.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_cite_corpus.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_cluster_evolution.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_cluster_hdbscan.html</loc></url>
@@ -63,6 +64,7 @@
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_embed_works.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_enrich_altmetric.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_enrich_concepts.html</loc></url>
+<url><loc>https://cttir.github.io/scimapR/dev/reference/sm_enrich_openalex_impact.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_enrich_opencitations.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_enrich_orcid.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_enrich_retraction.html</loc></url>
@@ -151,6 +153,7 @@
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_read_zotero.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_reconcile.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_refresh.html</loc></url>
+<url><loc>https://cttir.github.io/scimapR/dev/reference/sm_register_input.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_researcher_profile.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_run_app.html</loc></url>
 <url><loc>https://cttir.github.io/scimapR/dev/reference/sm_save_corpus.html</loc></url>

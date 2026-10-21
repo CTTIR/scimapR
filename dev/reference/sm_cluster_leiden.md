@@ -46,6 +46,8 @@ sm_cluster_leiden(
 ## Value
 
 The input `corpus` with a `cluster_id` column added to `corpus$works`.
+Works that are not nodes of the network, such as works without a row in
+`corpus$embeddings`, get `NA`.
 
 ## Details
 

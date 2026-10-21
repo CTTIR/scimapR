@@ -65,7 +65,14 @@ and which version of scimapR performed the ingestion.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tibble with columns <code>work_id</code>, <code>source</code>, <code>source_id_external</code>,
-<code>fetch_date</code>, <code>query</code>, <code>engine</code>, <code>scimapR_version</code>, and <code>prompt_hash</code>.</p>
+<code>fetch_date</code>, <code>query</code>, <code>engine</code>, <code>scimapR_version</code>, and <code>prompt_hash</code>,
+and the optional columns <code>kind</code> (the kind of step: <code>"api_query"</code>,
+<code>"file"</code>, <code>"enrichment"</code>, <code>"refresh"</code> or <code>"manual"</code>, see
+<code><a href="sm_certificate.html">sm_certificate()</a></code>; <code>NA</code> for rows that do not record one), <code>filter</code> and
+<code>n_max</code> (the filter and the maximum number of works of a search, which
+<code><a href="sm_certificate.html">sm_rebuild_from_cert()</a></code> uses to replay it). File readers record the
+file in <code>query</code> relative to the working directory when it lies below
+it, else by its name.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -74,6 +81,7 @@ and which version of scimapR performed the ingestion.</p>
 <code><a href="sm_cite_corpus.html">sm_cite_corpus()</a></code>,
 <code><a href="sm_diff_corpora.html">sm_diff_corpora()</a></code>,
 <code><a href="sm_hash_corpus.html">sm_hash_corpus()</a></code>,
+<code><a href="sm_register_input.html">sm_register_input()</a></code>,
 <code><a href="sm_snapshot.html">sm_snapshot()</a></code></p></div>
     </div>
 
@@ -84,16 +92,16 @@ and which version of scimapR performed the ingestion.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 200 × 8</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    work_id    source    source_id_external fetch_date          query      engine</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> W000000001 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:10</span> sm_exampl… native</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> W000000002 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:10</span> sm_exampl… native</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> W000000003 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:10</span> sm_exampl… native</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> W000000004 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:10</span> sm_exampl… native</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> W000000005 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:10</span> sm_exampl… native</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> W000000006 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:10</span> sm_exampl… native</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> W000000007 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:10</span> sm_exampl… native</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> W000000008 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:10</span> sm_exampl… native</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> W000000009 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:10</span> sm_exampl… native</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> W000000010 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-19 <span style="color: #949494;">23:45:10</span> sm_exampl… native</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> W000000001 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:23:27</span> sm_exampl… native</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> W000000002 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:23:27</span> sm_exampl… native</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> W000000003 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:23:27</span> sm_exampl… native</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> W000000004 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:23:27</span> sm_exampl… native</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> W000000005 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:23:27</span> sm_exampl… native</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> W000000006 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:23:27</span> sm_exampl… native</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> W000000007 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:23:27</span> sm_exampl… native</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> W000000008 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:23:27</span> sm_exampl… native</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> W000000009 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:23:27</span> sm_exampl… native</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> W000000010 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:23:27</span> sm_exampl… native</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 190 more rows</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 2 more variables: scimapR_version &lt;chr&gt;, prompt_hash &lt;chr&gt;</span></span>
 </code></pre></div>

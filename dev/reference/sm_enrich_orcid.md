@@ -38,6 +38,7 @@ plus new provenance rows.
 Other enrichers:
 [`sm_enrich_altmetric()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_altmetric.md),
 [`sm_enrich_concepts()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_concepts.md),
+[`sm_enrich_openalex_impact()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_openalex_impact.md),
 [`sm_enrich_opencitations()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_opencitations.md),
 [`sm_enrich_retraction()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_retraction.md),
 [`sm_enrich_ror()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_ror.md),

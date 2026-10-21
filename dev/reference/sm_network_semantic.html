@@ -83,7 +83,8 @@ similarity between the connected works.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Embeddings must be present in <code>corpus$embeddings</code> (a numeric matrix with
-row names matching <code>work_id</code>). Use <code><a href="sm_embed_works.html">sm_embed_works()</a></code> to compute them.</p>
+row names matching <code>work_id</code>). Use <code><a href="sm_embed_works.html">sm_embed_works()</a></code> to compute them.
+Works without a row, such as works without text, are not nodes.</p>
 <p>The function computes cosine similarity via matrix multiplication on
 L2-normalised vectors and selects the top-<code>k</code> neighbours for each work.</p>
 <p>Empty input or missing embeddings returns an empty undirected <code>tbl_graph</code>.</p>

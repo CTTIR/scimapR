@@ -17,6 +17,7 @@ sm_synth(
   lag = NULL,
   institution_aware = FALSE,
   lead_role = c("corresponding", "first", "last", "first_or_last", "any_lead"),
+  min_cell = NULL,
   call = rlang::caller_env()
 )
 
@@ -69,6 +70,14 @@ print(x, ...)
   [`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md).
   Roles other than `"corresponding"` need `institution_aware = TRUE`.
 
+- min_cell:
+
+  For `outcome = "cnci"`: `NULL` (default) or a positive integer, passed
+  to
+  [`sm_metric_fnci()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_fnci.md)
+  when the impact is derived from citation counts, as in
+  [`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md).
+
 - call:
 
   Caller environment for error reporting.
@@ -91,7 +100,10 @@ value, whose years were dropped for every unit), `provisional_years`
 `leadership` (the leadership definition, as in
 [`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md),
 with `institutions` the unit labels when `institution_aware`; `NULL` for
-the other outcomes), and metadata.
+the other outcomes), `impact_source` (where the impact values of
+`"cnci"` come from, as in
+[`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md);
+`NA` for the other outcomes), and metadata.
 
 `print` returns `x` invisibly.
 

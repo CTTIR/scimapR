@@ -44,7 +44,12 @@ sm_fetch_semantic_scholar(
 - include_embeddings:
 
   Logical; if `TRUE`, request SPECTER embeddings for each paper and
-  attach as an embedding matrix.
+  attach as an embedding matrix. These are the API's default SPECTER v1
+  vectors, recorded in `metadata$embedding` with the model id
+  `"embedding.specter_v1"` (see
+  [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md));
+  [`sm_enrich_specter()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_specter.md)
+  fetches SPECTER v2 vectors.
 
 - verbose:
 

@@ -12,7 +12,8 @@ sm_researcher_profile(
   enrich = c("oa_status"),
   embed = FALSE,
   trajectory = TRUE,
-  mailto = Sys.getenv("SCIMAPR_MAILTO")
+  mailto = Sys.getenv("SCIMAPR_MAILTO"),
+  n_max = 200L
 )
 ```
 
@@ -40,7 +41,15 @@ sm_researcher_profile(
 
 - mailto:
 
-  Email for API polite pool.
+  Contact address sent to OpenAlex (see
+  [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_openalex.md)).
+
+- n_max:
+
+  Maximum number of works to fetch (default `200`, as in
+  [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_openalex.md)).
+  A researcher with more works gets a profile of the first `n_max` only,
+  so raise it for long careers.
 
 ## Value
 

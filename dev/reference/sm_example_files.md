@@ -39,9 +39,15 @@ journals, titles and DOIs (`10.9999/...`). The script
   corresponding author per work, sources, Web of Science style cited
   references and keyword and category concepts. Extra `works` columns
   are `quartile` (`NA` for every 2026 work), `fwci`, `field` (the first
-  Web of Science category), `volume` and `first_page`; `work_id` holds
-  the Web of Science accession number. `metadata$last_refresh` is a
-  numeric time stamp in seconds since 1970-01-01 UTC.
+  Web of Science category), `volume`, `first_page` and
+  `citations_as_of`; `work_id` holds the Web of Science accession
+  number. `citations_by_year` holds yearly citation counts shaped like
+  OpenAlex's, dated 2026-10-17 (`citations_as_of`) for the works with a
+  DOI: the years 2017 to 2026, without the years that have no citations
+  (see
+  [`sm_citation_window()`](https://cttir.github.io/scimapR/dev/reference/sm_citation_window.md)).
+  `metadata$last_refresh` is a numeric time stamp in seconds since
+  1970-01-01 UTC.
 
 - `example_realuse_reference.csv`:
 

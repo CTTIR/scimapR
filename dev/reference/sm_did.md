@@ -22,6 +22,7 @@ sm_did(
   institution_aware = FALSE,
   lead_role = c("corresponding", "first", "last", "first_or_last", "any_lead"),
   shared = c("keep", "exclude", "lead"),
+  min_cell = NULL,
   call = rlang::caller_env()
 )
 
@@ -96,6 +97,14 @@ autoplot(object, ...)
   its author in the role `lead_role` (a work led from both groups or
   from neither leaves both series).
 
+- min_cell:
+
+  For `outcome = "cnci"`: `NULL` (default) or a positive integer, passed
+  to
+  [`sm_metric_fnci()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_fnci.md)
+  when the impact is derived from citation counts, as in
+  [`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md).
+
 - call:
 
   Caller environment for error reporting.
@@ -125,7 +134,10 @@ citation-immature years excluded for `"cnci"`), `shared_works` (tibble:
 `leadership` (the leadership definition, as in
 [`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md),
 with `institutions` the labels of each group when `institution_aware`;
-`NULL` for the other outcomes), and metadata (`outcome`,
+`NULL` for the other outcomes), `impact_source` (where the impact values
+of `"cnci"` come from, as in
+[`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md);
+`NA` for the other outcomes), and metadata (`outcome`,
 `intervention_year`, `family`, `lag`).
 
 `print` returns `x` invisibly.

@@ -3,13 +3,27 @@
 return the results as an sm_corpus.
 Supports both free-text search (query) and structured filter syntax
 (filter). Uses cursor-based pagination to retrieve up to n_max works.
-An API key (polite pool) and a mailto address are strongly recommended
-for higher rate limits."><meta property="og:description" content="Query the OpenAlex API for scholarly works and
+Set an OpenAlex API key (see &quot;API key and rate limits&quot;).
+Besides cited_by_count, the works keep OpenAlex's field-weighted
+citation impact (fwci), its citation percentile (citation_percentile,
+0 to 1, with the flags is_top_10pct and is_top_1pct) and the date of
+these values (citations_as_of), and the corpus gets the yearly citation
+counts as citations_by_year (see sm_corpus() and
+sm_citation_window()). The openalexR engine has no percentile, so its
+three percentile columns are NA. To add these fields to a corpus from
+another source, use sm_enrich_openalex_impact()."><meta property="og:description" content="Query the OpenAlex API for scholarly works and
 return the results as an sm_corpus.
 Supports both free-text search (query) and structured filter syntax
 (filter). Uses cursor-based pagination to retrieve up to n_max works.
-An API key (polite pool) and a mailto address are strongly recommended
-for higher rate limits."><meta property="og:image" content="https://cttir.github.io/scimapR/logo.svg"><meta name="robots" content="noindex"><meta name="theme-color" content="#1565c0"></head><body>
+Set an OpenAlex API key (see &quot;API key and rate limits&quot;).
+Besides cited_by_count, the works keep OpenAlex's field-weighted
+citation impact (fwci), its citation percentile (citation_percentile,
+0 to 1, with the flags is_top_10pct and is_top_1pct) and the date of
+these values (citations_as_of), and the corpus gets the yearly citation
+counts as citations_by_year (see sm_corpus() and
+sm_citation_window()). The openalexR engine has no percentile, so its
+three percentile columns are NA. To add these fields to a corpus from
+another source, use sm_enrich_openalex_impact()."><meta property="og:image" content="https://cttir.github.io/scimapR/logo.svg"><meta name="robots" content="noindex"><meta name="theme-color" content="#1565c0"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -54,8 +68,15 @@ for higher rate limits."><meta property="og:image" content="https://cttir.github
 return the results as an <code>sm_corpus</code>.</p>
 <p>Supports both free-text search (<code>query</code>) and structured filter syntax
 (<code>filter</code>). Uses cursor-based pagination to retrieve up to <code>n_max</code> works.
-An API key (polite pool) and a <code>mailto</code> address are strongly recommended
-for higher rate limits.</p>
+Set an OpenAlex API key (see "API key and rate limits").</p>
+<p>Besides <code>cited_by_count</code>, the works keep OpenAlex's field-weighted
+citation impact (<code>fwci</code>), its citation percentile (<code>citation_percentile</code>,
+0 to 1, with the flags <code>is_top_10pct</code> and <code>is_top_1pct</code>) and the date of
+these values (<code>citations_as_of</code>), and the corpus gets the yearly citation
+counts as <code>citations_by_year</code> (see <code><a href="sm_corpus.html">sm_corpus()</a></code> and
+<code><a href="sm_citation_window.html">sm_citation_window()</a></code>). The openalexR engine has no percentile, so its
+three percentile columns are <code>NA</code>. To add these fields to a corpus from
+another source, use <code><a href="sm_enrich_openalex_impact.html">sm_enrich_openalex_impact()</a></code>.</p>
     </div>
 
     <div class="section level2">
@@ -97,18 +118,21 @@ If <code>NULL</code>, <code>filter</code> must be supplied.</p></dd>
 
 
 <dt id="arg-mailto">mailto<a class="anchor" aria-label="anchor" href="#arg-mailto"></a></dt>
-<dd><p>Email address for the polite pool. Read from
-<code>SCIMAPR_MAILTO</code> env var by default.</p></dd>
+<dd><p>Contact address sent with each request as the <code>mailto</code>
+parameter. Read from the <code>SCIMAPR_MAILTO</code> environment variable by
+default. OpenAlex no longer gives such requests a larger budget (the
+API key does), and the openalexR engine does not send it.</p></dd>
 
 
 <dt id="arg-api-key">api_key<a class="anchor" aria-label="anchor" href="#arg-api-key"></a></dt>
-<dd><p>OpenAlex API key. Read from <code>OPENALEX_API_KEY</code> env var.</p></dd>
+<dd><p>OpenAlex API key. Read from the <code>OPENALEX_API_KEY</code>
+environment variable by default; see "API key and rate limits".</p></dd>
 
 
 <dt id="arg-engine">engine<a class="anchor" aria-label="anchor" href="#arg-engine"></a></dt>
 <dd><p>One of <code>"native"</code> (built-in httr2 client), <code>"openalexR"</code>
-(use the openalexR package), or <code>"auto"</code> (use openalexR if available,
-otherwise native).</p></dd>
+(use the openalexR package), or <code>"auto"</code> (use openalexR if version
+3.1.1 or later is installed, otherwise native).</p></dd>
 
 
 <dt id="arg-batch-size">batch_size<a class="anchor" aria-label="anchor" href="#arg-batch-size"></a></dt>
@@ -130,11 +154,38 @@ are chunked, fetched per batch, and row-bound with de-duplication. Default
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>An <code>sm_corpus</code> object.</p>
+    <p>An <code>sm_corpus</code> object. Its provenance records the search
+(<code>query</code>, <code>filter</code>, <code>n_max</code> and <code>engine</code>), so that
+<code><a href="sm_certificate.html">sm_rebuild_from_cert()</a></code> can run it again.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="api-key-and-rate-limits">API key and rate limits<a class="anchor" aria-label="anchor" href="#api-key-and-rate-limits"></a></h2>
+
+
+<p>OpenAlex expects a free API key. Requests without one share one small
+daily budget with everyone on the same network address; once it is used
+up, OpenAlex answers HTTP 429 (too many requests) until the budget
+resets at midnight UTC. Set the key in the
+<code>OPENALEX_API_KEY</code> environment variable (for example in <code>~/.Renviron</code>)
+or pass it as <code>api_key</code>. It is sent in the <code>Authorization</code> header,
+never in the URL, and it is stored nowhere in the corpus.</p>
+<p>On HTTP 429 the function stops at once with an error of class
+<code>scimapR_openalex_rate_limit</code> instead of waiting: the message gives the
+reset time and the remaining budget that OpenAlex reports (the fields
+<code>reset_at</code> and <code>remaining</code> of the condition) and says whether a key was
+sent. Only a wait of up to two seconds (OpenAlex also limits requests per
+second) is waited out, once. Other failed requests stop with class
+<code>scimapR_openalex_failed</code>; both classes inherit from
+<code>scimapR_openalex_error</code>. With <code>engine = "openalexR"</code> the
+<span class="pkg">openalexR</span> package (version 3.1.1 or later) sends the requests: it
+gets the key too and its own retries are switched off, but it does not
+pass on the response headers, so the reset time and the budget are not
+known.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>Other fetchers:
+    <div class="dont-index"><p><code><a href="sm_enrich_openalex_impact.html">sm_enrich_openalex_impact()</a></code>, <code><a href="sm_citation_window.html">sm_citation_window()</a></code></p>
+<p>Other fetchers:
 <code><a href="sm_fetch_arxiv.html">sm_fetch_arxiv()</a></code>,
 <code><a href="sm_fetch_biorxiv.html">sm_fetch_biorxiv()</a></code>,
 <code><a href="sm_fetch_crossref.html">sm_fetch_crossref()</a></code>,

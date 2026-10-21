@@ -91,7 +91,10 @@ supplied.</p></dd>
 
 <dt id="arg-include-embeddings">include_embeddings<a class="anchor" aria-label="anchor" href="#arg-include-embeddings"></a></dt>
 <dd><p>Logical; if <code>TRUE</code>, request SPECTER embeddings
-for each paper and attach as an embedding matrix.</p></dd>
+for each paper and attach as an embedding matrix. These are the API's
+default SPECTER v1 vectors, recorded in <code>metadata$embedding</code> with the
+model id <code>"embedding.specter_v1"</code> (see <code><a href="sm_corpus.html">sm_corpus()</a></code>);
+<code><a href="sm_enrich_specter.html">sm_enrich_specter()</a></code> fetches SPECTER v2 vectors.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>

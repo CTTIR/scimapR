@@ -51,7 +51,19 @@ is the stable contract.
 
   A one-row tibble: `metric`, `n`, `mean`, `median`, and (when
   `robust = TRUE`) `median_ci_low`, `median_ci_high`, `pp_top10`,
-  `n_boot`.
+  `n_boot`. It carries the attribute `impact_source` (character): where
+  the summarised values come from, such as `"works$fwci (OpenAlex)"` for
+  `metric = "cnci"` on a corpus with OpenAlex impact fields, and `NA` on
+  the `n = 0` row (added after scimapR 0.4.0, without changing the
+  columns).
+
+- [`sm_citation_window()`](https://cttir.github.io/scimapR/dev/reference/sm_citation_window.md):
+
+  A tibble with one row per work, in the order of `corpus$works`:
+  `work_id` (character), `year` and `window` (integer), `citations`
+  (integer, `NA` for a work without yearly counts or publication year)
+  and `complete` (logical); a 0-row tibble with these columns for a
+  corpus without works (added after scimapR 0.4.0).
 
 - [`sm_self_citation()`](https://cttir.github.io/scimapR/dev/reference/sm_self_citation.md)
   (`by_entity` / `by_work` / `provenance`):

@@ -46,6 +46,7 @@ Other reproducibility:
 [`sm_diff_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_diff_corpora.md),
 [`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md),
 [`sm_provenance()`](https://cttir.github.io/scimapR/dev/reference/sm_provenance.md),
+[`sm_register_input()`](https://cttir.github.io/scimapR/dev/reference/sm_register_input.md),
 [`sm_snapshot()`](https://cttir.github.io/scimapR/dev/reference/sm_snapshot.md)
 
 ## Examples
@@ -53,6 +54,6 @@ Other reproducibility:
 ``` r
 corpus <- sm_example_corpus()
 sm_cite_corpus(corpus)
-#> Corpus assembled using scimapR v0.4.0.9000 on 2026-10-19. Contains 200 works by
-#> 80 authors (2015-2024). Data sources: synthetic. Corpus hash: ea446b5f4465.
+#> Corpus assembled using scimapR v0.4.0.9000 on 2026-10-21. Contains 200 works by
+#> 80 authors (2015-2024). Data sources: synthetic. Corpus hash: 017544b82f93.
 ```

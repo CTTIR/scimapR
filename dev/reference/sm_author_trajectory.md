@@ -50,8 +50,10 @@ format(x, ...)
 
 - orcid:
 
-  Character. ORCID of the author to analyse. Either `orcid` or
-  `author_id` must be supplied.
+  Character. ORCID of the author to analyse, with or without the
+  `https://orcid.org/` prefix (both the argument and the corpus ORCIDs
+  are compared without it). Either `orcid` or `author_id` must be
+  supplied.
 
 - author_id:
 

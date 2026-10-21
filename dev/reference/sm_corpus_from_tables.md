@@ -23,6 +23,7 @@ sm_corpus_from_tables(
   schema = NULL,
   .coerce = TRUE,
   metadata = list(),
+  inputs = NULL,
   call = rlang::caller_env()
 )
 ```
@@ -33,8 +34,12 @@ sm_corpus_from_tables(
 
   A named list of data frames. Recognised names are `works`, `authors`,
   `authorships`, `institutions`, `sources`, `references`, `concepts`,
-  `provenance`, `screening`. `works` is required (and must have, or be
-  coercible to, a `work_id` column; if absent, work ids are generated).
+  `provenance`, `screening` and `citations_by_year` (yearly citation
+  counts: `work_id`, `year`, `cited_by_count`; see
+  [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md)).
+  `works` is required (and must have, or be coercible to, a `work_id`
+  column; if absent, work ids are generated). A corpus built without a
+  `citations_by_year` table has no such element.
 
 - schema:
 
@@ -50,6 +55,19 @@ sm_corpus_from_tables(
 - metadata:
 
   Optional list of corpus-level metadata.
+
+- inputs:
+
+  `NULL` (default) or the local files the tables come from, such as a
+  database snapshot or a publication tracker, registered with
+  [`sm_register_input()`](https://cttir.github.io/scimapR/dev/reference/sm_register_input.md)
+  after the corpus is built: a character vector of paths, whose names
+  (where given) become the `role` of each file, or a data frame with a
+  `path` column and optional `role` and `builder` columns. Files already
+  listed in `metadata$local_inputs` are kept, and a file registered
+  again replaces its row.
+  [`sm_certificate()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+  records them with their SHA-256 hashes.
 
 - call:
 
@@ -111,4 +129,20 @@ corpus
 #> Sources (journals): 0
 #> Embeddings: none
 #> Status: Unlocked (last refreshed: never)
+
+# record the file the tables were read from
+snapshot <- tempfile(fileext = ".csv")
+utils::write.csv(works, snapshot, row.names = FALSE)
+corpus <- sm_corpus_from_tables(
+  list(works = utils::read.csv(snapshot)),
+  inputs = c("source table" = snapshot)
+)
+#> ℹ works: filled missing column abstract, type, source_id, cited_by_count,
+#>   oa_status, language, pmid, arxiv_id, openalex_id, is_retracted,
+#>   retraction_date, and last_refreshed with typed `NA`.
+corpus$metadata$local_inputs[, c("basename", "role", "sha256")]
+#> # A tibble: 1 × 3
+#>   basename            role         sha256                                       
+#>   <chr>               <chr>        <chr>                                        
+#> 1 file23d4eca763e.csv source table 9bb0667922c6df1d6b32720e3a67d05d4e6e79d9977b…
 ```

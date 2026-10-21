@@ -16,6 +16,7 @@ sm_its(
   lag = NULL,
   institutions = NULL,
   lead_role = c("corresponding", "first", "last", "first_or_last", "any_lead"),
+  min_cell = NULL,
   call = rlang::caller_env()
 )
 
@@ -58,13 +59,20 @@ autoplot(object, ...)
   `"cnci"`
 
   :   Mean field-normalised citation impact per year. Impact is resolved
-      from the first populated of `works$cnci`, a `corpus$metrics` table
+      from the first populated of `works$cnci`, `works$fwci` (OpenAlex;
+      see
+      [`sm_enrich_openalex_impact()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_openalex_impact.md)),
+      the other impact columns `fnci`, `rcr`, `cnci_value`, `ncs`,
+      `mncs` and `field_citation_ratio`, a `corpus$metrics` table
       (`cnci`/`fnci`/`value` keyed by `work_id`), or
       `works$cited_by_count` (from which FNCI is derived via
-      [`sm_metric_fnci()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_fnci.md)).
-      If none is populated, an informative error names the columns
-      inspected. Works without a finite impact value are left out of the
-      yearly mean.
+      [`sm_metric_fnci()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_fnci.md),
+      with `min_cell`). If none is populated, an informative error
+      (class `scimapR_no_impact_data`) names the columns inspected.
+      [`sm_metric_summary()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_summary.md)
+      (`metric = "cnci"`) resolves impact in the same order, and the
+      result names the source used (`impact_source`). Works without a
+      finite impact value are left out of the yearly mean.
 
   `"leadership"`
 
@@ -106,6 +114,15 @@ autoplot(object, ...)
   either, and `"any_lead"` the first, last or corresponding author.
   Roles other than `"corresponding"` need `institutions`.
 
+- min_cell:
+
+  For `outcome = "cnci"`: `NULL` (default) or a positive integer, passed
+  to
+  [`sm_metric_fnci()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_fnci.md)
+  when the impact is derived from `works$cited_by_count`, so that works
+  in field-year cells with fewer works fall back to larger baselines.
+  Not used when the corpus carries stored impact values.
+
 - call:
 
   Caller environment for error reporting.
@@ -137,7 +154,11 @@ definition used for `outcome = "leadership"`, a list of `lead_role`,
 `NULL`) and `label_column` (the column that labels the institutions of
 the corpus, `institution_match`, `institution_name` or `institution_id`,
 the first with a value; `NA` without `institutions`), and is `NULL` for
-the other outcomes.
+the other outcomes. `impact_source` (character) names where the impact
+values of `outcome = "cnci"` come from, such as
+`"works$fwci (OpenAlex)"` or
+`"works$cited_by_count (field-normalised)"`; `NA` for the other
+outcomes.
 
 `print` returns `x` invisibly.
 

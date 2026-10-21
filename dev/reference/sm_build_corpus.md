@@ -6,7 +6,7 @@ deduplicated `sm_corpus`.
 ## Usage
 
 ``` r
-sm_build_corpus(..., dedupe = TRUE, verbose = TRUE)
+sm_build_corpus(..., dedupe = TRUE, mix_models = FALSE, verbose = TRUE)
 ```
 
 ## Arguments
@@ -19,6 +19,13 @@ sm_build_corpus(..., dedupe = TRUE, verbose = TRUE)
 
   Logical; deduplicate by DOI after combining?
 
+- mix_models:
+
+  Logical; bind embeddings that come from different models (or of which
+  only one input records its model)? Passed to
+  [`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md).
+  Defaults to `FALSE`.
+
 - verbose:
 
   Logical; show progress messages?
@@ -26,6 +33,15 @@ sm_build_corpus(..., dedupe = TRUE, verbose = TRUE)
 ## Value
 
 An `sm_corpus` object.
+
+## Details
+
+The inputs are bound in turn with
+[`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md),
+so its rules for embeddings apply: embeddings that record different
+models in `metadata$embedding`, or of which only one input records its
+model, stop the function (class `scimapR_embedding_model_mismatch`)
+unless `mix_models = TRUE`.
 
 ## See also
 

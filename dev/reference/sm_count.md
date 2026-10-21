@@ -116,6 +116,7 @@ vocabulary, put its names first:
 
 Other counting:
 [`sm_citation_maturity()`](https://cttir.github.io/scimapR/dev/reference/sm_citation_maturity.md),
+[`sm_citation_window()`](https://cttir.github.io/scimapR/dev/reference/sm_citation_window.md),
 [`sm_metric_summary()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_summary.md)
 
 ## Examples

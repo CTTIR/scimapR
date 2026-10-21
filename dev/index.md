@@ -25,8 +25,11 @@ visualisations.
   ([`sm_question()`](https://cttir.github.io/scimapR/dev/reference/sm_question.md),
   [`sm_screen_against_question()`](https://cttir.github.io/scimapR/dev/reference/sm_screen_against_question.md)).
 - **Reproducible-by-construction corpus certificates.** A YAML document
-  that another researcher can use to re-derive your exact corpus
+  that records how your corpus was built, its local input files included
+  (with SHA-256 hashes), so that another researcher can verify it and
+  run its searches again
   ([`sm_certificate()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md),
+  [`sm_verify_certificate()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md),
   [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)).
 - **Author trajectory analysis.** Track topic pivots, collaborator
   turnover, and productivity curves across a career
