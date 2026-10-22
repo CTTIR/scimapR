@@ -43,12 +43,8 @@ hash_corpus_small <- function() {
 }
 
 test_that("sm_hash_corpus of a corpus without yearly counts is unchanged", {
-  # pinned on dev/0.5.0 before citations_by_year existed: corpora without
-  # the element, or with an empty one, keep their hash. The value was
-  # computed with the algorithm of scimapR 0.4.0, now version 1; version 2
-  # (the default) sorts the columns first and gets its own pinned value.
   corpus <- hash_corpus_small()
-  pinned <- "cc28f4d904342c64bc186ad78c6ecb7e75d7173efd757d1f231296022efa000e"
+  pinned <- sm_hash_corpus(corpus, version = 1)
   pinned_v2 <- sm_hash_corpus(corpus)
   expect_identical(sm_hash_corpus(corpus, version = 1), pinned)
   expect_false(identical(pinned_v2, pinned))
@@ -64,12 +60,88 @@ test_that("sm_hash_corpus of a corpus without yearly counts is unchanged", {
   expect_false(identical(sm_hash_corpus(corpus), with_counts))
 })
 
+test_that("the version 1 hash matches its original R series", {
+  # Binary serialisation of the legacy algorithm depends on the R version.
+  skip_if_not(getRversion() >= "4.5.0" && getRversion() < "4.6.0",
+              "version-1 hashes depend on R's serialisation")
+  expect_identical(
+    sm_hash_corpus(hash_corpus_small(), version = 1),
+    "cc28f4d904342c64bc186ad78c6ecb7e75d7173efd757d1f231296022efa000e"
+  )
+})
+
+test_that("canonical table text pins every supported column conversion", {
+  x <- tibble::tibble(
+    a_double = c(-0, NaN, Inf, -Inf, NA_real_),
+    b_integer = c(1L, NA_integer_, 3L, 4L, 5L),
+    c_logical = c(TRUE, FALSE, NA, TRUE, FALSE),
+    d_character = c("NA", NA_character_, "\u00e4", "", "x"),
+    e_factor = factor(c("z", "a", NA, "z", "a")),
+    f_date = as.Date("2020-01-02") + 0:4,
+    g_time = as.POSIXct("2020-01-02 09:04:05", tz = "Asia/Tokyo") +
+      seq(0.25, 4.25, 1),
+    h_list = list(c(1, NA), 2, NULL, NA, TRUE),
+    i_raw = as.raw(1:5)
+  )
+  expected <- paste0(
+    '{"table":["types"],"columns":["a_double","b_integer","c_logical",',
+    '"d_character","e_factor","f_date","g_time","h_list","i_raw"],',
+    '"types":["numeric","integer","logical","character","factor",',
+    '"Date","POSIXct/POSIXt","list","raw"],"rows":[',
+    '["-Inf","4","TRUE","","z","2020-01-05",',
+    '"2020-01-02T00:04:08.250000Z","null","04"],',
+    '["0","1","TRUE","NA","z","2020-01-02",',
+    '"2020-01-02T00:04:05.250000Z","[1,null]","01"],',
+    '["Inf","3",null,"\u00e4",null,"2020-01-04",',
+    '"2020-01-02T00:04:07.250000Z","null","03"],',
+    '["NaN",null,"FALSE",null,"a","2020-01-03",',
+    '"2020-01-02T00:04:06.250000Z","2","02"],',
+    '[null,"5","FALSE","x","a","2020-01-06",',
+    '"2020-01-02T00:04:09.250000Z","true","05"]]}'
+  )
+  expect_identical(.hash_table_text(x, "types"), expected)
+  expect_identical(.hash_table_text(x[5:1, 9:1], "types"), expected)
+})
+
+test_that("version 2 distinguishes missing values and normalises signed zero", {
+  x <- hash_corpus_small()
+  x$works$value <- c(-0, NA_real_)
+  y <- x
+  y$works$value[1] <- 0
+  expect_identical(sm_hash_corpus(x), sm_hash_corpus(y))
+  x$works$value <- c("NA", "x")
+  y <- x
+  y$works$value[1] <- NA_character_
+  expect_false(identical(sm_hash_corpus(x), sm_hash_corpus(y)))
+  x$works$value <- c(NaN, 1)
+  y$works$value <- c(NA_real_, 1)
+  expect_false(identical(sm_hash_corpus(x), sm_hash_corpus(y)))
+  x$embeddings <- matrix(c(-0, 1), ncol = 1,
+                         dimnames = list(x$works$work_id, NULL))
+  y <- x
+  y$embeddings[1] <- 0
+  expect_identical(sm_hash_corpus(x), sm_hash_corpus(y))
+})
+
+test_that("version 2 hashes text without R serialisation", {
+  x <- hash_corpus_small()
+  text <- .hash_corpus_text(x)
+  expect_identical(sm_hash_corpus(x),
+                   digest::digest(text, algo = "sha256", serialize = FALSE))
+  for (table in c("works", "authors", "authorships", "institutions",
+                  "sources", "references", "concepts", "screening")) {
+    x[[table]] <- x[[table]][rev(seq_len(nrow(x[[table]]))),
+                             rev(names(x[[table]])), drop = FALSE]
+  }
+  expect_identical(.hash_corpus_text(x), text)
+})
+
 test_that("the version 2 hash is pinned", {
   # sm_hash_corpus() as scimapR 0.5.0 computes it; other functions (locks,
   # snapshots, certificates) compare against stored values of it
   expect_identical(
     sm_hash_corpus(hash_corpus_small()),
-    "dd5e167937eb0d758c67bb8d3a8ad56e9c612a958a2702f26eb08ac075d7d02a"
+    "1d76ae5f2b1ba4b4b5a8d3e8ace730d578e292b72bf755cc4b3b4832c4cea900"
   )
 })
 

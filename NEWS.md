@@ -528,14 +528,16 @@
   certificates of earlier versions, fetches up to the number of works of
   the certified corpus. The rebuilt corpus holds the works of the searches
   and their provenance only.
-- `sm_hash_corpus()` no longer depends on the order of the columns of a
-  table or of the rows of the embeddings (hash version 2; new argument
-  `version`), so hashes of new certificates and snapshots differ from
-  earlier ones for the same content. Certificates and snapshots record
-  `hash_version`, and those written without it are checked with the earlier
-  algorithm (`version = 1`), so they stay verifiable. The documentation now
-  says that the hash leaves out the provenance table, which records fetch
-  dates, and the metadata, the local inputs included.
+- `sm_hash_corpus()` uses canonical text for hash version 2 (new argument
+  `version`), so its values no longer depend on the R version, platform,
+  time zone, collation locale, table column order or embedding row order.
+  Hashes of new certificates and snapshots differ from earlier ones for
+  the same content. Certificates and snapshots record `hash_version`;
+  those written without it use the unchanged earlier algorithm
+  (`version = 1`), whose binary serialisation depends on the R version.
+  Older certificates and snapshots remain verifiable on the R version
+  that wrote them. The hash leaves out provenance, which records fetch
+  dates, and metadata, including local inputs.
 - `sm_cluster_label()` ignores noise, scores terms by the share of a
   cluster's works that use them (so one paper cannot name a cluster),
   supports bigrams and non-English stop words, and gains

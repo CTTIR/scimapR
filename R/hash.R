@@ -20,15 +20,23 @@
 #'
 #' @details
 #' `version` selects the algorithm. Version 2, the default from scimapR
-#' 0.5.0 on, sorts the columns of every table by name and the rows of the
-#' embeddings by work id before hashing, so the order in which the steps
-#' that built a corpus added their columns no longer changes the hash.
+#' 0.5.0 on, hashes canonical UTF-8 text, independently of R's binary
+#' serialisation. Table columns are sorted by name and rows by their text
+#' values, using radix ordering. Missing values are distinct from the
+#' string `"NA"`. Numbers use 15 significant digits, signed zero becomes
+#' zero, dates use ISO dates and timestamps use UTC with six decimal places
+#' for seconds. List cells use JSON. Column classes are included in the
+#' text. Embeddings are sorted by work id and rounded to eight decimal
+#' places. These rules make version 2 independent of the R version,
+#' platform, time zone and collation locale.
 #' Hashes of version 2 therefore differ from the hashes that earlier
 #' versions of scimapR computed for the same content. Version 1 is the
 #' algorithm of these earlier versions. Certificates ([sm_certificate()])
 #' and snapshots ([sm_snapshot()]) record the version they used as
 #' `hash_version`; those written before it existed are checked with
-#' version 1, so they stay verifiable.
+#' version 1. Version 1 uses R's binary serialisation and depends on the
+#' R version: older certificates and snapshots remain verifiable on the
+#' R version that wrote them.
 #'
 #' @param corpus An `sm_corpus` object.
 #' @param version The hash algorithm: `2` (default) or `1` (scimapR 0.4.0
@@ -49,6 +57,10 @@
 sm_hash_corpus <- function(corpus, version = 2L) {
   .check_sm_corpus(corpus)
   version <- .check_hash_version(version)
+  if (version == 2L) {
+    return(digest::digest(.hash_corpus_text(corpus), algo = "sha256",
+                          serialize = FALSE))
+  }
   sorted <- version >= 2L
   canon <- function(tbl) .canonicalize_tibble(tbl, sort_columns = sorted)
 
@@ -123,4 +135,85 @@ sm_hash_corpus <- function(corpus, version = 2L) {
     emb <- emb[order(rownames(emb), method = "radix"), , drop = FALSE]
   }
   round(emb, digits = 8)
+}
+
+# Canonical text for the portable hash; the legacy helpers above stay intact.
+.hash_column_text <- function(x) {
+  if (inherits(x, "Date")) {
+    return(format(x, "%Y-%m-%d"))
+  }
+  if (inherits(x, "POSIXct")) {
+    return(format(x, "%Y-%m-%dT%H:%M:%OS6Z", tz = "UTC", usetz = FALSE))
+  }
+  if (is.factor(x) || is.character(x)) return(enc2utf8(as.character(x)))
+  if (is.logical(x) || is.integer(x)) return(as.character(x))
+  if (is.double(x)) {
+    x[which(x == 0)] <- 0
+    out <- sprintf("%.15g", x)
+    out[is.nan(x)] <- "NaN"
+    out[which(x == Inf)] <- "Inf"
+    out[which(x == -Inf)] <- "-Inf"
+    out[is.na(x) & !is.nan(x)] <- NA_character_
+    return(out)
+  }
+  if (is.list(x)) {
+    return(vapply(x, function(cell) {
+      as.character(jsonlite::toJSON(cell, auto_unbox = TRUE, digits = NA,
+                                    null = "null", na = "null"))
+    }, character(1)))
+  }
+  enc2utf8(format(x))
+}
+
+.hash_table_text <- function(tbl, name) {
+  tbl <- tbl[, order(names(tbl), method = "radix"), drop = FALSE]
+  columns <- lapply(tbl, .hash_column_text)
+  rows <- seq_len(nrow(tbl))
+  if (length(columns) > 0L && length(rows) > 0L) {
+    rows <- do.call(order, c(unname(columns),
+                             list(method = "radix", na.last = TRUE)))
+  }
+  content <- list(
+    table = name,
+    columns = enc2utf8(names(tbl)),
+    types = unname(vapply(tbl, function(x) paste(class(x), collapse = "/"),
+                          character(1))),
+    rows = lapply(rows, function(i) {
+      unname(vapply(columns, function(x) x[i], character(1)))
+    })
+  )
+  as.character(jsonlite::toJSON(content, auto_unbox = FALSE, digits = NA,
+                                null = "null", na = "null"))
+}
+
+.hash_embeddings_text <- function(emb) {
+  if (is.null(emb)) return('{"embeddings":null}')
+  emb <- .canonicalize_embeddings(emb, sort_rows = TRUE)
+  values <- matrix(sprintf("%.8f", emb), nrow = nrow(emb), ncol = ncol(emb))
+  values[values == "-0.00000000"] <- "0.00000000"
+  values[is.na(emb) & !is.nan(emb)] <- NA_character_
+  content <- list(
+    embeddings = list(
+      dimensions = dim(emb),
+      rownames = if (is.null(rownames(emb))) NULL else enc2utf8(rownames(emb)),
+      colnames = if (is.null(colnames(emb))) NULL else enc2utf8(colnames(emb)),
+      rows = lapply(seq_len(nrow(emb)), function(i) unname(values[i, ]))
+    )
+  )
+  as.character(jsonlite::toJSON(content, auto_unbox = FALSE, digits = NA,
+                                null = "null", na = "null"))
+}
+
+.hash_corpus_text <- function(corpus) {
+  tables <- unclass(corpus)[c("works", "authors", "authorships", "institutions",
+                              "sources", "references", "concepts", "screening")]
+  tables$works <- dplyr::select(corpus$works, -dplyr::any_of("last_refreshed"))
+  tables$screening <- dplyr::select(corpus$screening,
+                                    -dplyr::any_of("decided_at"))
+  yearly <- corpus$citations_by_year
+  if (!is.null(yearly) && nrow(yearly) > 0L) tables$citations_by_year <- yearly
+  text <- vapply(names(tables), function(name) {
+    .hash_table_text(tables[[name]], name)
+  }, character(1))
+  paste(c(text, .hash_embeddings_text(corpus$embeddings)), collapse = "\n")
 }
