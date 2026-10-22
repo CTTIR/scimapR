@@ -174,6 +174,7 @@ sm_read_openalex_json <- function(path,
 
   # --- references -----------------------------------------------------------
   references <- .openalex_build_references(works_list, work_ids)
+  references <- .link_references(references, works)
 
   # --- provenance -----------------------------------------------------------
   provenance <- tibble::tibble(

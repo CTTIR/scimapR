@@ -43,6 +43,7 @@ reference:
       - sm_build_corpus
       - sm_bind_corpora
       - sm_dedupe
+      - sm_link_references
   - title: "Research questions and screening"
     contents:
       - sm_question

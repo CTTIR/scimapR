@@ -209,6 +209,7 @@ sm_read_wos <- function(path,
 
   # --- references -----------------------------------------------------------
   references <- .wos_build_references(parsed, work_ids)
+  references <- .link_references(references, works)
 
   # --- concepts (keywords and categories) ------------------------------------
   concepts <- .wos_build_concepts(parsed, work_ids)

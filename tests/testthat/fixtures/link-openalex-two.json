@@ -1,0 +1,20 @@
+[
+  {
+    "id": "https://openalex.org/W9990000101",
+    "doi": "https://doi.org/10.9999/oa.link.1",
+    "title": "First invented reference study",
+    "publication_year": 2020,
+    "cited_by_count": 1,
+    "authorships": [],
+    "referenced_works": ["https://openalex.org/W9990000999"]
+  },
+  {
+    "id": "https://openalex.org/W9990000102",
+    "doi": "https://doi.org/10.9999/oa.link.2",
+    "title": "Second invented reference study",
+    "publication_year": 2022,
+    "cited_by_count": 0,
+    "authorships": [],
+    "referenced_works": ["https://openalex.org/W9990000101", "W9990000999"]
+  }
+]

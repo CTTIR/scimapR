@@ -50,7 +50,9 @@ test_that("no linked references returns empty graph", {
   corpus <- sm_example_corpus(n_works = 30, n_authors = 10,
                               with_embeddings = FALSE, seed = 4)
   corpus$references$cited_work_id <- NA_character_
-  g <- sm_network_cocitation(corpus, min_weight = 1L)
+  expect_warning(g <- sm_network_cocitation(corpus, min_weight = 1L,
+                                            linked_only = TRUE),
+                 class = "scimapR_references_unlinked")
   expect_s3_class(g, "tbl_graph")
   expect_equal(nrow(tibble::as_tibble(tidygraph::activate(g, "nodes"))), 0L)
 })
@@ -60,4 +62,49 @@ test_that("impossibly high min_weight returns empty graph", {
                               with_embeddings = FALSE, seed = 5)
   g <- sm_network_cocitation(corpus, min_weight = 100000L)
   expect_equal(nrow(tibble::as_tibble(tidygraph::activate(g, "nodes"))), 0L)
+})
+
+
+test_that("co-citation includes external references with node metadata", {
+  x <- sm_read_wos(test_path("fixtures", "link-wos-two.txt"), verbose = FALSE)
+  g <- sm_network_cocitation(x, min_weight = 1L)
+  nodes <- tibble::as_tibble(tidygraph::activate(g, "nodes"))
+  expect_setequal(nodes$name, c(x$works$work_id[1], "10.9999/ext.l1"))
+  expect_identical(nodes$in_corpus, nodes$name == x$works$work_id[1])
+  expect_true(is.na(nodes$title[nodes$name == "10.9999/ext.l1"]))
+  expect_equal(reference_edges(g)$weight, 1L)
+})
+
+test_that("co-citation counts each cited pair once per citing work", {
+  works <- tibble::tibble(work_id = c("A", "B", "C"))
+  refs <- tibble::tibble(work_id = "C", cited_work_id = c("A", "B", "A", "C"))
+  x <- sm_corpus(works, references = refs)
+  expect_equal(reference_edges(sm_network_cocitation(x, min_weight = 1L)),
+               tibble::tibble(from = "A", to = "B", weight = 1L))
+  expect_equal(nrow(reference_edges(sm_network_cocitation(x))), 0L)
+})
+
+test_that("co-citation by external DOIs preserves linked weights", {
+  x <- sm_example_corpus(n_works = 30, with_embeddings = FALSE, seed = 1)
+  g <- sm_network_cocitation(x, min_weight = 1L)
+  baseline <- reference_edges(g)
+  expect_true(all(tibble::as_tibble(g)$in_corpus))
+  map <- stats::setNames(x$works$work_id, x$works$doi)
+  x$references$cited_work_id <- NA_character_
+  expect_equal(reference_edges(sm_network_cocitation(x, min_weight = 1L), map),
+               baseline)
+})
+
+test_that("co-citation keys do not merge equal labels of different kinds", {
+  refs <- tibble::tibble(work_id = "C",
+                         cited_work_id = c("10.9999/shared", NA),
+                         cited_doi = c(NA, "10.9999/shared"))
+  x <- sm_corpus(tibble::tibble(work_id = c("C", "10.9999/shared")),
+                 references = refs)
+  g <- sm_network_cocitation(x, min_weight = 1L)
+  nodes <- tibble::as_tibble(g)
+  expect_equal(nrow(nodes), 2L)
+  expect_identical(nodes$name, rep("10.9999/shared", 2))
+  expect_equal(sum(nodes$in_corpus), 1L)
+  expect_equal(nrow(reference_edges(g)), 1L)
 })

@@ -275,7 +275,9 @@ test_that("E1: institution level uses shared_institution_id provenance column", 
 test_that("E1: empty references fast-exit with a warning and typed columns", {
   corpus <- sc_corpus()
   corpus$references <- corpus$references[0, ]
-  expect_warning(sc <- sm_self_citation(corpus), "reference network")
+  expect_warning(sc <- sm_self_citation(corpus),
+                 "reference network.*sm_link_references",
+                 class = "scimapR_references_unlinked")
   expect_equal(nrow(sc$by_entity), 0L)
   expect_named(sc$provenance,
                c("citing_work_id", "cited_work_id", "shared_author_id"))

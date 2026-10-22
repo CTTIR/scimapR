@@ -259,11 +259,15 @@ bibliometrix conversion and exported by \code{\link[=sm_to_bibliometrix]{sm_to_b
    Column \tab Type \tab Content \cr
    \code{work_id} \tab character \tab The citing work \cr
    \code{ref_index} \tab integer \tab Place in the work's reference list \cr
-   \code{cited_work_id} \tab character \tab The cited work, when it is in \code{works} \cr
+   \code{cited_work_id} \tab character \tab Cited work in \code{works}; see linking below \cr
    \code{cited_doi} \tab character \tab DOI of the cited work \cr
    \code{cited_raw} \tab character \tab The reference as the source writes it \cr
 }
 
+
+Reference linking: readers, fetchers, \code{\link[=sm_bind_corpora]{sm_bind_corpora()}}, \code{\link[=sm_dedupe]{sm_dedupe()}}
+and \code{\link[=sm_link_references]{sm_link_references()}} set \code{cited_work_id} from \code{cited_doi} or an
+OpenAlex id in \code{cited_raw} when the cited work is in \code{works}.
 
 Optional: none so far.
 
@@ -454,6 +458,7 @@ Other corpus:
 \code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}},
 \code{\link[=sm_corpus_from_tables]{sm_corpus_from_tables()}},
 \code{\link[=sm_dedupe]{sm_dedupe()}},
+\code{\link[=sm_link_references]{sm_link_references()}},
 \code{\link[=sm_materialise]{sm_materialise()}},
 \code{\link[=sm_save_corpus]{sm_save_corpus()}},
 \code{\link[=sm_validate]{sm_validate()}},

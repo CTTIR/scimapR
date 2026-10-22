@@ -250,17 +250,6 @@ sm_enrich_openalex_impact <- function(corpus,
   tibble::tibble(type = type, key = key, unsafe_doi = unsafe)
 }
 
-#' OpenAlex work ids shortened to the `W` number; `NA` when not one
-#' @noRd
-.openalex_short_id <- function(x) {
-  x <- trimws(as.character(x))
-  shape <- "^(?:https?://(?:www\\.)?openalex\\.org/)?([Ww][0-9]+)$"
-  m <- regmatches(x, regexec(shape, x, perl = TRUE))
-  vapply(m, function(p) {
-    if (length(p) == 2L) toupper(p[2]) else NA_character_
-  }, character(1))
-}
-
 #' Batches of unique identifiers, one filter per batch
 #' @return A list of batches: `type`, `filter_key` (`openalex` or `doi`) and
 #'   `values`.

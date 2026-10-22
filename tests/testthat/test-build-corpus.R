@@ -428,3 +428,34 @@ test_that("sm_bind_corpora keeps the local inputs of both corpora", {
   bound <- sm_bind_corpora(with_a, changed)
   expect_identical(bound$metadata$local_inputs$path, c("a.csv", "a.csv"))
 })
+
+
+test_that("binding single-record files links across re-keyed work IDs", {
+  paths <- c(withr::local_tempfile(), withr::local_tempfile())
+  for (i in 1:2) {
+    lines <- c("FN Clarivate Analytics Web of Science", "VR 1.0", "PT J",
+               "AU Roe, M", paste("TI Invented work", i), "PY 2020",
+               paste0("DI 10.9999/bind.", i))
+    if (i == 1L) lines <- c(lines, "CR Roe M, DOI 10.9999/bind.2")
+    writeLines(c(lines, "ER", "", "EF"), paths[i])
+  }
+  a <- sm_read_wos(paths[1], verbose = FALSE)
+  b <- sm_read_wos(paths[2], verbose = FALSE)
+  expect_identical(a$works$work_id, b$works$work_id)
+  out <- sm_bind_corpora(a, b, verbose = FALSE)
+  expect_identical(out$references$cited_work_id, out$works$work_id[2])
+})
+
+test_that("deduplication redirects references and resolves ambiguous DOIs", {
+  works <- tibble::tibble(
+    work_id = c("W1", "W2", "W3"),
+    doi = c("10.9999/dup", "10.9999/dup", "10.9999/other"),
+    title = c("Complete work", NA, "Citing work")
+  )
+  refs <- tibble::tibble(work_id = "W3", ref_index = 1:2,
+                         cited_work_id = c("W2", NA),
+                         cited_doi = c(NA, "10.9999/dup"))
+  x <- sm_corpus(works, references = refs)
+  out <- sm_dedupe(x, verbose = FALSE)
+  expect_identical(out$references$cited_work_id, c("W1", "W1"))
+})

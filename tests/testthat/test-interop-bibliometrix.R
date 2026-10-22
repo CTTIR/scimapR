@@ -899,3 +899,15 @@ test_that("the round trip keeps the corresponding authors", {
   first <- rt$authorships$work_id == rt$works$work_id[1]
   expect_true(all(is.na(rt$authorships$is_corresponding[first])))
 })
+
+
+test_that("bibliometrix-shaped tables link citations between rows", {
+  x <- data.frame(DI = c("10.9999/link.a", "10.9999/link.b"),
+                  TI = c("First invented study", "Second invented study"),
+                  AU = c("BRANDT K", "BRANDT K;OKAFOR T"),
+                  PY = c(2019L, 2021L), DB = "ISI",
+                  CR = c(NA, "BRANDT K, 2019, DOI 10.9999/LINK.A"))
+  class(x) <- c("bibliometrixDB", "data.frame")
+  out <- as_sm_corpus(x)
+  expect_identical(out$references$cited_work_id, out$works$work_id[1])
+})

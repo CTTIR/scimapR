@@ -1,0 +1,36 @@
+FN Clarivate Analytics Web of Science
+VR 1.0
+PT J
+AU Brandt, K
+AF Brandt, Karin
+TI A study of invented reference links
+SO JOURNAL OF INVENTED STUDIES
+DE reference links
+C1 [Brandt, Karin] Example University, Northtown
+RP Brandt, Karin (corresponding author), Example University, Northtown
+PY 2019
+TC 1
+DI 10.9999/link.a
+CR Roe M, 2001, EXTERNAL STUDIES, DOI 10.9999/EXT.L1
+UT WOS:999000000000001
+ER
+
+PT J
+AU Brandt, K
+   Okafor, T
+AF Brandt, Karin
+   Okafor, Tola
+TI A follow-up study of invented reference links
+SO JOURNAL OF INVENTED STUDIES
+DE reference links
+C1 [Brandt, Karin; Okafor, Tola] Example University, Northtown
+RP Brandt, Karin (corresponding author), Example University, Northtown
+PY 2021
+TC 0
+DI 10.9999/link.b
+CR Brandt K, 2019, JOURNAL OF INVENTED STUDIES, DOI [10.9999/link.a, DOI 10.9999/link.a.v2]
+   Roe M, 2001, EXTERNAL STUDIES, DOI 10.9999/ext.l1
+UT WOS:999000000000002
+ER
+
+EF

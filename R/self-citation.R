@@ -30,7 +30,7 @@
 #'   (the function never spins).
 #'
 #' @family metrics
-#' @seealso [sm_metric_h_index()]
+#' @seealso [sm_metric_h_index()], [sm_link_references()]
 #' @export
 #' @examples
 #' corpus <- sm_example_corpus(n_works = 40, seed = 1)
@@ -61,11 +61,12 @@ sm_self_citation <- function(corpus,
 
   refs <- corpus$references
   if (nrow(refs) == 0L || !"cited_work_id" %in% names(refs) ||
-      all(is.na(refs$cited_work_id))) {
-    cli::cli_warn(c(
-      "!" = "No internal reference network available; self-citation needs linked references.",
-      "i" = "Returning empty self-citation result. Enrich references first (e.g. {.fn sm_enrich_opencitations})."
-    ))
+        !any(refs$cited_work_id %in% corpus$works$work_id)) {
+    .warn_references_unlinked(
+      paste("No internal reference network available; self-citation",
+            "needs linked references."),
+      "Returning empty self-citation result.", call = call
+    )
     return(empty)
   }
 

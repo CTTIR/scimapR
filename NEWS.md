@@ -1,5 +1,52 @@
 # scimapR (development version)
 
+- `sm_self_citation()`, the self-corrected h-, g- and m-indices,
+  `sm_metric_disruption()` and `sm_metric_novelty()` now work on corpora
+  built by the readers and fetchers. Before, they found no linked
+  references and returned empty or uncorrected results. Their warnings
+  now point to `sm_link_references()` instead of
+  `sm_enrich_opencitations()`, which did not link references.
+- `sm_network_coupling()` and `sm_network_cocitation()` now count shared
+  cited references outside the corpus too, by DOI, OpenAlex id or
+  reference text. This changes their default results for corpora with
+  unlinked references. Co-citation nodes gain `in_corpus`;
+  `linked_only = TRUE` keeps the earlier behaviour. Citation networks,
+  and the indicators that need linked references, warn when none are
+  linked.
+- `sm_enrich_opencitations()` uses the Index API v2 to add each work's
+  outgoing references and link those that cite corpus works by DOI or
+  OpenAlex id. Before, it stored the works citing a work as that work's
+  own references, reversing citation direction. It still sets
+  `cited_by_count` to the OpenCitations count. New reference indices
+  continue after existing ones, and repeated enrichment skips existing
+  cited identifiers, regardless of DOI case.
+- `sm_metric_disruption()` no longer counts the focal work, or works
+  published before it, among the works that cite only its references.
+  Same-year works and works with missing years remain eligible. Uncited
+  works now get `NA` instead of 0, and repeated or self-directed links
+  are ignored. Existing CD index values can change.
+- `sm_export_gephi()`, `sm_export_vosviewer()` and
+  `sm_export_cytoscape()` export the edges of the network. Before, they
+  wrote the node table in place of the edges, so the files had no usable
+  links.
+- `sm_export_gephi()` escapes labels and marks directed networks as
+  directed. `sm_export_vosviewer()` now writes a map file of the node
+  ids and labels (`map_path`) and a network file without a header, with
+  numeric ids and positive link strengths.
+- Coupling and co-citation weights count each cited item once per work,
+  and citation networks drop self-citations of a work and repeated
+  links. Before, repeated reference rows raised the weights.
+
+- References now link to the works of the corpus they cite: the Web of
+  Science, bibliometrix, OpenAlex, Crossref and Semantic Scholar readers
+  and fetchers, `sm_bind_corpora()` and `sm_dedupe()` set
+  `references$cited_work_id` from the cited DOI or OpenAlex id. New
+  `sm_link_references()` links corpora built with `sm_corpus()` or
+  `sm_corpus_from_tables()`, or saved earlier. Cited references in the
+  Web of Science form `DOI [a, b]` now get a DOI. Both change the
+  references, and so the corpus hash, of corpora read from files whose
+  works cite each other.
+
 - Functions that modify a corpus now refuse locked inputs, including
   merging, deduplication, materialisation, citation maturity, enrichers,
   embeddings, clustering, labels, affiliation matching and screening.

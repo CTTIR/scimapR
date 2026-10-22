@@ -18,6 +18,7 @@ test_that("corpus modifiers reject locked inputs before other work", {
     bind_first = function(x) sm_bind_corpora(x, plain),
     bind_second = function(x) sm_bind_corpora(plain, x),
     dedupe = function(x) sm_dedupe(x),
+    link = function(x) sm_link_references(x),
     materialise = function(x) sm_materialise(x, list()),
     maturity = function(x) sm_citation_maturity(x),
     altmetric = function(x) sm_enrich_altmetric(x),

@@ -65,7 +65,7 @@ sc <- sm_self_citation(corpus, level = "author")
 head(sc$by_entity)
 }
 \seealso{
-\code{\link[=sm_metric_h_index]{sm_metric_h_index()}}
+\code{\link[=sm_metric_h_index]{sm_metric_h_index()}}, \code{\link[=sm_link_references]{sm_link_references()}}
 
 Other metrics:
 \code{\link[=sm_metric_collab_index]{sm_metric_collab_index()}},

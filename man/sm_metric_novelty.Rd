@@ -50,6 +50,8 @@ Combinations and Scientific Impact. \emph{Science}, 342(6157), 468--472.
 \doi{10.1126/science.1240474}
 }
 \seealso{
+\code{\link[=sm_link_references]{sm_link_references()}}
+
 Other metrics:
 \code{\link[=sm_metric_collab_index]{sm_metric_collab_index()}},
 \code{\link[=sm_metric_disruption]{sm_metric_disruption()}},

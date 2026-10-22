@@ -34,6 +34,7 @@
 #' \doi{10.1126/science.1240474}
 #'
 #' @family metrics
+#' @seealso [sm_link_references()]
 #' @export
 #' @examples
 #' corpus <- sm_example_corpus()
@@ -50,20 +51,21 @@ sm_metric_novelty <- function(corpus, call = rlang::caller_env()) {
   }
   # --- empty / absent reference-network guard (fast-exit, never spin) ---
   if (nrow(refs) == 0L) {
-    cli::cli_warn(c(
-      "!" = "No reference network available; Uzzi novelty requires linked references.",
-      "i" = "Returning {.code NA} for all works."
-    ))
+    .warn_references_unlinked(
+      paste("No reference network available; Uzzi novelty requires",
+            "linked references."),
+      "Returning NA for all works.", call = call
+    )
     return(tibble::tibble(work_id = works$work_id,
                           novelty = rep(NA_real_, nrow(works))))
   }
 
-  refs <- dplyr::filter(refs, !is.na(.data$cited_work_id))
+  refs <- dplyr::filter(refs, .data$cited_work_id %in% works$work_id)
   if (nrow(refs) == 0L) {
-    cli::cli_warn(c(
-      "!" = "References are present but none are linked to corpus works.",
-      "i" = "Uzzi novelty needs internal citation links; returning {.code NA}."
-    ))
+    .warn_references_unlinked(
+      "References are present but none are linked to corpus works.",
+      "Uzzi novelty needs internal citation links; returning NA.", call = call
+    )
     return(tibble::tibble(work_id = works$work_id,
                           novelty = rep(NA_real_, nrow(works))))
   }

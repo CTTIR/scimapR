@@ -298,3 +298,11 @@ test_that("sm_read_openalex_json records a file step, not an absolute path", {
   corpus <- sm_read_openalex_json("exports/works.json", verbose = FALSE)
   expect_identical(corpus$provenance$query, "exports/works.json")
 })
+
+
+test_that("the OpenAlex file reader links local work identifiers", {
+  x <- sm_read_openalex_json(test_path("fixtures", "link-openalex-two.json"),
+                             verbose = FALSE)
+  expect_identical(x$references$cited_work_id,
+                   c(NA_character_, x$works$work_id[1], NA_character_))
+})

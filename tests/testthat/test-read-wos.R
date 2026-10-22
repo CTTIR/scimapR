@@ -465,3 +465,18 @@ test_that("sm_read_wos records a file step relative to the working directory", {
   expect_identical(unique(corpus$provenance$kind), "file")
   expect_identical(unique(corpus$provenance$query), "data/export.txt")
 })
+
+
+test_that("WoS readers link bracketed citations and the synthetic twin", {
+  path <- test_path("fixtures", "link-wos-two.txt")
+  x <- sm_read_wos(path, verbose = FALSE)
+  expect_identical(x$references$cited_work_id,
+                   c(NA_character_, x$works$work_id[1], NA_character_))
+  expect_identical(x$references$cited_doi[c(1, 3)], rep("10.9999/ext.l1", 2))
+  twin <- sm_read_wos(realuse_wos_sample(), verbose = FALSE)
+  expect_equal(sum(twin$references$cited_work_id %in% twin$works$work_id), 9L)
+  skip_if_not_installed("bibliometrix")
+  bx <- suppressMessages(sm_read_wos(path, engine = "bibliometrix",
+                                     verbose = FALSE))
+  expect_identical(bx$references$cited_work_id, x$references$cited_work_id)
+})

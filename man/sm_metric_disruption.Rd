@@ -40,6 +40,14 @@ but do NOT cite \emph{f} (ignored-but-referencing citations).}
 A CD index near +1 indicates the focal work is highly disruptive: its
 citers tend to ignore its references. A CD index near -1 indicates the
 focal work consolidates existing ideas.
+
+Only citations between works inside the corpus count. Repeated links and
+self-references are ignored. The focal work itself is excluded from
+\eqn{n_k}, as are works published in an earlier year when both years are
+known. Same-year and undated works remain eligible: publication year is
+the available time resolution. Citers of the focal work always contribute
+to \eqn{n_i} or \eqn{n_j}. Works without linked references or without any
+internal citers receive \code{NA}.
 }
 \examples{
 corpus <- sm_example_corpus()
@@ -52,6 +60,8 @@ Technological Change. \emph{Management Science}, 63(3), 791--817.
 \doi{10.1287/mnsc.2015.2366}
 }
 \seealso{
+\code{\link[=sm_link_references]{sm_link_references()}}
+
 Other metrics:
 \code{\link[=sm_metric_collab_index]{sm_metric_collab_index()}},
 \code{\link[=sm_metric_fnci]{sm_metric_fnci()}},

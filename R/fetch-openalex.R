@@ -280,6 +280,7 @@ sm_fetch_openalex <- function(query = NULL,
 
   # ---- references ----
   references <- .parse_openalex_references(results, work_ids)
+  references <- .link_references(references, works)
 
   # ---- provenance ----
   provenance <- .make_provenance_rows(

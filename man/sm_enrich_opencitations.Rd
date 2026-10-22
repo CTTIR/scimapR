@@ -15,13 +15,15 @@ sm_enrich_opencitations(corpus, verbose = TRUE, call = rlang::caller_env())
 }
 \value{
 An \code{sm_corpus} object with updated \code{cited_by_count} in the
-\code{works} table, enriched \code{references} table, and new provenance rows.
+\code{works} table, outgoing \code{references} linked where possible, and new
+provenance rows for works with usable responses.
 }
 \description{
-Look up DOIs in the corpus via the
-\href{https://opencitations.net/}{OpenCitations} COCI API and add incoming
-and outgoing citation counts, plus citation links between works in the
-corpus.
+Look up DOIs using the
+\href{https://api.opencitations.net/index/v2}{OpenCitations Index API}
+and add outgoing references. DOI and OpenAlex identifiers link these
+references to works in the corpus. The separate incoming citation count
+replaces \code{works$cited_by_count}.
 
 This enricher is idempotent: re-running it updates existing citation
 data rather than duplicating it.
