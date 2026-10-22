@@ -1,0 +1,54 @@
+FN Web of Science
+VR 1.0
+PT J
+AU Brandt, K
+AF Brandt, Karolin
+TI A "quoted" mapping study
+SO Journal of Invented Mapping
+DE Mapping; Networks
+ID Citations; Data
+C1 [Brandt, Karolin] Northbridge Research Centre, Lydon
+RP Brandt, K (corresponding author), Northbridge Research Centre, Lydon
+CR Invented A, 2010, J TEST, DOI 10.9999/ext.1
+TC 2
+PY 2017
+DI 10.9999/tab.1
+WC Information Science; Mathematics
+SC Information Science
+UT WOS:TEST0001
+ER
+PT J
+AU Brandt, K
+   Okafor, T
+AF Brandt, Karolin
+   Okafor, Tari
+TI Second synthetic study
+SO Journal of Invented Mapping
+DE Networks; Methods
+ID Citations
+C1 [Brandt, Karolin; Okafor, Tari] Northbridge Research Centre, Lydon; [Okafor, Tari] Eastmere Institute, Vesra
+RP Okafor, T (corresponding author), Eastmere Institute, Vesra
+CR Brandt K, 2017, J INVENT MAP, DOI 10.9999/tab.1
+   Invented A, 2010, J TEST, DOI 10.9999/ext.1
+TC 0
+PY 2020
+DI 10.9999/tab.2
+WC Mathematics
+SC Information Science
+UT WOS:TEST0002
+ER
+PT J
+AU Salcedo, N
+AF Salcedo, Neri
+TI Third synthetic study
+SO Journal of Invented Methods
+DE Methods
+C1 [Salcedo, Neri] Southhaven Institute, Arlo
+TC 0
+PY 2022
+DI 10.9999/tab.3
+WC Mathematics
+SC Information Science
+UT WOS:TEST0003
+ER
+EF

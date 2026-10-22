@@ -1,10 +1,10 @@
-#' Read Web of Science plaintext files
+#' Read Web of Science export files
 #'
 #' @description
-#' Parse Web of Science (WoS) plaintext export files into an `sm_corpus`
-#' object. Handles the standard WoS tagged format with two-letter field codes.
+#' Parse Web of Science (WoS) plaintext or tab-delimited export files into
+#' an `sm_corpus` object, preserving authors, fields and cited references.
 #'
-#' @param path Character scalar. Path to a WoS plaintext file (`.txt`).
+#' @param path Character scalar. Path to a plaintext or tab-delimited export.
 #' @param encoding Character scalar. File encoding (default `"UTF-8"`).
 #' @param engine Character scalar. One of `"native"` (built-in parser),
 #'   `"bibliometrix"` (delegate to `bibliometrix::convert2df()`), or
@@ -16,6 +16,18 @@
 #'
 #' @section Implementation:
 #' The native parser follows the Web of Science Core Collection export format.
+#' Tab-delimited files have a header containing PT, AU, TI and UT and one
+#' record per line. Cells are unquoted, so quotes in titles are preserved.
+#' Both layouts share field, author and reference-linking rules. Tab-delimited
+#' input always uses the native path with `engine = "native"` or `"auto"`;
+#' `engine = "bibliometrix"` rejects it. UTF-8 BOMs are accepted; UTF-16
+#' exports can be read with `encoding = "UTF-16LE"`.
+#'
+#' A file whose records all lack a title, accession number and author is an
+#' error. Such records among readable ones are dropped with one warning,
+#' including when `verbose = FALSE`. Files without any PT record still
+#' return an empty corpus.
+#'
 #' Each record begins with `PT ` (publication type) and ends with `ER`.
 #' Field tags are two uppercase letters followed by a single space.
 #' Continuation lines begin with three spaces. Tags parsed:
@@ -94,12 +106,23 @@ sm_read_wos <- function(path,
     cli::cli_abort("File not found: {.file {path}}", call = call)
   }
 
+  first <- readr::read_lines(path, n_max = 1L,
+                             locale = readr::locale(encoding = encoding))
+  tabdelim <- .wos_is_tabdelim(first)
+  if (tabdelim && engine == "bibliometrix") {
+    cli::cli_abort(c(
+      "The bibliometrix engine reads Web of Science plaintext files;
+       {.file {path}} is a tab-delimited export.",
+      "i" = 'Use {.code engine = "native"}.'
+    ), class = "scimapR_wos_engine_unsupported", call = call)
+  }
+
   # --- bibliometrix engines ------------------------------------------------
   if (engine == "bibliometrix") {
     return(.wos_via_bibliometrix(path, call = call))
   }
 
-  if (engine == "auto") {
+  if (engine == "auto" && !tabdelim) {
     corpus <- tryCatch(
       .wos_via_bibliometrix(path, call = call),
       error = function(e) NULL
@@ -114,7 +137,12 @@ sm_read_wos <- function(path,
 
   lines <- readr::read_lines(path, locale = readr::locale(encoding = encoding))
 
-  records <- .wos_split_records(lines)
+  if (length(lines) > 0L) lines[1] <- sub("^\ufeff", "", lines[1])
+  records <- if (tabdelim) {
+    .wos_tabdelim_records(lines, call = call)
+  } else {
+    .wos_split_records(lines)
+  }
 
   if (length(records) == 0L) {
     .sm_verbose("No WoS records found.", verbose)
@@ -130,16 +158,27 @@ sm_read_wos <- function(path,
   parsed <- lapply(records, .wos_parse_record)
   parsed <- Filter(Negate(is.null), parsed)
 
-  if (length(parsed) == 0L) {
-    return(new_sm_corpus(
-      works = .empty_works(),
-      authors = .empty_authors(),
-      authorships = .empty_authorships(),
-      sources = .empty_sources_abbrev(),
-      metadata = list(source_file = path, reader = "sm_read_wos")
-    ))
+  empty <- vapply(parsed, function(record) {
+    is.na(record$title) && is.na(record$ut) &&
+      !any(nzchar(trimws(c(record$authors, record$full_names))), na.rm = TRUE)
+  }, logical(1))
+  if (all(empty)) {
+    cli::cli_abort(c(
+      "Cannot read Web of Science records from {.file {path}}.",
+      "i" = "Records start with {.code PT } and carry two-letter field tags
+             followed by a space, or a tab-delimited header with PT, AU, TI
+             and UT."
+    ), class = "scimapR_wos_unreadable", call = call)
   }
+  if (any(empty)) {
+    cli::cli_warn("Dropped {sum(empty)} empty Web of Science record{?s}.",
+                  class = "scimapR_wos_empty_records", call = call)
+    parsed <- parsed[!empty]
+  }
+  .wos_build_corpus(parsed, path, verbose)
+}
 
+.wos_build_corpus <- function(parsed, path, verbose) {
   n <- length(parsed)
   work_ids <- .generate_work_id(n)
 
@@ -262,7 +301,7 @@ sm_read_wos <- function(path,
 #' Split WoS plaintext lines into records (PT ... ER)
 #' @noRd
 .wos_split_records <- function(lines) {
-  pt_lines <- which(grepl("^PT\\s", lines))
+  pt_lines <- which(grepl("^PT ", lines))
   er_lines <- which(grepl("^ER\\s*$", lines))
 
   if (length(pt_lines) == 0L) return(list())
@@ -522,4 +561,45 @@ sm_read_wos <- function(path,
   }
   if (length(rows) == 0L) return(.empty_concepts())
   dplyr::bind_rows(rows)
+}
+
+
+.wos_is_tabdelim <- function(lines) {
+  if (length(lines) == 0L || is.na(lines[1])) return(FALSE)
+  first <- sub("^\ufeff", "", lines[1])
+  grepl("\t", first, fixed = TRUE) &&
+    all(c("PT", "AU", "TI", "UT") %in% strsplit(first, "\t", fixed = TRUE)[[1]])
+}
+
+.wos_tabdelim_records <- function(lines, call = rlang::caller_env()) {
+  header <- strsplit(sub("^\ufeff", "", lines[1]), "\t", fixed = TRUE)[[1]]
+  while (length(header) > 0L && !nzchar(utils::tail(header, 1L))) {
+    header <- utils::head(header, -1L)
+  }
+  data_lines <- which(nzchar(trimws(lines)) & seq_along(lines) > 1L)
+  lapply(data_lines, function(line) {
+    cells <- strsplit(lines[line], "\t", fixed = TRUE)[[1]]
+    if (length(cells) > length(header) &&
+          any(nzchar(trimws(cells[seq.int(length(header) + 1L,
+                                          length(cells))])))) {
+      cli::cli_abort("Too many cells on line {line} of the WoS export.",
+                     class = "scimapR_wos_unreadable", call = call)
+    }
+    length(cells) <- length(header)
+    cells[is.na(cells)] <- ""
+    names(cells) <- header
+    record <- paste0("PT ", cells[["PT"]])
+    for (tag in setdiff(header, "PT")) {
+      value <- cells[[tag]]
+      if (!nzchar(trimws(value))) next
+      values <- if (tag %in% c("AU", "AF", "CR")) {
+        trimws(strsplit(value, ";", fixed = TRUE)[[1]])
+      } else {
+        value
+      }
+      record <- c(record, paste(tag, values[1]),
+                  if (length(values) > 1L) paste0("   ", values[-1]))
+    }
+    c(record, "ER")
+  })
 }

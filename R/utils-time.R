@@ -178,3 +178,15 @@
   }
   as.Date(days, origin = "1970-01-01")
 }
+
+
+#' Extract the first isolated publication year from text
+#' @noRd
+.year_from_text <- function(x) {
+  x <- as.character(x)
+  m <- regexpr("(?<![0-9])[12][0-9]{3}(?![0-9])", x, perl = TRUE)
+  out <- rep(NA_integer_, length(x))
+  hit <- !is.na(m) & m > 0L
+  out[hit] <- as.integer(regmatches(x, m))
+  out
+}

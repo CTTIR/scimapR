@@ -22,6 +22,24 @@
 #' concatenation with `#` is not supported; `@string` and `@preamble`
 #' entries are skipped.
 #'
+#' Protective braces are removed from titles, journals, abstracts, keywords
+#' and DOIs; escaped braces remain literal. Common LaTeX accent commands
+#' (`\"`, `\'`, `\^`, `\~`, `\=`, `\.`, `\c`, `\v`, `\u`,
+#' `\H`, `\k`, `\r`, and backslash followed by a grave accent) decode
+#' to precomposed letters where available, else the bare letter.
+#' Letter commands `\ss`, `\o`, `\O`, `\aa`, `\AA`,
+#' `\ae`, `\AE`, `\oe`, `\OE`, `\l`, `\L` and `\i` also decode, as do
+#' `\&`, `\%`, `\$`, `\#` and `\_`. DOI cleaning only removes braces
+#' and decodes those five escapes. Ties (`~`), `--` and math expressions
+#' remain as written. Whitespace outside math is collapsed and trimmed.
+#'
+#' Only a lowercase `and` outside braces separates authors; a comma outside
+#' braces flips a name from surname-first to given-name-first. Braced
+#' corporate names stay together, and a trailing `and others` is retained.
+#' Quoted field values end only at a quote outside braces. The first
+#' isolated four-digit year (1000--2999) in `year` is used, falling back to
+#' the BibLaTeX `date` field when no such year is present.
+#'
 #' @references
 #' Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for
 #' comprehensive science mapping analysis. *Journal of Informetrics*,
@@ -113,6 +131,7 @@ sm_read_bib <- function(path,
     title      = .rec_col("title"),
     author     = .rec_col("author"),
     year       = .rec_col("year"),
+    date       = .rec_col("date"),
     doi        = .rec_col("doi"),
     journal    = .rec_col("journal"),
     abstract   = .rec_col("abstract"),
@@ -121,6 +140,12 @@ sm_read_bib <- function(path,
     keywords   = .rec_col("keywords")
   )
 
+  for (field in c("title", "journal", "abstract", "keywords")) {
+    df[[field]] <- .bib_clean_text(df[[field]])
+  }
+  df$doi <- .bib_clean_text(df$doi, doi = TRUE)
+  year <- .year_from_text(df$year)
+  year[is.na(year)] <- .year_from_text(df$date[is.na(year)])
   work_ids <- .generate_work_id(nrow(df))
 
   works <- tibble::tibble(
@@ -128,7 +153,7 @@ sm_read_bib <- function(path,
     doi       = .normalize_doi(df$doi),
     title     = df$title %||% NA_character_,
     abstract  = df$abstract %||% NA_character_,
-    year      = as.integer(df$year),
+    year      = year,
     type      = df$entry_type %||% NA_character_,
     source_id = NA_character_,
     cited_by_count = NA_integer_,
@@ -339,6 +364,7 @@ sm_read_bib <- function(path,
     title      = .bib_null_to_na(fields[["title"]]),
     author     = .bib_null_to_na(fields[["author"]]),
     year       = .bib_null_to_na(fields[["year"]]),
+    date       = .bib_null_to_na(fields[["date"]]),
     doi        = .bib_null_to_na(fields[["doi"]]),
     journal    = .bib_null_to_na(
       fields[["journal"]] %||% fields[["journaltitle"]] %||%
@@ -353,7 +379,7 @@ sm_read_bib <- function(path,
 
 #' Parse BibTeX field assignments from the body of an entry
 #'
-#' Like [.bib_parse_entries()], this avoids per-character `substr()`/`grepl()`
+#' Like `.bib_parse_entries()`, this avoids per-character `substr()`/`grepl()`
 #' calls (G4): the body is split into a character vector once and scanned with
 #' O(1) indexing and set-membership whitespace tests rather than a regex per
 #' character.
@@ -406,7 +432,18 @@ sm_read_bib <- function(path,
       # quote-delimited value
       i <- i + 1L
       val_start <- i
-      while (i <= n && chars[i] != "\"") i <- i + 1L
+      depth <- 0L
+      escaped <- FALSE
+      while (i <= n) {
+        c2 <- chars[i]
+        if (!escaped) {
+          if (c2 == "\"" && depth == 0L) break
+          if (c2 == "{") depth <- depth + 1L
+          if (c2 == "}") depth <- depth - 1L
+        }
+        escaped <- !escaped && c2 == "\\"
+        i <- i + 1L
+      }
       value <- .bib_slice(chars, val_start, i - 1L)
       i <- i + 1L  # skip closing "
     } else {
@@ -445,19 +482,13 @@ sm_read_bib <- function(path,
     au_str <- author_strings[i]
     if (is.na(au_str)) next
 
-    # Split on " and "
-    names <- trimws(strsplit(au_str, "\\s+and\\s+", perl = TRUE)[[1]])
+    names <- .bib_split_names(au_str)
     names <- names[nzchar(names)]
     if (length(names) == 0L) next
-
-    # Normalize "Last, First" -> "First Last"
-    has_comma <- grepl(",", names, fixed = TRUE)
-    if (any(has_comma)) {
-      names[has_comma] <- vapply(names[has_comma], function(nm) {
-        parts <- trimws(strsplit(nm, ",", fixed = TRUE)[[1]])
-        if (length(parts) >= 2L) paste(parts[2], parts[1]) else nm
-      }, character(1), USE.NAMES = FALSE)
-    }
+    names <- vapply(names, function(nm) {
+      parts <- .bib_split_depth(nm, ",")
+      if (length(parts) >= 2L) paste(parts[2], parts[1]) else nm
+    }, character(1), USE.NAMES = FALSE)
 
     k <- k + 1L
     wid_chunks[[k]] <- rep(work_ids[i], length(names))
@@ -475,7 +506,7 @@ sm_read_bib <- function(path,
 
   aships_df <- tibble::tibble(
     work_id = unlist(wid_chunks, use.names = FALSE),
-    author_name = unlist(name_chunks, use.names = FALSE),
+    author_name = .bib_clean_text(unlist(name_chunks, use.names = FALSE)),
     position = as.integer(unlist(pos_chunks, use.names = FALSE)),
     is_corresponding = unlist(corr_chunks, use.names = FALSE)
   )
@@ -532,4 +563,149 @@ sm_read_bib <- function(path,
     score = NA_real_,
     vocabulary = "author-keywords"
   )
+}
+
+
+.bib_accent_map <- c(
+  "\"a" = "\u00e4", "\"e" = "\u00eb", "\"h" = "\u1e27", "\"i" = "\u00ef",
+  "\"o" = "\u00f6", "\"t" = "\u1e97", "\"u" = "\u00fc", "\"w" = "\u1e85",
+  "\"x" = "\u1e8d", "\"y" = "\u00ff", "\"A" = "\u00c4", "\"E" = "\u00cb",
+  "\"H" = "\u1e26", "\"I" = "\u00cf", "\"O" = "\u00d6", "\"U" = "\u00dc",
+  "\"W" = "\u1e84", "\"X" = "\u1e8c", "\"Y" = "\u0178", "'a" = "\u00e1",
+  "'c" = "\u0107", "'e" = "\u00e9", "'g" = "\u01f5", "'i" = "\u00ed",
+  "'k" = "\u1e31", "'l" = "\u013a", "'m" = "\u1e3f", "'n" = "\u0144",
+  "'o" = "\u00f3", "'p" = "\u1e55", "'r" = "\u0155", "'s" = "\u015b",
+  "'u" = "\u00fa", "'w" = "\u1e83", "'y" = "\u00fd", "'z" = "\u017a",
+  "'A" = "\u00c1", "'C" = "\u0106", "'E" = "\u00c9", "'G" = "\u01f4",
+  "'I" = "\u00cd", "'K" = "\u1e30", "'L" = "\u0139", "'M" = "\u1e3e",
+  "'N" = "\u0143", "'O" = "\u00d3", "'P" = "\u1e54", "'R" = "\u0154",
+  "'S" = "\u015a", "'U" = "\u00da", "'W" = "\u1e82", "'Y" = "\u00dd",
+  "'Z" = "\u0179", "`a" = "\u00e0", "`e" = "\u00e8", "`i" = "\u00ec",
+  "`n" = "\u01f9", "`o" = "\u00f2", "`u" = "\u00f9", "`w" = "\u1e81",
+  "`y" = "\u1ef3", "`A" = "\u00c0", "`E" = "\u00c8", "`I" = "\u00cc",
+  "`N" = "\u01f8", "`O" = "\u00d2", "`U" = "\u00d9", "`W" = "\u1e80",
+  "`Y" = "\u1ef2", "^a" = "\u00e2", "^c" = "\u0109", "^e" = "\u00ea",
+  "^g" = "\u011d", "^h" = "\u0125", "^i" = "\u00ee", "^j" = "\u0135",
+  "^o" = "\u00f4", "^s" = "\u015d", "^u" = "\u00fb", "^w" = "\u0175",
+  "^y" = "\u0177", "^z" = "\u1e91", "^A" = "\u00c2", "^C" = "\u0108",
+  "^E" = "\u00ca", "^G" = "\u011c", "^H" = "\u0124", "^I" = "\u00ce",
+  "^J" = "\u0134", "^O" = "\u00d4", "^S" = "\u015c", "^U" = "\u00db",
+  "^W" = "\u0174", "^Y" = "\u0176", "^Z" = "\u1e90", "~a" = "\u00e3",
+  "~e" = "\u1ebd", "~i" = "\u0129", "~n" = "\u00f1", "~o" = "\u00f5",
+  "~u" = "\u0169", "~v" = "\u1e7d", "~y" = "\u1ef9", "~A" = "\u00c3",
+  "~E" = "\u1ebc", "~I" = "\u0128", "~N" = "\u00d1", "~O" = "\u00d5",
+  "~U" = "\u0168", "~V" = "\u1e7c", "~Y" = "\u1ef8", "=a" = "\u0101",
+  "=e" = "\u0113", "=g" = "\u1e21", "=i" = "\u012b", "=o" = "\u014d",
+  "=u" = "\u016b", "=y" = "\u0233", "=A" = "\u0100", "=E" = "\u0112",
+  "=G" = "\u1e20", "=I" = "\u012a", "=O" = "\u014c", "=U" = "\u016a",
+  "=Y" = "\u0232", ".a" = "\u0227", ".b" = "\u1e03", ".c" = "\u010b",
+  ".d" = "\u1e0b", ".e" = "\u0117", ".f" = "\u1e1f", ".g" = "\u0121",
+  ".h" = "\u1e23", ".m" = "\u1e41", ".n" = "\u1e45", ".o" = "\u022f",
+  ".p" = "\u1e57", ".r" = "\u1e59", ".s" = "\u1e61", ".t" = "\u1e6b",
+  ".w" = "\u1e87", ".x" = "\u1e8b", ".y" = "\u1e8f", ".z" = "\u017c",
+  ".A" = "\u0226", ".B" = "\u1e02", ".C" = "\u010a", ".D" = "\u1e0a",
+  ".E" = "\u0116", ".F" = "\u1e1e", ".G" = "\u0120", ".H" = "\u1e22",
+  ".I" = "\u0130", ".M" = "\u1e40", ".N" = "\u1e44", ".O" = "\u022e",
+  ".P" = "\u1e56", ".R" = "\u1e58", ".S" = "\u1e60", ".T" = "\u1e6a",
+  ".W" = "\u1e86", ".X" = "\u1e8a", ".Y" = "\u1e8e", ".Z" = "\u017b",
+  "cc" = "\u00e7", "cd" = "\u1e11", "ce" = "\u0229", "cg" = "\u0123",
+  "ch" = "\u1e29", "ck" = "\u0137", "cl" = "\u013c", "cn" = "\u0146",
+  "cr" = "\u0157", "cs" = "\u015f", "ct" = "\u0163", "cC" = "\u00c7",
+  "cD" = "\u1e10", "cE" = "\u0228", "cG" = "\u0122", "cH" = "\u1e28",
+  "cK" = "\u0136", "cL" = "\u013b", "cN" = "\u0145", "cR" = "\u0156",
+  "cS" = "\u015e", "cT" = "\u0162", "va" = "\u01ce", "vc" = "\u010d",
+  "vd" = "\u010f", "ve" = "\u011b", "vg" = "\u01e7", "vh" = "\u021f",
+  "vi" = "\u01d0", "vj" = "\u01f0", "vk" = "\u01e9", "vl" = "\u013e",
+  "vn" = "\u0148", "vo" = "\u01d2", "vr" = "\u0159", "vs" = "\u0161",
+  "vt" = "\u0165", "vu" = "\u01d4", "vz" = "\u017e", "vA" = "\u01cd",
+  "vC" = "\u010c", "vD" = "\u010e", "vE" = "\u011a", "vG" = "\u01e6",
+  "vH" = "\u021e", "vI" = "\u01cf", "vK" = "\u01e8", "vL" = "\u013d",
+  "vN" = "\u0147", "vO" = "\u01d1", "vR" = "\u0158", "vS" = "\u0160",
+  "vT" = "\u0164", "vU" = "\u01d3", "vZ" = "\u017d", "ua" = "\u0103",
+  "ue" = "\u0115", "ug" = "\u011f", "ui" = "\u012d", "uo" = "\u014f",
+  "uu" = "\u016d", "uA" = "\u0102", "uE" = "\u0114", "uG" = "\u011e",
+  "uI" = "\u012c", "uO" = "\u014e", "uU" = "\u016c", "Ho" = "\u0151",
+  "Hu" = "\u0171", "HO" = "\u0150", "HU" = "\u0170", "ka" = "\u0105",
+  "ke" = "\u0119", "ki" = "\u012f", "ko" = "\u01eb", "ku" = "\u0173",
+  "kA" = "\u0104", "kE" = "\u0118", "kI" = "\u012e", "kO" = "\u01ea",
+  "kU" = "\u0172", "ra" = "\u00e5", "ru" = "\u016f", "rw" = "\u1e98",
+  "ry" = "\u1e99", "rA" = "\u00c5", "rU" = "\u016e"
+)
+
+
+.bib_clean_text <- function(x, doi = FALSE) {
+  has_math <- !doi & !is.na(x) & grepl("$", x, fixed = TRUE)
+  out <- x
+  out[!has_math] <- .bib_decode_text(x[!has_math], doi = doi)
+  if (any(has_math)) {
+    pattern <- r"((?<!\\)\$(?:\\.|[^$])*\$|(?:\\.|[^\\$])+|.)"
+    replace <- function(m) {
+      math <- startsWith(m, "$") & endsWith(m, "$") & nchar(m) > 1L
+      m[!math] <- .bib_decode_text(m[!math])
+      m
+    }
+    out[has_math] <- stringr::str_replace_all(x[has_math], pattern, replace)
+  }
+  out <- trimws(out)
+  out[!is.na(out) & !nzchar(out)] <- NA_character_
+  out
+}
+
+.bib_decode_text <- function(x, doi = FALSE) {
+  if (!doi) {
+    letters <- c(ss = "\u00df", o = "\u00f8", O = "\u00d8",
+                 aa = "\u00e5", AA = "\u00c5", ae = "\u00e6", AE = "\u00c6",
+                 oe = "\u0153", OE = "\u0152", l = "\u0142", L = "\u0141",
+                 i = "\u0131")
+    x <- stringr::str_replace_all(
+      x, r"(\\(ss|aa|AA|ae|AE|oe|OE|o|O|l|L|i)(?![A-Za-z]))",
+      function(m) unname(letters[substring(m, 2L)])
+    )
+    accent <- r"(\\(["'`^~=.]|[cvuHkr](?=[{\s]))\s*\{?([A-Za-z\u0131])\}?)"
+    x <- stringr::str_replace_all(x, accent, function(m) {
+      parts <- stringr::str_match(m, accent)
+      base <- parts[, 3]
+      base[base == "\u0131"] <- "i"
+      value <- unname(.bib_accent_map[paste0(parts[, 2], base)])
+      value[is.na(value)] <- base[is.na(value)]
+      value
+    })
+  }
+  x <- gsub(r"(\\([&%$#_]))", "\\1", x, perl = TRUE)
+  x <- gsub(r"((?<!\\)[{}])", "", x, perl = TRUE)
+  x <- gsub(r"(\\([{}]))", "\\1", x, perl = TRUE)
+  gsub("\\s+", " ", x, perl = TRUE)
+}
+
+.bib_split_depth <- function(x, pattern) {
+  if (!grepl("{", x, fixed = TRUE)) {
+    return(trimws(strsplit(x, pattern, perl = TRUE)[[1]]))
+  }
+  chars <- strsplit(x, "", fixed = TRUE)[[1]]
+  depths <- integer(length(chars))
+  depth <- 0L
+  escaped <- FALSE
+  for (i in seq_along(chars)) {
+    depths[i] <- depth
+    if (!escaped) {
+      if (chars[i] == "{") depth <- depth + 1L
+      if (chars[i] == "}") depth <- max(0L, depth - 1L)
+    }
+    escaped <- !escaped && chars[i] == "\\"
+  }
+  matches <- gregexpr(pattern, x, perl = TRUE)[[1]]
+  keep <- matches > 0L
+  keep[keep] <- depths[matches[keep]] == 0L
+  starts <- matches[keep]
+  widths <- attr(matches, "match.length")[keep]
+  if (length(starts) == 0L) return(trimws(x))
+  begin <- c(1L, starts + widths)
+  end <- c(starts - 1L, length(chars))
+  trimws(vapply(seq_along(begin), function(i) {
+    .bib_slice(chars, begin[i], end[i])
+  }, character(1)))
+}
+
+.bib_split_names <- function(x) {
+  .bib_split_depth(x, "\\s+and\\s+")
 }

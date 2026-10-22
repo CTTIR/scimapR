@@ -14,9 +14,6 @@ test_that(".detect_format resolves unambiguous extensions", {
                "openalex-json")
   expect_equal(scimapR:::.detect_format("x.jsonl", "jsonl", "UTF-8", ce),
                "openalex-json")
-  expect_equal(scimapR:::.detect_format("x.nbib", "nbib", "UTF-8", ce),
-               "pubmed-xml")
-  expect_equal(scimapR:::.detect_format("x.enw", "enw", "UTF-8", ce), "ris")
 })
 
 test_that(".detect_format distinguishes CSV exports by header signature", {
@@ -140,4 +137,58 @@ test_that("sm_read_auto reports the detected format when verbose", {
     sm_read_auto(.extdata("example_lens.csv"), verbose = TRUE),
     "Detected format"
   )
+})
+
+
+test_that("XML roots distinguish EndNote records containing PubMed text", {
+  path <- withr::local_tempfile(fileext = ".xml")
+  record <- paste0("<record><titles><title>An invented study</title></titles>",
+                   "<remote-database-name>PubMed</remote-database-name>",
+                   "<urls><related-urls><url>",
+                   "https://www.ncbi.nlm.nih.gov/pubmed/99999901",
+                   "</url></related-urls></urls></record>")
+  writeLines(paste0("<xml><records>", record, record, "</records></xml>"), path)
+  expect_identical(.detect_xml_format(path, "UTF-8"), "endnote-xml")
+  x <- sm_read_auto(path, verbose = FALSE)
+  expect_equal(nrow(x$works), 2L)
+  expect_identical(x$metadata$reader, "sm_read_endnote")
+  writeLines("<catalog><item/></catalog>", path)
+  expect_error(sm_read_auto(path, verbose = FALSE),
+               class = "scimapR_unsupported_format")
+  writeLines("<xml><records>", path)
+  expect_error(sm_read_auto(path, verbose = FALSE),
+               class = "scimapR_unreadable_file")
+})
+
+test_that("MEDLINE and Refer text get explicit unsupported-format errors", {
+  for (ext in c(".nbib", ".txt")) {
+    path <- withr::local_tempfile(fileext = ext)
+    writeLines(c("PMID- 99999901", "TI  - An invented study"), path)
+    expect_error(sm_read_auto(path, verbose = FALSE), "MEDLINE",
+                 class = "scimapR_unsupported_format")
+  }
+  path <- withr::local_tempfile(fileext = ".enw")
+  writeLines(c("%A Brandt, K", "%T An invented study"), path)
+  expect_error(sm_read_auto(path, verbose = FALSE), "Refer",
+               class = "scimapR_unsupported_format")
+  for (ext in c(".nbib", ".enw")) {
+    path <- withr::local_tempfile(fileext = ext)
+    writeLines(c("TY  - JOUR", "TI  - An invented study", "ER  -"), path)
+    x <- sm_read_auto(path, verbose = FALSE)
+    expect_identical(x$metadata$reader, "sm_read_ris")
+    expect_equal(nrow(x$works), 1L)
+  }
+})
+
+test_that("WoS tab headers are detected across text extensions and BOMs", {
+  source <- test_path("fixtures", "wos-tabdelim.txt")
+  lines <- readLines(source, warn = FALSE)
+  for (ext in c("txt", "tsv", "tab", "")) {
+    suffix <- if (nzchar(ext)) paste0(".", ext) else ""
+    path <- withr::local_tempfile(fileext = suffix)
+    writeLines(c(paste0("\ufeff", lines[1]), lines[-1]), path, useBytes = TRUE)
+    expect_identical(.detect_format(path, ext, "UTF-8", rlang::current_env()),
+                     "wos")
+    expect_equal(nrow(sm_read_auto(path, verbose = FALSE)$works), 3L)
+  }
 })

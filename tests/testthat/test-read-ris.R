@@ -123,3 +123,28 @@ test_that("sm_read_ris validates the engine argument", {
   }
   expect_error(sm_read_ris(path, engine = "not_an_engine", verbose = FALSE))
 })
+
+
+test_that("RIS publication years use dates but never access dates", {
+  path <- withr::local_tempfile(fileext = ".ris")
+  dates <- list("Y1  - 2019/03/01/", "PY  - 2020///", "DA  - 2018/05//",
+                c("PY  - 2021", "Y1  - 2019/03/01/"), "Y2  - 2024/01/10",
+                c("PY  - unknown", "Y1  - unknown", "DA  - 2017/06/01/"))
+  writeLines(unlist(lapply(dates, function(date) {
+    c("TY  - JOUR", "TI  - An invented dated study", date, "ER  -")
+  })), path)
+  expect_no_warning(x <- sm_read_ris(path, verbose = FALSE))
+  expect_identical(x$works$year, c(2019L, 2020L, 2018L, 2021L, NA, 2017L))
+  expect_no_warning(y <- sm_read_cochrane(path, verbose = FALSE))
+  expect_identical(y$works$year, x$works$year)
+  example <- sm_read_ris(sm_example_files("example.ris"), verbose = FALSE)
+  expect_identical(example$works$year, c(2023L, 2022L, 2024L))
+})
+
+test_that("year extraction accepts only isolated four-digit years", {
+  expect_identical(.year_from_text(c(NA, "", "{2017}", "2023-04-15",
+                                     "2021/2022", "12020", "999", "3000")),
+                   c(NA_integer_, NA_integer_, 2017L, 2023L, 2021L,
+                     NA_integer_, NA_integer_, NA_integer_))
+  expect_identical(.year_from_text(character()), integer())
+})
