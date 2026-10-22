@@ -23,6 +23,8 @@
 #' 2. **Content-based**: For `.csv`, `.tsv`, and `.txt` files, the first
 #'    few lines are inspected for format-specific signatures:
 #'    - WoS plaintext: begins with `FN ` or `PT ` tags
+#'    - WoS tab-delimited: header contains PT, AU, TI and UT; also detected
+#'      in `.tab` files and files without an extension
 #'    - Scopus CSV: contains `EID` column header
 #'    - Lens CSV: contains `Lens ID` column header
 #'    - Dimensions CSV: contains `Dimensions ID` or `PubYear` header
@@ -30,9 +32,17 @@
 #'    - Zotero CSV: contains `Key` and `Item Type` columns
 #'    - RIS-format content in non-`.ris` files
 #'
-#' For XML files, the root element or DTD is inspected to distinguish
-#' PubMed XML (`PubmedArticleSet` or `PubmedArticle`) from
-#' EndNote XML (`xml/records` or `records`).
+#' For XML files, the parsed root distinguishes PubMed XML
+#' (`PubmedArticleSet`, `PubmedArticle`, `PubmedBookArticleSet`) from
+#' EndNote XML (`xml/records` or `records`). Unknown roots are unsupported;
+#' malformed XML raises a file-reading error.
+#'
+#' For `.nbib` and `.enw`, the first 20 lines determine the content: RIS
+#' records are accepted, but MEDLINE text (`PMID- ` in `.nbib`, `.txt` or
+#' files without extensions) and Refer text (`%` tags in `.enw`) are not
+#' supported. Export MEDLINE records as PubMed XML, or use
+#' [sm_fetch_pubmed()]; export Refer libraries as RIS or EndNote XML.
+#' A leading UTF-8 BOM is ignored for text format detection.
 #'
 #' @references
 #' Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for
@@ -87,15 +97,28 @@ sm_read_auto <- function(path,
                                call = call),
     "endnote-xml" = sm_read_endnote(path, encoding = encoding,
                                      verbose = verbose, call = call),
+    "medline" = cli::cli_abort(c(
+      "{.file {path}} is MEDLINE text (PubMed {.file .nbib} format),
+       which scimapR cannot read.",
+      "i" = "Save the records from PubMed as XML and read them with
+             {.fn sm_read_pubmed_xml}, or fetch them with
+             {.fn sm_fetch_pubmed}."
+    ), class = "scimapR_unsupported_format", call = call),
+    "refer" = cli::cli_abort(c(
+      "{.file {path}} is Refer/EndNote tagged text ({.file .enw}),
+       which scimapR cannot read.",
+      "i" = "Export the library as RIS or EndNote XML."
+    ), class = "scimapR_unsupported_format", call = call),
     cli::cli_abort(c(
       "Cannot detect bibliographic file format for {.file {path}}.",
       "i" = "Extension: {.val {ext}}",
       "i" = paste0(
-        "Supported formats: BibTeX (.bib), RIS (.ris), WoS plaintext (.txt),",
+        "Supported formats: BibTeX (.bib), RIS (.ris),",
+        " WoS plaintext or tab-delimited (.txt),",
         " Scopus CSV, Lens CSV, Dimensions CSV, Cochrane CSV/RIS,",
         " PubMed XML, OpenAlex JSON, Zotero CSV, EndNote XML."
       )
-    ), call = call)
+    ), class = "scimapR_unsupported_format", call = call)
   )
 }
 
@@ -108,17 +131,15 @@ sm_read_auto <- function(path,
   if (ext == "bib") return("bibtex")
   if (ext == "ris") return("ris")
   if (ext %in% c("json", "jsonl", "ndjson")) return("openalex-json")
-  if (ext == "nbib") return("pubmed-xml")  # PubMed NBIB is actually RIS-like
-  if (ext == "enw") return("ris")  # EndNote tagged format is RIS-like
 
   # --- XML: distinguish PubMed vs EndNote ----------------------------------
   if (ext == "xml") {
-    return(.detect_xml_format(path, encoding))
+    return(.detect_xml_format(path, encoding, call = call))
   }
 
   # --- text / CSV / TSV: content-based detection ---------------------------
   first_lines <- tryCatch(
-    readr::read_lines(path, n_max = 10L,
+    readr::read_lines(path, n_max = 20L,
       locale = readr::locale(encoding = encoding)),
     error = function(e) character()
   )
@@ -130,18 +151,21 @@ sm_read_auto <- function(path,
     )
   }
 
+  first_lines[1] <- sub("^\ufeff", "", first_lines[1])
   header <- paste(first_lines, collapse = " ")
-
-  # WoS plaintext: starts with "FN " or file begins with "PT "
-  if (ext == "txt" || ext == "") {
-    if (any(grepl("^FN\\s", first_lines)) ||
-        any(grepl("^PT\\s", first_lines))) {
-      return("wos")
+  if (ext %in% c("nbib", "enw")) {
+    if (any(grepl("^TY  -", first_lines))) return("ris")
+    if (ext == "nbib" && any(grepl("^PMID- ", first_lines))) return("medline")
+    if (ext == "enw" && any(grepl("^%[A-Z0-9] ", first_lines))) return("refer")
+    return("unknown")
+  }
+  if (ext %in% c("txt", "tsv", "tab", "")) {
+    if (.wos_is_tabdelim(first_lines)) return("wos")
+    if (any(grepl("^FN |^PT ", first_lines))) return("wos")
+    if (ext %in% c("txt", "") && any(grepl("^PMID- ", first_lines))) {
+      return("medline")
     }
-    # Check for RIS content in .txt files
-    if (any(grepl("^TY\\s{2}-", first_lines))) {
-      return("ris")
-    }
+    if (any(grepl("^TY  -", first_lines))) return("ris")
   }
 
   # CSV/TSV formats: check header columns
@@ -199,37 +223,20 @@ sm_read_auto <- function(path,
 
 #' Detect XML format (PubMed vs EndNote)
 #' @noRd
-.detect_xml_format <- function(path, encoding) {
-  # Read first few lines to check root element
-  first_lines <- tryCatch(
-    readr::read_lines(path, n_max = 20L,
-      locale = readr::locale(encoding = encoding)),
-    error = function(e) character()
+.detect_xml_format <- function(path, encoding, call = rlang::caller_env()) {
+  doc <- tryCatch(
+    xml2::read_xml(path, encoding = encoding),
+    error = function(e) {
+      cli::cli_abort("Cannot parse {.file {path}} as XML.",
+                     class = "scimapR_unreadable_file", parent = e, call = call)
+    }
   )
-
-  header <- paste(first_lines, collapse = " ")
-
-  # PubMed XML: contains PubmedArticleSet or PubmedArticle
-  if (grepl("PubmedArticle", header, ignore.case = FALSE) ||
-      grepl("PubmedBookArticle", header, ignore.case = FALSE) ||
-      grepl("pubmed", header, ignore.case = TRUE)) {
-    return("pubmed-xml")
-  }
-
-  # NBIB/PubMed: DTD reference
-  if (grepl("pubmed_\\d+\\.dtd", header, ignore.case = TRUE) ||
-      grepl("NLMPubMed", header, ignore.case = TRUE)) {
-    return("pubmed-xml")
-  }
-
-  # EndNote XML: root element is typically <xml> with <records>
-  if (grepl("<records>", header) ||
-      grepl("<xml><records>", header) ||
-      grepl("rec-number", header) ||
-      grepl("ref-type", header)) {
+  root <- xml2::xml_name(xml2::xml_root(doc))
+  pubmed <- c("PubmedArticleSet", "PubmedArticle", "PubmedBookArticleSet")
+  if (root %in% pubmed) return("pubmed-xml")
+  children <- xml2::xml_name(xml2::xml_children(doc))
+  if (root == "records" || (root == "xml" && "records" %in% children)) {
     return("endnote-xml")
   }
-
-  # Default for unknown XML
-  "pubmed-xml"
+  "unknown"
 }

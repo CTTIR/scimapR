@@ -44,6 +44,8 @@ Format detection proceeds in two stages:
 few lines are inspected for format-specific signatures:
 \itemize{
 \item WoS plaintext: begins with \code{FN } or \code{PT } tags
+\item WoS tab-delimited: header contains PT, AU, TI and UT; also detected
+in \code{.tab} files and files without an extension
 \item Scopus CSV: contains \code{EID} column header
 \item Lens CSV: contains \verb{Lens ID} column header
 \item Dimensions CSV: contains \verb{Dimensions ID} or \code{PubYear} header
@@ -53,9 +55,17 @@ few lines are inspected for format-specific signatures:
 }
 }
 
-For XML files, the root element or DTD is inspected to distinguish
-PubMed XML (\code{PubmedArticleSet} or \code{PubmedArticle}) from
-EndNote XML (\code{xml/records} or \code{records}).
+For XML files, the parsed root distinguishes PubMed XML
+(\code{PubmedArticleSet}, \code{PubmedArticle}, \code{PubmedBookArticleSet}) from
+EndNote XML (\code{xml/records} or \code{records}). Unknown roots are unsupported;
+malformed XML raises a file-reading error.
+
+For \code{.nbib} and \code{.enw}, the first 20 lines determine the content: RIS
+records are accepted, but MEDLINE text (\verb{PMID- } in \code{.nbib}, \code{.txt} or
+files without extensions) and Refer text (\verb{\%} tags in \code{.enw}) are not
+supported. Export MEDLINE records as PubMed XML, or use
+\code{\link[=sm_fetch_pubmed]{sm_fetch_pubmed()}}; export Refer libraries as RIS or EndNote XML.
+A leading UTF-8 BOM is ignored for text format detection.
 }
 
 \examples{

@@ -39,6 +39,12 @@ The native parser follows the RIS format specification (Thomson Reuters).
 Each record starts with \verb{TY  -} and ends with \verb{ER  -}. Tags are two
 uppercase letters followed by two spaces, a hyphen, and a space. Repeating
 tags (AU, KW) generate multiple values per record.
+
+Publication year comes from the first usable year in \code{PY}, \code{Y1}, then
+\code{DA}. Bare years and dates such as \verb{2019/03/01/} or \verb{2020///} are accepted:
+the first isolated four-digit year from 1000 through 2999 is used.
+\code{Y2} is never a fallback because it often holds an access or secondary
+date. Unrecognised dates yield \code{NA} without a coercion warning.
 }
 
 \examples{

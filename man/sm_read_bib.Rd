@@ -40,6 +40,24 @@ the original BibTeX documentation (Patashnik, 1988). Field values may be
 enclosed in braces or double-quotes and may span multiple lines. String
 concatenation with \verb{#} is not supported; \verb{@string} and \verb{@preamble}
 entries are skipped.
+
+Protective braces are removed from titles, journals, abstracts, keywords
+and DOIs; escaped braces remain literal. Common LaTeX accent commands
+(\verb{\\"}, \verb{\\'}, \verb{\\^}, \verb{\\~}, \verb{\\=}, \verb{\\.}, \verb{\\c}, \verb{\\v}, \verb{\\u},
+\verb{\\H}, \verb{\\k}, \verb{\\r}, and backslash followed by a grave accent) decode
+to precomposed letters where available, else the bare letter.
+Letter commands \verb{\\ss}, \verb{\\o}, \verb{\\O}, \verb{\\aa}, \verb{\\AA},
+\verb{\\ae}, \verb{\\AE}, \verb{\\oe}, \verb{\\OE}, \verb{\\l}, \verb{\\L} and \verb{\\i} also decode, as do
+\verb{\\&}, \verb{\\\%}, \verb{\\$}, \verb{\\#} and \verb{\\_}. DOI cleaning only removes braces
+and decodes those five escapes. Ties (\code{~}), \verb{--} and math expressions
+remain as written. Whitespace outside math is collapsed and trimmed.
+
+Only a lowercase \code{and} outside braces separates authors; a comma outside
+braces flips a name from surname-first to given-name-first. Braced
+corporate names stay together, and a trailing \verb{and others} is retained.
+Quoted field values end only at a quote outside braces. The first
+isolated four-digit year (1000--2999) in \code{year} is used, falling back to
+the BibLaTeX \code{date} field when no such year is present.
 }
 
 \examples{

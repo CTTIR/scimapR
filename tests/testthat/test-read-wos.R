@@ -480,3 +480,59 @@ test_that("WoS readers link bracketed citations and the synthetic twin", {
                                      verbose = FALSE))
   expect_identical(bx$references$cited_work_id, x$references$cited_work_id)
 })
+
+
+test_that("tab-delimited WoS shares all plaintext corpus tables", {
+  tab <- test_path("fixtures", "wos-tabdelim.txt")
+  plain <- sm_read_wos(test_path("fixtures", "wos-tabdelim-plain.txt"),
+                       verbose = FALSE)
+  bom <- withr::local_tempfile(fileext = ".txt")
+  text <- readLines(tab, warn = FALSE)
+  writeLines(c(paste0("\ufeff", text[1]), text[-1]), bom, useBytes = TRUE)
+  utf16 <- withr::local_tempfile(fileext = ".txt")
+  writeBin(iconv(paste(text, collapse = "\r\n"), to = "UTF-16LE",
+                 toRaw = TRUE)[[1]], utf16)
+  cases <- list(list(tab, "native", "UTF-8"), list(tab, "auto", "UTF-8"),
+                list(bom, "native", "UTF-8"),
+                list(utf16, "native", "UTF-16LE"))
+  for (case in cases) {
+    expect_no_warning(x <- sm_read_wos(case[[1]], engine = case[[2]],
+                                       encoding = case[[3]], verbose = FALSE))
+    expect_equal(nrow(x$works), 3L)
+    x$works$last_refreshed <- plain$works$last_refreshed <- NULL
+    for (table in c("works", "authors", "authorships", "sources",
+                    "references", "concepts")) {
+      expect_identical(x[[table]], plain[[table]], info = table)
+    }
+    keep <- setdiff(names(plain$provenance), c("fetch_date", "query"))
+    expect_identical(x$provenance[keep], plain$provenance[keep])
+  }
+  local_ref <- plain$references$cited_doi == "10.9999/tab.1"
+  expect_identical(plain$references$cited_work_id[local_ref],
+                   plain$works$work_id[1])
+  second <- plain$authorships[plain$authorships$work_id ==
+                                plain$works$work_id[2], ]
+  expect_true(all(second$is_corresponding[second$position == 2L]))
+  expect_false(any(second$is_corresponding[second$position == 1L]))
+  expect_error(sm_read_wos(tab, engine = "bibliometrix", verbose = FALSE),
+               class = "scimapR_wos_engine_unsupported")
+})
+
+test_that("unreadable WoS records are diagnosed without losing readable ones", {
+  path <- withr::local_tempfile(fileext = ".txt")
+  writeLines(c("PT J", "PY 2020", "ER"), path)
+  expect_error(sm_read_wos(path, verbose = FALSE),
+               class = "scimapR_wos_unreadable")
+  writeLines(c("PT J", "TI First", "ER", "PT J", "PY 2020", "ER",
+               "PT J", "TI Second", "ER"), path)
+  expect_warning(x <- sm_read_wos(path, verbose = FALSE),
+                 class = "scimapR_wos_empty_records")
+  expect_identical(x$works$title, c("First", "Second"))
+  writeLines(c("PT\tAU\tTI\tUT", "J\tBrandt, K\tTitle\tWOS:1\textra"), path)
+  expect_error(sm_read_wos(path, verbose = FALSE), "2",
+               class = "scimapR_wos_unreadable")
+  writeLines(c("PT\tAU\tTI\tUT", "J\tBrandt, K\tShort row"), path)
+  expect_no_warning(x <- sm_read_wos(path, verbose = FALSE))
+  expect_identical(x$works$title, "Short row")
+  expect_true(is.na(x$provenance$source_id_external))
+})

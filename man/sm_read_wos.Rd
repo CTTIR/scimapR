@@ -2,7 +2,7 @@
 % Please edit documentation in R/read-wos.R
 \name{sm_read_wos}
 \alias{sm_read_wos}
-\title{Read Web of Science plaintext files}
+\title{Read Web of Science export files}
 \usage{
 sm_read_wos(
   path,
@@ -13,7 +13,7 @@ sm_read_wos(
 )
 }
 \arguments{
-\item{path}{Character scalar. Path to a WoS plaintext file (\code{.txt}).}
+\item{path}{Character scalar. Path to a plaintext or tab-delimited export.}
 
 \item{encoding}{Character scalar. File encoding (default \code{"UTF-8"}).}
 
@@ -29,12 +29,24 @@ sm_read_wos(
 An \link{sm_corpus} object.
 }
 \description{
-Parse Web of Science (WoS) plaintext export files into an \code{sm_corpus}
-object. Handles the standard WoS tagged format with two-letter field codes.
+Parse Web of Science (WoS) plaintext or tab-delimited export files into
+an \code{sm_corpus} object, preserving authors, fields and cited references.
 }
 \section{Implementation}{
 
 The native parser follows the Web of Science Core Collection export format.
+Tab-delimited files have a header containing PT, AU, TI and UT and one
+record per line. Cells are unquoted, so quotes in titles are preserved.
+Both layouts share field, author and reference-linking rules. Tab-delimited
+input always uses the native path with \code{engine = "native"} or \code{"auto"};
+\code{engine = "bibliometrix"} rejects it. UTF-8 BOMs are accepted; UTF-16
+exports can be read with \code{encoding = "UTF-16LE"}.
+
+A file whose records all lack a title, accession number and author is an
+error. Such records among readable ones are dropped with one warning,
+including when \code{verbose = FALSE}. Files without any PT record still
+return an empty corpus.
+
 Each record begins with \code{PT } (publication type) and ends with \code{ER}.
 Field tags are two uppercase letters followed by a single space.
 Continuation lines begin with three spaces. Tags parsed:

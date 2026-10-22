@@ -21,6 +21,12 @@
 #' uppercase letters followed by two spaces, a hyphen, and a space. Repeating
 #' tags (AU, KW) generate multiple values per record.
 #'
+#' Publication year comes from the first usable year in `PY`, `Y1`, then
+#' `DA`. Bare years and dates such as `2019/03/01/` or `2020///` are accepted:
+#' the first isolated four-digit year from 1000 through 2999 is used.
+#' `Y2` is never a fallback because it often holds an access or secondary
+#' date. Unrecognised dates yield `NA` without a coercion warning.
+#'
 #' @references
 #' Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for
 #' comprehensive science mapping analysis. *Journal of Informetrics*,
@@ -97,7 +103,7 @@ sm_read_ris <- function(path,
     doi       = .normalize_doi(vapply(parsed, function(r) r$doi, character(1))),
     title     = vapply(parsed, function(r) r$title, character(1)),
     abstract  = vapply(parsed, function(r) r$abstract, character(1)),
-    year      = as.integer(vapply(parsed, function(r) r$year, character(1))),
+    year      = vapply(parsed, function(r) r$year, integer(1)),
     type      = vapply(parsed, function(r) r$type, character(1)),
     source_id = NA_character_,
     cited_by_count = NA_integer_,
@@ -249,7 +255,10 @@ sm_read_ris <- function(path,
     type     = .get_first("TY"),
     title    = .get_first("TI", "T1"),
     authors  = tags[["AU"]] %||% tags[["A1"]] %||% character(),
-    year     = .get_first("PY", "Y1"),
+    year     = {
+      years <- .year_from_text(c(tags[["PY"]], tags[["Y1"]], tags[["DA"]]))
+      years[!is.na(years)][1]
+    },
     doi      = .get_first("DO", "DI"),
     journal  = .get_first("JO", "JF", "T2", "J2"),
     abstract = .get_first("AB", "N2"),

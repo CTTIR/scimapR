@@ -1,5 +1,28 @@
 # scimapR (development version)
 
+* `sm_read_bib()` removes BibTeX protective braces and decodes common LaTeX
+  accents and escapes, so Web of Science BibTeX exports give plain DOIs, titles,
+  journals and keywords. It splits authors only at an `and` outside braces, so a
+  braced corporate author stays one author, reads quoted values that contain
+  braced accents, and takes the year from a biblatex `date` field when `year` is
+  missing.
+
+* `sm_read_wos()` and `sm_read_auto()` read Web of Science tab-delimited
+  exports, which they used to read as one empty record. `sm_read_wos(engine =
+  "bibliometrix")` stops with an error on such files. A WoS file whose records
+  carry no title, accession number or author is now an error, and such records
+  among others are dropped with a warning.
+
+* `sm_read_ris()`, and `sm_read_cochrane()` for RIS files, read years from RIS
+  dates such as `2019/03/01/` or `2020///` in `PY`, `Y1` or `DA`, instead of
+  returning `NA` with a coercion warning.
+
+* `sm_read_auto()` tells EndNote XML from PubMed XML by the root element, so an
+  EndNote library of PubMed records is no longer read as an empty PubMed file.
+  Unrecognised XML, MEDLINE (`.nbib`) and Refer (`.enw`) files now stop with a
+  clear error instead of failing in the XML parser or giving an empty corpus,
+  and `.nbib` or `.enw` files that hold RIS records are read as RIS.
+
 - `sm_self_citation()`, the self-corrected h-, g- and m-indices,
   `sm_metric_disruption()` and `sm_metric_novelty()` now work on corpora
   built by the readers and fetchers. Before, they found no linked
