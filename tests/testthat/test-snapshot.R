@@ -123,3 +123,18 @@ test_that("snapshots record the hash version; older ones still load", {
   saveRDS(obj, path)
   expect_warning(suppressMessages(sm_snapshot_load(path)), "hash mismatch")
 })
+
+test_that("snapshots and locks survive a change of timestamp time zone", {
+  x <- sm_example_corpus(n_works = 5, n_authors = 4,
+                         with_embeddings = FALSE, seed = 6)
+  x$works$observed <- as.POSIXct("2020-01-02 09:04:05", tz = "Asia/Tokyo")
+  x <- suppressMessages(sm_lock(x))
+  path <- withr::local_tempfile(fileext = ".rds")
+  suppressMessages(sm_snapshot(x, path = path))
+  stored <- readRDS(path)
+  attr(stored$works$observed, "tzone") <- "UTC"
+  saveRDS(stored, path)
+  expect_no_warning(loaded <- suppressMessages(sm_snapshot_load(path)))
+  expect_equal(nrow(sm_validate(loaded)), 0L)
+  expect_identical(loaded$metadata$corpus_hash, sm_hash_corpus(x))
+})

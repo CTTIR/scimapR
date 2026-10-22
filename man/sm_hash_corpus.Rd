@@ -35,15 +35,23 @@ files on their own.
 }
 \details{
 \code{version} selects the algorithm. Version 2, the default from scimapR
-0.5.0 on, sorts the columns of every table by name and the rows of the
-embeddings by work id before hashing, so the order in which the steps
-that built a corpus added their columns no longer changes the hash.
+0.5.0 on, hashes canonical UTF-8 text, independently of R's binary
+serialisation. Table columns are sorted by name and rows by their text
+values, using radix ordering. Missing values are distinct from the
+string \code{"NA"}. Numbers use 15 significant digits, signed zero becomes
+zero, dates use ISO dates and timestamps use UTC with six decimal places
+for seconds. List cells use JSON. Column classes are included in the
+text. Embeddings are sorted by work id and rounded to eight decimal
+places. These rules make version 2 independent of the R version,
+platform, time zone and collation locale.
 Hashes of version 2 therefore differ from the hashes that earlier
 versions of scimapR computed for the same content. Version 1 is the
 algorithm of these earlier versions. Certificates (\code{\link[=sm_certificate]{sm_certificate()}})
 and snapshots (\code{\link[=sm_snapshot]{sm_snapshot()}}) record the version they used as
 \code{hash_version}; those written before it existed are checked with
-version 1, so they stay verifiable.
+version 1. Version 1 uses R's binary serialisation and depends on the
+R version: older certificates and snapshots remain verifiable on the
+R version that wrote them.
 }
 \examples{
 corpus <- sm_example_corpus()
