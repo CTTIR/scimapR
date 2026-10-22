@@ -74,6 +74,7 @@ sm_enrich_specter <- function(corpus,
                               verbose = TRUE,
                               call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   .check_flag(replace, call = call)
   .check_flag(mix_models, call = call)
   if (replace && mix_models) {

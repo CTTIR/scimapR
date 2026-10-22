@@ -51,6 +51,7 @@ sm_screen_against_question <- function(corpus,
                                        verbose = TRUE,
                                        call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   if (!is_sm_question(question)) {
     cli::cli_abort(
       "{.arg question} must be an {.cls sm_question} object.",
@@ -319,6 +320,7 @@ sm_screen_regex <- function(corpus,
                             unicode = TRUE,
                             call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
 
   if (missing(include_terms) || length(include_terms) == 0L) {
     cli::cli_abort(

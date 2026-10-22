@@ -27,6 +27,7 @@ sm_enrich_opencitations <- function(corpus,
                                     verbose = TRUE,
                                     call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
 
   dois <- corpus$works$doi
   has_doi <- !is.na(dois) & nzchar(dois)

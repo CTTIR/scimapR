@@ -16,6 +16,41 @@
   paste0("S", formatC(seq_len(n), width = 9, flag = "0"))
 }
 
+.next_ids <- function(prefix, n, taken) {
+  nums <- as.numeric(sub(paste0("^", prefix), "",
+                         taken[grepl(paste0("^", prefix, "[0-9]+$"), taken)]))
+  start <- max(c(0, nums))
+  ids <- sprintf("%s%09.0f", prefix, start + seq_len(n))
+  if (any(!is.finite(start + seq_len(n))) || anyDuplicated(ids) ||
+        any(ids %in% taken)) {
+    cli::cli_abort("Cannot allocate distinct IDs after {.val {start}}.",
+                   class = "scimapR_id_range_exhausted")
+  }
+  ids
+}
+
+.rekey_map <- function(ids2, ids1, prefix, keep = character(),
+                       taken = character()) {
+  shared <- setdiff(intersect(ids2[!is.na(ids2)], ids1), keep)
+  stats::setNames(.next_ids(prefix, length(shared), c(ids1, ids2, taken)),
+                  shared)
+}
+
+.apply_id_map <- function(x, map) {
+  pos <- match(x, names(map))
+  hit <- !is.na(x) & !is.na(pos)
+  x[hit] <- unname(map[pos[hit]])
+  x
+}
+
+.complete_key_rows <- function(key) {
+  Reduce(`&`, lapply(key, function(x) {
+    ok <- !is.na(x)
+    if (is.character(x)) ok <- ok & nzchar(trimws(x))
+    ok
+  }), init = rep(TRUE, nrow(key)))
+}
+
 .make_work_id <- function(prefix = "W", existing_ids = character()) {
   max_num <- 0L
   if (length(existing_ids) > 0) {

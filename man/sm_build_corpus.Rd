@@ -9,7 +9,8 @@ sm_build_corpus(..., dedupe = TRUE, mix_models = FALSE, verbose = TRUE)
 \arguments{
 \item{...}{One or more \code{sm_corpus} objects or file paths.}
 
-\item{dedupe}{Logical; deduplicate by DOI after combining?}
+\item{dedupe}{Logical; deduplicate by normalised DOI after combining,
+keeping the most complete record and its child rows?}
 
 \item{mix_models}{Logical; bind embeddings that come from different
 models (or of which only one input records its model)? Passed to
@@ -30,6 +31,7 @@ embeddings apply: embeddings that record different models in
 \code{metadata$embedding}, or of which only one input records its model,
 stop the function (class \code{scimapR_embedding_model_mismatch}) unless
 \code{mix_models = TRUE}.
+Pass every file of a split export; the IDs stay unique.
 }
 \examples{
 c1 <- sm_example_corpus(n_works = 50, seed = 1)

@@ -9,7 +9,7 @@
     authorships = c("work_id", "author_id"),
     institutions = "institution_id",
     sources = "source_id",
-    references = c("work_id", "cited_work_id"),
+    references = c("work_id", "ref_index"),
     concepts = c("work_id", "concept_id"),
     provenance = "work_id",
     screening = "work_id"
@@ -53,16 +53,58 @@
   missing_key_new <- setdiff(key, names(new))
   if (length(missing_key_existing) > 0L || length(missing_key_new) > 0L) {
     cli::cli_warn(c(
-      "!" = "Table {.field {table}}: key column{?s} {.field {key}} missing from {if (length(missing_key_new)) 'the enrichment source' else 'the corpus table'}; skipping this source.",
+      "!" = "Table {.field {table}}: key column{?s} {.field {key}} missing;
+             skipping this source.",
       "i" = "Supply the key via {.arg .by} or include it in the source."
     ))
     return(existing)
   }
 
+  complete_new <- .complete_key_rows(new[key])
+  n_missing <- sum(!complete_new)
+  if (n_missing > 0L) {
+    cli::cli_warn(
+      "Table {.field {table}}: skipping {n_missing} enrichment row{?s}
+       with missing keys.",
+      class = "scimapR_materialise_na_keys", call = call
+    )
+    new <- new[complete_new, , drop = FALSE]
+  }
+  if (table == "concepts" && "vocabulary" %in% key) {
+    existing$vocabulary <- .normalize_concept_vocab(existing$vocabulary)
+    new$vocabulary <- .normalize_concept_vocab(new$vocabulary)
+  }
+  complete_existing <- .complete_key_rows(existing[key])
+  if (any(!complete_existing)) {
+    n_missing <- sum(!complete_existing)
+    cli::cli_inform(
+      "Table {.field {table}}: {n_missing} corpus row{?s}
+       with missing keys stay unmatched.",
+      class = "scimapR_materialise_unmatched_rows"
+    )
+  }
+  if (table %in% c("works", "authors", "institutions", "sources",
+                   "references", "concepts")) {
+    keys <- existing[complete_existing, key, drop = FALSE]
+    n_repeated <- sum(duplicated(keys) | duplicated(keys, fromLast = TRUE))
+    if (n_repeated > 0L) {
+      cli::cli_abort(c(
+        "Table {.field {table}}: {n_repeated} rows share
+         the key {.field {key}}.",
+        "i" = "Supply a unique row key via {.arg .by}.",
+        "i" = if (table == "works") {
+          "Or remove duplicate works with {.fun sm_dedupe}."
+        }
+      ), class = "scimapR_materialise_key_not_unique", call = call)
+    }
+  }
+
   # de-duplicate the enrichment by key (keep first), warn if needed
   dup <- duplicated(new[key])
   if (any(dup)) {
-    cli::cli_warn("Table {.field {table}}: enrichment has {sum(dup)} duplicate key row{?s}; keeping the first per key.")
+    cli::cli_warn("Table {.field {table}}: enrichment has
+                   {sum(dup)} duplicate key row{?s};
+                   keeping the first per key.")
     new <- new[!dup, , drop = FALSE]
   }
 
@@ -70,7 +112,8 @@
   if (length(data_cols) == 0L) return(existing)
 
   common <- intersect(data_cols, names(existing))
-  joined <- dplyr::left_join(existing, new, by = key, suffix = c("", ".sm_new"))
+  joined <- dplyr::left_join(existing, new, by = key, suffix = c("", ".sm_new"),
+                             na_matches = "never", relationship = "many-to-one")
 
   for (col in common) {
     newcol <- joined[[paste0(col, ".sm_new")]]
@@ -103,7 +146,13 @@
 #'   cached `.rds`/`.parquet` files; or a single directory path containing
 #'   `<table>.rds` / `<table>.parquet` files.
 #' @param .by Optional named list mapping table name to its join key column(s).
-#'   Defaults to each table's natural key (e.g. `works` -> `work_id`).
+#'   Missing or empty key values never match. Defaults: `works`, `provenance`
+#'   and `screening` use `work_id`; `authors` use `author_id`; `institutions`
+#'   use `institution_id`; `sources` use `source_id`; `authorships` use
+#'   `(work_id, author_id)`; `references` use `(work_id, ref_index)` (formerly
+#'   `(work_id, cited_work_id)`); `concepts` use `(work_id, concept_id)`.
+#'   For keywords, use
+#'   `.by = list(concepts = c("work_id", "vocabulary", "concept_name"))`.
 #' @param overwrite Logical (default `FALSE`). When `FALSE`, enrichment only
 #'   fills `NA` cells of overlapping columns; populated cells are never
 #'   overwritten. When `TRUE`, non-`NA` enrichment values win.
@@ -114,9 +163,16 @@
 #'   preserved (this is a column-enrichment join, not a row append).
 #'
 #' @details
-#' Missing keys produce a `cli::cli_warn` and skip that source rather than
-#' erroring. Internally, row-binds use a type-safe helper so a `NULL`/empty
-#' source never corrupts a column's type. After a merge into `concepts`,
+#' Missing key columns warn and skip the source. Enrichment rows with a
+#' missing key value are dropped with `scimapR_materialise_na_keys`;
+#' corpus rows with missing keys keep their values and produce a
+#' `scimapR_materialise_unmatched_rows` message. A repeated complete key in
+#' `works`, `authors`, `institutions`, `sources`, `references` or `concepts`
+#' aborts with `scimapR_materialise_key_not_unique`. The group keys in
+#' `authorships`, `provenance` and `screening` can repeat: every matching row
+#' receives the enrichment. Duplicate enrichment keys warn and keep the first.
+#' Concept vocabularies used as keys are normalised on both sides before
+#' matching. After a merge into `concepts`,
 #' legacy spellings in its `vocabulary` column are renamed to the names of
 #' [sm_concept_vocabularies()], without a message.
 #'
@@ -132,6 +188,7 @@
 sm_materialise <- function(corpus, sources, .by = NULL, overwrite = FALSE,
                            call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   .check_flag(overwrite, call = call)
 
   # resolve a directory path to a named list of files

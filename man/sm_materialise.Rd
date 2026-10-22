@@ -22,7 +22,13 @@ cached \code{.rds}/\code{.parquet} files; or a single directory path containing
 \verb{<table>.rds} / \verb{<table>.parquet} files.}
 
 \item{.by}{Optional named list mapping table name to its join key column(s).
-Defaults to each table's natural key (e.g. \code{works} -> \code{work_id}).}
+Missing or empty key values never match. Defaults: \code{works}, \code{provenance}
+and \code{screening} use \code{work_id}; \code{authors} use \code{author_id}; \code{institutions}
+use \code{institution_id}; \code{sources} use \code{source_id}; \code{authorships} use
+\verb{(work_id, author_id)}; \code{references} use \verb{(work_id, ref_index)} (formerly
+\verb{(work_id, cited_work_id)}); \code{concepts} use \verb{(work_id, concept_id)}.
+For keywords, use
+\code{.by = list(concepts = c("work_id", "vocabulary", "concept_name"))}.}
 
 \item{overwrite}{Logical (default \code{FALSE}). When \code{FALSE}, enrichment only
 fills \code{NA} cells of overlapping columns; populated cells are never
@@ -42,9 +48,16 @@ replaces hand-written cache-to-corpus joins (which are easy to get wrong ---
 e.g. a \code{bind_rows()} that coerces a \code{NULL} element to a logical column).
 }
 \details{
-Missing keys produce a \code{cli::cli_warn} and skip that source rather than
-erroring. Internally, row-binds use a type-safe helper so a \code{NULL}/empty
-source never corrupts a column's type. After a merge into \code{concepts},
+Missing key columns warn and skip the source. Enrichment rows with a
+missing key value are dropped with \code{scimapR_materialise_na_keys};
+corpus rows with missing keys keep their values and produce a
+\code{scimapR_materialise_unmatched_rows} message. A repeated complete key in
+\code{works}, \code{authors}, \code{institutions}, \code{sources}, \code{references} or \code{concepts}
+aborts with \code{scimapR_materialise_key_not_unique}. The group keys in
+\code{authorships}, \code{provenance} and \code{screening} can repeat: every matching row
+receives the enrichment. Duplicate enrichment keys warn and keep the first.
+Concept vocabularies used as keys are normalised on both sides before
+matching. After a merge into \code{concepts},
 legacy spellings in its \code{vocabulary} column are renamed to the names of
 \code{\link[=sm_concept_vocabularies]{sm_concept_vocabularies()}}, without a message.
 }

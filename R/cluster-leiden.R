@@ -18,6 +18,9 @@
 #'   without a row in `corpus$embeddings`, get `NA`.
 #'
 #' @details
+#' Work IDs and network node names must be unique. Repeated IDs stop
+#' with class `scimapR_duplicate_ids`; use [sm_validate()] to inspect them.
+#'
 #' The Leiden algorithm (Traag et al., 2019) is a refinement of the Louvain
 #' algorithm that guarantees well-connected communities. It operates on
 #' the edge weights of the network.
@@ -38,6 +41,7 @@ sm_cluster_leiden <- function(corpus,
                               resolution = 1.0,
                               call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   rlang::check_installed("igraph", reason = "for Leiden community detection.")
 
   if (!is.numeric(resolution) || length(resolution) != 1L || resolution <= 0) {
@@ -48,6 +52,7 @@ sm_cluster_leiden <- function(corpus,
   }
 
   works <- corpus$works
+  .check_unique_ids(works$work_id, "work IDs", call = call)
   if (nrow(works) == 0L) {
     return(corpus)
   }
@@ -70,6 +75,7 @@ sm_cluster_leiden <- function(corpus,
     )
   }
 
+  .check_unique_ids(igraph::V(g)$name, "network node names", call = call)
   if (igraph::vcount(g) == 0L) {
     return(corpus)
   }
@@ -103,7 +109,8 @@ sm_cluster_leiden <- function(corpus,
   if ("cluster_id" %in% names(corpus$works)) {
     corpus$works$cluster_id <- NULL
   }
-  corpus$works <- dplyr::left_join(corpus$works, cluster_map, by = "work_id")
+  corpus$works <- dplyr::left_join(corpus$works, cluster_map, by = "work_id",
+                                   relationship = "one-to-one")
 
   n_clusters <- length(unique(cluster_map$cluster_id))
   cli::cli_inform(c(

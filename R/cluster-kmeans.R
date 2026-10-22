@@ -17,6 +17,9 @@
 #'   works without text, see [sm_embed_works()]) get `NA`.
 #'
 #' @details
+#' Work IDs and embedding row names must be unique. Repeated IDs stop
+#' with class `scimapR_duplicate_ids`; use [sm_validate()] to inspect them.
+#'
 #' Requires embeddings in `corpus$embeddings`. Compute them first with
 #' [sm_embed_works()] or load from cache with [sm_embed_load()].
 #'
@@ -37,11 +40,15 @@ sm_cluster_kmeans <- function(corpus,
                               n_components = 5L,
                               call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   k <- .check_positive_int(k, call = call)
   reducer <- rlang::arg_match(reducer, error_call = call)
   n_components <- .check_positive_int(n_components, call = call)
 
   .check_embeddings(corpus, call = call)
+  .check_unique_ids(corpus$works$work_id, "work IDs", call = call)
+  .check_unique_ids(rownames(corpus$embeddings), "embedding row names",
+                    call = call)
 
   emb <- corpus$embeddings
   n <- nrow(emb)
@@ -83,7 +90,8 @@ sm_cluster_kmeans <- function(corpus,
   if ("cluster_id" %in% names(corpus$works)) {
     corpus$works$cluster_id <- NULL
   }
-  corpus$works <- dplyr::left_join(corpus$works, cluster_map, by = "work_id")
+  corpus$works <- dplyr::left_join(corpus$works, cluster_map, by = "work_id",
+                                   relationship = "one-to-one")
 
   # Summary
   sizes <- table(cluster_ids)

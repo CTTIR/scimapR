@@ -28,6 +28,7 @@ sm_enrich_orcid <- function(corpus,
                             verbose = TRUE,
                             call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
 
   orcids <- corpus$authors$orcid
   has_orcid <- !is.na(orcids) & nzchar(orcids)

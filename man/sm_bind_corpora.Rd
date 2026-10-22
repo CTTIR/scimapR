@@ -4,7 +4,7 @@
 \alias{sm_bind_corpora}
 \title{Bind two corpora together}
 \usage{
-sm_bind_corpora(corpus1, corpus2, mix_models = FALSE)
+sm_bind_corpora(corpus1, corpus2, mix_models = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{corpus1}{An \code{sm_corpus}.}
@@ -14,17 +14,28 @@ sm_bind_corpora(corpus1, corpus2, mix_models = FALSE)
 \item{mix_models}{Logical; bind embeddings that come from different
 models (or of which only one corpus records its model)? Defaults to
 \code{FALSE}. See Details.}
+
+\item{verbose}{Logical; report the number of re-keyed IDs and works
+whose normalised DOI also occurs in the first input?}
 }
 \value{
 An \code{sm_corpus} object.
 }
 \description{
-Row-bind all tables of two \code{sm_corpus} objects, the yearly citation
-counts (\code{citations_by_year}) too when either corpus has them. The bound
+Combine two corpora, assigning new IDs to colliding records in the
+second input and rewriting their links in every table and embedding.
+This includes yearly citation counts (\code{citations_by_year}). The bound
 corpus keeps the metadata of \code{corpus1}, with the local input files
 (\code{\link[=sm_register_input]{sm_register_input()}}) of both corpora, each file and content once.
 }
 \details{
+Work IDs shared by the inputs always get new values in \code{corpus2}.
+Author, source and institution IDs are shared only when their lookup
+rows agree on every common column, including missing and list values.
+Other collisions get new IDs above the numbers used by either input;
+external cited work IDs are reserved too. Shared DOIs remain separate
+records until \code{\link[=sm_dedupe]{sm_dedupe()}} is called. The merged corpus is unlocked.
+
 Embeddings are bound when both corpora have them, with the same number
 of dimensions, and when they come from the same model as
 \code{metadata$embedding} records it (see \code{\link[=sm_corpus]{sm_corpus()}}); the bound corpus
@@ -35,7 +46,8 @@ function stops (class \code{scimapR_embedding_model_mismatch}) unless
 \code{"mixed"}. Embeddings of two corpora that record no model, such as
 corpora embedded by earlier versions of scimapR, are bound as before,
 and the model of the bound rows stays unrecorded. When only one corpus
-has embeddings, or their widths differ, the bound corpus has none.
+has embeddings, or their widths differ, the bound corpus has none and
+warns with class \code{scimapR_bind_embeddings_dropped}.
 }
 \seealso{
 Other corpus:

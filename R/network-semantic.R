@@ -16,6 +16,9 @@
 #'   (cosine similarity, between 0 and 1).
 #'
 #' @details
+#' Work IDs and embedding row names must be unique. Repeated IDs stop
+#' with class `scimapR_duplicate_ids`; use [sm_validate()] to inspect them.
+#'
 #' Embeddings must be present in `corpus$embeddings` (a numeric matrix with
 #' row names matching `work_id`). Use [sm_embed_works()] to compute them.
 #' Works without a row, such as works without text, are not nodes.
@@ -39,6 +42,8 @@ sm_network_semantic <- function(corpus,
 
   works <- corpus$works
   emb <- corpus$embeddings
+  .check_unique_ids(works$work_id, "work IDs", call = call)
+  .check_unique_ids(rownames(emb), "embedding row names", call = call)
 
   # --- empty input / missing embeddings guard ---
   if (nrow(works) == 0L || is.null(emb) || nrow(emb) == 0L) {
@@ -52,7 +57,8 @@ sm_network_semantic <- function(corpus,
 
   if (n < 2L) {
     nodes <- tibble::tibble(name = rownames(emb) %||% works$work_id[1])
-    nodes <- dplyr::left_join(nodes, works, by = c("name" = "work_id"))
+    nodes <- dplyr::left_join(nodes, works, by = c("name" = "work_id"),
+                              relationship = "many-to-one")
     edges <- tibble::tibble(from = integer(), to = integer(),
                             weight = double())
     return(tidygraph::tbl_graph(nodes = nodes, edges = edges, directed = FALSE))
@@ -103,7 +109,8 @@ sm_network_semantic <- function(corpus,
     work_ids <- works$work_id[seq_len(n)]
   }
   nodes <- tibble::tibble(name = work_ids)
-  nodes <- dplyr::left_join(nodes, works, by = c("name" = "work_id"))
+  nodes <- dplyr::left_join(nodes, works, by = c("name" = "work_id"),
+                            relationship = "many-to-one")
 
   tidygraph::tbl_graph(nodes = nodes, edges = edge_df, directed = FALSE)
 }

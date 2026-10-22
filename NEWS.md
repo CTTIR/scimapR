@@ -1,5 +1,46 @@
 # scimapR (development version)
 
+- Functions that modify a corpus now refuse locked inputs, including
+  merging, deduplication, materialisation, citation maturity, enrichers,
+  embeddings, clustering, labels, affiliation matching and screening.
+  Subsets stay locked; merged corpora are unlocked. `sm_lock()` records
+  a content hash, and `sm_certificate()` and `sm_validate()` report later
+  changes to that content. Printing continues to show only the lock status.
+
+- Subsets (`[`, `sm_filter_works()`, `sm_query()`) and `sm_dedupe()` keep
+  only the authors, institutions and sources their works refer to, so
+  printing, summaries, citations and certificates count the subset. Its
+  corpus hash changes accordingly.
+- `sm_audit_gender()` and `sm_summary_authors()` on a filtered corpus count
+  only its contributing authors. The `genderize` and `ssa` methods look up
+  only their names.
+- `sm_cluster_kmeans()`, `sm_cluster_hdbscan()`, `sm_cluster_leiden()` and
+  `sm_network_semantic()` stop with an error naming repeated work IDs,
+  embedding row names or network nodes instead of adding duplicate works.
+  `sm_dedupe()` keeps one embedding row per retained work, with a warning
+  when duplicate embedding rows are removed.
+- `sm_dedupe(by =)` now uses the named works columns, such as `"pmid"` or
+  `c("title", "year")`; previously it ignored `by` and always used DOI.
+  Missing and empty values never count as duplicates, DOIs and titles are
+  normalised, and retained works keep their input order.
+- `sm_materialise()` skips enrichment rows with missing keys with a warning
+  and leaves corpus rows with missing keys unmatched. Previously, one row
+  could overwrite multiple references or keywords. The default reference
+  key is now `(work_id, ref_index)`, replacing `(work_id, cited_work_id)`.
+  Ambiguous row keys in works, authors, institutions, sources, references
+  or concepts now cause an error; group keys in authorships, provenance
+  and screening may still repeat.
+
+- `sm_bind_corpora()` and `sm_build_corpus()` give the second corpus new
+  work, author, source and institution IDs where the first already uses
+  them, and rewrite every table that refers to them. Previously, separately
+  read files merged into colliding works and credited papers to the wrong
+  authors and journals. Identical lookup records share one ID. The new
+  `verbose` argument reports re-keying, and incompatible embedding widths
+  or one-sided embeddings now warn when dropped. The existing `mix_models`
+  rule for different recorded models remains. `sm_validate()` also checks
+  author, source, institution and embedding links and duplicate IDs.
+
 - New synthetic example files shaped like a Web of Science export of three
   invented military-medical units and their civilian partners:
   `example_realuse_corpus.rds` (150 works), `example_realuse_reference.csv`

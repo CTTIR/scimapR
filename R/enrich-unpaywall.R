@@ -29,6 +29,7 @@ sm_enrich_unpaywall <- function(corpus,
                                 verbose = TRUE,
                                 call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
 
   if (!nzchar(mailto)) {
     cli::cli_abort(

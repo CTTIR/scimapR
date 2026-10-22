@@ -35,6 +35,9 @@ Clusters works using K-means clustering via \code{\link[stats:kmeans]{stats::kme
 reduces embedding dimensions first with UMAP or PCA.
 }
 \details{
+Work IDs and embedding row names must be unique. Repeated IDs stop
+with class \code{scimapR_duplicate_ids}; use \code{\link[=sm_validate]{sm_validate()}} to inspect them.
+
 Requires embeddings in \code{corpus$embeddings}. Compute them first with
 \code{\link[=sm_embed_works]{sm_embed_works()}} or load from cache with \code{\link[=sm_embed_load]{sm_embed_load()}}.
 

@@ -279,3 +279,21 @@ test_that("as_sm_corpus() rebuilds a corpus with yearly counts from a list", {
   back <- as_sm_corpus(unclass(corpus))
   expect_identical(back$citations_by_year, corpus$citations_by_year)
 })
+
+test_that("subsets prune lookup tables to the works they keep", {
+  x <- sm_example_corpus(n_works = 200, n_authors = 80,
+                         with_embeddings = FALSE, seed = 1)
+  x$institutions <- tibble::tibble(institution_id = c("I1", "I2"))
+  x$authorships$institution_id <- "I1"
+  subsets <- list(x[1:5], sm_filter_works(x, year_range = c(2023, 2024)),
+                  x[integer()])
+  for (sub in subsets) {
+    expect_setequal(sub$authors$author_id, unique(sub$authorships$author_id))
+    expect_setequal(sub$institutions$institution_id,
+                    unique(sub$authorships$institution_id))
+    expect_setequal(sub$sources$source_id, unique(sub$works$source_id))
+    expect_equal(summary(sub)$n_authors,
+                 length(unique(sub$authorships$author_id)))
+  }
+  expect_identical(x$authors$author_id, .generate_author_id(80L))
+})

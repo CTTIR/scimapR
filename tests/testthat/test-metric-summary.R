@@ -32,6 +32,20 @@ test_that("sm_summary_works computes correct aggregates", {
 
 # --- sm_summary_authors -------------------------------------------------
 
+test_that("author summaries use the population of the subset", {
+  x <- sm_example_corpus(n_works = 200, n_authors = 80,
+                         with_embeddings = FALSE, seed = 1)
+  x$authors$orcid <- rep(c("0000-example", NA_character_), 40L)
+  sub <- x[1:5]
+  expected <- x$authors[x$authors$author_id %in% sub$authorships$author_id, ]
+  out <- sm_summary_authors(sub)
+  expect_equal(out$n_authors, nrow(expected))
+  expect_equal(out$pct_orcid, round(mean(!is.na(expected$orcid)) * 100, 1))
+  full <- sm_summary_authors(x)
+  expect_equal(full$n_authors, 80L)
+  expect_equal(full$pct_orcid, 50)
+})
+
 test_that("sm_summary_authors returns a typed empty row for no authors", {
   empty <- sm_corpus(works = scimapR:::.empty_works())
   out <- sm_summary_authors(empty)

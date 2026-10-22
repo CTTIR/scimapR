@@ -155,6 +155,7 @@ sm_export_covidence <- function(corpus, path) {
 #' @export
 sm_merge_screening_decisions <- function(corpus, decisions) {
   .check_sm_corpus(corpus)
+  .check_corpus_unlocked(corpus)
 
   corpus$screening <- dplyr::bind_rows(corpus$screening, decisions)
   corpus

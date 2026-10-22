@@ -26,6 +26,9 @@ embedding space (cosine similarity). The edge weight is the cosine
 similarity between the connected works.
 }
 \details{
+Work IDs and embedding row names must be unique. Repeated IDs stop
+with class \code{scimapR_duplicate_ids}; use \code{\link[=sm_validate]{sm_validate()}} to inspect them.
+
 Embeddings must be present in \code{corpus$embeddings} (a numeric matrix with
 row names matching \code{work_id}). Use \code{\link[=sm_embed_works]{sm_embed_works()}} to compute them.
 Works without a row, such as works without text, are not nodes.

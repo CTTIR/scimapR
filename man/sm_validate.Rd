@@ -12,10 +12,15 @@ sm_validate(corpus, call = rlang::caller_env())
 \item{call}{Caller environment for error reporting.}
 }
 \value{
-A tibble of validation issues, or a 0-row tibble if clean.
+A tibble with \code{table}, \code{issue} and \code{n_affected}, or a 0-row
+tibble with the same columns if clean. Missing links count distinct
+unresolved IDs; duplicates count surplus rows.
 }
 \description{
 Check referential integrity across all corpus tables and report issues.
+Checks work, author, source and institution links, duplicate lookup
+IDs, and duplicate or orphan embedding row names.
+A locked corpus with a stored hash is also checked for changed content.
 }
 \examples{
 corpus <- sm_example_corpus()

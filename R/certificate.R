@@ -148,6 +148,10 @@ sm_certificate <- function(corpus,
   rlang::check_installed("yaml", reason = "to create corpus certificates.")
 
   corpus_hash <- sm_hash_corpus(corpus)
+  if (.lock_hash_mismatch(corpus, corpus_hash)) {
+    cli::cli_warn("Corpus content changed since {.fun sm_lock}.",
+                  class = "scimapR_lock_hash_mismatch", call = call)
+  }
   now <- Sys.time()
   pkg_version <- corpus$metadata$scimapR_version %||%
     tryCatch(as.character(utils::packageVersion("scimapR")),

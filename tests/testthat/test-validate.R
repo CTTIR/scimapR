@@ -75,3 +75,64 @@ test_that("sm_validate detects yearly counts of works not in works", {
   expect_identical(issues$n_affected, 1L)
   expect_identical(nrow(sm_validate(corpus[1:2])), 0L)
 })
+
+for (spec in list(
+  c("authorships", "author_id", "authors"),
+  c("authorships", "institution_id", "institutions"),
+  c("works", "source_id", "sources")
+)) {
+  local({
+    target <- spec
+    test_that(paste("sm_validate checks", target[1], target[2]), {
+      x <- sm_example_corpus(n_works = 10, n_authors = 5, seed = 1)
+      x[[target[1]]][[target[2]]][1:2] <- "missing"
+      issue <- sm_validate(x)
+      expect_identical(issue$table, target[1])
+      expect_identical(issue$issue, paste(target[2], "not in", target[3]))
+      expect_identical(issue$n_affected, 1L)
+    })
+  })
+}
+
+for (spec in list(c("authors", "author_id"), c("sources", "source_id"),
+                  c("institutions", "institution_id"))) {
+  local({
+    target <- spec
+    test_that(paste("sm_validate counts duplicate", target[2]), {
+      x <- sm_example_corpus(n_works = 10, n_authors = 5, seed = 1)
+      if (nrow(x[[target[1]]]) == 0L) {
+        x[[target[1]]] <- tibble::as_tibble(
+          stats::setNames(list("I1"), target[2])
+        )
+      }
+      x[[target[1]]] <- dplyr::bind_rows(x[[target[1]]], x[[target[1]]][1, ],
+                                         x[[target[1]]][1, ])
+      issue <- sm_validate(x)
+      expect_identical(issue$table, target[1])
+      expect_identical(issue$issue, paste("duplicate", target[2]))
+      expect_identical(issue$n_affected, 2L)
+    })
+  })
+}
+
+test_that("sm_validate checks embedding identity", {
+  x <- sm_example_corpus(n_works = 10, n_authors = 5, seed = 1)
+  rownames(x$embeddings)[1:2] <- "missing"
+  issues <- sm_validate(x)
+  expect_identical(issues$table, rep("embeddings", 2L))
+  expect_identical(issues$issue,
+                   c("duplicate row name", "row name not in works"))
+  expect_identical(issues$n_affected, c(1L, 1L))
+})
+
+test_that("validation reports a changed lock hash", {
+  x <- suppressMessages(sm_lock(sm_example_corpus(n_works = 10, seed = 1)))
+  expect_equal(nrow(sm_validate(x)), 0L)
+  x$works$title[1] <- "Changed title"
+  issue <- sm_validate(x)
+  expect_identical(issue$table, "metadata")
+  expect_identical(issue$issue, "content changed since sm_lock()")
+  expect_identical(issue$n_affected, 1L)
+  x$metadata$lock_hash <- NULL
+  expect_equal(nrow(sm_validate(x)), 0L)
+})
