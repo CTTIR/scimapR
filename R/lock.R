@@ -9,6 +9,18 @@
 #' `sm_unlock()` reverses the lock but requires explicit confirmation to
 #' prevent accidental unlocking of archived corpora.
 #'
+#' @details
+#' Merging, deduplication, materialisation, citation maturity, enrichment,
+#' embedding changes, clustering, labelling, affiliation matching and
+#' screening refuse locked inputs, as do refreshing and input registration.
+#' Subsets remain locked but lose their stored lock hash. Merged corpora
+#' are unlocked; unlock the inputs explicitly before merging.
+#'
+#' The lock records a content hash. [sm_certificate()] warns and
+#' [sm_validate()] reports when direct edits changed that content.
+#' Printing shows only the lock status and does not hash the corpus.
+#' Earlier locked corpora without a stored hash are not checked.
+#'
 #' @param corpus An `sm_corpus` object.
 #' @param reason Optional character string documenting why the corpus was
 #'   locked (e.g., `"submitted for review"`, `"certificate generated"`).
@@ -33,7 +45,7 @@ sm_lock <- function(corpus,
   .check_sm_corpus(corpus, call = call)
   .check_string(reason, allow_null = TRUE, call = call)
 
- if (isTRUE(corpus$metadata$is_locked)) {
+  if (isTRUE(corpus$metadata$is_locked)) {
     cli::cli_inform(c("i" = "Corpus is already locked."))
     return(corpus)
   }
@@ -41,6 +53,7 @@ sm_lock <- function(corpus,
   corpus$metadata$is_locked <- TRUE
   corpus$metadata$locked_at <- Sys.time()
   corpus$metadata$lock_reason <- reason %||% NA_character_
+  corpus$metadata$lock_hash <- sm_hash_corpus(corpus)
 
   cli::cli_inform(c(
     "v" = "Corpus locked.",
@@ -78,6 +91,7 @@ sm_unlock <- function(corpus,
   corpus$metadata$is_locked <- FALSE
   corpus$metadata$locked_at <- NULL
   corpus$metadata$lock_reason <- NULL
+  corpus$metadata$lock_hash <- NULL
 
   cli::cli_inform(c("v" = "Corpus unlocked."))
 
@@ -97,8 +111,14 @@ sm_unlock <- function(corpus,
           paste0("Lock reason: ", corpus$metadata$lock_reason)
         }
       ),
-      call = call
+      call = call, class = "scimapR_corpus_locked"
     )
   }
   invisible(corpus)
+}
+
+.lock_hash_mismatch <- function(corpus, hash = sm_hash_corpus(corpus)) {
+  isTRUE(corpus$metadata$is_locked) &&
+    !is.null(corpus$metadata$lock_hash) &&
+    !identical(corpus$metadata$lock_hash, hash)
 }

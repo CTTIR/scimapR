@@ -57,6 +57,7 @@
 #' table(corpus$works$cnci_provisional)
 sm_citation_maturity <- function(corpus, lag = 2L, call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   lag <- .check_positive_int(lag + 1L, call = call) - 1L  # allow lag = 0
 
   works <- corpus$works

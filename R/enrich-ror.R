@@ -30,6 +30,7 @@ sm_enrich_ror <- function(corpus,
                           verbose = TRUE,
                           call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
 
   # Get unique raw affiliations that don't yet have institution_ids
   aff_data <- corpus$authorships |>

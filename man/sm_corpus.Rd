@@ -91,7 +91,9 @@ are stored as integers. See Details.}
 An \code{sm_corpus} S3 object.
 
 \itemize{
-\item \code{[}: An \code{sm_corpus} with the selected works.
+\item \code{[}: An \code{sm_corpus} with the selected works and only the authors,
+institutions and sources they refer to. Counts and the corpus hash
+describe the subset, including when all works are selected.
 \item \code{length()}: Number of works (integer).
 \item \code{dim()}: Integer vector of length 2 (rows, columns of works table).
 }
@@ -115,6 +117,9 @@ authorships, institutions, sources, references, concepts, embeddings,
 provenance, screening decisions, and metadata.
 }
 \details{
+IDs are unique within a corpus; \code{\link[=sm_bind_corpora]{sm_bind_corpora()}} gives the second
+corpus new IDs where they collide.
+
 A corpus is a list of tables that share identifiers: \code{work_id} links
 every table to \code{works}, \code{author_id} links \code{authorships} to \code{authors},
 \code{institution_id} links them to \code{institutions} and \code{source_id} links
@@ -363,8 +368,12 @@ them and \code{\link[=sm_hash_corpus]{sm_hash_corpus()}} includes them when ther
 }
 
 
-\code{question_id} is set by \code{\link[=sm_corpus_for_question]{sm_corpus_for_question()}}. Optional: entries
-the readers add, such as \code{source_file} and \code{reader};
+\code{question_id} is set by \code{\link[=sm_corpus_for_question]{sm_corpus_for_question()}}. Optional entries
+\code{locked_at} (POSIXct), \code{lock_reason} (character) and \code{lock_hash}
+(character) record when, why and which content \code{\link[=sm_lock]{sm_lock()}} locked.
+Subsets remain locked but discard \code{lock_hash}.
+Other optional entries include those added by readers, such as
+\code{source_file} and \code{reader};
 \code{hash_version} (integer), the algorithm of \code{corpus_hash}
 (\code{\link[=sm_hash_corpus]{sm_hash_corpus()}}), which \code{\link[=sm_snapshot]{sm_snapshot()}} writes (a snapshot without
 it used version 1); and \code{local_inputs}, a tibble of the local files the

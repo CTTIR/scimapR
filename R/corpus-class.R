@@ -29,6 +29,9 @@
 #'   are stored as integers. See Details.
 #'
 #' @details
+#' IDs are unique within a corpus; [sm_bind_corpora()] gives the second
+#' corpus new IDs where they collide.
+#'
 #' A corpus is a list of tables that share identifiers: `work_id` links
 #' every table to `works`, `author_id` links `authorships` to `authors`,
 #' `institution_id` links them to `institutions` and `source_id` links
@@ -277,8 +280,12 @@
 #' | `last_refresh` | POSIXct | When [sm_refresh()] last ran |
 #' | `question_id` | character | Id of its [sm_question()] |
 #'
-#' `question_id` is set by [sm_corpus_for_question()]. Optional: entries
-#' the readers add, such as `source_file` and `reader`;
+#' `question_id` is set by [sm_corpus_for_question()]. Optional entries
+#' `locked_at` (POSIXct), `lock_reason` (character) and `lock_hash`
+#' (character) record when, why and which content [sm_lock()] locked.
+#' Subsets remain locked but discard `lock_hash`.
+#' Other optional entries include those added by readers, such as
+#' `source_file` and `reader`;
 #' `hash_version` (integer), the algorithm of `corpus_hash`
 #' ([sm_hash_corpus()]), which [sm_snapshot()] writes (a snapshot without
 #' it used version 1); and `local_inputs`, a tibble of the local files the
@@ -566,15 +573,19 @@ is_sm_corpus <- function(x) {
 #' @rdname sm_corpus
 #' @param i Row index for subsetting.
 #' @return
-#'   - `[`: An `sm_corpus` with the selected works.
+#'   - `[`: An `sm_corpus` with the selected works and only the authors,
+#'     institutions and sources they refer to. Counts and the corpus hash
+#'     describe the subset, including when all works are selected.
 #'   - `length()`: Number of works (integer).
 #'   - `dim()`: Integer vector of length 2 (rows, columns of works table).
 #' @export
 `[.sm_corpus` <- function(x, i, ...) {
   works <- x$works[i, , drop = FALSE]
   keep_ids <- works$work_id
+  metadata <- x$metadata
+  metadata$lock_hash <- NULL
 
-  new_sm_corpus(
+  out <- new_sm_corpus(
     works = works,
     authors = x$authors,
     authorships = dplyr::filter(x$authorships, .data$work_id %in% keep_ids),
@@ -588,10 +599,27 @@ is_sm_corpus <- function(x) {
     },
     provenance = dplyr::filter(x$provenance, .data$work_id %in% keep_ids),
     screening = dplyr::filter(x$screening, .data$work_id %in% keep_ids),
-    metadata = x$metadata,
+    metadata = metadata,
     citations_by_year = .filter_citations_by_year(x$citations_by_year,
                                                   keep_ids)
   )
+  .prune_lookups(out)
+}
+
+.prune_lookups <- function(corpus) {
+  corpus$authors <- dplyr::filter(
+    corpus$authors, !is.na(.data$author_id),
+    .data$author_id %in% corpus$authorships$author_id
+  )
+  corpus$institutions <- dplyr::filter(
+    corpus$institutions, !is.na(.data$institution_id),
+    .data$institution_id %in% corpus$authorships$institution_id
+  )
+  corpus$sources <- dplyr::filter(
+    corpus$sources, !is.na(.data$source_id),
+    .data$source_id %in% corpus$works$source_id
+  )
+  corpus
 }
 
 #' The yearly citation counts of the kept works (`NULL` stays `NULL`)

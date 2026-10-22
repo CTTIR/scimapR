@@ -58,3 +58,9 @@ test_that("str() lists the yearly citation counts only when present", {
   out <- cli::cli_fmt(str(sm_example_corpus(n_works = 5)))
   expect_false(any(grepl("citations_by_year", out, fixed = TRUE)))
 })
+test_that("printing a locked corpus does not hash its content", {
+  x <- suppressMessages(sm_lock(sm_example_corpus(n_works = 10, seed = 1)))
+  x$works$title[1] <- "Changed title"
+  local_mocked_bindings(sm_hash_corpus = function(...) stop("hash attempted"))
+  expect_match(paste(cli::cli_fmt(print(x)), collapse = "\n"), "Locked")
+})

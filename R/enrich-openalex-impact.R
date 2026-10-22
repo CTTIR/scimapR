@@ -85,6 +85,7 @@ sm_enrich_openalex_impact <- function(corpus,
                                       verbose = TRUE,
                                       call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   by <- unique(rlang::arg_match(by, multiple = TRUE, error_call = call))
   batch_size <- .check_positive_int(batch_size, call = call)
   .check_flag(verbose, call = call)

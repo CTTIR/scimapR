@@ -88,3 +88,18 @@ test_that("works without an embedding row are no node and get no cluster", {
   expect_true(all(is.na(out$works$cluster_id[1:4])))
   expect_false(anyNA(out$works$cluster_id[-(1:4)]))
 })
+test_that("Leiden rejects repeated work, embedding and supplied node IDs", {
+  skip_if_not_installed("igraph")
+  x <- sm_example_corpus(n_works = 10, n_authors = 5, seed = 1)
+  rownames(x$embeddings)[2] <- rownames(x$embeddings)[1]
+  expect_error(sm_cluster_leiden(x), x$works$work_id[1],
+               class = "scimapR_duplicate_ids")
+  rownames(x$embeddings) <- x$works$work_id
+  x$works$work_id[2] <- x$works$work_id[1]
+  expect_error(sm_cluster_leiden(x), class = "scimapR_duplicate_ids")
+  x$works$work_id <- .generate_work_id(10)
+  g <- igraph::make_ring(10)
+  igraph::V(g)$name <- rep(x$works$work_id[1], 10)
+  expect_error(sm_cluster_leiden(x, network = g),
+               class = "scimapR_duplicate_ids")
+})

@@ -30,6 +30,7 @@ sm_enrich_concepts <- function(corpus,
                                verbose = TRUE,
                                call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   source <- rlang::arg_match(source, error_call = call)
 
   if (source == "openalex") {

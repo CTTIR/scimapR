@@ -149,6 +149,7 @@ sm_cluster_label <- function(corpus,
                              noise = 0L,
                              call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   method <- rlang::arg_match(method, error_call = call)
   n_terms <- .check_positive_int(n_terms, call = call)
   if (!is.null(min_works)) {

@@ -94,6 +94,7 @@ sm_embed_save <- function(corpus, path, call = rlang::caller_env()) {
 #' }
 sm_embed_load <- function(corpus, path, call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   .check_string(path, call = call)
   .check_file_exists(path, call = call)
 

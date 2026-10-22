@@ -122,6 +122,7 @@ sm_affiliation_match <- function(corpus,
                                  unicode = TRUE,
                                  call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   .check_flag(email_domain_fallback, call = call)
   .check_flag(postcode_signal, call = call)
   .check_flag(unicode, call = call)
@@ -498,6 +499,7 @@ sm_attribute_institution <- function(corpus,
                                      ror_table = NULL,
                                      call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   vocabulary <- rlang::arg_match(vocabulary, error_call = call)
 
   if (!"institution_match" %in% names(corpus$authorships)) {

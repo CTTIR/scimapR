@@ -32,6 +32,18 @@ reproducibility after generating a \code{\link[=sm_certificate]{sm_certificate()
 \code{sm_unlock()} reverses the lock but requires explicit confirmation to
 prevent accidental unlocking of archived corpora.
 }
+\details{
+Merging, deduplication, materialisation, citation maturity, enrichment,
+embedding changes, clustering, labelling, affiliation matching and
+screening refuse locked inputs, as do refreshing and input registration.
+Subsets remain locked but lose their stored lock hash. Merged corpora
+are unlocked; unlock the inputs explicitly before merging.
+
+The lock records a content hash. \code{\link[=sm_certificate]{sm_certificate()}} warns and
+\code{\link[=sm_validate]{sm_validate()}} reports when direct edits changed that content.
+Printing shows only the lock status and does not hash the corpus.
+Earlier locked corpora without a stored hash are not checked.
+}
 \examples{
 corpus <- sm_example_corpus()
 locked <- sm_lock(corpus, reason = "archival snapshot")

@@ -1035,3 +1035,12 @@ test_that("rebuild messages leave out empty step and input lines", {
   expect_match(msg, "Step 2, \"wos\" (file)", fixed = TRUE)
   expect_no_match(msg, "Local input", fixed = TRUE)
 })
+test_that("certificates warn when a locked corpus changed", {
+  skip_if_not_installed("yaml")
+  x <- suppressMessages(sm_lock(sm_example_corpus(n_works = 10, seed = 1)))
+  expect_no_warning(sm_certificate(x))
+  x$works$title[1] <- "Changed title"
+  expect_warning(cert <- sm_certificate(x),
+                 class = "scimapR_lock_hash_mismatch")
+  expect_true(cert$is_locked)
+})

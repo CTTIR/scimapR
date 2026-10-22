@@ -34,6 +34,9 @@ Clusters works using the Leiden community detection algorithm via
 similarity network is built automatically from embeddings.
 }
 \details{
+Work IDs and network node names must be unique. Repeated IDs stop
+with class \code{scimapR_duplicate_ids}; use \code{\link[=sm_validate]{sm_validate()}} to inspect them.
+
 The Leiden algorithm (Traag et al., 2019) is a refinement of the Louvain
 algorithm that guarantees well-connected communities. It operates on
 the edge weights of the network.

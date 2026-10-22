@@ -2,6 +2,29 @@ test_that("sm_audit_gender rejects non-corpus input", {
   expect_error(sm_audit_gender(list(a = 1)), "sm_corpus")
 })
 
+test_that("filtered gender audits count and look up only retained authors", {
+  x <- sm_example_corpus(n_works = 200, n_authors = 80,
+                         with_embeddings = FALSE, seed = 1)
+  x$authors$inferred_gender <- rep(c("female", "unknown"), 40L)
+  sub <- sm_filter_works(x, year_range = c(2023, 2024))
+  ids <- unique(sub$authorships$author_id)
+  expect_lt(length(ids), nrow(x$authors))
+  expected <- x$authors[x$authors$author_id %in% ids, ]
+  audit <- sm_audit_gender(sub, method = "manual")
+  expect_equal(sum(audit$distribution$count), length(ids))
+  expect_equal(audit$coverage,
+               round(mean(expected$inferred_gender == "female"), 3))
+  seen <- NULL
+  local_mocked_bindings(.infer_gender_genderize = function(first_names, ...) {
+    seen <<- first_names
+    list(gender = rep(NA_character_, length(first_names)),
+         confidence = rep(NA_real_, length(first_names)))
+  })
+  sm_audit_gender(sub, method = "genderize")
+  expect_identical(seen, vapply(strsplit(expected$display_name, "\\s+"),
+                                function(x) x[1], character(1)))
+})
+
 test_that("sm_audit_gender validates the method argument", {
   corpus <- sm_example_corpus(n_works = 10, with_embeddings = FALSE, seed = 1)
   expect_error(sm_audit_gender(corpus, method = "bogus"))

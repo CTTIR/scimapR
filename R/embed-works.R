@@ -119,6 +119,7 @@ sm_embed_works <- function(corpus,
                            verbose = TRUE,
                            call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
+  .check_corpus_unlocked(corpus, call = call)
   model <- rlang::arg_match(model, error_call = call)
   text <- rlang::arg_match(text, error_call = call)
   batch_size <- .check_positive_int(batch_size, call = call)

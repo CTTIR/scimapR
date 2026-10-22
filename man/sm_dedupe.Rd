@@ -2,14 +2,17 @@
 % Please edit documentation in R/build-corpus.R
 \name{sm_dedupe}
 \alias{sm_dedupe}
-\title{Deduplicate corpus works by DOI}
+\title{Deduplicate corpus works by selected columns}
 \usage{
 sm_dedupe(corpus, by = "doi", verbose = TRUE)
 }
 \arguments{
 \item{corpus}{An \code{sm_corpus}.}
 
-\item{by}{Column(s) to deduplicate by. Default \code{"doi"}.}
+\item{by}{Non-empty character vector of works columns that together
+identify duplicates. Default \code{"doi"}. DOIs and titles are normalised,
+other character values are trimmed, and other types compare as stored.
+A missing or empty value in any key column never counts as a duplicate.}
 
 \item{verbose}{Logical; show progress?}
 }
@@ -18,6 +21,8 @@ An \code{sm_corpus} object.
 }
 \description{
 Remove duplicate works, preferring the record with more complete data.
+Ties keep the first record. Kept records stay in their input order,
+with only their child rows and referenced lookup records.
 }
 \seealso{
 Other corpus:
