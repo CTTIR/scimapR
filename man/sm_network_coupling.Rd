@@ -4,13 +4,21 @@
 \alias{sm_network_coupling}
 \title{Build a bibliographic coupling network}
 \usage{
-sm_network_coupling(corpus, min_shared = 1L, call = rlang::caller_env())
+sm_network_coupling(
+  corpus,
+  min_shared = 1L,
+  linked_only = FALSE,
+  call = rlang::caller_env()
+)
 }
 \arguments{
 \item{corpus}{An \link{sm_corpus} object with a populated \code{references} table.}
 
 \item{min_shared}{Integer; minimum number of shared references to create an
 edge. Defaults to \code{1L}.}
+
+\item{linked_only}{Use only references with a \code{cited_work_id}. Defaults to
+\code{FALSE}, which also counts shared references outside the corpus.}
 
 \item{call}{Caller environment for error reporting.}
 }
@@ -27,6 +35,11 @@ weight equals the number of shared references.
 \details{
 Bibliographic coupling is the mirror of co-citation: two works are coupled
 if they cite the same references, suggesting intellectual similarity.
+Each work counts a cited item once; self-references are excluded. Items
+are keyed by \code{cited_work_id}, else normalised DOI, else OpenAlex id, else
+upper-case reference text with whitespace squished and final periods
+removed. Identifier kinds are kept separate. \code{linked_only = TRUE}
+restores the earlier behaviour and warns when none points to corpus works.
 
 Empty input (zero works, zero references, or no pairs above the threshold)
 returns an empty undirected \code{tbl_graph}.
@@ -37,6 +50,8 @@ g <- sm_network_coupling(corpus, min_shared = 3L)
 g
 }
 \seealso{
+\code{\link[=sm_link_references]{sm_link_references()}}
+
 Other networks:
 \code{\link[=sm_network_citation]{sm_network_citation()}},
 \code{\link[=sm_network_cocitation]{sm_network_cocitation()}},

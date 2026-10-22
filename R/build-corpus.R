@@ -127,9 +127,13 @@ sm_bind_corpora <- function(corpus1, corpus2, mix_models = FALSE,
                                               corpus2$metadata$local_inputs)
   metadata$is_locked <- FALSE
   metadata[c("locked_at", "lock_reason", "lock_hash")] <- NULL
+  works <- dplyr::bind_rows(corpus1$works, corpus2$works)
+  references <- .link_references(
+    dplyr::bind_rows(corpus1$references, corpus2$references), works
+  )
 
   new_sm_corpus(
-    works = dplyr::bind_rows(corpus1$works, corpus2$works),
+    works = works,
     authors = dplyr::bind_rows(corpus1$authors, corpus2$authors) %>%
       dplyr::distinct(.data$author_id, .keep_all = TRUE),
     authorships = dplyr::bind_rows(corpus1$authorships, corpus2$authorships),
@@ -137,7 +141,7 @@ sm_bind_corpora <- function(corpus1, corpus2, mix_models = FALSE,
       dplyr::distinct(.data$institution_id, .keep_all = TRUE),
     sources = dplyr::bind_rows(corpus1$sources, corpus2$sources) %>%
       dplyr::distinct(.data$source_id, .keep_all = TRUE),
-    references = dplyr::bind_rows(corpus1$references, corpus2$references),
+    references = references,
     concepts = dplyr::bind_rows(corpus1$concepts, corpus2$concepts),
     embeddings = emb$embeddings,
     provenance = dplyr::bind_rows(corpus1$provenance, corpus2$provenance),
@@ -310,7 +314,8 @@ sm_dedupe <- function(corpus, by = "doi", verbose = TRUE) {
   .check_sm_corpus(corpus)
   .check_corpus_unlocked(corpus)
 
-  works_clean <- .dedupe_works(corpus$works, by)$works
+  deduped <- .dedupe_works(corpus$works, by)
+  works_clean <- deduped$works
   n_removed <- nrow(corpus$works) - nrow(works_clean)
 
   if (verbose && n_removed > 0) {
@@ -321,6 +326,11 @@ sm_dedupe <- function(corpus, by = "doi", verbose = TRUE) {
   }
 
   keep_ids <- works_clean$work_id
+  references <- dplyr::filter(corpus$references, .data$work_id %in% keep_ids)
+  references$cited_work_id <- .apply_id_map(
+    references$cited_work_id, deduped$map
+  )
+  references <- .link_references(references, works_clean)
 
   out <- new_sm_corpus(
     works = works_clean,
@@ -329,8 +339,7 @@ sm_dedupe <- function(corpus, by = "doi", verbose = TRUE) {
                                  .data$work_id %in% keep_ids),
     institutions = corpus$institutions,
     sources = corpus$sources,
-    references = dplyr::filter(corpus$references,
-                                .data$work_id %in% keep_ids),
+    references = references,
     concepts = dplyr::filter(corpus$concepts,
                               .data$work_id %in% keep_ids),
     embeddings = if (!is.null(corpus$embeddings)) {

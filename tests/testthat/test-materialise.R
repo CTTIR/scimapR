@@ -10,6 +10,8 @@ test_that("references materialise by their row index", {
     expect_identical(out$references$cited_doi, x$references$cited_doi)
     expect_identical(out$references$cited_raw, x$references$cited_raw)
   }
+  x$references$cited_work_id[] <- NA_character_
+  refs$cited_work_id[] <- NA_character_
   expect_warning(out <- suppressMessages(sm_materialise(
     x, list(references = refs),
     .by = list(references = c("work_id", "cited_work_id"))

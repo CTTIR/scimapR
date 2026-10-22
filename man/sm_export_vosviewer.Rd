@@ -4,24 +4,31 @@
 \alias{sm_export_vosviewer}
 \title{Export network for VOSviewer}
 \usage{
-sm_export_vosviewer(network, path)
+sm_export_vosviewer(network, path, map_path = NULL)
 }
 \arguments{
 \item{network}{A \code{tbl_graph} object.}
 
 \item{path}{Output file path.}
+
+\item{map_path}{Map file path. By default, \verb{_map} is inserted before the
+extension of \code{path}, or appended if \code{path} has no extension.}
 }
 \value{
 \code{path} invisibly.
 }
 \description{
-Write network to VOSviewer-compatible format.
+Write a headerless network file with integer node ids and positive link
+strengths, plus a tab-separated map file with \code{id} and \code{label} columns.
+Missing weights become 1. Directed edges are written as supplied, but
+VOSviewer treats the links as undirected.
 }
 \examples{
 \donttest{
 corpus <- sm_example_corpus()
 net <- sm_network_cocitation(corpus)
 sm_export_vosviewer(net, tempfile(fileext = ".tsv"))
+# The matching map file is written beside the network file.
 }
 
 }

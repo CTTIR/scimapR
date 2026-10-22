@@ -16,6 +16,7 @@ sm_export_gephi(network, path)
 }
 \description{
 Write a tidygraph network to GEXF XML format for use with Gephi.
+Labels are escaped as XML, and directed networks retain their direction.
 }
 \examples{
 \donttest{

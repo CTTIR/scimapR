@@ -27,6 +27,9 @@ unless external references are also present via \code{cited_work_id}.
 \details{
 Empty input (zero works or zero references) returns an empty directed
 \code{tbl_graph} with a single \code{name} column on nodes and no edges.
+Each work counts a cited item once: repeated links and self-loops are
+removed. References with no link to a corpus work trigger a warning when
+none is linked; use \code{\link[=sm_link_references]{sm_link_references()}} to resolve identifiers first.
 }
 \examples{
 corpus <- sm_example_corpus()
@@ -34,6 +37,8 @@ g <- sm_network_citation(corpus)
 g
 }
 \seealso{
+\code{\link[=sm_link_references]{sm_link_references()}}
+
 Other networks:
 \code{\link[=sm_network_cocitation]{sm_network_cocitation()}},
 \code{\link[=sm_network_collab]{sm_network_collab()}},

@@ -1,0 +1,20 @@
+[
+  {
+    "oci": "999901-999901",
+    "citing": "omid:br/999901 doi:10.9999/oc.1",
+    "cited": "omid:br/999902 doi:10.9999/oc.2",
+    "creation": "2021-01-01",
+    "timespan": "P2Y",
+    "journal_sc": "no",
+    "author_sc": "no"
+  },
+  {
+    "oci": "999901-999902",
+    "citing": "omid:br/999901 doi:10.9999/oc.1",
+    "cited": "omid:br/999909 doi:10.9999/ext.9",
+    "creation": "2021-01-01",
+    "timespan": "P2Y",
+    "journal_sc": "no",
+    "author_sc": "no"
+  }
+]

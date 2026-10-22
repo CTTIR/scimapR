@@ -208,3 +208,19 @@ test_that("sm_fetch_crossref records its request for a rebuild", {
   expect_identical(prov$n_max, 5L)
   expect_identical(prov$query, NA_character_)
 })
+
+
+test_that("Crossref fetches link a reference DOI to another fetched work", {
+  a <- .crossref_item("10.9999/link.a")
+  b <- .crossref_item("10.9999/link.b")
+  a$reference <- list()
+  b$reference <- list(list(DOI = "10.9999/LINK.A"))
+  local_mocked_bindings(
+    req_perform = function(...) structure(list(), class = "httr2_response"),
+    resp_body_json = function(...) .crossref_body(list(a, b)),
+    .package = "httr2"
+  )
+  x <- suppressMessages(sm_fetch_crossref(query = "invented links", n_max = 2,
+                                          engine = "native", verbose = FALSE))
+  expect_identical(x$references$cited_work_id, x$works$work_id[1])
+})

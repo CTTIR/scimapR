@@ -269,3 +269,14 @@ test_that("the openalexR engine records its request too", {
   expect_identical(unique(corpus$provenance$n_max), 30L)
   expect_identical(unique(corpus$provenance$engine), "openalexR")
 })
+
+
+test_that("the native OpenAlex parser links local work identifiers", {
+  path <- test_path("fixtures", "link-openalex-two.json")
+  records <- jsonlite::read_json(path)
+  x <- suppressMessages(.parse_openalex_results(
+    records, "invented links", FALSE, rlang::current_env()
+  ))
+  expect_identical(x$references$cited_work_id,
+                   c(NA_character_, x$works$work_id[1], NA_character_))
+})

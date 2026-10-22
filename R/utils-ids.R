@@ -84,14 +84,35 @@
   x
 }
 
-#' DOI of each cited-reference string, from its Web of Science "DOI 10.x/y"
-#' part (trailing periods dropped), normalised; NA where there is none
+#' First DOI of each cited-reference string; NA where there is none
 #' @noRd
 .cr_doi <- function(refs) {
-  out <- rep(NA_character_, length(refs))
-  ok <- which(!is.na(refs))
-  m <- regexpr("DOI\\s+10\\.[^,;\\s]+", refs[ok], perl = TRUE)
-  hit <- ok[m > 0L]
-  out[hit] <- sub("^DOI\\s+", "", regmatches(refs[ok], m))
-  .normalize_doi(sub("\\.+$", "", out))
+  vapply(.cr_dois(refs), function(x) {
+    if (length(x) > 0L) x[1] else NA_character_
+  }, character(1))
+}
+
+#' All DOIs in plain or bracketed Web of Science DOI fields
+#' @noRd
+.cr_dois <- function(refs) {
+  refs[is.na(refs)] <- ""
+  pattern <- "(?i)\\bDOI\\s+(?:\\[[^]]*\\]|10\\.[^,;\\s\\]]+)"
+  parts <- regmatches(refs, gregexpr(pattern, refs, perl = TRUE))
+  lapply(parts, function(x) {
+    hits <- regmatches(x, gregexpr("10\\.[^,;\\s\\]]+", x, perl = TRUE))
+    values <- as.character(unlist(hits, use.names = FALSE))
+    if (length(values) == 0L) return(character())
+    unique(.normalize_doi(sub("\\.+$", "", values)))
+  })
+}
+
+#' OpenAlex work ids shortened to the `W` number; `NA` when not one
+#' @noRd
+.openalex_short_id <- function(x) {
+  x <- trimws(as.character(x))
+  shape <- "^(?:https?://(?:www\\.)?openalex\\.org/(?:works/)?)?(W[0-9]+)$"
+  ok <- !is.na(x) & grepl(shape, x, perl = TRUE, ignore.case = TRUE)
+  out <- rep(NA_character_, length(x))
+  out[ok] <- toupper(sub(shape, "\\1", x[ok], perl = TRUE, ignore.case = TRUE))
+  out
 }

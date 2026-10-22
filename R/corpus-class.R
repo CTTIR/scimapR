@@ -173,9 +173,13 @@
 #' | --- | --- | --- |
 #' | `work_id` | character | The citing work |
 #' | `ref_index` | integer | Place in the work's reference list |
-#' | `cited_work_id` | character | The cited work, when it is in `works` |
+#' | `cited_work_id` | character | Cited work in `works`; see linking below |
 #' | `cited_doi` | character | DOI of the cited work |
 #' | `cited_raw` | character | The reference as the source writes it |
+#'
+#' Reference linking: readers, fetchers, [sm_bind_corpora()], [sm_dedupe()]
+#' and [sm_link_references()] set `cited_work_id` from `cited_doi` or an
+#' OpenAlex id in `cited_raw` when the cited work is in `works`.
 #'
 #' Optional: none so far.
 #'

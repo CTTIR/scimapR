@@ -29,7 +29,8 @@ test_that("corpus with no references warns and returns all-NA", {
                               with_embeddings = FALSE, seed = 3)
   corpus$references <- corpus$references[0, ]
   expect_warning(res <- sm_metric_novelty(corpus),
-                 "No reference network")
+                 "No reference network.*sm_link_references",
+                 class = "scimapR_references_unlinked")
   expect_equal(nrow(res), nrow(corpus$works))
   expect_true(all(is.na(res$novelty)))
 })
@@ -39,7 +40,8 @@ test_that("references present but unlinked warns and returns NA", {
                               with_embeddings = FALSE, seed = 4)
   corpus$references$cited_work_id <- NA_character_
   expect_warning(res <- sm_metric_novelty(corpus),
-                 "none are linked")
+                 "none are linked.*sm_link_references",
+                 class = "scimapR_references_unlinked")
   expect_true(all(is.na(res$novelty)))
 })
 

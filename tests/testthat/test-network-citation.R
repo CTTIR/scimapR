@@ -32,7 +32,8 @@ test_that("references present but unlinked returns work nodes, zero edges", {
   corpus <- sm_example_corpus(n_works = 30, n_authors = 10,
                               with_embeddings = FALSE, seed = 3)
   corpus$references$cited_work_id <- NA_character_
-  g <- sm_network_citation(corpus)
+  expect_warning(g <- sm_network_citation(corpus),
+                 class = "scimapR_references_unlinked")
   expect_s3_class(g, "tbl_graph")
   expect_true(igraph::is_directed(g))
   nodes <- tibble::as_tibble(tidygraph::activate(g, "nodes"))
@@ -48,4 +49,17 @@ test_that("node metadata is joined from works", {
   nodes <- tibble::as_tibble(tidygraph::activate(g, "nodes"))
   # works columns such as title/year should be present on nodes
   expect_true("title" %in% names(nodes) || "year" %in% names(nodes))
+})
+
+
+test_that("citation networks use reader links and drop repeated self-loops", {
+  x <- sm_read_wos(test_path("fixtures", "link-wos-two.txt"), verbose = FALSE)
+  expect_equal(reference_edges(sm_network_citation(x), directed = TRUE),
+               tibble::tibble(from = x$works$work_id[2],
+                              to = x$works$work_id[1], weight = 1L))
+  x$references <- tibble::tibble(work_id = "A",
+                                 cited_work_id = c("B", "B", "A"))
+  x$works <- tibble::tibble(work_id = c("A", "B"))
+  expect_equal(reference_edges(sm_network_citation(x), directed = TRUE),
+               tibble::tibble(from = "A", to = "B", weight = 1L))
 })

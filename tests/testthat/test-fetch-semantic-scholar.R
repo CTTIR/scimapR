@@ -174,3 +174,21 @@ test_that("sm_fetch_semantic_scholar batch aborts on request failure", {
     "Semantic Scholar batch request failed"
   )
 })
+
+
+test_that("Semantic Scholar fetches link a reference to another fetched work", {
+  a <- .s2_paper("INVENTED1")
+  b <- .s2_paper("INVENTED2")
+  a$externalIds$DOI <- "10.9999/link.a"
+  b$externalIds$DOI <- "10.9999/link.b"
+  a$references <- list()
+  b$references <- list(list(externalIds = list(DOI = "10.9999/LINK.A")))
+  local_mocked_bindings(
+    req_perform = function(...) structure(list(), class = "httr2_response"),
+    resp_body_json = function(...) .s2_search_body(list(a, b)),
+    .package = "httr2"
+  )
+  x <- suppressMessages(sm_fetch_semantic_scholar(query = "invented links",
+                                                  n_max = 2, verbose = FALSE))
+  expect_identical(x$references$cited_work_id, x$works$work_id[1])
+})

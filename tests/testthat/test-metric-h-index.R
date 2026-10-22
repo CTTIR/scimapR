@@ -140,3 +140,13 @@ test_that(".compute_g_index handles edge inputs", {
   expect_gte(cg(c(10L, 8L, 1L)), 1L)
   expect_type(cg(c(10L, 8L)), "integer")
 })
+
+
+test_that("reader links make the author h-index self-correction effective", {
+  x <- sm_read_wos(test_path("fixtures", "link-wos-two.txt"), verbose = FALSE)
+  author <- x$authors$author_id[grepl("Brandt", x$authors$display_name)]
+  plain <- sm_metric_h_index(x, level = "author")
+  corrected <- sm_metric_h_index(x, level = "author", self_corrected = TRUE)
+  expect_equal(plain$h_index[plain$author_id == author], 1)
+  expect_equal(corrected$h_index[corrected$author_id == author], 0)
+})

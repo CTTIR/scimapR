@@ -4,7 +4,12 @@
 \alias{sm_network_cocitation}
 \title{Build a co-citation network}
 \usage{
-sm_network_cocitation(corpus, min_weight = 2L, call = rlang::caller_env())
+sm_network_cocitation(
+  corpus,
+  min_weight = 2L,
+  linked_only = FALSE,
+  call = rlang::caller_env()
+)
 }
 \arguments{
 \item{corpus}{An \link{sm_corpus} object with a populated \code{references} table.}
@@ -12,12 +17,16 @@ sm_network_cocitation(corpus, min_weight = 2L, call = rlang::caller_env())
 \item{min_weight}{Integer; minimum co-citation count to retain an edge.
 Defaults to \code{2L} to reduce noise.}
 
+\item{linked_only}{Use only references with a \code{cited_work_id}. Defaults to
+\code{FALSE}, which includes cited items outside the corpus.}
+
 \item{call}{Caller environment for error reporting.}
 }
 \value{
 A \link[tidygraph:tbl_graph]{tidygraph::tbl_graph} object (undirected). Nodes carry \code{name}
-(work ID) and columns from \code{corpus$works}. Edges carry a \code{weight} column
-representing co-citation frequency.
+(work ID for corpus works, else DOI, OpenAlex id or original reference
+text), \code{in_corpus}, and columns from \code{corpus$works} (missing for external
+items). Edges carry a \code{weight} column representing co-citation frequency.
 }
 \description{
 Constructs an undirected co-citation network. Two works (A and B) are
@@ -30,6 +39,12 @@ The algorithm:
 \item For every citing work, enumerate all pairs of cited works.
 \item Count how often each pair co-occurs.
 \item Filter by \code{min_weight}.
+Each work counts a cited item once; self-references are excluded. Items
+are keyed by \code{cited_work_id}, else normalised DOI, else OpenAlex id, else
+upper-case reference text with whitespace squished and final periods
+removed. Identifier kinds are kept separate, even when labels coincide.
+\code{linked_only = TRUE} restores the earlier behaviour and warns when none
+points to corpus works.
 }
 
 Empty input (zero works, zero references, or no pairs above the threshold)
@@ -41,6 +56,8 @@ g <- sm_network_cocitation(corpus, min_weight = 2L)
 g
 }
 \seealso{
+\code{\link[=sm_link_references]{sm_link_references()}}
+
 Other networks:
 \code{\link[=sm_network_citation]{sm_network_citation()}},
 \code{\link[=sm_network_collab]{sm_network_collab()}},

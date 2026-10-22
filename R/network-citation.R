@@ -18,8 +18,12 @@
 #' @details
 #' Empty input (zero works or zero references) returns an empty directed
 #' `tbl_graph` with a single `name` column on nodes and no edges.
+#' Each work counts a cited item once: repeated links and self-loops are
+#' removed. References with no link to a corpus work trigger a warning when
+#' none is linked; use [sm_link_references()] to resolve identifiers first.
 #'
 #' @family networks
+#' @seealso [sm_link_references()]
 #' @export
 #' @examples
 #' corpus <- sm_example_corpus()
@@ -42,8 +46,15 @@ sm_network_citation <- function(corpus, call = rlang::caller_env()) {
   }
 
 
-  # Keep only edges where cited_work_id is non-NA
-  refs <- dplyr::filter(refs, !is.na(.data$cited_work_id))
+  if (!any(refs$cited_work_id %in% works$work_id)) {
+    .warn_references_unlinked(
+      "References are present but none are linked to corpus works.", call = call
+    )
+  }
+  refs <- refs |>
+    dplyr::filter(!is.na(.data$cited_work_id),
+                  .data$work_id != .data$cited_work_id) |>
+    dplyr::distinct(.data$work_id, .data$cited_work_id, .keep_all = TRUE)
   if (nrow(refs) == 0L) {
     nodes <- tibble::tibble(name = works$work_id)
     nodes <- dplyr::left_join(nodes, works, by = c("name" = "work_id"))

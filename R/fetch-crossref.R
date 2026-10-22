@@ -180,6 +180,7 @@ sm_fetch_crossref <- function(query = NULL,
 
   # ---- references ----
   references <- .parse_crossref_references(items, work_ids)
+  references <- .link_references(references, works)
 
   # ---- provenance ----
   provenance <- .make_provenance_rows(

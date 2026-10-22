@@ -237,6 +237,7 @@ sm_fetch_semantic_scholar <- function(query = NULL,
 
   # ---- references ----
   references <- .parse_s2_references(results, work_ids)
+  references <- .link_references(references, works)
 
   # ---- sources ----
   sources <- .parse_s2_sources(results)
