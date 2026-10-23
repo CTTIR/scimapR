@@ -9,7 +9,9 @@
 #'   in the context of the `works` tibble.
 #' @param year_range Optional two-element integer vector for year filtering.
 #' @param types Optional character vector of document types to keep.
-#' @param oa_only Logical; keep only open access works?
+#' @param oa_only Logical; keep every status in [sm_oa_statuses()] except
+#'   `closed`, including recognised export spellings. Missing and
+#'   unrecognised statuses are dropped.
 #'
 #' @return An `sm_corpus` with the filtered subset.
 #'
@@ -46,7 +48,7 @@ sm_filter_works <- function(corpus, ...,
 
   if (oa_only) {
     works <- dplyr::filter(works,
-      .data$oa_status %in% c("gold", "green", "hybrid", "bronze")
+      .oa_is_open(.data$oa_status) %in% TRUE
     )
   }
 

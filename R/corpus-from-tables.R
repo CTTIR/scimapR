@@ -221,6 +221,7 @@ sm_corpus_from_tables <- function(tables,
 
   # concept vocabularies get their canonical names, also with .coerce = FALSE
   built$concepts <- .normalize_corpus_concepts(built$concepts)
+  built$works <- .normalize_corpus_oa_status(built$works)
 
   corpus <- new_sm_corpus(
     works = built$works,

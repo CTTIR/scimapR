@@ -12,10 +12,12 @@
 #'   \describe{
 #'     \item{`work_id`}{The work identifier.}
 #'     \item{`n_authors`}{Number of authors on the work.}
-#'     \item{`n_countries`}{Number of distinct countries among co-authors.}
-#'     \item{`n_institutions`}{Number of distinct institutions among co-authors.}
-#'     \item{`is_international`}{Logical; `TRUE` if authors from more than one
-#'       country contributed.}
+#'     \item{`n_countries`}{Distinct known countries; `NA` if none are known.}
+#'     \item{`n_institutions`}{Distinct known `institution_id` values; `NA`
+#'       if none are known. Affiliation match labels are not counted.}
+#'     \item{`is_international`}{Logical; `TRUE` if more than one
+#'       country is known; `FALSE` if exactly one is known, and `NA` if none
+#'       are known. Missing codes can hide international collaboration.}
 #'     \item{`is_multi_authored`}{Logical; `TRUE` if more than one author.}
 #'   }
 #'
@@ -23,6 +25,10 @@
 #' The Collaboration Index (CI) for a set of works is typically defined as
 #' the mean number of authors per paper. This function returns per-work
 #' data, from which aggregate CI can be computed by the user.
+#' Country and institution counts are `NA` when no non-blank value is known.
+#' With one known country, `is_international` is `FALSE`, even if some
+#' affiliations are missing. Institutions are counted by `institution_id`
+#' only; names and affiliation text are not matched.
 #'
 #' @family metrics
 #' @export
@@ -62,12 +68,8 @@ sm_metric_collab_index <- function(corpus, call = rlang::caller_env()) {
     dplyr::group_by(.data$work_id) %>%
     dplyr::summarise(
       n_authors      = dplyr::n_distinct(.data$author_id),
-      n_countries    = dplyr::n_distinct(
-        .data$country_code[!is.na(.data$country_code)]
-      ),
-      n_institutions = dplyr::n_distinct(
-        .data$institution_id[!is.na(.data$institution_id)]
-      ),
+      n_countries    = .n_known_affiliations(.data$country_code),
+      n_institutions = .n_known_affiliations(.data$institution_id),
       .groups = "drop"
     ) %>%
     dplyr::mutate(
@@ -80,4 +82,10 @@ sm_metric_collab_index <- function(corpus, call = rlang::caller_env()) {
     dplyr::left_join(work_collab, by = "work_id")
 
   result
+}
+
+.n_known_affiliations <- function(x) {
+  x <- trimws(x)
+  known <- unique(x[!is.na(x) & nzchar(x)])
+  if (length(known) == 0L) NA_integer_ else length(known)
 }

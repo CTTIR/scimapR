@@ -282,3 +282,16 @@ test_that("a corpus rebuilt from the fixture's tables certifies its input", {
   expect_false(grepl(library_dir, text, fixed = TRUE))
   expect_true(sm_verify_certificate(corpus, cert)$pass)
 })
+
+test_that("sm_corpus_from_tables normalises open-access statuses", {
+  tables <- list(works = tibble::tibble(
+    work_id = c("W1", "W2"), oa_status = c("Gold", "embargoed")
+  ))
+  condition <- rlang::catch_cnd(
+    sm_corpus_from_tables(tables), classes = "scimapR_oa_status_renamed"
+  )
+  expect_s3_class(condition, "scimapR_oa_status_renamed")
+  expect_s3_class(condition, "scimapR_oa_status_unknown")
+  corpus <- suppressMessages(sm_corpus_from_tables(tables))
+  expect_identical(corpus$works$oa_status, c("gold", "embargoed"))
+})

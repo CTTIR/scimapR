@@ -142,3 +142,14 @@ test_that("sm_read_dimensions reads the Corresponding Authors column", {
   expect_identical(a$is_corresponding[w == 4L], c(FALSE, FALSE, TRUE))
   expect_identical(a$is_corresponding[w == 5L], rep(NA, 3))
 })
+
+test_that("Dimensions normalises open-access export values", {
+  path <- withr::local_tempfile(fileext = ".csv")
+  data <- data.frame(Title = paste("Study", 1:4), check.names = FALSE)
+  data[["Open Access"]] <- c("All OA; Gold", "Closed", "gold", "TRUE")
+  utils::write.csv(data, path, row.names = FALSE)
+  expect_identical(
+    sm_read_dimensions(path)$works$oa_status,
+    c("gold", "closed", "gold", "open")
+  )
+})

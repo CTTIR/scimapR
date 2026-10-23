@@ -12,16 +12,26 @@ print.sm_audit_geographic <- function(x, ...) {
 
   cli::cli_text("{.strong Grouping:} {x$by}")
   cli::cli_text("{.strong Weighting:} {x$weight}")
-  cli::cli_text("{.strong Coverage:} {round(x$coverage * 100, 1)}% of authorships have known geography")
+  cli::cli_text("{.strong Counting:} {x$method %||% 'full'}")
+  cli::cli_text(
+    "{.strong Coverage:} {round(x$coverage * 100, 1)}% of works
+     have known geography"
+  )
   cli::cli_text("{.strong Gini coefficient:} {x$gini}")
   cli::cli_text("")
 
   if (nrow(x$distribution) > 0L) {
     cli::cli_h3("Distribution (top 10)")
     shown <- utils::head(x$distribution, 10L)
+    shown$display_count <- if (identical(x$method, "fractional")) {
+      round(shown$credit, 2)
+    } else {
+      shown$count
+    }
     for (i in seq_len(nrow(shown))) {
       cli::cli_text(
-        "  {shown$group[i]}: {shown$count[i]} ({shown$pct[i]}%) [{shown$citations[i]} cit.]"
+        "  {shown$group[i]}: {shown$display_count[i]} ({shown$pct[i]}%)
+         [{shown$citations[i]} cit.]"
       )
     }
     if (nrow(x$distribution) > 10L) {
@@ -39,8 +49,8 @@ print.sm_audit_geographic <- function(x, ...) {
       "which may be incomplete or inaccurate."
     ),
     paste0(
-      "Multi-country affiliations may be under- or over-counted ",
-      "depending on the data source."
+      "Full counting gives a work one unit in each known group; ",
+      "fractional counting splits one unit among those groups."
     ),
     paste0(
       "Region and income tier classifications rely on institutional ",

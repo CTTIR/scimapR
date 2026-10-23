@@ -17,6 +17,9 @@ A tibble with one row per year and columns:
 \code{total_citations}, \code{n_oa}, \code{pct_oa}, \code{n_authors} (unique authors
 active in that year), \code{mean_authors_per_work} (distinct authors per
 work, so an author with several address rows counts once).
+
+Open-access percentages use \code{\link[=sm_oa_statuses]{sm_oa_statuses()}} and all works in each
+year as the denominator, agreeing with \code{\link[=sm_audit_oa]{sm_audit_oa()}} to one decimal.
 }
 \description{
 Computes per-year summary statistics for works in the corpus.

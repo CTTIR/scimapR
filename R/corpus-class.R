@@ -7,6 +7,8 @@
 #' provenance, screening decisions, and metadata.
 #'
 #' @param works A tibble of works (publications). See Details for schema.
+#'   Common spellings of `oa_status` are renamed using [sm_oa_statuses()],
+#'   with a message; unrecognised values are kept and reported as unknown.
 #' @param authors A tibble of authors. If `NULL`, constructed from `works`.
 #' @param authorships A tibble linking works to authors. If `NULL`, empty.
 #' @param institutions A tibble of institutions. If `NULL`, empty.
@@ -52,7 +54,7 @@
 #' | `type` | character | Document type, as the source names it |
 #' | `source_id` | character | The journal or other source (`sources`) |
 #' | `cited_by_count` | integer | Citations, as the source counts them |
-#' | `oa_status` | character | Open-access status |
+#' | `oa_status` | character | One of `sm_oa_statuses()`, or `NA` |
 #' | `language` | character | Language |
 #' | `pmid`, `arxiv_id`, `openalex_id` | character | Other identifiers |
 #' | `is_retracted` | logical | Retraction flag |
@@ -391,7 +393,7 @@ sm_corpus <- function(works,
     works <- tibble::as_tibble(works)
   }
 
-  works <- .ensure_works_schema(works)
+  works <- .normalize_corpus_oa_status(.ensure_works_schema(works))
   authors <- authors %||% .empty_authors()
   authorships <- authorships %||% .empty_authorships()
 

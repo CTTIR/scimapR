@@ -79,3 +79,13 @@ test_that("sm_filter_works returns empty corpus when no matches", {
   filtered <- sm_filter_works(corpus, year_range = c(2030, 2040))
   expect_equal(nrow(filtered$works), 0L)
 })
+
+test_that("open-access filtering uses all recognised open statuses", {
+  corpus <- sm_corpus(works = tibble::tibble(work_id = paste0("W", 1:6)))
+  corpus$works$oa_status <- c(
+    "diamond", "open", "Gold", "closed", NA, "embargoed"
+  )
+  expect_identical(
+    sm_filter_works(corpus, oa_only = TRUE)$works$work_id, paste0("W", 1:3)
+  )
+})

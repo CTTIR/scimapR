@@ -355,3 +355,138 @@ test_that("min_cell reaches the FNCI of the summary and is checked", {
   expect_error(sm_metric_summary(corpus, "cnci", min_cell = "a"),
                "min_cell")
 })
+
+test_that("work and period summaries use recognised open-access statuses", {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = paste0("W", 1:4), year = 2020L
+  ))
+  corpus$works$oa_status <- c("Closed", "diamond", "open", "embargoed")
+  expect_equal(sm_summary_works(corpus)$pct_oa, 50)
+  expect_equal(sm_summary_period(corpus)$pct_oa, 50)
+})
+
+test_that("citation percentile shares allocate ties fractionally", {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = paste0("W", 1:20), cited_by_count = c(rep(0L, 19), 5L)
+  ))
+  expect_equal(sm_metric_summary(corpus, n_boot = 10L)$pp_top10, 0.1)
+  corpus$works$cited_by_count <- 1:20
+  for (top in c(0.1, 0.2)) {
+    expect_equal(
+      sm_metric_summary(corpus, n_boot = 10L, top_pct = top)$pp_top10, top
+    )
+  }
+})
+
+test_that("external citation reference uses fractional boundary ties", {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = paste0("W", 1:4), cited_by_count = c(0L, 8L, 9L, 10L)
+  ))
+  reference <- c(rep(0, 85), rep(8, 10), rep(9, 5))
+  result <- sm_metric_summary(
+    corpus, top_reference = reference, n_boot = 10L, seed = 2
+  )
+  expect_equal(result$pp_top10, mean(c(0, 0.5, 1, 1)))
+  original <- sm_metric_summary(corpus, n_boot = 10L, seed = 2)
+  expect_identical(result[setdiff(names(result), "pp_top10")],
+                   original[setdiff(names(original), "pp_top10")])
+})
+
+test_that("reference cells match year and field and report excluded works", {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = paste0("W", 1:4), year = c(2020L, 2020L, 2021L, NA_integer_),
+    field = c("X", "Y", "X", "X"), cited_by_count = c(8L, 8L, 8L, 8L)
+  ))
+  reference <- tibble::tibble(
+    year = 2020L, field = rep(c("X", "Y"), each = 10),
+    cited_by_count = c(rep(0L, 9), 8L, rep(8L, 10))
+  )
+  expect_message(result <- sm_metric_summary(
+    corpus, top_reference = reference, n_boot = 10L
+  ), "2", class = "scimapR_top_reference_unmatched")
+  expect_equal(result$pp_top10, 0.55)
+  reference$year <- 1990L
+  expect_message(result <- sm_metric_summary(
+    corpus, top_reference = reference, n_boot = 10L
+  ), "4", class = "scimapR_top_reference_unmatched")
+  expect_true(is.na(result$pp_top10))
+})
+
+test_that("external top-percentile flags preserve impact metadata", {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = paste0("W", 1:4), cited_by_count = c(1L, 3L, 5L, 7L),
+    fwci = c(1, 2, 3, 4), is_top_10pct = c(TRUE, FALSE, NA, TRUE),
+    is_top_1pct = c(FALSE, FALSE, NA, TRUE)
+  ))
+  expect_message(result <- sm_metric_summary(
+    corpus, metric = "cnci", top_reference = "openalex", n_boot = 10L
+  ), class = "scimapR_impact_source")
+  expect_equal(result$pp_top10, round(2 / 3, 4))
+  expect_identical(attr(result, "impact_source"), "works$fwci (OpenAlex)")
+  expect_equal(sm_metric_summary(
+    corpus, top_reference = "openalex", top_pct = 0.01, n_boot = 10L
+  )$pp_top10, round(1 / 3, 4))
+  expect_error(
+    sm_metric_summary(corpus, top_reference = "openalex", top_pct = 0.2),
+    class = "scimapR_top_reference_invalid"
+  )
+  corpus$works$is_top_10pct <- NULL
+  expect_error(sm_metric_summary(corpus, top_reference = "openalex"),
+               class = "scimapR_top_reference_invalid")
+  corpus$works$is_top_10pct <- NA
+  expect_error(sm_metric_summary(corpus, top_reference = "openalex"),
+               class = "scimapR_top_reference_invalid")
+})
+
+test_that("percentile arguments validate before empty impact returns", {
+  corpora <- list(
+    make_empty_corpus(), sm_corpus(works = tibble::tibble(work_id = "W1"))
+  )
+  for (corpus in corpora) {
+    for (top in list(0, 1, c(0.1, 0.2), NA_real_, Inf, "0.1")) {
+      expect_error(sm_metric_summary(corpus, metric = "cnci", top_pct = top),
+                   class = "scimapR_invalid_top_pct")
+    }
+    references <- list(
+      1, c(NA, 1), "wrong", list(1, 2), data.frame(cited_by_count = "1")
+    )
+    for (reference in references) {
+      expect_error(
+        sm_metric_summary(corpus, metric = "cnci", top_reference = reference),
+        class = "scimapR_top_reference_invalid"
+      )
+    }
+  }
+})
+
+test_that("unstratified and singleton reference cells have defined shares", {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = c("W1", "W2"), cited_by_count = c(8L, NA_integer_)
+  ))
+  reference <- data.frame(cited_by_count = c(rep(0L, 9), 8L, NA))
+  expect_equal(sm_metric_summary(corpus, top_reference = reference)$pp_top10, 1)
+  reference <- data.frame(cited_by_count = 8L)
+  expect_equal(
+    sm_metric_summary(corpus, top_reference = reference)$pp_top10, 0.1
+  )
+  reference$cited_by_count <- NA_real_
+  expect_message(result <- sm_metric_summary(corpus, top_reference = reference),
+                 class = "scimapR_top_reference_unmatched")
+  expect_true(is.na(result$pp_top10))
+  for (reference in list(c(-1, 2), c(Inf, 2), matrix(1:4, nrow = 2))) {
+    expect_error(sm_metric_summary(corpus, top_reference = reference),
+                 class = "scimapR_top_reference_invalid")
+  }
+})
+
+test_that("reference fields match factor labels across different level sets", {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = "W1", cited_by_count = 8L,
+    field = factor("X", levels = c("X", "Z"))
+  ))
+  reference <- data.frame(
+    cited_by_count = c(rep(0L, 9), 8L),
+    field = factor("X", levels = c("X", "Y"))
+  )
+  expect_equal(sm_metric_summary(corpus, top_reference = reference)$pp_top10, 1)
+})

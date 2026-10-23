@@ -54,3 +54,23 @@ test_that("aggregate collaboration index is a positive mean", {
   ci <- mean(res$n_authors, na.rm = TRUE)
   expect_gt(ci, 0)
 })
+
+test_that("collaboration distinguishes unknown affiliations from one country", {
+  corpus <- sm_corpus(
+    works = tibble::tibble(work_id = paste0("W", 1:4)),
+    authorships = tibble::tibble(
+      work_id = rep(paste0("W", 1:4), each = 2), author_id = paste0("A", 1:8),
+      country_code = c(NA, NA, "", "  ", "DE", "US", "DE", NA),
+      institution_id = c(NA, NA, "", "  ", "I1", " I1 ", "I2", NA)
+    )
+  )
+  result <- sm_metric_collab_index(corpus)
+  expect_identical(result$n_countries, c(NA_integer_, NA_integer_, 2L, 1L))
+  expect_identical(result$n_institutions, c(NA_integer_, NA_integer_, 1L, 1L))
+  expect_identical(result$is_international, c(NA, NA, TRUE, FALSE))
+  result <- sm_metric_collab_index(sm_read_wos(realuse_wos_sample()))
+  expect_true(all(is.na(result$is_international)))
+  expect_true(is.na(mean(result$is_international, na.rm = FALSE)))
+  expect_type(result$n_countries, "integer")
+  expect_type(result$n_institutions, "integer")
+})

@@ -297,3 +297,16 @@ test_that("subsets prune lookup tables to the works they keep", {
   }
   expect_identical(x$authors$author_id, .generate_author_id(80L))
 })
+
+test_that("corpus construction normalises access and reports unknown values", {
+  works <- tibble::tibble(
+    work_id = c("W1", "W2"), oa_status = c("Gold", "{stop('bad')}")
+  )
+  condition <- rlang::catch_cnd(
+    corpus <- sm_corpus(works = works), classes = "message"
+  )
+  expect_s3_class(condition, "scimapR_oa_status_renamed")
+  expect_s3_class(condition, "scimapR_oa_status_unknown")
+  corpus <- suppressMessages(sm_corpus(works = works))
+  expect_identical(corpus$works$oa_status, c("gold", "{stop('bad')}"))
+})

@@ -4,7 +4,8 @@
 #' Audits the geographic distribution of a corpus, tabulating the
 #' representation of countries, regions, or World Bank income tiers.
 #' The analysis can be weighted by work count, total citations,
-#' first-authorship, or corresponding authorship.
+#' first-authorship, or corresponding authorship. Each work counts once
+#' per distinct known group, with optional fractional credit.
 #'
 #' The result includes a Gini coefficient for concentration and a
 #' coverage metric (proportion of works with known geography).
@@ -13,21 +14,36 @@
 #' @param by Character. Grouping variable: `"country"` (ISO 3166-1 alpha-2
 #'   codes from authorships), `"region"` (from institutions table), or
 #'   `"income_tier"` (World Bank income classification from institutions).
-#' @param weight Character. How to weight each work: `"count"` (one per work),
+#' @param weight Character. How to weight each work: `"count"` (one per
+#'   work and group, before applying `method`),
 #'   `"citations"` (weighted by cited_by_count), `"first-author"` (only
 #'   first-author affiliations), `"corresponding"` (only corresponding-author
 #'   affiliations).
+#' @param method Counting rule: `"full"` gives each work one unit per
+#'   distinct known group; `"fractional"` splits one unit equally among its
+#'   known groups. Citation credit is split by the same shares.
 #' @param call Caller environment for error reporting.
 #'
 #' @return An `sm_audit_geographic` S3 object containing:
 #' \describe{
-#'   \item{distribution}{Tibble with columns `group`, `count`, `pct`,
-#'     `citations`.}
+#'   \item{distribution}{Tibble with columns `group`, `count`, `citations`,
+#'     `pct`, `credit` and `weighted_citations`. Counts and raw citations
+#'     include each work once per group under both methods. Percentages
+#'     and the Gini use credit, or weighted citations for citation weighting.
+#'     Count percentages describe work-group pairs under full counting and
+#'     works under fractional counting.}
 #'   \item{gini}{Gini coefficient of the distribution.}
 #'   \item{coverage}{Proportion of works with at least one known geography.}
 #'   \item{by}{The grouping variable used.}
 #'   \item{weight}{The weighting method used.}
+#'   \item{method}{The counting rule used.}
 #' }
+#'
+#' @details
+#' Coverage uses all corpus works as its denominator and counts works with
+#' at least one known group after the authorship filter. Missing geography
+#' is excluded from credit allocation; incomplete metadata can therefore
+#' change both coverage and the shares assigned to known groups.
 #'
 #' @family audit
 #' @export
@@ -39,102 +55,84 @@ sm_audit_geographic <- function(corpus,
                                 by = c("country", "region", "income_tier"),
                                 weight = c("count", "citations",
                                            "first-author", "corresponding"),
+                                method = c("full", "fractional"),
                                 call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   by <- match.arg(by)
   weight <- match.arg(weight)
-
+  method <- match.arg(method)
   if (nrow(corpus$works) == 0L) {
-    return(.empty_audit_geographic(by = by, weight = weight))
+    return(.empty_audit_geographic(by, weight, method))
   }
 
-  # Filter authorships by weight
   aships <- corpus$authorships
-
   if (weight == "first-author") {
     aships <- dplyr::filter(aships, .data$position == 1L)
   } else if (weight == "corresponding") {
-    # unknown (NA) corresponding authors are left out with the others
     aships <- dplyr::filter(aships, .data$is_corresponding %in% TRUE)
   }
-
-  # Determine grouping column
   if (by == "country") {
     aships$group <- aships$country_code
-  } else if (by == "region") {
-    # Join with institutions to get region
-    if (nrow(corpus$institutions) > 0L) {
-      inst_lookup <- dplyr::select(
-        corpus$institutions,
-        .data$institution_id, group = .data$region
+  } else {
+    institutions <- corpus$institutions
+    if (nrow(institutions) > 0L && by %in% names(institutions)) {
+      lookup <- institutions[c("institution_id", by)]
+      names(lookup)[2L] <- "group"
+      aships <- dplyr::left_join(
+        aships, lookup, by = "institution_id", na_matches = "never"
       )
-      aships <- dplyr::left_join(aships, inst_lookup,
-                                  by = "institution_id")
     } else {
-      aships$group <- NA_character_
-    }
-  } else if (by == "income_tier") {
-    if (nrow(corpus$institutions) > 0L) {
-      inst_lookup <- dplyr::select(
-        corpus$institutions,
-        .data$institution_id, group = .data$income_tier
-      )
-      aships <- dplyr::left_join(aships, inst_lookup,
-                                  by = "institution_id")
-    } else {
-      aships$group <- NA_character_
+      aships$group <- rep(NA_character_, nrow(aships))
     }
   }
 
-  # Join with works for citation weighting
-  aships <- dplyr::left_join(
-    aships,
-    dplyr::select(corpus$works, .data$work_id, .data$cited_by_count),
-    by = "work_id"
+  known <- unique(aships[c("work_id", "group")])
+  known <- dplyr::filter(
+    known, !is.na(.data$group), nzchar(trimws(.data$group)),
+    .data$work_id %in% corpus$works$work_id
   )
-
-  # Drop unknown
-  known <- dplyr::filter(aships, !is.na(.data$group))
-  coverage <- if (nrow(aships) > 0L) {
-    nrow(known) / nrow(aships)
-  } else {
-    0.0
+  if (nrow(known) == 0L) {
+    return(.empty_audit_geographic(by, weight, method))
   }
-
-  # Aggregate
-  if (weight == "citations") {
-    dist <- known %>%
-      dplyr::group_by(.data$group) %>%
-      dplyr::summarise(
-        count = dplyr::n(),
-        citations = sum(.data$cited_by_count, na.rm = TRUE),
-        .groups = "drop"
-      ) %>%
-      dplyr::mutate(pct = round(100 * .data$citations /
-                                  sum(.data$citations, na.rm = TRUE), 2)) %>%
-      dplyr::arrange(dplyr::desc(.data$citations))
+  coverage <- length(unique(known$work_id)) / nrow(corpus$works)
+  known <- dplyr::left_join(
+    known, corpus$works[c("work_id", "cited_by_count")], by = "work_id"
+  )
+  known <- known |>
+    dplyr::group_by(.data$work_id) |>
+    dplyr::mutate(
+      credit = if (method == "fractional") 1 / dplyr::n() else 1
+    ) |>
+    dplyr::ungroup()
+  dist <- known |>
+    dplyr::group_by(.data$group) |>
+    dplyr::summarise(
+      count = dplyr::n(),
+      citations = sum(.data$cited_by_count, na.rm = TRUE),
+      weighted_citations = sum(
+        .data$credit * .data$cited_by_count, na.rm = TRUE
+      ),
+      credit = sum(.data$credit),
+      .groups = "drop"
+    )
+  quantity <- if (weight == "citations") {
+    dist$weighted_citations
   } else {
-    dist <- known %>%
-      dplyr::group_by(.data$group) %>%
-      dplyr::summarise(
-        count = dplyr::n(),
-        citations = sum(.data$cited_by_count, na.rm = TRUE),
-        .groups = "drop"
-      ) %>%
-      dplyr::mutate(pct = round(100 * .data$count /
-                                  sum(.data$count, na.rm = TRUE), 2)) %>%
-      dplyr::arrange(dplyr::desc(.data$count))
+    dist$credit
   }
-
-  gini <- .compute_gini(dist$count)
-
+  dist$pct <- if (sum(quantity) == 0) {
+    rep(0, nrow(dist))
+  } else {
+    round(100 * quantity / sum(quantity), 2)
+  }
+  dist <- dist[order(-dist$pct, dist$group), ]
+  dist <- dist[c(
+    "group", "count", "citations", "pct", "credit", "weighted_citations"
+  )]
   structure(
     list(
-      distribution = dist,
-      gini = round(gini, 3),
-      coverage = round(coverage, 3),
-      by = by,
-      weight = weight
+      distribution = dist, gini = round(.compute_gini(quantity), 3),
+      coverage = round(coverage, 3), by = by, weight = weight, method = method
     ),
     class = "sm_audit_geographic"
   )
@@ -142,19 +140,15 @@ sm_audit_geographic <- function(corpus,
 
 #' Empty geographic audit result
 #' @noRd
-.empty_audit_geographic <- function(by = "country", weight = "count") {
+.empty_audit_geographic <- function(by = "country", weight = "count",
+                                    method = "full") {
   structure(
     list(
       distribution = tibble::tibble(
-        group = character(),
-        count = integer(),
-        pct = double(),
-        citations = integer()
+        group = character(), count = integer(), citations = integer(),
+        pct = double(), credit = double(), weighted_citations = double()
       ),
-      gini = NA_real_,
-      coverage = 0.0,
-      by = by,
-      weight = weight
+      gini = NA_real_, coverage = 0.0, by = by, weight = weight, method = method
     ),
     class = "sm_audit_geographic"
   )

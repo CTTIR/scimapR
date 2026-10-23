@@ -40,7 +40,8 @@ The native parser reads the Lens.org scholarly CSV export using
 Lens ID, Title, Date Published, Year Published (or Publication Year),
 DOI, Source Title, Authors, Abstract, Citing Works Count
 (or Scholarly Citations Count), Document Type (or Publication Type),
-Open Access Status (or Open Access Colour), MeSH Terms,
+Open Access Colour (or Color), Open Access Status, Is Open Access,
+or exactly Open Access (in that priority order; never a licence), MeSH Terms,
 Keywords, Source ISSN, Language.
 }
 

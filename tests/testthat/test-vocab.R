@@ -194,3 +194,39 @@ test_that(".resolve_concept_vocab() expands families in canonical order", {
   expect_error(.resolve_concept_vocab(character()), class = "rlang_error")
   expect_error(.resolve_concept_vocab(1), class = "rlang_error")
 })
+
+test_that("open-access vocabulary is shared and normalises export spellings", {
+  levels <- c("diamond", "gold", "hybrid", "bronze", "green", "open", "closed")
+  expect_identical(sm_oa_statuses(), levels)
+  desc <- sm_oa_statuses(describe = TRUE)
+  expect_identical(levels(desc$level), levels)
+  expect_identical(desc$is_open, c(rep(TRUE, 6), FALSE))
+  input <- c(
+    "Gold", "All OA; Gold", "Green Published, Bronze", "gold, Green Published",
+    "TRUE", "Closed", "", NA, "embargoed", " platinum ",
+    "Hybrid OA", "green accepted",
+    "Free to read", "yes", "1", "closed access",
+    "FALSE", "no", "none", "0", "oa"
+  )
+  expected <- c(
+    "gold", "gold", "bronze", "gold", "open", "closed", NA, NA, "embargoed",
+    "diamond", "hybrid", "green", "bronze", "open", "open", "closed", "closed",
+    "closed", "closed", "closed", "open"
+  )
+  expect_identical(.normalize_oa_status(input), expected)
+  expect_identical(.oa_is_open(c("embargoed", NA, "Closed", "diamond")),
+                   c(NA, NA, FALSE, TRUE))
+  bad <- rawToChar(as.raw(c(0xff, 0x78)))
+  expect_identical(.normalize_oa_status(bad), bad)
+})
+
+test_that("access normalisation reports blank and invalid text safely", {
+  bad <- rawToChar(as.raw(c(0xff, 0x78)))
+  works <- tibble::tibble(
+    work_id = paste0("W", 1:4), oa_status = c(" ", bad, "{system('bad')}", NA)
+  )
+  expect_message(corpus <- sm_corpus(works = works),
+                 class = "scimapR_oa_status_renamed")
+  expect_identical(corpus$works$oa_status, c(NA, bad, "{system('bad')}", NA))
+  expect_equal(sm_audit_oa(corpus)$coverage, 0)
+})

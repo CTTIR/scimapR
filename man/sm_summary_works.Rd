@@ -17,6 +17,9 @@ A tibble with one row containing summary statistics:
 \code{median_citations}, \code{total_citations}, \code{n_types} (unique document types),
 \code{n_sources} (unique journals/sources), \code{n_oa} (open access works),
 \code{pct_oa}, \code{n_retracted}, \code{n_languages}.
+
+Open-access percentages use \code{\link[=sm_oa_statuses]{sm_oa_statuses()}} and all works as the
+denominator, agreeing with \code{\link[=sm_audit_oa]{sm_audit_oa()}} to one decimal place.
 }
 \description{
 Computes aggregate summary statistics for all works in the corpus.

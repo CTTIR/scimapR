@@ -6,8 +6,9 @@
 #' Summarises a work-level impact metric robustly. Citation-based metrics are
 #' heavy-tailed, so the mean is a poor central estimate; this function reports
 #' the median with a bootstrap confidence interval and the proportion of papers
-#' in the global top 10% by citations (`%PP(top 10%)`), alongside the mean for
-#' comparison.
+#' in the top citation fraction of a chosen reference, alongside the mean.
+#' Without an external reference, `pp_top10` equals `top_pct` by construction
+#' and does not measure impact relative to other publications.
 #'
 #' @param corpus An `sm_corpus`.
 #' @param metric Which work-level metric to summarise: `"citations"`
@@ -23,14 +24,24 @@
 #' @param n_boot Number of bootstrap resamples for the median CI (default
 #'   `2000`).
 #' @param conf Confidence level for the bootstrap interval (default `0.95`).
-#' @param top_pct Top-fraction threshold for `pp_top10` (default `0.1`, i.e.
-#'   the top 10% of works by citation count within the corpus).
+#' @param top_pct Single number strictly between 0 and 1: the top fraction
+#'   of the reference distribution (default `0.1`). Ties share credit
+#'   fractionally. The output column remains named `pp_top10` for any fraction.
 #' @param seed Optional integer seed for reproducible bootstrap resampling. When
 #'   supplied, the RNG state is saved and restored so the call has no global
 #'   side effect (mirroring scimapR's reproducibility guarantees).
 #' @param min_cell For `metric = "cnci"`: `NULL` (default) or a positive
 #'   integer, passed to [sm_metric_fnci()] when the impact is derived from
 #'   citation counts, as in [sm_its()].
+#' @param top_reference Reference for `pp_top10`: `NULL` uses the corpus
+#'   itself; a numeric vector supplies citation counts (at least two after
+#'   dropping `NA`); a data frame supplies numeric `cited_by_count` and
+#'   optionally `year` and/or `field`, matched on keys present in both it and
+#'   `works`. Missing keys or unmatched cells are excluded with a message;
+#'   no matching works gives `NA`. Reference counts must be finite and
+#'   non-negative. Data-frame cells may contain a single reference work.
+#'   `"openalex"` uses `is_top_10pct` for `top_pct = 0.1` or `is_top_1pct`
+#'   for `0.01`, averaging non-missing flags; see [sm_enrich_openalex_impact()].
 #' @param call Caller environment for error reporting.
 #'
 #' @return A one-row tibble: `metric`, `n`, `mean`, `median`, and -- when
@@ -47,14 +58,23 @@
 #'
 #' @details
 #' The bootstrap uses base-R resampling by default; if the optional \pkg{boot}
-#' package is installed it is used instead (percentile interval). `pp_top10` is
-#' computed against the within-corpus citation distribution (the global top-10%
-#' threshold is the upper `top_pct` quantile of `cited_by_count`).
+#' package is installed it is used instead (percentile interval).
+#' `pp_top10` remains citation-based for every `metric`; `top_reference`
+#' changes neither the metric summary nor the bootstrap. Tied citation counts
+#' share the part of their reference block in the top fraction equally,
+#' following Waltman and Schreiber (2013). Using the corpus itself gives
+#' `top_pct` exactly before rounding. An external reference from comparable
+#' fields and years, or OpenAlex flags, makes this an informative share.
 #'
 #' For `"cnci"` and `"fwci"` only works with a finite value count, and for
 #' `"cnci"` only works of `corpus$works` (a `corpus$metrics` table may hold
 #' others). `metric = "fwci"` aborts (class `scimapR_no_fwci`) when the
 #' works have no `fwci` value.
+#'
+#' @references
+#' Waltman, L., & Schreiber, M. (2013). On the calculation of percentile-based
+#' bibliometric indicators. Journal of the American Society for Information
+#' Science and Technology, 64(2), 372--379.
 #'
 #' @family counting
 #' @seealso [sm_summary_works()], [sm_count()]
@@ -75,12 +95,16 @@ sm_metric_summary <- function(corpus,
                               top_pct = 0.1,
                               seed = NULL,
                               min_cell = NULL,
+                              top_reference = NULL,
                               call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   metric <- rlang::arg_match(metric, error_call = call)
   .check_flag(robust, call = call)
   n_boot <- .check_positive_int(n_boot, call = call)
   .check_min_cell(min_cell, call = call)
+  top_reference <- .check_top_reference(
+    top_pct, top_reference, corpus$works, call
+  )
 
   empty <- tibble::tibble(
     metric = metric, n = 0L, mean = NA_real_, median = NA_real_,
@@ -107,15 +131,7 @@ sm_metric_summary <- function(corpus,
   }
   if (length(vals) == 0L) return(empty)
 
-  cites <- suppressWarnings(as.numeric(corpus$works$cited_by_count))
-  cites <- cites[!is.na(cites)]
-  pp_top10 <- if (length(cites) > 0L) {
-    thr <- stats::quantile(cites, probs = 1 - top_pct, names = FALSE,
-                           type = 7)
-    round(mean(cites >= thr), 4)
-  } else {
-    NA_real_
-  }
+  pp_top10 <- .top_reference_share(corpus$works, top_reference, top_pct)
 
   base <- tibble::tibble(
     metric = metric,
@@ -141,6 +157,120 @@ sm_metric_summary <- function(corpus,
   )
   attr(out, "impact_source") <- resolved$source
   out
+}
+
+.check_top_reference <- function(top_pct, reference, works, call) {
+  if (!is.numeric(top_pct) || length(top_pct) != 1L ||
+        !is.finite(top_pct) || top_pct <= 0 || top_pct >= 1) {
+    cli::cli_abort(
+      "{.arg top_pct} must be a single number strictly between 0 and 1.",
+      class = "scimapR_invalid_top_pct", call = call
+    )
+  }
+  if (is.null(reference)) return(NULL)
+  invalid <- function(message) {
+    cli::cli_abort(
+      message, class = "scimapR_top_reference_invalid", call = call
+    )
+  }
+  if (identical(reference, "openalex")) {
+    column <- if (isTRUE(all.equal(top_pct, 0.1))) {
+      "is_top_10pct"
+    } else {
+      if (isTRUE(all.equal(top_pct, 0.01))) "is_top_1pct" else NA_character_
+    }
+    if (is.na(column) || !column %in% names(works) ||
+          !is.logical(works[[column]]) || all(is.na(works[[column]]))) {
+      invalid(paste0(
+        "{.arg top_reference} = {.val openalex} needs top_pct 0.1 or 0.01 ",
+        "and corresponding non-missing logical flags. ",
+        "Add them with {.fn sm_enrich_openalex_impact}."
+      ))
+    }
+    return(reference)
+  }
+  is_vector <- is.numeric(reference) && is.null(dim(reference))
+  is_table <- is.data.frame(reference) &&
+    "cited_by_count" %in% names(reference) &&
+    is.numeric(reference$cited_by_count)
+  if (!is_vector && !is_table) {
+    invalid(paste0(
+      "{.arg top_reference} must be NULL, a numeric citation vector, ",
+      "a data frame with numeric cited_by_count, or {.val openalex}."
+    ))
+  }
+  counts <- if (is_vector) reference else reference$cited_by_count
+  counts <- counts[!is.na(counts)]
+  invalid_counts <- any(!is.finite(counts) | counts < 0)
+  if (invalid_counts || (is_vector && length(counts) < 2L)) {
+    invalid(paste0(
+      "{.arg top_reference} needs finite non-negative citation counts; ",
+      "a numeric vector needs at least two non-missing counts."
+    ))
+  }
+  if (is_vector) counts else reference
+}
+
+.top_share <- function(x, reference, top_pct) {
+  reference <- sort(reference[!is.na(reference)])
+  if (length(reference) == 0L) return(rep(NA_real_, length(x)))
+  lo <- findInterval(x, reference, left.open = TRUE)
+  eq <- findInterval(x, reference) - lo
+  cut <- length(reference) * (1 - top_pct)
+  share <- as.numeric(lo >= cut)
+  tied <- !is.na(eq) & eq > 0L
+  share[tied] <- pmin(1, pmax(0,
+    (lo[tied] + eq[tied] - pmax(lo[tied], cut)) / eq[tied]
+  ))
+  share
+}
+
+.top_reference_share <- function(works, reference, top_pct) {
+  if (identical(reference, "openalex")) {
+    column <- if (isTRUE(all.equal(top_pct, 0.1))) {
+      "is_top_10pct"
+    } else {
+      "is_top_1pct"
+    }
+    return(round(mean(works[[column]], na.rm = TRUE), 4))
+  }
+  cites <- suppressWarnings(as.numeric(works$cited_by_count))
+  works <- works[!is.na(cites), , drop = FALSE]
+  cites <- cites[!is.na(cites)]
+  if (length(cites) == 0L) return(NA_real_)
+  if (is.null(reference)) reference <- cites
+  if (is.numeric(reference)) {
+    return(round(mean(.top_share(cites, reference, top_pct)), 4))
+  }
+  keys <- intersect(
+    c("year", "field"), intersect(names(reference), names(works))
+  )
+  reference <- reference[!is.na(reference$cited_by_count), , drop = FALSE]
+  shares <- rep(NA_real_, length(cites))
+  if (length(keys) == 0L) {
+    shares <- .top_share(cites, reference$cited_by_count, top_pct)
+  } else {
+    cells <- dplyr::group_split(
+      dplyr::group_by(reference, dplyr::across(dplyr::all_of(keys)))
+    )
+    for (cell in cells) {
+      if (anyNA(cell[1L, keys, drop = FALSE])) next
+      keep <- rep(TRUE, nrow(works))
+      for (key in keys) {
+        keep <- keep & !is.na(works[[key]]) & works[[key]] == cell[[key]][1L]
+      }
+      shares[keep] <- .top_share(cites[keep], cell$cited_by_count, top_pct)
+    }
+  }
+  n_unmatched <- sum(is.na(shares))
+  if (n_unmatched > 0L) {
+    cli::cli_inform(
+      "Excluded {n_unmatched} work{?s} without a matching reference cell
+       from pp_top10.",
+      class = "scimapR_top_reference_unmatched", n_unmatched = n_unmatched
+    )
+  }
+  if (all(is.na(shares))) NA_real_ else round(mean(shares, na.rm = TRUE), 4)
 }
 
 #' Extract a work-level metric vector and name its source

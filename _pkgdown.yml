@@ -19,6 +19,7 @@ reference:
       - sm_filter_works
       - sm_materialise
       - sm_concept_vocabularies
+      - sm_oa_statuses
       - scimapR-stability
   - title: "File ingestion"
     contents:
