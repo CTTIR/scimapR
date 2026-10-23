@@ -21,17 +21,20 @@ sm_audit_oa(corpus, call = rlang::caller_env())
 \value{
 An \code{sm_audit_oa} S3 object containing:
 \describe{
-\item{distribution}{Tibble with columns \code{oa_status}, \code{count}, \code{pct}.}
-\item{pct_open}{Percentage of works that are open access (gold, green,
-hybrid, or bronze).}
+\item{distribution}{Tibble with columns \code{oa_status}, \code{count}, \code{pct},
+and logical \code{is_open} (\code{NA} for unknown statuses).}
+\item{pct_open}{Percentage of works with an open status in
+\code{\link[=sm_oa_statuses]{sm_oa_statuses()}}.}
 \item{coverage}{Proportion of works with a known OA status.}
 \item{n_works}{Total number of works.}
 }
 }
 \description{
 Audits the open-access (OA) status distribution of works in a corpus.
-Uses the \code{oa_status} column in the works table, which may have values
-such as \code{"gold"}, \code{"green"}, \code{"hybrid"}, \code{"bronze"}, or \code{"closed"}.
+Uses the statuses of \code{\link[=sm_oa_statuses]{sm_oa_statuses()}}; every recognised status except
+\code{closed} is open. Missing and unrecognised values are unknown.
+The open percentage uses all works as the denominator and agrees with
+\code{\link[=sm_summary_works]{sm_summary_works()}} to one decimal place.
 
 The result includes counts and percentages for each OA category, as
 well as a coverage metric.

@@ -41,7 +41,10 @@ scimapR 0.4.0).}
 (character): where the summarised values come from, such as
 \code{"works$fwci (OpenAlex)"} for \code{metric = "cnci"} on a corpus with
 OpenAlex impact fields, and \code{NA} on the \code{n = 0} row (added after
-scimapR 0.4.0, without changing the columns).}
+scimapR 0.4.0, without changing the columns). \code{pp_top10} now shares
+ties fractionally: its default value equals \code{top_pct} relative to the
+corpus itself. Use \code{top_reference} for an external comparison. The
+column name and numeric type are unchanged.}
 \item{\code{\link[=sm_citation_window]{sm_citation_window()}}}{A tibble with one row per work, in the
 order of \code{corpus$works}: \code{work_id} (character), \code{year} and \code{window}
 (integer), \code{citations} (integer, \code{NA} for a work without yearly
@@ -67,6 +70,9 @@ names, and \code{\link[=sm_corpus]{sm_corpus()}} and \code{\link[=sm_corpus_from
 spellings to them. \code{sm_concept_vocabularies(describe = TRUE)} returns a
 tibble with the factor columns \code{level} and \code{family} and a character
 \code{description}.
+
+The \code{works$oa_status} column also stays character, so tables bind and
+hash as before. Its values are those of \code{\link[=sm_oa_statuses]{sm_oa_statuses()}}.
 }
 
 \concept{reference}

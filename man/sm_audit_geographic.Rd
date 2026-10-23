@@ -9,6 +9,7 @@ sm_audit_geographic(
   corpus,
   by = c("country", "region", "income_tier"),
   weight = c("count", "citations", "first-author", "corresponding"),
+  method = c("full", "fractional"),
   call = rlang::caller_env()
 )
 
@@ -21,10 +22,15 @@ sm_audit_geographic(
 codes from authorships), \code{"region"} (from institutions table), or
 \code{"income_tier"} (World Bank income classification from institutions).}
 
-\item{weight}{Character. How to weight each work: \code{"count"} (one per work),
+\item{weight}{Character. How to weight each work: \code{"count"} (one per
+work and group, before applying \code{method}),
 \code{"citations"} (weighted by cited_by_count), \code{"first-author"} (only
 first-author affiliations), \code{"corresponding"} (only corresponding-author
 affiliations).}
+
+\item{method}{Counting rule: \code{"full"} gives each work one unit per
+distinct known group; \code{"fractional"} splits one unit equally among its
+known groups. Citation credit is split by the same shares.}
 
 \item{call}{Caller environment for error reporting.}
 
@@ -35,12 +41,17 @@ affiliations).}
 \value{
 An \code{sm_audit_geographic} S3 object containing:
 \describe{
-\item{distribution}{Tibble with columns \code{group}, \code{count}, \code{pct},
-\code{citations}.}
+\item{distribution}{Tibble with columns \code{group}, \code{count}, \code{citations},
+\code{pct}, \code{credit} and \code{weighted_citations}. Counts and raw citations
+include each work once per group under both methods. Percentages
+and the Gini use credit, or weighted citations for citation weighting.
+Count percentages describe work-group pairs under full counting and
+works under fractional counting.}
 \item{gini}{Gini coefficient of the distribution.}
 \item{coverage}{Proportion of works with at least one known geography.}
 \item{by}{The grouping variable used.}
 \item{weight}{The weighting method used.}
+\item{method}{The counting rule used.}
 }
 
 \code{x} invisibly (print methods).
@@ -49,10 +60,17 @@ An \code{sm_audit_geographic} S3 object containing:
 Audits the geographic distribution of a corpus, tabulating the
 representation of countries, regions, or World Bank income tiers.
 The analysis can be weighted by work count, total citations,
-first-authorship, or corresponding authorship.
+first-authorship, or corresponding authorship. Each work counts once
+per distinct known group, with optional fractional credit.
 
 The result includes a Gini coefficient for concentration and a
 coverage metric (proportion of works with known geography).
+}
+\details{
+Coverage uses all corpus works as its denominator and counts works with
+at least one known group after the authorship filter. Missing geography
+is excluded from credit allocation; incomplete metadata can therefore
+change both coverage and the shares assigned to known groups.
 }
 \examples{
 corpus <- sm_example_corpus()

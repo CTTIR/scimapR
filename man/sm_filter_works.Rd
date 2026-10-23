@@ -16,7 +16,9 @@ in the context of the \code{works} tibble.}
 
 \item{types}{Optional character vector of document types to keep.}
 
-\item{oa_only}{Logical; keep only open access works?}
+\item{oa_only}{Logical; keep every status in \code{\link[=sm_oa_statuses]{sm_oa_statuses()}} except
+\code{closed}, including recognised export spellings. Missing and
+unrecognised statuses are dropped.}
 }
 \value{
 An \code{sm_corpus} with the filtered subset.

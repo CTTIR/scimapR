@@ -37,7 +37,10 @@
 #'     (character): where the summarised values come from, such as
 #'     `"works$fwci (OpenAlex)"` for `metric = "cnci"` on a corpus with
 #'     OpenAlex impact fields, and `NA` on the `n = 0` row (added after
-#'     scimapR 0.4.0, without changing the columns).}
+#'     scimapR 0.4.0, without changing the columns). `pp_top10` now shares
+#'     ties fractionally: its default value equals `top_pct` relative to the
+#'     corpus itself. Use `top_reference` for an external comparison. The
+#'     column name and numeric type are unchanged.}
 #'   \item{[sm_citation_window()]}{A tibble with one row per work, in the
 #'     order of `corpus$works`: `work_id` (character), `year` and `window`
 #'     (integer), `citations` (integer, `NA` for a work without yearly
@@ -61,6 +64,9 @@
 #' spellings to them. `sm_concept_vocabularies(describe = TRUE)` returns a
 #' tibble with the factor columns `level` and `family` and a character
 #' `description`.
+#'
+#' The `works$oa_status` column also stays character, so tables bind and
+#' hash as before. Its values are those of [sm_oa_statuses()].
 #'
 #' @name scimapR-stability
 #' @family reference

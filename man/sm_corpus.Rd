@@ -48,7 +48,9 @@ sm_corpus(
 \method{str}{sm_corpus}(object, ...)
 }
 \arguments{
-\item{works}{A tibble of works (publications). See Details for schema.}
+\item{works}{A tibble of works (publications). See Details for schema.
+Common spellings of \code{oa_status} are renamed using \code{\link[=sm_oa_statuses]{sm_oa_statuses()}},
+with a message; unrecognised values are kept and reported as unknown.}
 
 \item{authors}{A tibble of authors. If \code{NULL}, constructed from \code{works}.}
 
@@ -138,7 +140,7 @@ write or read. \code{sm_corpus()} adds the missing required columns of
    \code{type} \tab character \tab Document type, as the source names it \cr
    \code{source_id} \tab character \tab The journal or other source (\code{sources}) \cr
    \code{cited_by_count} \tab integer \tab Citations, as the source counts them \cr
-   \code{oa_status} \tab character \tab Open-access status \cr
+   \code{oa_status} \tab character \tab One of \code{sm_oa_statuses()}, or \code{NA} \cr
    \code{language} \tab character \tab Language \cr
    \code{pmid}, \code{arxiv_id}, \code{openalex_id} \tab character \tab Other identifiers \cr
    \code{is_retracted} \tab logical \tab Retraction flag \cr
@@ -471,6 +473,7 @@ Other corpus:
 \code{\link[=sm_dedupe]{sm_dedupe()}},
 \code{\link[=sm_link_references]{sm_link_references()}},
 \code{\link[=sm_materialise]{sm_materialise()}},
+\code{\link[=sm_oa_statuses]{sm_oa_statuses()}},
 \code{\link[=sm_save_corpus]{sm_save_corpus()}},
 \code{\link[=sm_validate]{sm_validate()}},
 \code{\link[=validate_sm_corpus]{validate_sm_corpus()}}

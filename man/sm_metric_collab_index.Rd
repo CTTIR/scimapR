@@ -16,10 +16,12 @@ A tibble with one row per work and columns:
 \describe{
 \item{\code{work_id}}{The work identifier.}
 \item{\code{n_authors}}{Number of authors on the work.}
-\item{\code{n_countries}}{Number of distinct countries among co-authors.}
-\item{\code{n_institutions}}{Number of distinct institutions among co-authors.}
-\item{\code{is_international}}{Logical; \code{TRUE} if authors from more than one
-country contributed.}
+\item{\code{n_countries}}{Distinct known countries; \code{NA} if none are known.}
+\item{\code{n_institutions}}{Distinct known \code{institution_id} values; \code{NA}
+if none are known. Affiliation match labels are not counted.}
+\item{\code{is_international}}{Logical; \code{TRUE} if more than one
+country is known; \code{FALSE} if exactly one is known, and \code{NA} if none
+are known. Missing codes can hide international collaboration.}
 \item{\code{is_multi_authored}}{Logical; \code{TRUE} if more than one author.}
 }
 }
@@ -32,6 +34,10 @@ multi-authored papers, and international collaboration rate.
 The Collaboration Index (CI) for a set of works is typically defined as
 the mean number of authors per paper. This function returns per-work
 data, from which aggregate CI can be computed by the user.
+Country and institution counts are \code{NA} when no non-blank value is known.
+With one known country, \code{is_international} is \code{FALSE}, even if some
+affiliations are missing. Institutions are counted by \code{institution_id}
+only; names and affiliation text are not matched.
 }
 \examples{
 corpus <- sm_example_corpus()

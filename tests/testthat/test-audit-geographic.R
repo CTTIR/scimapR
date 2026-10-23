@@ -67,8 +67,9 @@ test_that("sm_audit_geographic corresponding weighting returns a valid object", 
   expect_gt(nrow(res$distribution), 0L)
   expect_gt(res$coverage, 0)
   a <- corpus$authorships
+  eligible <- a[a$is_corresponding %in% TRUE & !is.na(a$country_code), ]
   expect_identical(sum(res$distribution$count),
-                   sum(a$is_corresponding %in% TRUE & !is.na(a$country_code)))
+                   nrow(unique(eligible[c("work_id", "country_code")])))
 })
 
 test_that("sm_audit_geographic leaves unknown corresponding authors out", {
@@ -77,8 +78,9 @@ test_that("sm_audit_geographic leaves unknown corresponding authors out", {
   corpus$authorships$is_corresponding[1:10] <- NA
   res <- sm_audit_geographic(corpus, weight = "corresponding")
   a <- corpus$authorships
+  eligible <- a[a$is_corresponding %in% TRUE & !is.na(a$country_code), ]
   expect_identical(sum(res$distribution$count),
-                   sum(a$is_corresponding %in% TRUE & !is.na(a$country_code)))
+                   nrow(unique(eligible[c("work_id", "country_code")])))
   corpus$authorships$is_corresponding <- NA
   res <- sm_audit_geographic(corpus, weight = "corresponding")
   expect_identical(nrow(res$distribution), 0L)
@@ -111,4 +113,130 @@ test_that(".compute_gini behaves at boundaries", {
   # Highly concentrated -> gini close to (n-1)/n
   g <- .compute_gini(c(0, 0, 0, 100))
   expect_gt(g, 0.5)
+})
+
+test_that("geographic audits count distinct works in each group", {
+  corpus <- sm_corpus(
+    works = tibble::tibble(
+      work_id = c("W1", "W2"), cited_by_count = c(10L, 10L)
+    ),
+    authorships = tibble::tibble(
+      work_id = c(rep("W1", 9), "W2"), author_id = paste0("A", 1:10),
+      country_code = c(rep("DE", 9), "US")
+    )
+  )
+  for (weight in c("count", "citations")) {
+    result <- sm_audit_geographic(corpus, weight = weight)
+    expect_identical(result$distribution$count, c(1L, 1L))
+    expect_equal(result$distribution$citations, c(10L, 10L))
+    expect_equal(result$distribution$pct, c(50, 50))
+    expect_equal(result$gini, 0)
+  }
+  corpus$authorships$author_id <- "A1"
+  expect_identical(sm_audit_geographic(corpus)$distribution$count, c(1L, 1L))
+})
+
+test_that("fractional geography splits work and citation credit", {
+  corpus <- sm_corpus(
+    works = tibble::tibble(work_id = "W1", cited_by_count = 10L),
+    authorships = tibble::tibble(
+      work_id = "W1", author_id = "A1", country_code = c("DE", "DE", "US")
+    )
+  )
+  full <- sm_audit_geographic(corpus)
+  fractional <- sm_audit_geographic(corpus, method = "fractional")
+  expect_identical(full$distribution$count, c(1L, 1L))
+  expect_equal(full$distribution$credit, c(1, 1))
+  expect_equal(fractional$distribution$credit, c(0.5, 0.5))
+  expect_equal(fractional$distribution$weighted_citations, c(5, 5))
+  expect_equal(sum(fractional$distribution$credit), 1)
+  expect_equal(fractional$method, "fractional")
+  expect_error(sm_audit_geographic(corpus, method = "invalid"))
+  empty <- sm_audit_geographic(make_empty_corpus(), method = "fractional")
+  expect_named(empty$distribution, c(
+    "group", "count", "citations", "pct", "credit", "weighted_citations"
+  ))
+  expect_type(empty$distribution$credit, "double")
+  expect_type(empty$distribution$weighted_citations, "double")
+  expect_equal(empty$method, "fractional")
+})
+
+test_that("geographic coverage counts works and Gini uses the weight", {
+  corpus <- sm_corpus(
+    works = tibble::tibble(
+      work_id = paste0("W", 1:3), cited_by_count = c(10L, 30L, 0L)
+    ),
+    authorships = tibble::tibble(
+      work_id = c("W1", "W1", "W1", "W2", "W3"),
+      author_id = paste0("A", 1:5),
+      country_code = c("DE", "DE", "DE", "US", NA),
+      position = c(1L, 2L, 3L, 1L, 1L)
+    )
+  )
+  expect_equal(sm_audit_geographic(corpus)$coverage, round(2 / 3, 3))
+  expect_equal(sm_audit_geographic(corpus)$gini, 0)
+  expect_equal(sm_audit_geographic(corpus, weight = "citations")$gini,
+               round(.compute_gini(c(10, 30)), 3))
+  corpus$authorships$country_code[1] <- NA_character_
+  expect_equal(sm_audit_geographic(corpus, weight = "first-author")$coverage,
+               round(1 / 3, 3))
+})
+
+test_that("weighted citations use per-work credit before aggregation", {
+  corpus <- sm_corpus(
+    works = tibble::tibble(
+      work_id = paste0("W", 1:3), cited_by_count = c(10L, 10L, 30L)
+    ),
+    authorships = tibble::tibble(
+      work_id = paste0("W", 1:3), author_id = paste0("A", 1:3),
+      country_code = c("DE", "DE", "US")
+    )
+  )
+  result <- sm_audit_geographic(corpus, weight = "citations")$distribution
+  expect_identical(result$group, c("US", "DE"))
+  expect_equal(result$weighted_citations, result$citations)
+  expect_equal(result$pct, c(60, 40))
+})
+
+test_that("regional groups and unknown geography retain work-based credit", {
+  corpus <- sm_corpus(
+    works = tibble::tibble(
+      work_id = c("W1", "W2"), cited_by_count = c(12L, 0L)
+    ),
+    authorships = tibble::tibble(
+      work_id = c("W1", "W1", "W1", "W2"), author_id = "A1",
+      institution_id = c("I1", "I2", "I3", NA),
+      country_code = c("DE", "US", "US", " ")
+    ),
+    institutions = tibble::tibble(
+      institution_id = paste0("I", 1:3), region = c("North", "North", "South"),
+      income_tier = c("High", "High", "Low")
+    )
+  )
+  for (by in c("country", "region", "income_tier")) {
+    result <- sm_audit_geographic(corpus, by = by, method = "fractional")
+    expect_equal(result$coverage, 0.5)
+    expect_equal(result$distribution$credit, c(0.5, 0.5))
+    expect_equal(result$distribution$weighted_citations, c(6, 6))
+    expect_type(result$distribution$citations, "integer")
+  }
+  corpus$works$cited_by_count <- 0L
+  result <- sm_audit_geographic(corpus, weight = "citations")
+  expect_equal(result$distribution$pct, c(0, 0))
+  expect_equal(result$gini, 0)
+})
+
+test_that("rounded percentage ties sort by group deterministically", {
+  corpus <- sm_corpus(
+    works = tibble::tibble(
+      work_id = c("W1", "W2"), cited_by_count = c(1000000L, 1000001L)
+    ),
+    authorships = tibble::tibble(
+      work_id = c("W1", "W2"), author_id = c("A1", "A2"),
+      country_code = c("DE", "US")
+    )
+  )
+  result <- sm_audit_geographic(corpus, weight = "citations")$distribution
+  expect_equal(result$pct, c(50, 50))
+  expect_identical(result$group, c("DE", "US"))
 })

@@ -13,6 +13,7 @@ sm_metric_summary(
   top_pct = 0.1,
   seed = NULL,
   min_cell = NULL,
+  top_reference = NULL,
   call = rlang::caller_env()
 )
 }
@@ -36,8 +37,9 @@ bootstrap CI and \code{pp_top10}. When \code{FALSE}, report only \code{n}, \code
 
 \item{conf}{Confidence level for the bootstrap interval (default \code{0.95}).}
 
-\item{top_pct}{Top-fraction threshold for \code{pp_top10} (default \code{0.1}, i.e.
-the top 10\% of works by citation count within the corpus).}
+\item{top_pct}{Single number strictly between 0 and 1: the top fraction
+of the reference distribution (default \code{0.1}). Ties share credit
+fractionally. The output column remains named \code{pp_top10} for any fraction.}
 
 \item{seed}{Optional integer seed for reproducible bootstrap resampling. When
 supplied, the RNG state is saved and restored so the call has no global
@@ -46,6 +48,16 @@ side effect (mirroring scimapR's reproducibility guarantees).}
 \item{min_cell}{For \code{metric = "cnci"}: \code{NULL} (default) or a positive
 integer, passed to \code{\link[=sm_metric_fnci]{sm_metric_fnci()}} when the impact is derived from
 citation counts, as in \code{\link[=sm_its]{sm_its()}}.}
+
+\item{top_reference}{Reference for \code{pp_top10}: \code{NULL} uses the corpus
+itself; a numeric vector supplies citation counts (at least two after
+dropping \code{NA}); a data frame supplies numeric \code{cited_by_count} and
+optionally \code{year} and/or \code{field}, matched on keys present in both it and
+\code{works}. Missing keys or unmatched cells are excluded with a message;
+no matching works gives \code{NA}. Reference counts must be finite and
+non-negative. Data-frame cells may contain a single reference work.
+\code{"openalex"} uses \code{is_top_10pct} for \code{top_pct = 0.1} or \code{is_top_1pct}
+for \code{0.01}, averaging non-missing flags; see \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}}.}
 
 \item{call}{Caller environment for error reporting.}
 }
@@ -66,14 +78,19 @@ the values come from: for \code{"cnci"} the same label as the
 Summarises a work-level impact metric robustly. Citation-based metrics are
 heavy-tailed, so the mean is a poor central estimate; this function reports
 the median with a bootstrap confidence interval and the proportion of papers
-in the global top 10\% by citations (\verb{\%PP(top 10\%)}), alongside the mean for
-comparison.
+in the top citation fraction of a chosen reference, alongside the mean.
+Without an external reference, \code{pp_top10} equals \code{top_pct} by construction
+and does not measure impact relative to other publications.
 }
 \details{
 The bootstrap uses base-R resampling by default; if the optional \pkg{boot}
-package is installed it is used instead (percentile interval). \code{pp_top10} is
-computed against the within-corpus citation distribution (the global top-10\%
-threshold is the upper \code{top_pct} quantile of \code{cited_by_count}).
+package is installed it is used instead (percentile interval).
+\code{pp_top10} remains citation-based for every \code{metric}; \code{top_reference}
+changes neither the metric summary nor the bootstrap. Tied citation counts
+share the part of their reference block in the top fraction equally,
+following Waltman and Schreiber (2013). Using the corpus itself gives
+\code{top_pct} exactly before rounding. An external reference from comparable
+fields and years, or OpenAlex flags, makes this an informative share.
 
 For \code{"cnci"} and \code{"fwci"} only works with a finite value count, and for
 \code{"cnci"} only works of \code{corpus$works} (a \code{corpus$metrics} table may hold
@@ -88,6 +105,11 @@ sm_metric_summary(corpus, metric = "citations", seed = 1)
 fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
 s <- sm_metric_summary(fix, metric = "cnci", robust = FALSE)
 attr(s, "impact_source")
+}
+\references{
+Waltman, L., & Schreiber, M. (2013). On the calculation of percentile-based
+bibliometric indicators. Journal of the American Society for Information
+Science and Technology, 64(2), 372--379.
 }
 \seealso{
 \code{\link[=sm_summary_works]{sm_summary_works()}}, \code{\link[=sm_count]{sm_count()}}

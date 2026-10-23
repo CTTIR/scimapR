@@ -12,6 +12,9 @@
 #'   `n_sources` (unique journals/sources), `n_oa` (open access works),
 #'   `pct_oa`, `n_retracted`, `n_languages`.
 #'
+#' Open-access percentages use [sm_oa_statuses()] and all works as the
+#' denominator, agreeing with [sm_audit_oa()] to one decimal place.
+#'
 #' @family metrics
 #' @export
 #' @examples
@@ -37,7 +40,7 @@ sm_summary_works <- function(corpus, call = rlang::caller_env()) {
   years <- works$year[!is.na(works$year)]
 
   n_oa <- if ("oa_status" %in% names(works)) {
-    sum(!is.na(works$oa_status) & works$oa_status != "closed")
+    sum(.oa_is_open(works$oa_status) %in% TRUE)
   } else {
     NA_integer_
   }
@@ -255,6 +258,9 @@ sm_summary_sources <- function(corpus, call = rlang::caller_env()) {
 #'   active in that year), `mean_authors_per_work` (distinct authors per
 #'   work, so an author with several address rows counts once).
 #'
+#' Open-access percentages use [sm_oa_statuses()] and all works in each
+#' year as the denominator, agreeing with [sm_audit_oa()] to one decimal.
+#'
 #' @family metrics
 #' @export
 #' @examples
@@ -286,7 +292,7 @@ sm_summary_period <- function(corpus, call = rlang::caller_env()) {
       median_citations = stats::median(.data$cited_by_count, na.rm = TRUE),
       total_citations  = sum(.data$cited_by_count, na.rm = TRUE),
       n_oa = if ("oa_status" %in% names(works)) {
-        sum(!is.na(.data$oa_status) & .data$oa_status != "closed")
+        sum(.oa_is_open(.data$oa_status) %in% TRUE)
       } else {
         NA_integer_
       },

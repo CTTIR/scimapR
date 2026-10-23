@@ -107,3 +107,18 @@ test_that("sm_read_lens emits a progress message only when verbose", {
   expect_message(sm_read_lens(path, verbose = TRUE), "Lens")
   expect_silent(sm_read_lens(path, verbose = FALSE))
 })
+
+test_that("Lens prefers access colour and status over licences and flags", {
+  path <- withr::local_tempfile(fileext = ".csv")
+  headers <- c("Open Access Colour", "Open Access Color", "Open Access Status")
+  for (header in headers) {
+    data <- data.frame(Title = paste("Study", 1:4), check.names = FALSE)
+    data[["Open Access Licence"]] <- "CC-BY"
+    data[["Is Open Access"]] <- TRUE
+    data[[header]] <- c("All OA; Gold", "Closed", "gold", "TRUE")
+    utils::write.csv(data, path, row.names = FALSE)
+    expect_identical(
+      sm_read_lens(path)$works$oa_status, c("gold", "closed", "gold", "open")
+    )
+  }
+})

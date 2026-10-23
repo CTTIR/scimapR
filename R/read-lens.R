@@ -21,7 +21,8 @@
 #' Lens ID, Title, Date Published, Year Published (or Publication Year),
 #' DOI, Source Title, Authors, Abstract, Citing Works Count
 #' (or Scholarly Citations Count), Document Type (or Publication Type),
-#' Open Access Status (or Open Access Colour), MeSH Terms,
+#' Open Access Colour (or Color), Open Access Status, Is Open Access,
+#' or exactly Open Access (in that priority order; never a licence), MeSH Terms,
 #' Keywords, Source ISSN, Language.
 #'
 #' @references
@@ -103,7 +104,10 @@ sm_read_lens <- function(path,
                         "^Scholarly.Citations", "^Scholarly Citations")
   raw_doctype  <- .col(df, "^Document.Type$", "^Document Type$",
                         "^Publication.Type$", "^Publication Type$")
-  raw_oa       <- .col(df, "^Open.Access", "^Open Access")
+  raw_oa <- .col(
+    df, "^Open.Access.Colou?r$", "^Open.Access.Status$",
+    "^Is.Open.Access$", "^Open.Access$"
+  )
   raw_mesh     <- .col(df, "^MeSH", "^Mesh")
   raw_keywords <- .col(df, "^Keywords$")
   raw_issn     <- .col(df, "^Source.ISSN$", "^Source ISSN$", "^ISSN$")
@@ -119,7 +123,7 @@ sm_read_lens <- function(path,
     type      = as.character(raw_doctype),
     source_id = NA_character_,
     cited_by_count = suppressWarnings(as.integer(raw_cited)),
-    oa_status = as.character(raw_oa),
+    oa_status = .normalize_oa_status(raw_oa),
     language  = as.character(raw_lang),
     pmid      = as.character(raw_pmid),
     arxiv_id  = NA_character_,

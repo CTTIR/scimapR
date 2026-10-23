@@ -431,3 +431,126 @@ sm_concept_vocabularies <- function(describe = FALSE) {
     description = tab$description
   )
 }
+
+.oa_status_levels <- function() {
+  c("diamond", "gold", "hybrid", "bronze", "green", "open", "closed")
+}
+
+#' Controlled vocabulary for open-access statuses
+#'
+#' @description
+#' Canonical values for `works$oa_status`. All levels except `closed` are
+#' open; missing and unrecognised values are unknown. Status definitions
+#' follow the OpenAlex taxonomy (see the link below),
+#' with `open` for access without a known colour. When an export names several
+#' statuses, the package uses the first recognised level in the order below:
+#' diamond, gold, hybrid, bronze, green, open, closed.
+#'
+#' [sm_corpus()] and [sm_corpus_from_tables()] normalise common spellings
+#' with a message. Consumers also recognise those spellings in saved corpora.
+#' The column remains character, and unknown strings are kept as written.
+#'
+#' @param describe Logical; if `TRUE`, return a tibble with a factor `level`,
+#'   logical `is_open` and character `description`; otherwise the character
+#'   vector of statuses in precedence order.
+#' @return A character vector or a tibble of status descriptions.
+#' @family corpus
+#' @seealso [sm_audit_oa()], [sm_filter_works()],
+#'   <https://help.openalex.org/data/works/open-access/>
+#' @export
+#' @examples
+#' sm_oa_statuses()
+#' sm_oa_statuses(describe = TRUE)
+sm_oa_statuses <- function(describe = FALSE) {
+  levels <- .oa_status_levels()
+  if (!isTRUE(describe)) return(levels)
+  tibble::tibble(
+    level = factor(levels, levels = levels),
+    is_open = levels != "closed",
+    description = c(
+      "Fully open-access journal without article processing charges.",
+      "Fully open-access journal.",
+      "Openly licensed article in a subscription journal.",
+      "Publisher-hosted free text without an identified open licence.",
+      "Repository-hosted free copy of an otherwise restricted work.",
+      "Open access with no known colour.",
+      "No known open-access copy."
+    )
+  )
+}
+
+.normalize_oa_status <- function(x) {
+  x <- as.character(x)
+  if (length(x) == 0L) return(character())
+  values <- unique(x)
+  keys <- tolower(trimws(.concept_vocab_text(values)))
+  levels <- .oa_status_levels()
+  canonical <- vapply(seq_along(values), function(i) {
+    if (is.na(keys[i]) || !nzchar(keys[i])) return(NA_character_)
+    tokens <- trimws(strsplit(keys[i], "[;,|]")[[1L]])
+    matched <- c(
+      diamond = any(grepl("diamond|platinum", tokens)),
+      gold = any(tokens == "gold"),
+      hybrid = any(grepl("hybrid", tokens)),
+      bronze = any(tokens %in% c("bronze", "free to read")),
+      green = any(startsWith(tokens, "green")),
+      open = any(tokens %in% c(
+        "open", "open access", "oa", "all oa", "true", "yes", "1"
+      )),
+      closed = any(tokens %in% c(
+        "closed", "closed access", "false", "no", "none", "0"
+      ))
+    )
+    if (any(matched)) levels[which(matched)[1L]] else values[i]
+  }, character(1))
+  unname(canonical[match(x, values)])
+}
+
+.oa_is_open <- function(x) {
+  status <- .normalize_oa_status(x)
+  flag <- status != "closed"
+  flag[!status %in% .oa_status_levels()] <- NA
+  flag
+}
+
+.normalize_corpus_oa_status <- function(works) {
+  if (!is.data.frame(works) || !"oa_status" %in% names(works)) return(works)
+  old <- as.character(works$oa_status)
+  new <- .normalize_oa_status(old)
+  works$oa_status <- new
+  changed <- !is.na(old) & (is.na(new) | old != new)
+  pairs <- unique(data.frame(
+    from = .concept_vocab_text(old[changed]), to = new[changed],
+    stringsAsFactors = FALSE
+  ))
+  unknown <- sort(unique(.concept_vocab_text(new[
+    !is.na(new) & !new %in% .oa_status_levels()
+  ])), method = "radix")
+  n_from <- nrow(pairs)
+  if (n_from == 0L && length(unknown) == 0L) return(works)
+  msg <- character()
+  if (n_from > 0L) {
+    msg <- c(
+      "i" = "Renamed {n_from} open-access status value{?s}
+             using {.fn sm_oa_statuses}:",
+      stats::setNames(
+        sprintf("{.val {pairs$from[%d]}} to {.val {pairs$to[%d]}}",
+                seq_len(n_from), seq_len(n_from)),
+        rep("*", n_from)
+      )
+    )
+  }
+  if (length(unknown) > 0L) {
+    msg <- c(msg, "i" = paste0(
+      "Kept unrecognised open-access status{?es}: {.val {unknown}}. ",
+      "Audits, summaries and filters treat {?it/them} as unknown."
+    ))
+  }
+  cli::cli_inform(
+    msg, class = c(
+      if (n_from > 0L) "scimapR_oa_status_renamed",
+      if (length(unknown) > 0L) "scimapR_oa_status_unknown"
+    )
+  )
+  works
+}

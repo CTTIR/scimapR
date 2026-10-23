@@ -46,3 +46,26 @@ test_that("sm_audit_oa full coverage when all statuses known", {
   expect_equal(res$pct_open, 100.0)
   expect_equal(nrow(res$distribution), 1L)
 })
+
+test_that("access audit agrees with summaries and excludes unknown flags", {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = paste0("W", 1:100),
+    oa_status = c(rep("open", 60), rep("closed", 40))
+  ))
+  result <- sm_audit_oa(corpus)
+  expect_equal(result$pct_open, 60)
+  expect_equal(result$pct_open, sm_summary_works(corpus)$pct_oa)
+  expect_equal(result$coverage, 1)
+  corpus <- corpus[1:4]
+  corpus$works$oa_status <- c("diamond", "Closed", "embargoed", NA)
+  result <- sm_audit_oa(corpus)
+  expect_equal(result$pct_open, 25)
+  expect_equal(result$coverage, 0.5)
+  expect_identical(result$distribution$is_open[
+    match(
+      c("diamond", "closed", "embargoed", "unknown"),
+      result$distribution$oa_status
+    )
+  ], c(TRUE, FALSE, NA, NA))
+  expect_type(sm_audit_oa(make_empty_corpus())$distribution$is_open, "logical")
+})

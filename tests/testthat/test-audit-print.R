@@ -148,3 +148,16 @@ test_that("funding print distinguishes failed lookups from not running", {
   expect_false(grepl("Not run", cap_print(res), fixed = TRUE))
   expect_match(cap_print(.not_run_audit_funding(40L)), "Not run", fixed = TRUE)
 })
+
+test_that("geographic printing describes work coverage and fractional credit", {
+  corpus <- sm_corpus(
+    works = tibble::tibble(work_id = "W1", cited_by_count = 10L),
+    authorships = tibble::tibble(
+      work_id = "W1", author_id = "A1", country_code = c("DE", "US")
+    )
+  )
+  output <- cap_print(sm_audit_geographic(corpus, method = "fractional"))
+  expect_match(output, "of works")
+  expect_match(output, "Counting.*fractional")
+  expect_match(output, "0.5")
+})
