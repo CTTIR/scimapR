@@ -28,6 +28,12 @@ A tibble with one row per year and columns: `year`, `n_works`,
 `mean_authors_per_work` (distinct authors per work, so an author with
 several address rows counts once).
 
+Open-access percentages use
+[`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md)
+and all works in each year as the denominator, agreeing with
+[`sm_audit_oa()`](https://cttir.github.io/scimapR/dev/reference/sm_audit_oa.md)
+to one decimal.
+
 ## See also
 
 Other metrics:

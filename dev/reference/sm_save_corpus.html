@@ -82,7 +82,9 @@ an <code>sm_corpus</code> object.</p>
 <code><a href="sm_corpus.html">sm_corpus()</a></code>,
 <code><a href="sm_corpus_from_tables.html">sm_corpus_from_tables()</a></code>,
 <code><a href="sm_dedupe.html">sm_dedupe()</a></code>,
+<code><a href="sm_link_references.html">sm_link_references()</a></code>,
 <code><a href="sm_materialise.html">sm_materialise()</a></code>,
+<code><a href="sm_oa_statuses.html">sm_oa_statuses()</a></code>,
 <code><a href="sm_validate.html">sm_validate()</a></code>,
 <code><a href="validate_sm_corpus.html">validate_sm_corpus()</a></code></p></div>
     </div>
@@ -92,7 +94,7 @@ an <code>sm_corpus</code> object.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_example_corpus.html">sm_example_corpus</a></span><span class="op">(</span>n_works <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">sm_save_corpus</span><span class="op">(</span><span class="va">corpus</span>, <span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Corpus saved to <span style="color: #0000BB;">/tmp/Rtmpyx9yI3/file23d412c4cdfb.rds</span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Corpus saved to <span style="color: #0000BB;">/tmp/RtmpSrcliq/file1ec93e48b057.rds</span></span>
 <span class="r-in"><span><span class="va">loaded</span> <span class="op">&lt;-</span> <span class="fu">sm_load_corpus</span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">loaded</span><span class="op">$</span><span class="va">works</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 10</span>

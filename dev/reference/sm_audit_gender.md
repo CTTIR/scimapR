@@ -90,6 +90,11 @@ An `sm_audit_gender` S3 object containing:
 
   The method used.
 
+- n_names_failed:
+
+  Number of distinct names without an API answer; these are not cached
+  and are retried on the next run.
+
 - confidence_summary:
 
   Summary statistics for gender confidence scores.

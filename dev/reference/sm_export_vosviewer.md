@@ -1,11 +1,14 @@
 # Export network for VOSviewer
 
-Write network to VOSviewer-compatible format.
+Write a headerless network file with integer node ids and positive link
+strengths, plus a tab-separated map file with `id` and `label` columns.
+Missing weights become 1. Directed edges are written as supplied, but
+VOSviewer treats the links as undirected.
 
 ## Usage
 
 ``` r
-sm_export_vosviewer(network, path)
+sm_export_vosviewer(network, path, map_path = NULL)
 ```
 
 ## Arguments
@@ -17,6 +20,11 @@ sm_export_vosviewer(network, path)
 - path:
 
   Output file path.
+
+- map_path:
+
+  Map file path. By default, `_map` is inserted before the extension of
+  `path`, or appended if `path` has no extension.
 
 ## Value
 
@@ -41,8 +49,7 @@ Other export:
 corpus <- sm_example_corpus()
 net <- sm_network_cocitation(corpus)
 sm_export_vosviewer(net, tempfile(fileext = ".tsv"))
-#> Warning: Unknown or uninitialised column: `from`.
-#> Warning: Unknown or uninitialised column: `to`.
-#> ✔ Network exported for VOSviewer to /tmp/Rtmpyx9yI3/file23d4761c4f6e.tsv
+#> ✔ Network exported for VOSviewer to /tmp/RtmpSrcliq/file1ec968940727.tsv
+# The matching map file is written beside the network file.
 # }
 ```

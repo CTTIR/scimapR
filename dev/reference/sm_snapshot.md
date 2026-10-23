@@ -69,11 +69,11 @@ Other reproducibility:
 corpus <- sm_example_corpus()
 path <- tempfile(fileext = ".rds")
 sm_snapshot(corpus, path = path)
-#> ✔ Corpus snapshot saved to /tmp/Rtmpyx9yI3/file23d441613d9f.rds.
-#> ℹ Size: 122K | Hash: 017544b82f93
+#> ✔ Corpus snapshot saved to /tmp/RtmpSrcliq/file1ec91f333494.rds.
+#> ℹ Size: 122K | Hash: 61c0637eede7
 
 loaded <- sm_snapshot_load(path)
-#> ✔ Loaded corpus from /tmp/Rtmpyx9yI3/file23d441613d9f.rds.
+#> ✔ Loaded corpus from /tmp/RtmpSrcliq/file1ec91f333494.rds.
 #> ℹ 200 works, 80 authors.
 identical(nrow(corpus$works), nrow(loaded$works))
 #> [1] TRUE

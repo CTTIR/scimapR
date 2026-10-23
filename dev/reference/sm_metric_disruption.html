@@ -95,6 +95,13 @@ but do NOT cite <em>f</em> (ignored-but-referencing citations).</p></dd>
 </dl><p>A CD index near +1 indicates the focal work is highly disruptive: its
 citers tend to ignore its references. A CD index near -1 indicates the
 focal work consolidates existing ideas.</p>
+<p>Only citations between works inside the corpus count. Repeated links and
+self-references are ignored. The focal work itself is excluded from
+\(n_k\), as are works published in an earlier year when both years are
+known. Same-year and undated works remain eligible: publication year is
+the available time resolution. Citers of the focal work always contribute
+to \(n_i\) or \(n_j\). Works without linked references or without any
+internal citers receive <code>NA</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
@@ -104,7 +111,8 @@ Technological Change. <em>Management Science</em>, 63(3), 791–817.
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>Other metrics:
+    <div class="dont-index"><p><code><a href="sm_link_references.html">sm_link_references()</a></code></p>
+<p>Other metrics:
 <code><a href="sm_metric_collab_index.html">sm_metric_collab_index()</a></code>,
 <code><a href="sm_metric_fnci.html">sm_metric_fnci()</a></code>,
 <code><a href="sm_metric_g_index.html">sm_metric_g_index()</a></code>,
@@ -128,11 +136,11 @@ Technological Change. <em>Management Science</em>, 63(3), 791–817.
 <span class="r-out co"><span class="r-pr">#&gt;</span>   work_id    cd_index</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> W000000001   0     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> W000000002   0.010<span style="text-decoration: underline;">1</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> W000000003  -<span style="color: #BB0000;">0.064</span><span style="color: #BB0000; text-decoration: underline;">2</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> W000000004   0.167 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> W000000005   0.030<span style="text-decoration: underline;">3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> W000000006   0.188 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> W000000002   0.018<span style="text-decoration: underline;">2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> W000000003  -<span style="color: #BB0000;">0.318</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> W000000004   0.321 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> W000000005   0.052<span style="text-decoration: underline;">6</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> W000000006   0.257 </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

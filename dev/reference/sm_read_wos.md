@@ -1,8 +1,7 @@
-# Read Web of Science plaintext files
+# Read Web of Science export files
 
-Parse Web of Science (WoS) plaintext export files into an `sm_corpus`
-object. Handles the standard WoS tagged format with two-letter field
-codes.
+Parse Web of Science (WoS) plaintext or tab-delimited export files into
+an `sm_corpus` object, preserving authors, fields and cited references.
 
 ## Usage
 
@@ -20,7 +19,7 @@ sm_read_wos(
 
 - path:
 
-  Character scalar. Path to a WoS plaintext file (`.txt`).
+  Character scalar. Path to a plaintext or tab-delimited export.
 
 - encoding:
 
@@ -50,8 +49,20 @@ object.
 ## Implementation
 
 The native parser follows the Web of Science Core Collection export
-format. Each record begins with `PT ` (publication type) and ends with
-`ER`. Field tags are two uppercase letters followed by a single space.
+format. Tab-delimited files have a header containing PT, AU, TI and UT
+and one record per line. Cells are unquoted, so quotes in titles are
+preserved. Both layouts share field, author and reference-linking rules.
+Tab-delimited input always uses the native path with `engine = "native"`
+or `"auto"`; `engine = "bibliometrix"` rejects it. UTF-8 BOMs are
+accepted; UTF-16 exports can be read with `encoding = "UTF-16LE"`.
+
+A file whose records all lack a title, accession number and author is an
+error. Such records among readable ones are dropped with one warning,
+including when `verbose = FALSE`. Files without any PT record still
+return an empty corpus.
+
+Each record begins with `PT ` (publication type) and ends with `ER`.
+Field tags are two uppercase letters followed by a single space.
 Continuation lines begin with three spaces. Tags parsed: AU or AF
 (authors), TI (title), SO (source), SN and EI (ISSN and electronic
 ISSN), J9 and JI (source abbreviations), AB (abstract), DI (DOI), PY

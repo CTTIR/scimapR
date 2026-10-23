@@ -37,9 +37,16 @@ additional reference metadata.
 ## Details
 
 Empty input (zero works or zero references) returns an empty directed
-`tbl_graph` with a single `name` column on nodes and no edges.
+`tbl_graph` with a single `name` column on nodes and no edges. Each work
+counts a cited item once: repeated links and self-loops are removed.
+References with no link to a corpus work trigger a warning when none is
+linked; use
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md)
+to resolve identifiers first.
 
 ## See also
+
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md)
 
 Other networks:
 [`sm_network_cocitation()`](https://cttir.github.io/scimapR/dev/reference/sm_network_cocitation.md),

@@ -93,7 +93,9 @@ Other corpus:
 [`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md),
 [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md),
 [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md),
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md),
 [`sm_materialise()`](https://cttir.github.io/scimapR/dev/reference/sm_materialise.md),
+[`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md),
 [`sm_save_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_save_corpus.md),
 [`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md),
 [`validate_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/validate_sm_corpus.md)
@@ -142,7 +144,7 @@ corpus <- sm_corpus_from_tables(
 #>   retraction_date, and last_refreshed with typed `NA`.
 corpus$metadata$local_inputs[, c("basename", "role", "sha256")]
 #> # A tibble: 1 × 3
-#>   basename            role         sha256                                       
-#>   <chr>               <chr>        <chr>                                        
-#> 1 file23d4eca763e.csv source table 9bb0667922c6df1d6b32720e3a67d05d4e6e79d9977b…
+#>   basename             role         sha256                                      
+#>   <chr>                <chr>        <chr>                                       
+#> 1 file1ec97bcd3bca.csv source table 9bb0667922c6df1d6b32720e3a67d05d4e6e79d9977…
 ```

@@ -64,12 +64,12 @@ labels <- sm_cluster_label(corpus, method = "tfidf", n_terms = 5)
 head(labels)
 #> 
 #> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
-#> Works: 6 | Authors: 80 | Institutions: 0
+#> Works: 6 | Authors: 17 | Institutions: 0
 #> Years: 2018 - 2024
-#> Sources (journals): 10
+#> Sources (journals): 5
 #> Embeddings: 6 x 64
 #> Provenance: synthetic (6)
-#> Status: Unlocked (last refreshed: 2026-10-21 09:23:42)
+#> Status: Unlocked (last refreshed: 2026-10-23 20:12:14)
 ```
 
 ## Thematic map

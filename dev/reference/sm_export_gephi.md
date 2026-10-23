@@ -1,6 +1,7 @@
 # Export network for Gephi (GEXF format)
 
-Write a tidygraph network to GEXF XML format for use with Gephi.
+Write a tidygraph network to GEXF XML format for use with Gephi. Labels
+are escaped as XML, and directed networks retain their direction.
 
 ## Usage
 
@@ -41,8 +42,6 @@ Other export:
 corpus <- sm_example_corpus()
 net <- sm_network_cocitation(corpus)
 sm_export_gephi(net, tempfile(fileext = ".gexf"))
-#> Warning: Unknown or uninitialised column: `from`.
-#> Warning: Unknown or uninitialised column: `to`.
-#> ✔ Network exported to /tmp/Rtmpyx9yI3/file23d471d1dbed.gexf
+#> ✔ Network exported to /tmp/RtmpSrcliq/file1ec9578b50ab.gexf
 # }
 ```

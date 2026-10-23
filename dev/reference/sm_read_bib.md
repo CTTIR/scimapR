@@ -55,6 +55,24 @@ be enclosed in braces or double-quotes and may span multiple lines.
 String concatenation with `#` is not supported; `@string` and
 `@preamble` entries are skipped.
 
+Protective braces are removed from titles, journals, abstracts, keywords
+and DOIs; escaped braces remain literal. Common LaTeX accent commands
+(`\"`, `\'`, `\^`, `\~`, `\=`, `\.`, `\c`, `\v`, `\u`, `\H`, `\k`, `\r`,
+and backslash followed by a grave accent) decode to precomposed letters
+where available, else the bare letter. Letter commands `\ss`, `\o`,
+`\O`, `\aa`, `\AA`, `\ae`, `\AE`, `\oe`, `\OE`, `\l`, `\L` and `\i` also
+decode, as do `\&`, `\%`, `\$`, `\#` and `\_`. DOI cleaning only removes
+braces and decodes those five escapes. Ties (`~`), `--` and math
+expressions remain as written. Whitespace outside math is collapsed and
+trimmed.
+
+Only a lowercase `and` outside braces separates authors; a comma outside
+braces flips a name from surname-first to given-name-first. Braced
+corporate names stay together, and a trailing `and others` is retained.
+Quoted field values end only at a quote outside braces. The first
+isolated four-digit year (1000–2999) in `year` is used, falling back to
+the BibLaTeX `date` field when no such year is present.
+
 ## References
 
 Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for

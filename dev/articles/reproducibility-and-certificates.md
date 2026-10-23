@@ -40,12 +40,12 @@ head(sm_provenance(corpus))
 #> # A tibble: 6 × 8
 #>   work_id    source    source_id_external fetch_date          query       engine
 #>   <chr>      <chr>     <chr>              <dttm>              <chr>       <chr> 
-#> 1 W000000001 synthetic NA                 2026-10-21 09:24:02 sm_example… native
-#> 2 W000000002 synthetic NA                 2026-10-21 09:24:02 sm_example… native
-#> 3 W000000003 synthetic NA                 2026-10-21 09:24:02 sm_example… native
-#> 4 W000000004 synthetic NA                 2026-10-21 09:24:02 sm_example… native
-#> 5 W000000005 synthetic NA                 2026-10-21 09:24:02 sm_example… native
-#> 6 W000000006 synthetic NA                 2026-10-21 09:24:02 sm_example… native
+#> 1 W000000001 synthetic NA                 2026-10-23 20:12:38 sm_example… native
+#> 2 W000000002 synthetic NA                 2026-10-23 20:12:38 sm_example… native
+#> 3 W000000003 synthetic NA                 2026-10-23 20:12:38 sm_example… native
+#> 4 W000000004 synthetic NA                 2026-10-23 20:12:38 sm_example… native
+#> 5 W000000005 synthetic NA                 2026-10-23 20:12:38 sm_example… native
+#> 6 W000000006 synthetic NA                 2026-10-23 20:12:38 sm_example… native
 #> # ℹ 2 more variables: scimapR_version <chr>, prompt_hash <chr>
 ```
 
@@ -54,7 +54,7 @@ head(sm_provenance(corpus))
 ``` r
 
 sm_hash_corpus(corpus)
-#> [1] "017544b82f936536e14ed0f83a6ecd62acad9bd817d0a11e4b712ad833165c20"
+#> [1] "61c0637eede72e86bf489cf7d8a27949789b82485ea6646cc707da9ec1945bb6"
 ```
 
 ## Creating a certificate
@@ -62,15 +62,15 @@ sm_hash_corpus(corpus)
 ``` r
 
 cert <- sm_certificate(corpus)
-#> ✔ Certificate created. Corpus hash: 017544b82f93
+#> ✔ Certificate created. Corpus hash: 61c0637eede7
 str(cert, max.level = 1)
 #> List of 20
 #>  $ certificate_version: chr "1.0"
-#>  $ created            : POSIXct[1:1], format: "2026-10-21 09:24:02"
+#>  $ created            : POSIXct[1:1], format: "2026-10-23 20:12:38"
 #>  $ scimapR_version    : chr "0.4.0.9000"
 #>  $ r_version          : chr "4.6.1"
 #>  $ platform           : chr "unix"
-#>  $ corpus_hash        : chr "017544b82f936536e14ed0f83a6ecd62acad9bd817d0a11e4b712ad833165c20"
+#>  $ corpus_hash        : chr "61c0637eede72e86bf489cf7d8a27949789b82485ea6646cc707da9ec1945bb6"
 #>  $ hash_version       : int 2
 #>  $ n_works            : int 200
 #>  $ n_authors          : int 80
@@ -99,7 +99,7 @@ result$checks[, c("check", "expected", "actual", "status")]
 #> # A tibble: 5 × 4
 #>   check          expected         actual           status
 #>   <chr>          <chr>            <chr>            <chr> 
-#> 1 corpus_hash    017544b82f936536 017544b82f936536 pass  
+#> 1 corpus_hash    61c0637eede72e86 61c0637eede72e86 pass  
 #> 2 n_works        200              200              pass  
 #> 3 n_authors      80               80               pass  
 #> 4 n_institutions 0                0                pass  
@@ -122,17 +122,17 @@ writeLines(c("doi,unit", "10.9999/example.1,Unit A"), tracker)
 corpus <- sm_register_input(corpus, tracker, role = "publication tracker",
                             builder = "R/01_import.R::read_tracker")
 cert <- sm_certificate(corpus)
-#> ✔ Certificate created. Corpus hash: 017544b82f93
+#> ✔ Certificate created. Corpus hash: 61c0637eede7
 sm_verify_certificate(corpus, cert)$checks[, c("check", "status")]
 #> # A tibble: 6 × 2
-#>   check                     status
-#>   <chr>                     <chr> 
-#> 1 corpus_hash               pass  
-#> 2 n_works                   pass  
-#> 3 n_authors                 pass  
-#> 4 n_institutions            pass  
-#> 5 n_references              pass  
-#> 6 input:file3030205f59e.csv pass
+#>   check                      status
+#>   <chr>                      <chr> 
+#> 1 corpus_hash                pass  
+#> 2 n_works                    pass  
+#> 3 n_authors                  pass  
+#> 4 n_institutions             pass  
+#> 5 n_references               pass  
+#> 6 input:file2e5239e19cfa.csv pass
 
 # once the file changes, its check fails
 cat("10.9999/example.2,Unit B\n", file = tracker, append = TRUE)
@@ -154,7 +154,7 @@ them it stops and names the files and the code that read them.
 
 tmp <- tempfile(fileext = ".rds")
 sm_save_corpus(corpus, tmp)
-#> ✔ Corpus saved to /tmp/RtmpSvoa47/file3030275a59fe.rds
+#> ✔ Corpus saved to /tmp/RtmpmPRFEF/file2e529a0f858.rds
 loaded <- sm_load_corpus(tmp)
 nrow(loaded$works)
 #> [1] 200
@@ -166,8 +166,8 @@ nrow(loaded$works)
 
 snap_path <- tempfile(fileext = ".rds")
 sm_snapshot(corpus, snap_path)
-#> ✔ Corpus snapshot saved to /tmp/RtmpSvoa47/file3030506ebac6.rds.
-#> ℹ Size: 122K | Hash: 017544b82f93
+#> ✔ Corpus snapshot saved to /tmp/RtmpmPRFEF/file2e52518cad97.rds.
+#> ℹ Size: 122K | Hash: 61c0637eede7
 ```
 
 ## Citation
@@ -175,8 +175,7 @@ sm_snapshot(corpus, snap_path)
 ``` r
 
 sm_cite_corpus(corpus)
-#> Corpus assembled using scimapR v0.4.0.9000 on 2026-10-21. Contains 200 works by
-#> 80 authors (2015-2024). Data sources: synthetic. Corpus hash: 017544b82f93.
+#> Corpus assembled using scimapR v0.4.0.9000 on 2026-10-23. Contains 200 works by 80 authors (2015-2024). Data sources: synthetic. Corpus hash: 61c0637eede7.
 ```
 
 ## Locking a corpus

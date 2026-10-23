@@ -2,10 +2,10 @@
 
 Ask a question of a corpus using retrieval-augmented generation (RAG).
 The function retrieves the most relevant works from the corpus using
-embeddings, TF-IDF, or a hybrid method, then sends them as context to an
-LLM along with the user's question. The response includes inline
-citations keyed to work IDs. No hallucinated references are possible
-because citations are constrained to retrieved works.
+embeddings, TF-IDF, or a hybrid method, then sends them as context to a
+chat provider along with the user's question. The response includes
+inline citations keyed to work IDs. No hallucinated references are
+possible because citations are constrained to retrieved works.
 
 ## Usage
 
@@ -17,8 +17,8 @@ sm_chat(
   retrieve_n = 30L,
   retrieve_method = c("embedding", "tfidf", "hybrid"),
   cite = TRUE,
-  max_tokens = 2000L,
-  temperature = 0.2,
+  max_tokens = lifecycle::deprecated(),
+  temperature = lifecycle::deprecated(),
   call = rlang::caller_env()
 )
 
@@ -40,7 +40,9 @@ print(x, ...)
 
   An ellmer chat provider object (e.g., from
   [`ellmer::chat_openai()`](https://ellmer.tidyverse.org/reference/chat_openai.html)).
-  If `NULL`, errors informatively.
+  If `NULL`, errors informatively. Each request runs in a fresh copy:
+  the object passed is unchanged, and its earlier turns and system
+  prompt are not used.
 
 - retrieve_n:
 
@@ -58,16 +60,13 @@ print(x, ...)
 
 - cite:
 
-  Logical. If `TRUE`, the prompt instructs the LLM to include inline
+  Logical. If `TRUE`, the prompt asks the chat provider for inline
   citations using work IDs.
 
-- max_tokens:
+- max_tokens, temperature:
 
-  Integer. Maximum tokens for the LLM response.
-
-- temperature:
-
-  Numeric. LLM temperature (0 = deterministic).
+  Deprecated; these arguments never affected requests. Set response
+  parameters on the chat object instead.
 
 - call:
 
@@ -87,7 +86,7 @@ An `sm_chat_response` S3 object with fields:
 
 - answer:
 
-  Character. The LLM's response.
+  Character. The chat provider's response.
 
 - citations:
 
@@ -126,7 +125,7 @@ Other chat:
 
 ``` r
 if (FALSE) { # \dontrun{
-# Requires ellmer package and LLM API access:
+# Requires ellmer package and chat-provider API access:
 # response <- sm_chat(corpus, "What methods dominate?",
 #                     provider = ellmer::chat_openai())
 } # }

@@ -38,6 +38,11 @@ between 0 and 1).
 
 ## Details
 
+Work IDs and embedding row names must be unique. Repeated IDs stop with
+class `scimapR_duplicate_ids`; use
+[`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md)
+to inspect them.
+
 Embeddings must be present in `corpus$embeddings` (a numeric matrix with
 row names matching `work_id`). Use
 [`sm_embed_works()`](https://cttir.github.io/scimapR/dev/reference/sm_embed_works.md)

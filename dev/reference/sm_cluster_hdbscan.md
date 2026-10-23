@@ -60,6 +60,11 @@ get `NA`.
 
 ## Details
 
+Work IDs and embedding row names must be unique. Repeated IDs stop with
+class `scimapR_duplicate_ids`; use
+[`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md)
+to inspect them.
+
 Requires embeddings in `corpus$embeddings`. Compute them first with
 [`sm_embed_works()`](https://cttir.github.io/scimapR/dev/reference/sm_embed_works.md)
 or load from cache with

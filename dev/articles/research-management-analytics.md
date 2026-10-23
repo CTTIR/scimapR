@@ -262,7 +262,10 @@ head(sm_count(corpus, method = "fractional", level = "author"), 5)
 ```
 
 Heavy-tailed metrics are summarised robustly with medians, bootstrap
-CIs, and the proportion of papers in the global top 10%.
+CIs, and a citation percentile share. This example has no reference set:
+its `pp_top10` equals `top_pct` by construction. Supply `top_reference`
+with a comparable external distribution or OpenAlex flags for an
+informative share.
 
 ``` r
 

@@ -75,14 +75,16 @@ multi-authored papers, and international collaboration rate.</p>
 <dd><p>Number of authors on the work.</p></dd>
 
 <dt><code>n_countries</code></dt>
-<dd><p>Number of distinct countries among co-authors.</p></dd>
+<dd><p>Distinct known countries; <code>NA</code> if none are known.</p></dd>
 
 <dt><code>n_institutions</code></dt>
-<dd><p>Number of distinct institutions among co-authors.</p></dd>
+<dd><p>Distinct known <code>institution_id</code> values; <code>NA</code>
+if none are known. Affiliation match labels are not counted.</p></dd>
 
 <dt><code>is_international</code></dt>
-<dd><p>Logical; <code>TRUE</code> if authors from more than one
-country contributed.</p></dd>
+<dd><p>Logical; <code>TRUE</code> if more than one
+country is known; <code>FALSE</code> if exactly one is known, and <code>NA</code> if none
+are known. Missing codes can hide international collaboration.</p></dd>
 
 <dt><code>is_multi_authored</code></dt>
 <dd><p>Logical; <code>TRUE</code> if more than one author.</p></dd>
@@ -93,7 +95,11 @@ country contributed.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The Collaboration Index (CI) for a set of works is typically defined as
 the mean number of authors per paper. This function returns per-work
-data, from which aggregate CI can be computed by the user.</p>
+data, from which aggregate CI can be computed by the user.
+Country and institution counts are <code>NA</code> when no non-blank value is known.
+With one known country, <code>is_international</code> is <code>FALSE</code>, even if some
+affiliations are missing. Institutions are counted by <code>institution_id</code>
+only; names and affiliation text are not matched.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -120,12 +126,12 @@ data, from which aggregate CI can be computed by the user.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 6</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   work_id    n_authors n_countries n_institutions is_international</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> W000000001         1           1              0 FALSE           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> W000000002         6           4              0 TRUE            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> W000000003         4           4              0 TRUE            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> W000000004         5           5              0 TRUE            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> W000000005         4           3              0 TRUE            </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> W000000006         1           1              0 FALSE           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> W000000001         1           1             <span style="color: #BB0000;">NA</span> FALSE           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> W000000002         6           4             <span style="color: #BB0000;">NA</span> TRUE            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> W000000003         4           4             <span style="color: #BB0000;">NA</span> TRUE            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> W000000004         5           5             <span style="color: #BB0000;">NA</span> TRUE            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> W000000005         4           3             <span style="color: #BB0000;">NA</span> TRUE            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> W000000006         1           1             <span style="color: #BB0000;">NA</span> FALSE           </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 1 more variable: is_multi_authored &lt;lgl&gt;</span></span>
 <span class="r-in"><span><span class="co"># Aggregate collaboration index:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">collab</span><span class="op">$</span><span class="va">n_authors</span><span class="op">)</span></span></span>

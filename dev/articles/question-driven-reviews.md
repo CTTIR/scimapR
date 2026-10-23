@@ -39,7 +39,7 @@ print(rq)
 #> ── <sm_question> ───────────────────────────────────────────────────────────────
 #> ID: Q-ecd0161dbb634ba3
 #> Framework: PICO
-#> Created: 2026-10-21 09:23:57
+#> Created: 2026-10-23 20:12:32
 #> 
 #> Question:
 #> Does spatial transcriptomics improve outcome prediction in colorectal cancer?
@@ -114,13 +114,13 @@ sm_screen_summary(corpus)
 #> ── Stage: title-abstract (n=200)
 #> exclude: 96 (48%)
 #> include: 82 (41%)
-#> unclear: 22 (11%)
+#> uncertain: 22 (11%)
 #> # A tibble: 3 × 4
-#>   stage          decision     n   pct
-#>   <chr>          <chr>    <int> <dbl>
-#> 1 title-abstract exclude     96    48
-#> 2 title-abstract include     82    41
-#> 3 title-abstract unclear     22    11
+#>   stage          decision      n   pct
+#>   <chr>          <chr>     <int> <dbl>
+#> 1 title-abstract exclude      96    48
+#> 2 title-abstract include      82    41
+#> 3 title-abstract uncertain    22    11
 ```
 
 ## PRISMA flow
@@ -133,9 +133,9 @@ prisma$counts
 #>   stage          n_entering n_excluded n_remaining
 #>   <chr>               <int>      <int>       <int>
 #> 1 identification        200          0         200
-#> 2 screening             200          0         200
-#> 3 eligibility           200          0         200
-#> 4 inclusion             200          0         200
+#> 2 title-abstract        200         96         104
+#> 3 full-text             104          0         104
+#> 4 inclusion             104          0         104
 prisma$plot
 ```
 

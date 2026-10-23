@@ -1,8 +1,13 @@
 # Open access status audit
 
 Audits the open-access (OA) status distribution of works in a corpus.
-Uses the `oa_status` column in the works table, which may have values
-such as `"gold"`, `"green"`, `"hybrid"`, `"bronze"`, or `"closed"`.
+Uses the statuses of
+[`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md);
+every recognised status except `closed` is open. Missing and
+unrecognised values are unknown. The open percentage uses all works as
+the denominator and agrees with
+[`sm_summary_works()`](https://cttir.github.io/scimapR/dev/reference/sm_summary_works.md)
+to one decimal place.
 
 The result includes counts and percentages for each OA category, as well
 as a coverage metric.
@@ -40,12 +45,13 @@ An `sm_audit_oa` S3 object containing:
 
 - distribution:
 
-  Tibble with columns `oa_status`, `count`, `pct`.
+  Tibble with columns `oa_status`, `count`, `pct`, and logical `is_open`
+  (`NA` for unknown statuses).
 
 - pct_open:
 
-  Percentage of works that are open access (gold, green, hybrid, or
-  bronze).
+  Percentage of works with an open status in
+  [`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md).
 
 - coverage:
 

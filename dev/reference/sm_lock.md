@@ -42,6 +42,22 @@ sm_unlock(corpus, confirm = FALSE, call = rlang::caller_env())
 
 A modified `sm_corpus` with updated lock status.
 
+## Details
+
+Merging, deduplication, materialisation, citation maturity, enrichment,
+embedding changes, clustering, labelling, affiliation matching and
+screening refuse locked inputs, as do refreshing and input registration.
+Subsets remain locked but lose their stored lock hash. Merged corpora
+are unlocked; unlock the inputs explicitly before merging.
+
+The lock records a content hash.
+[`sm_certificate()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+warns and
+[`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md)
+reports when direct edits changed that content. Printing shows only the
+lock status and does not hash the corpus. Earlier locked corpora without
+a stored hash are not checked.
+
 ## See also
 
 Other refresh:

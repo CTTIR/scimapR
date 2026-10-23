@@ -94,32 +94,32 @@ reporting and limitation caveats.</p>
 <code class="sourceCode R"><span><span class="va">geo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_audit_geographic.html">sm_audit_geographic</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">geo</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $distribution</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 20 × 4</span></span></span>
-<span><span class="co">#&gt;    group count citations   pct</span></span>
-<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> DE       77      <span style="text-decoration: underline;">1</span>204 10.2 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> AU       50       727  6.62</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> FI       49       771  6.49</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> NO       43       524  5.7 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> IT       41       571  5.43</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> GB       40       572  5.3 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> CA       38       647  5.03</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> DK       38       576  5.03</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> NL       37       530  4.9 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> BR       35       556  4.64</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> CN       35       569  4.64</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> CH       34       475  4.5 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> IL       34       759  4.5 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> JP       34       538  4.5 </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> IN       32       448  4.24</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> FR       31       458  4.11</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> KR       31       455  4.11</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> US       29       501  3.84</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> ES       24       350  3.18</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> SE       23       223  3.05</span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 20 × 6</span></span></span>
+<span><span class="co">#&gt;    group count citations   pct credit weighted_citations</span></span>
+<span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> DE       63       954  9.17     63                954</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 2</span> FI       46       708  6.7      46                708</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 3</span> AU       44       646  6.4      44                646</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 4</span> NO       38       472  5.53     38                472</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 5</span> GB       37       544  5.39     37                544</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 6</span> IT       37       540  5.39     37                540</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 7</span> DK       36       500  5.24     36                500</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 8</span> BR       33       533  4.8      33                533</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;"> 9</span> CA       33       568  4.8      33                568</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> CH       33       474  4.8      33                474</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> CN       33       541  4.8      33                541</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> NL       33       487  4.8      33                487</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">13</span> IL       31       700  4.51     31                700</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">14</span> JP       30       464  4.37     30                464</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">15</span> FR       29       445  4.22     29                445</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">16</span> IN       29       429  4.22     29                429</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">17</span> KR       29       442  4.22     29                442</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">18</span> US       27       478  3.93     27                478</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">19</span> ES       23       341  3.35     23                341</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">20</span> SE       23       223  3.35     23                223</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $gini</span></span>
-<span><span class="co">#&gt; [1] 0.143</span></span>
+<span><span class="co">#&gt; [1] 0.126</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $coverage</span></span>
 <span><span class="co">#&gt; [1] 1</span></span>
@@ -128,7 +128,10 @@ reporting and limitation caveats.</p>
 <span><span class="co">#&gt; [1] "country"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $weight</span></span>
-<span><span class="co">#&gt; [1] "count"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "count"</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $method</span></span>
+<span><span class="co">#&gt; [1] "full"</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="open-access-audit">Open access audit<a class="anchor" aria-label="anchor" href="#open-access-audit"></a>
@@ -137,14 +140,14 @@ reporting and limitation caveats.</p>
 <code class="sourceCode R"><span><span class="va">oa</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_audit_oa.html">sm_audit_oa</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">oa</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $distribution</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 3</span></span></span>
-<span><span class="co">#&gt;   oa_status count   pct</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> closed       87  43.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> gold         35  17.5</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> green        32  16  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> bronze       24  12  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> hybrid       22  11  </span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 4</span></span></span>
+<span><span class="co">#&gt;   oa_status count   pct is_open</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> closed       87  43.5 FALSE  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> gold         35  17.5 TRUE   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> green        32  16   TRUE   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> bronze       24  12   TRUE   </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> hybrid       22  11   TRUE   </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $pct_open</span></span>
 <span><span class="co">#&gt; [1] 56.5</span></span>

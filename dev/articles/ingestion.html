@@ -188,7 +188,11 @@ parsers.</p>
 </h2>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">combined</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_build_corpus.html">sm_build_corpus</a></span><span class="op">(</span><span class="va">corpus_bib</span>, <span class="va">corpus_ris</span>, dedupe <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removed 3 duplicate works by DOI.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Re-keyed 3 works, 0 authors, 0 sources and 0 institutions in the second</span></span>
+<span><span class="co">#&gt;   corpus.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> 3 works share a DOI with the first corpus; use `sm_dedupe()` to remove</span></span>
+<span><span class="co">#&gt;   duplicates.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Removed 3 duplicate works with the same <span style="color: #00BB00;">doi</span>.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">combined</span><span class="op">$</span><span class="va">works</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 3</span></span></code></pre></div>
 </div>

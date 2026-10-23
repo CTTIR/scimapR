@@ -102,7 +102,9 @@ provenance, screening decisions, and metadata.</p>
 
 
 <dl><dt id="arg-works">works<a class="anchor" aria-label="anchor" href="#arg-works"></a></dt>
-<dd><p>A tibble of works (publications). See Details for schema.</p></dd>
+<dd><p>A tibble of works (publications). See Details for schema.
+Common spellings of <code>oa_status</code> are renamed using <code><a href="sm_oa_statuses.html">sm_oa_statuses()</a></code>,
+with a message; unrecognised values are kept and reported as unknown.</p></dd>
 
 
 <dt id="arg-authors">authors<a class="anchor" aria-label="anchor" href="#arg-authors"></a></dt>
@@ -173,7 +175,9 @@ are stored as integers. See Details.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An <code>sm_corpus</code> S3 object.</p>
-<ul><li><p><code>[</code>: An <code>sm_corpus</code> with the selected works.</p></li>
+<ul><li><p><code>[</code>: An <code>sm_corpus</code> with the selected works and only the authors,
+institutions and sources they refer to. Counts and the corpus hash
+describe the subset, including when all works are selected.</p></li>
 <li><p><code><a href="https://rdrr.io/r/base/length.html" class="external-link">length()</a></code>: Number of works (integer).</p></li>
 <li><p><code><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim()</a></code>: Integer vector of length 2 (rows, columns of works table).</p></li>
 </ul><ul><li><p><code>as_tibble()</code>: The works tibble.</p></li>
@@ -185,7 +189,9 @@ are stored as integers. See Details.</p></dd>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>A corpus is a list of tables that share identifiers: <code>work_id</code> links
+    <p>IDs are unique within a corpus; <code><a href="sm_bind_corpora.html">sm_bind_corpora()</a></code> gives the second
+corpus new IDs where they collide.</p>
+<p>A corpus is a list of tables that share identifiers: <code>work_id</code> links
 every table to <code>works</code>, <code>author_id</code> links <code>authorships</code> to <code>authors</code>,
 <code>institution_id</code> links them to <code>institutions</code> and <code>source_id</code> links
 <code>works</code> to <code>sources</code>. The tables below list, for each element, the
@@ -193,7 +199,7 @@ required columns, which the readers and fetchers always write (a value
 may be <code>NA</code>), and the optional columns that some readers and functions
 write or read. <code>sm_corpus()</code> adds the missing required columns of
 <code>works</code> (mostly <code>NA</code>); it takes the other tables as given.</p>
-<p><strong><code>works</code></strong>: one row per work. Required:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>work_id</code></td><td>character</td><td>Identifier, unique within the corpus</td></tr><tr><td><code>doi</code></td><td>character</td><td>DOI, lower case, without <code>https://doi.org/</code></td></tr><tr><td><code>title</code>, <code>abstract</code></td><td>character</td><td>Title and abstract</td></tr><tr><td><code>year</code></td><td>integer</td><td>Publication year</td></tr><tr><td><code>type</code></td><td>character</td><td>Document type, as the source names it</td></tr><tr><td><code>source_id</code></td><td>character</td><td>The journal or other source (<code>sources</code>)</td></tr><tr><td><code>cited_by_count</code></td><td>integer</td><td>Citations, as the source counts them</td></tr><tr><td><code>oa_status</code></td><td>character</td><td>Open-access status</td></tr><tr><td><code>language</code></td><td>character</td><td>Language</td></tr><tr><td><code>pmid</code>, <code>arxiv_id</code>, <code>openalex_id</code></td><td>character</td><td>Other identifiers</td></tr><tr><td><code>is_retracted</code></td><td>logical</td><td>Retraction flag</td></tr><tr><td><code>retraction_date</code></td><td>Date</td><td>Date of the retraction</td></tr><tr><td><code>last_refreshed</code></td><td>POSIXct</td><td>When the record was read or fetched</td></tr></table><p>Optional: <code>quartile</code>, <code>jif_quartile</code> or <code>sjr_quartile</code> (journal
+<p><strong><code>works</code></strong>: one row per work. Required:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>work_id</code></td><td>character</td><td>Identifier, unique within the corpus</td></tr><tr><td><code>doi</code></td><td>character</td><td>DOI, lower case, without <code>https://doi.org/</code></td></tr><tr><td><code>title</code>, <code>abstract</code></td><td>character</td><td>Title and abstract</td></tr><tr><td><code>year</code></td><td>integer</td><td>Publication year</td></tr><tr><td><code>type</code></td><td>character</td><td>Document type, as the source names it</td></tr><tr><td><code>source_id</code></td><td>character</td><td>The journal or other source (<code>sources</code>)</td></tr><tr><td><code>cited_by_count</code></td><td>integer</td><td>Citations, as the source counts them</td></tr><tr><td><code>oa_status</code></td><td>character</td><td>One of <code><a href="sm_oa_statuses.html">sm_oa_statuses()</a></code>, or <code>NA</code></td></tr><tr><td><code>language</code></td><td>character</td><td>Language</td></tr><tr><td><code>pmid</code>, <code>arxiv_id</code>, <code>openalex_id</code></td><td>character</td><td>Other identifiers</td></tr><tr><td><code>is_retracted</code></td><td>logical</td><td>Retraction flag</td></tr><tr><td><code>retraction_date</code></td><td>Date</td><td>Date of the retraction</td></tr><tr><td><code>last_refreshed</code></td><td>POSIXct</td><td>When the record was read or fetched</td></tr></table><p>Optional: <code>quartile</code>, <code>jif_quartile</code> or <code>sjr_quartile</code> (journal
 quartiles such as <code>"Q1"</code>, for <code>sm_its(outcome = "share_q1")</code>); <code>cnci</code>,
 <code>fnci</code>, <code>rcr</code> and other impact columns (see <code><a href="sm_its.html">sm_its()</a></code>); <code>field</code> (for
 <code>sm_metric_fnci(classification = "manual")</code>); <code>citation_mature</code> and
@@ -240,7 +246,10 @@ its shares.</p>
 <p><strong><code>sources</code></strong>: one row per journal or other source. Required:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>source_id</code></td><td>character</td><td>Identifier, as in <code>works</code></td></tr><tr><td><code>issn_l</code></td><td>character</td><td>Linking ISSN</td></tr><tr><td><code>issn</code></td><td>list of character</td><td>All ISSNs of the source</td></tr><tr><td><code>display_name</code></td><td>character</td><td>Name</td></tr><tr><td><code>type</code></td><td>character</td><td>Kind of source, such as journal</td></tr><tr><td><code>is_oa</code></td><td>logical</td><td>Open-access source</td></tr><tr><td><code>publisher</code>, <code>publisher_country</code></td><td>character</td><td>Publisher and its country</td></tr></table><p>Optional: <code>abbreviation</code> and <code>iso_abbreviation</code> (character; the Web of
 Science abbreviations J9 and JI, written by <code><a href="sm_read_wos.html">sm_read_wos()</a></code> and the
 bibliometrix conversion and exported by <code><a href="sm_to_bibliometrix.html">sm_to_bibliometrix()</a></code>).</p>
-<p><strong><code>references</code></strong>: one row per cited reference. Required:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>work_id</code></td><td>character</td><td>The citing work</td></tr><tr><td><code>ref_index</code></td><td>integer</td><td>Place in the work's reference list</td></tr><tr><td><code>cited_work_id</code></td><td>character</td><td>The cited work, when it is in <code>works</code></td></tr><tr><td><code>cited_doi</code></td><td>character</td><td>DOI of the cited work</td></tr><tr><td><code>cited_raw</code></td><td>character</td><td>The reference as the source writes it</td></tr></table><p>Optional: none so far.</p>
+<p><strong><code>references</code></strong>: one row per cited reference. Required:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>work_id</code></td><td>character</td><td>The citing work</td></tr><tr><td><code>ref_index</code></td><td>integer</td><td>Place in the work's reference list</td></tr><tr><td><code>cited_work_id</code></td><td>character</td><td>Cited work in <code>works</code>; see linking below</td></tr><tr><td><code>cited_doi</code></td><td>character</td><td>DOI of the cited work</td></tr><tr><td><code>cited_raw</code></td><td>character</td><td>The reference as the source writes it</td></tr></table><p>Reference linking: readers, fetchers, <code><a href="sm_bind_corpora.html">sm_bind_corpora()</a></code>, <code><a href="sm_dedupe.html">sm_dedupe()</a></code>
+and <code><a href="sm_link_references.html">sm_link_references()</a></code> set <code>cited_work_id</code> from <code>cited_doi</code> or an
+OpenAlex id in <code>cited_raw</code> when the cited work is in <code>works</code>.</p>
+<p>Optional: none so far.</p>
 <p><strong><code>concepts</code></strong>: one row per keyword, category or concept of a work.
 Required:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>work_id</code></td><td>character</td><td>The work</td></tr><tr><td><code>concept_id</code></td><td>character</td><td>Identifier in its vocabulary</td></tr><tr><td><code>concept_name</code></td><td>character</td><td>The keyword, category or concept</td></tr><tr><td><code>level</code></td><td>integer</td><td>Level in the hierarchy of the vocabulary</td></tr><tr><td><code>score</code></td><td>double</td><td>Weight given by the source</td></tr><tr><td><code>vocabulary</code></td><td>character</td><td>One of <code><a href="sm_concept_vocabularies.html">sm_concept_vocabularies()</a></code></td></tr></table><p>For MeSH headings <code>score</code> is 1 for a major topic and 0 otherwise.
 Optional: none so far.</p>
@@ -264,7 +273,8 @@ whose rows have the source <code>"openalex_impact"</code>. <code><a href="sm_cer
 records the kind of each step, inferred from the source, query and
 engine for rows without <code>kind</code>, and <code><a href="sm_certificate.html">sm_rebuild_from_cert()</a></code> replays
 only searches, never a file read or an enrichment.</p>
-<p><strong><code>screening</code></strong>: one row per screening decision. Required:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>work_id</code></td><td>character</td><td>The work</td></tr><tr><td><code>stage</code></td><td>character</td><td>Stage, such as <code>"title-abstract"</code> or <code>"full-text"</code></td></tr><tr><td><code>decision</code></td><td>character</td><td><code>"include"</code>, <code>"exclude"</code> or <code>"unclear"</code></td></tr><tr><td><code>reason</code></td><td>character</td><td>Reason for the decision</td></tr><tr><td><code>confidence</code></td><td>double</td><td>Confidence of the decision</td></tr><tr><td><code>source</code></td><td>character</td><td>Who or what decided</td></tr><tr><td><code>decided_at</code></td><td>POSIXct</td><td>When</td></tr></table><p>Optional: none so far.</p>
+<p><strong><code>screening</code></strong>: one row per screening decision. Required:</p><table class="table table"><tr><td>Column</td><td>Type</td><td>Content</td></tr><tr><td><code>work_id</code></td><td>character</td><td>The work</td></tr><tr><td><code>stage</code></td><td>character</td><td>Stage, such as <code>"title-abstract"</code> or <code>"full-text"</code></td></tr><tr><td><code>decision</code></td><td>character</td><td><code>"include"</code>, <code>"exclude"</code> or <code>"uncertain"</code></td></tr><tr><td><code>reason</code></td><td>character</td><td>Reason for the decision</td></tr><tr><td><code>confidence</code></td><td>double</td><td>Confidence of the decision</td></tr><tr><td><code>source</code></td><td>character</td><td>Who or what decided</td></tr><tr><td><code>decided_at</code></td><td>POSIXct</td><td>When</td></tr></table><p>Optional: <code>model</code> records the chat-provider model for the decision.
+The legacy decision <code>"unclear"</code> is read as <code>"uncertain"</code>.</p>
 <p><strong><code>citations_by_year</code></strong>: optional (<code>NULL</code> when the corpus has no yearly
 citation counts); one row per work and citation year, as the OpenAlex
 readers, <code><a href="sm_enrich_openalex_impact.html">sm_enrich_openalex_impact()</a></code> and <code><a href="sm_corpus_from_tables.html">sm_corpus_from_tables()</a></code>
@@ -274,8 +284,18 @@ the years without citations, so a missing year counts 0 for a work with
 yearly counts (see <code>works$citations_as_of</code> and <code><a href="sm_citation_window.html">sm_citation_window()</a></code>).
 Subsetting keeps the rows of the kept works, <code><a href="sm_bind_corpora.html">sm_bind_corpora()</a></code> binds
 them and <code><a href="sm_hash_corpus.html">sm_hash_corpus()</a></code> includes them when there are any.</p>
-<p><strong><code>metadata</code></strong>: a list. Required:</p><table class="table table"><tr><td>Entry</td><td>Type</td><td>Content</td></tr><tr><td><code>scimapR_version</code></td><td>character</td><td>The scimapR version that built the corpus</td></tr><tr><td><code>build_date</code></td><td>POSIXct</td><td>When the corpus was built</td></tr><tr><td><code>corpus_hash</code></td><td>character</td><td>Hash of the content (<code><a href="sm_hash_corpus.html">sm_hash_corpus()</a></code>)</td></tr><tr><td><code>is_locked</code></td><td>logical</td><td>Whether <code><a href="sm_lock.html">sm_lock()</a></code> locked the corpus</td></tr><tr><td><code>last_refresh</code></td><td>POSIXct</td><td>When <code><a href="sm_refresh.html">sm_refresh()</a></code> last ran</td></tr><tr><td><code>question_id</code></td><td>character</td><td>Id of its <code><a href="sm_question.html">sm_question()</a></code></td></tr></table><p><code>question_id</code> is set by <code><a href="sm_corpus_for_question.html">sm_corpus_for_question()</a></code>. Optional: entries
-the readers add, such as <code>source_file</code> and <code>reader</code>;
+<p><strong><code>metadata</code></strong>: a list. Entries are required unless marked optional:</p><table class="table table"><tr><td>Entry</td><td>Type</td><td>Content</td></tr><tr><td><code>scimapR_version</code></td><td>character</td><td>The scimapR version that built the corpus</td></tr><tr><td><code>build_date</code></td><td>POSIXct</td><td>When the corpus was built</td></tr><tr><td><code>corpus_hash</code></td><td>character</td><td>Hash of the content (<code><a href="sm_hash_corpus.html">sm_hash_corpus()</a></code>)</td></tr><tr><td><code>is_locked</code></td><td>logical</td><td>Whether <code><a href="sm_lock.html">sm_lock()</a></code> locked the corpus</td></tr><tr><td><code>last_refresh</code></td><td>POSIXct</td><td>Last refresh without a failed request</td></tr><tr><td><code>n_identified</code></td><td>integer</td><td>Optional count before search deduplication</td></tr><tr><td><code>question_id</code></td><td>character</td><td>Id of its <code><a href="sm_question.html">sm_question()</a></code></td></tr><tr><td><code>fetch_incomplete</code></td><td>list</td><td>Optional failed-fetch report (see below)</td></tr></table><p><code>n_identified</code> includes records removed by question-search deduplication
+or its result limit.</p>
+<p><code>last_refresh</code> advances only when <code><a href="sm_refresh.html">sm_refresh()</a></code> refreshed at least one
+work and no request failed. A recovered partial fetch has optional
+<code>fetch_incomplete</code> (list) with <code>source</code>, <code>n_fetched</code>, <code>n_expected</code> and
+<code>reason</code>; see the fetchers' Failed requests sections.</p>
+<p><code>question_id</code> is set by <code><a href="sm_corpus_for_question.html">sm_corpus_for_question()</a></code>. Optional entries
+<code>locked_at</code> (POSIXct), <code>lock_reason</code> (character) and <code>lock_hash</code>
+(character) record when, why and which content <code><a href="sm_lock.html">sm_lock()</a></code> locked.
+Subsets remain locked but discard <code>lock_hash</code>.
+Other optional entries include those added by readers, such as
+<code>source_file</code> and <code>reader</code>;
 <code>hash_version</code> (integer), the algorithm of <code>corpus_hash</code>
 (<code><a href="sm_hash_corpus.html">sm_hash_corpus()</a></code>), which <code><a href="sm_snapshot.html">sm_snapshot()</a></code> writes (a snapshot without
 it used version 1); and <code>local_inputs</code>, a tibble of the local files the
@@ -316,7 +336,9 @@ only when asked to (<code>mix_models</code>).</p>
 <code><a href="sm_concept_vocabularies.html">sm_concept_vocabularies()</a></code>,
 <code><a href="sm_corpus_from_tables.html">sm_corpus_from_tables()</a></code>,
 <code><a href="sm_dedupe.html">sm_dedupe()</a></code>,
+<code><a href="sm_link_references.html">sm_link_references()</a></code>,
 <code><a href="sm_materialise.html">sm_materialise()</a></code>,
+<code><a href="sm_oa_statuses.html">sm_oa_statuses()</a></code>,
 <code><a href="sm_save_corpus.html">sm_save_corpus()</a></code>,
 <code><a href="sm_validate.html">sm_validate()</a></code>,
 <code><a href="validate_sm_corpus.html">validate_sm_corpus()</a></code></p></div>

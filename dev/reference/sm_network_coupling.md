@@ -7,7 +7,12 @@ weight equals the number of shared references.
 ## Usage
 
 ``` r
-sm_network_coupling(corpus, min_shared = 1L, call = rlang::caller_env())
+sm_network_coupling(
+  corpus,
+  min_shared = 1L,
+  linked_only = FALSE,
+  call = rlang::caller_env()
+)
 ```
 
 ## Arguments
@@ -22,6 +27,11 @@ sm_network_coupling(corpus, min_shared = 1L, call = rlang::caller_env())
 
   Integer; minimum number of shared references to create an edge.
   Defaults to `1L`.
+
+- linked_only:
+
+  Use only references with a `cited_work_id`. Defaults to `FALSE`, which
+  also counts shared references outside the corpus.
 
 - call:
 
@@ -39,12 +49,19 @@ shared references.
 
 Bibliographic coupling is the mirror of co-citation: two works are
 coupled if they cite the same references, suggesting intellectual
-similarity.
+similarity. Each work counts a cited item once; self-references are
+excluded. Items are keyed by `cited_work_id`, else normalised DOI, else
+OpenAlex id, else upper-case reference text with whitespace squished and
+final periods removed. Identifier kinds are kept separate.
+`linked_only = TRUE` restores the earlier behaviour and warns when none
+points to corpus works.
 
 Empty input (zero works, zero references, or no pairs above the
 threshold) returns an empty undirected `tbl_graph`.
 
 ## See also
+
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md)
 
 Other networks:
 [`sm_network_citation()`](https://cttir.github.io/scimapR/dev/reference/sm_network_citation.md),

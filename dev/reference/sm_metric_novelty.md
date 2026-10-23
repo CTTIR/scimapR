@@ -59,6 +59,8 @@ Combinations and Scientific Impact. *Science*, 342(6157), 468–472.
 
 ## See also
 
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md)
+
 Other metrics:
 [`sm_metric_collab_index()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_collab_index.md),
 [`sm_metric_disruption()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_disruption.md),

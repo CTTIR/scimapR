@@ -8,7 +8,8 @@ Create a PRISMA 2020-compatible flow diagram from corpus screening data.
 sm_screen_prisma(
   corpus,
   decisions = NULL,
-  stages = c("identification", "screening", "eligibility", "inclusion")
+  stages = c("identification", "title-abstract", "full-text", "inclusion"),
+  n_identified = NULL
 )
 ```
 
@@ -24,7 +25,15 @@ sm_screen_prisma(
 
 - stages:
 
-  Stage names for the flow.
+  Stage names in flow order. Defaults to identification, title-abstract,
+  full-text and inclusion. Only current works still in the flow count;
+  each stage uses the latest decision per work.
+
+- n_identified:
+
+  Whole count before deduplication and other removals, at least the
+  corpus size. Defaults to `metadata$n_identified` when set, otherwise
+  the corpus size. Ignored without an identification stage.
 
 ## Value
 
@@ -48,7 +57,7 @@ prisma$counts
 #>   stage          n_entering n_excluded n_remaining
 #>   <chr>               <int>      <int>       <int>
 #> 1 identification        200          0         200
-#> 2 screening             200          0         200
-#> 3 eligibility           200          0         200
-#> 4 inclusion             200          0         200
+#> 2 title-abstract        200         96         104
+#> 3 full-text             104          0         104
+#> 4 inclusion             104          0         104
 ```

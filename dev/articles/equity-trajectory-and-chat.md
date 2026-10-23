@@ -34,32 +34,32 @@ corpus <- sm_example_corpus(seed = 42)
 geo <- sm_audit_geographic(corpus)
 head(geo)
 #> $distribution
-#> # A tibble: 20 × 4
-#>    group count citations   pct
-#>    <chr> <int>     <int> <dbl>
-#>  1 DE       77      1204 10.2 
-#>  2 AU       50       727  6.62
-#>  3 FI       49       771  6.49
-#>  4 NO       43       524  5.7 
-#>  5 IT       41       571  5.43
-#>  6 GB       40       572  5.3 
-#>  7 CA       38       647  5.03
-#>  8 DK       38       576  5.03
-#>  9 NL       37       530  4.9 
-#> 10 BR       35       556  4.64
-#> 11 CN       35       569  4.64
-#> 12 CH       34       475  4.5 
-#> 13 IL       34       759  4.5 
-#> 14 JP       34       538  4.5 
-#> 15 IN       32       448  4.24
-#> 16 FR       31       458  4.11
-#> 17 KR       31       455  4.11
-#> 18 US       29       501  3.84
-#> 19 ES       24       350  3.18
-#> 20 SE       23       223  3.05
+#> # A tibble: 20 × 6
+#>    group count citations   pct credit weighted_citations
+#>    <chr> <int>     <int> <dbl>  <dbl>              <dbl>
+#>  1 DE       63       954  9.17     63                954
+#>  2 FI       46       708  6.7      46                708
+#>  3 AU       44       646  6.4      44                646
+#>  4 NO       38       472  5.53     38                472
+#>  5 GB       37       544  5.39     37                544
+#>  6 IT       37       540  5.39     37                540
+#>  7 DK       36       500  5.24     36                500
+#>  8 BR       33       533  4.8      33                533
+#>  9 CA       33       568  4.8      33                568
+#> 10 CH       33       474  4.8      33                474
+#> 11 CN       33       541  4.8      33                541
+#> 12 NL       33       487  4.8      33                487
+#> 13 IL       31       700  4.51     31                700
+#> 14 JP       30       464  4.37     30                464
+#> 15 FR       29       445  4.22     29                445
+#> 16 IN       29       429  4.22     29                429
+#> 17 KR       29       442  4.22     29                442
+#> 18 US       27       478  3.93     27                478
+#> 19 ES       23       341  3.35     23                341
+#> 20 SE       23       223  3.35     23                223
 #> 
 #> $gini
-#> [1] 0.143
+#> [1] 0.126
 #> 
 #> $coverage
 #> [1] 1
@@ -69,6 +69,9 @@ head(geo)
 #> 
 #> $weight
 #> [1] "count"
+#> 
+#> $method
+#> [1] "full"
 ```
 
 ### Open access audit
@@ -78,14 +81,14 @@ head(geo)
 oa <- sm_audit_oa(corpus)
 head(oa)
 #> $distribution
-#> # A tibble: 5 × 3
-#>   oa_status count   pct
-#>   <chr>     <int> <dbl>
-#> 1 closed       87  43.5
-#> 2 gold         35  17.5
-#> 3 green        32  16  
-#> 4 bronze       24  12  
-#> 5 hybrid       22  11  
+#> # A tibble: 5 × 4
+#>   oa_status count   pct is_open
+#>   <chr>     <int> <dbl> <lgl>  
+#> 1 closed       87  43.5 FALSE  
+#> 2 gold         35  17.5 TRUE   
+#> 3 green        32  16   TRUE   
+#> 4 bronze       24  12   TRUE   
+#> 5 hybrid       22  11   TRUE   
 #> 
 #> $pct_open
 #> [1] 56.5

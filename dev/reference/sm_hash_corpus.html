@@ -107,15 +107,23 @@ and earlier). See Details.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>version</code> selects the algorithm. Version 2, the default from scimapR
-0.5.0 on, sorts the columns of every table by name and the rows of the
-embeddings by work id before hashing, so the order in which the steps
-that built a corpus added their columns no longer changes the hash.
+0.5.0 on, hashes canonical UTF-8 text, independently of R's binary
+serialisation. Table columns are sorted by name and rows by their text
+values, using radix ordering. Missing values are distinct from the
+string <code>"NA"</code>. Numbers use 15 significant digits, signed zero becomes
+zero, dates use ISO dates and timestamps use UTC with six decimal places
+for seconds. List cells use JSON. Column classes are included in the
+text. Embeddings are sorted by work id and rounded to eight decimal
+places. These rules make version 2 independent of the R version,
+platform, time zone and collation locale.
 Hashes of version 2 therefore differ from the hashes that earlier
 versions of scimapR computed for the same content. Version 1 is the
 algorithm of these earlier versions. Certificates (<code><a href="sm_certificate.html">sm_certificate()</a></code>)
 and snapshots (<code><a href="sm_snapshot.html">sm_snapshot()</a></code>) record the version they used as
 <code>hash_version</code>; those written before it existed are checked with
-version 1, so they stay verifiable.</p>
+version 1. Version 1 uses R's binary serialisation and depends on the
+R version: older certificates and snapshots remain verifiable on the
+R version that wrote them.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -132,7 +140,7 @@ version 1, so they stay verifiable.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_example_corpus.html">sm_example_corpus</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">sm_hash_corpus</span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "017544b82f936536e14ed0f83a6ecd62acad9bd817d0a11e4b712ad833165c20"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "61c0637eede72e86bf489cf7d8a27949789b82485ea6646cc707da9ec1945bb6"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># the order of the columns does not matter</span></span></span>
 <span class="r-in"><span><span class="va">reordered</span> <span class="op">&lt;-</span> <span class="va">corpus</span></span></span>

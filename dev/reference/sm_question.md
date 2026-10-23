@@ -180,7 +180,7 @@ print(q)
 #> ── <sm_question> ───────────────────────────────────────────────────────────────
 #> ID: Q-c4c29fe2ebe4f3d3
 #> Framework: PICO
-#> Created: 2026-10-21 09:23:28
+#> Created: 2026-10-23 20:11:54
 #> 
 #> Question:
 #> Does immunotherapy improve survival in metastatic melanoma?

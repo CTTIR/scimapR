@@ -44,5 +44,5 @@ Other export:
 corpus <- sm_example_corpus(n_works = 10)
 path <- tempfile(fileext = ".rds")
 sm_export_rds(corpus, path)
-#> ✔ Corpus saved to /tmp/Rtmpyx9yI3/file23d4234d066b.rds
+#> ✔ Corpus saved to /tmp/RtmpSrcliq/file1ec95cd3e669.rds
 ```

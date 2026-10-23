@@ -61,6 +61,7 @@ data rather than duplicating rows.</p>
 <span>  <span class="va">corpus</span>,</span>
 <span>  source <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"openalex"</span>, <span class="st">"mesh"</span><span class="op">)</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  api_key <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"OPENALEX_API_KEY"</span><span class="op">)</span>,</span>
 <span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -83,6 +84,10 @@ for a major topic of the article and 0 otherwise).</p></dd>
 <dd><p>Print progress messages?</p></dd>
 
 
+<dt id="arg-api-key">api_key<a class="anchor" aria-label="anchor" href="#arg-api-key"></a></dt>
+<dd><p>OpenAlex API key, sent in the authorization header.</p></dd>
+
+
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
 <dd><p>Caller environment for error reporting.</p></dd>
 
@@ -90,7 +95,8 @@ for a major topic of the article and 0 otherwise).</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An <code>sm_corpus</code> object with updated <code>concepts</code> table and new
-provenance rows.</p>
+provenance rows for enriched works. Failed OpenAlex lookups warn and
+stop at a rate limit, preserving earlier successful results.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -98,6 +98,11 @@ tags followed by two spaces, a dash, and a space.</p>
 Each record starts with <code>TY  -</code> and ends with <code>ER  -</code>. Tags are two
 uppercase letters followed by two spaces, a hyphen, and a space. Repeating
 tags (AU, KW) generate multiple values per record.</p>
+<p>Publication year comes from the first usable year in <code>PY</code>, <code>Y1</code>, then
+<code>DA</code>. Bare years and dates such as <code>2019/03/01/</code> or <code>2020///</code> are accepted:
+the first isolated four-digit year from 1000 through 2999 is used.
+<code>Y2</code> is never a fallback because it often holds an access or secondary
+date. Unrecognised dates yield <code>NA</code> without a coercion warning.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

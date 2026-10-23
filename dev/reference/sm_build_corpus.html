@@ -60,7 +60,8 @@ deduplicated <code>sm_corpus</code>.</p>
 
 
 <dt id="arg-dedupe">dedupe<a class="anchor" aria-label="anchor" href="#arg-dedupe"></a></dt>
-<dd><p>Logical; deduplicate by DOI after combining?</p></dd>
+<dd><p>Logical; deduplicate by normalised DOI after combining,
+keeping the most complete record and its child rows?</p></dd>
 
 
 <dt id="arg-mix-models">mix_models<a class="anchor" aria-label="anchor" href="#arg-mix-models"></a></dt>
@@ -83,7 +84,8 @@ models (or of which only one input records its model)? Passed to
 embeddings apply: embeddings that record different models in
 <code>metadata$embedding</code>, or of which only one input records its model,
 stop the function (class <code>scimapR_embedding_model_mismatch</code>) unless
-<code>mix_models = TRUE</code>.</p>
+<code>mix_models = TRUE</code>.
+Pass every file of a split export; the IDs stay unique.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -95,7 +97,9 @@ stop the function (class <code>scimapR_embedding_model_mismatch</code>) unless
 <code><a href="sm_corpus.html">sm_corpus()</a></code>,
 <code><a href="sm_corpus_from_tables.html">sm_corpus_from_tables()</a></code>,
 <code><a href="sm_dedupe.html">sm_dedupe()</a></code>,
+<code><a href="sm_link_references.html">sm_link_references()</a></code>,
 <code><a href="sm_materialise.html">sm_materialise()</a></code>,
+<code><a href="sm_oa_statuses.html">sm_oa_statuses()</a></code>,
 <code><a href="sm_save_corpus.html">sm_save_corpus()</a></code>,
 <code><a href="sm_validate.html">sm_validate()</a></code>,
 <code><a href="validate_sm_corpus.html">validate_sm_corpus()</a></code></p></div>
@@ -106,7 +110,11 @@ stop the function (class <code>scimapR_embedding_model_mismatch</code>) unless
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">c1</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_example_corpus.html">sm_example_corpus</a></span><span class="op">(</span>n_works <span class="op">=</span> <span class="fl">50</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">c2</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_example_corpus.html">sm_example_corpus</a></span><span class="op">(</span>n_works <span class="op">=</span> <span class="fl">50</span>, seed <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">combined</span> <span class="op">&lt;-</span> <span class="fu">sm_build_corpus</span><span class="op">(</span><span class="va">c1</span>, <span class="va">c2</span>, dedupe <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Removed 50 duplicate works by DOI.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Re-keyed 50 works, 79 authors, 10 sources and 0 institutions in the second</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   corpus.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 50 works share a DOI with the first corpus; use `sm_dedupe()` to remove</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   duplicates.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Removed 50 duplicate works with the same <span style="color: #00BB00;">doi</span>.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

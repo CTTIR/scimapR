@@ -121,6 +121,17 @@ package (version 3.1.1 or later) sends the requests: it gets the key too
 and its own retries are switched off, but it does not pass on the
 response headers, so the reset time and the budget are not known.
 
+## Failed requests
+
+Native requests retry transient server and network failures, and short
+announced rate-limit waits. Long waits abort immediately. If a later
+page fails, the error inherits from `scimapR_fetch_incomplete` and holds
+the earlier parsed works in `rlang::last_error()$partial`. Their
+metadata records `fetch_incomplete` with the source, received and
+expected counts, and failure reason. If those pages cannot be parsed,
+`partial` is `NULL`. The default remains an error; an incomplete fetch
+is never returned as an ordinary successful result.
+
 ## See also
 
 [`sm_enrich_openalex_impact()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_openalex_impact.md),

@@ -1,6 +1,9 @@
 # Validate corpus integrity
 
 Check referential integrity across all corpus tables and report issues.
+Checks work, author, source and institution links, duplicate lookup IDs,
+and duplicate or orphan embedding row names. A locked corpus with a
+stored hash is also checked for changed content.
 
 ## Usage
 
@@ -20,7 +23,9 @@ sm_validate(corpus, call = rlang::caller_env())
 
 ## Value
 
-A tibble of validation issues, or a 0-row tibble if clean.
+A tibble with `table`, `issue` and `n_affected`, or a 0-row tibble with
+the same columns if clean. Missing links count distinct unresolved IDs;
+duplicates count surplus rows.
 
 ## See also
 
@@ -33,7 +38,9 @@ Other corpus:
 [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md),
 [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_from_tables.md),
 [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md),
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md),
 [`sm_materialise()`](https://cttir.github.io/scimapR/dev/reference/sm_materialise.md),
+[`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md),
 [`sm_save_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_save_corpus.md),
 [`validate_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/validate_sm_corpus.md)
 

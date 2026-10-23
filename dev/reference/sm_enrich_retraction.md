@@ -1,9 +1,8 @@
 # Enrich corpus with retraction data
 
 Check works in the corpus against the [Retraction
-Watch](https://retractionwatch.com/) database (via the Crossref API
-retracted-article filter and OpenAlex) to identify retracted
-publications.
+Watch](https://retractionwatch.com/) database (via the Crossref update
+notices and OpenAlex) to identify retracted publications.
 
 Updates the `is_retracted` and `retraction_date` columns in the `works`
 table.
@@ -14,7 +13,13 @@ data rather than duplicating it.
 ## Usage
 
 ``` r
-sm_enrich_retraction(corpus, verbose = TRUE, call = rlang::caller_env())
+sm_enrich_retraction(
+  corpus,
+  verbose = TRUE,
+  api_key = Sys.getenv("OPENALEX_API_KEY"),
+  mailto = Sys.getenv("SCIMAPR_MAILTO"),
+  call = rlang::caller_env()
+)
 ```
 
 ## Arguments
@@ -27,6 +32,14 @@ sm_enrich_retraction(corpus, verbose = TRUE, call = rlang::caller_env())
 
   Print progress messages?
 
+- api_key:
+
+  OpenAlex API key, sent in the authorization header.
+
+- mailto:
+
+  Contact address sent only to Crossref.
+
 - call:
 
   Caller environment for error reporting.
@@ -34,7 +47,10 @@ sm_enrich_retraction(corpus, verbose = TRUE, call = rlang::caller_env())
 ## Value
 
 An `sm_corpus` object with updated `is_retracted` and `retraction_date`
-columns in the `works` table, plus new provenance rows.
+columns in the `works` table, plus new provenance rows for checked works
+only. Failed requests warn; when no work could be checked they error
+without changing the corpus. Missing records are reported separately.
+Existing retraction flags are never cleared.
 
 ## See also
 

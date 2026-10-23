@@ -58,6 +58,17 @@ An `sm_corpus` object. Its provenance records the search (`query`,
 [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
 can run it again.
 
+## Failed requests
+
+Native requests retry transient server and network failures, and short
+announced rate-limit waits. Long waits abort immediately. If a later
+page fails, the error inherits from `scimapR_fetch_incomplete` and holds
+the earlier parsed works in `rlang::last_error()$partial`. Their
+metadata records `fetch_incomplete` with the source, received and
+expected counts, and failure reason. If those pages cannot be parsed,
+`partial` is `NULL`. The default remains an error; an incomplete fetch
+is never returned as an ordinary successful result.
+
 ## See also
 
 Other fetchers:

@@ -51,7 +51,12 @@ weight equals the number of works that co-cite A and B.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sm_network_cocitation</span><span class="op">(</span><span class="va">corpus</span>, min_weight <span class="op">=</span> <span class="fl">2L</span>, call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sm_network_cocitation</span><span class="op">(</span></span>
+<span>  <span class="va">corpus</span>,</span>
+<span>  min_weight <span class="op">=</span> <span class="fl">2L</span>,</span>
+<span>  linked_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  call <span class="op">=</span> <span class="fu">rlang</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/stack.html" class="external-link">caller_env</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -67,6 +72,11 @@ weight equals the number of works that co-cite A and B.</p>
 Defaults to <code>2L</code> to reduce noise.</p></dd>
 
 
+<dt id="arg-linked-only">linked_only<a class="anchor" aria-label="anchor" href="#arg-linked-only"></a></dt>
+<dd><p>Use only references with a <code>cited_work_id</code>. Defaults to
+<code>FALSE</code>, which includes cited items outside the corpus.</p></dd>
+
+
 <dt id="arg-call">call<a class="anchor" aria-label="anchor" href="#arg-call"></a></dt>
 <dd><p>Caller environment for error reporting.</p></dd>
 
@@ -74,20 +84,28 @@ Defaults to <code>2L</code> to reduce noise.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <a href="https://tidygraph.data-imaginist.com/reference/tbl_graph.html" class="external-link">tidygraph::tbl_graph</a> object (undirected). Nodes carry <code>name</code>
-(work ID) and columns from <code>corpus$works</code>. Edges carry a <code>weight</code> column
-representing co-citation frequency.</p>
+(work ID for corpus works, else DOI, OpenAlex id or original reference
+text), <code>in_corpus</code>, and columns from <code>corpus$works</code> (missing for external
+items). Edges carry a <code>weight</code> column representing co-citation frequency.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The algorithm:</p><ol><li><p>For every citing work, enumerate all pairs of cited works.</p></li>
 <li><p>Count how often each pair co-occurs.</p></li>
-<li><p>Filter by <code>min_weight</code>.</p></li>
+<li><p>Filter by <code>min_weight</code>.
+Each work counts a cited item once; self-references are excluded. Items
+are keyed by <code>cited_work_id</code>, else normalised DOI, else OpenAlex id, else
+upper-case reference text with whitespace squished and final periods
+removed. Identifier kinds are kept separate, even when labels coincide.
+<code>linked_only = TRUE</code> restores the earlier behaviour and warns when none
+points to corpus works.</p></li>
 </ol><p>Empty input (zero works, zero references, or no pairs above the threshold)
 returns an empty undirected <code>tbl_graph</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>Other networks:
+    <div class="dont-index"><p><code><a href="sm_link_references.html">sm_link_references()</a></code></p>
+<p>Other networks:
 <code><a href="sm_network_citation.html">sm_network_citation()</a></code>,
 <code><a href="sm_network_collab.html">sm_network_collab()</a></code>,
 <code><a href="sm_network_coupling.html">sm_network_coupling()</a></code>,
@@ -104,23 +122,23 @@ returns an empty undirected <code>tbl_graph</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A bipartite simple graph with 1 component</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Node Data: 198 × 16 (active)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    name      doi   title abstract  year type  source_id cited_by_count oa_status</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> W0000000… 10.1… Tumo… This st…  <span style="text-decoration: underline;">2</span>023 jour… S0000000…              3 green    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> W0000000… 10.1… Biom… This st…  <span style="text-decoration: underline;">2</span>020 jour… S0000000…              9 hybrid   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> W0000000… 10.1… Colo… This st…  <span style="text-decoration: underline;">2</span>024 jour… S0000000…             28 green    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> W0000000… 10.1… Tumo… This st…  <span style="text-decoration: underline;">2</span>020 revi… S0000000…             29 green    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> W0000000… 10.1… Clin… This st…  <span style="text-decoration: underline;">2</span>020 jour… S0000000…             16 hybrid   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> W0000000… 10.1… Tumo… This st…  <span style="text-decoration: underline;">2</span>018 jour… S0000000…             16 closed   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> W0000000… 10.1… Sing… This st…  <span style="text-decoration: underline;">2</span>021 lett… S0000000…             26 bronze   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> W0000000… 10.1… Colo… This st…  <span style="text-decoration: underline;">2</span>020 jour… S0000000…              7 hybrid   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> W0000000… 10.1… Gene… This st…  <span style="text-decoration: underline;">2</span>024 revi… S0000000…              6 gold     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> W0000000… 10.1… Colo… This st…  <span style="text-decoration: underline;">2</span>019 revi… S0000000…              5 gold     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Node Data: 198 × 17 (active)</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    name      in_corpus doi   title abstract  year type  source_id cited_by_count</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 1</span> W0000000… TRUE      10.1… Tumo… This st…  <span style="text-decoration: underline;">2</span>023 jour… S0000000…              3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 2</span> W0000000… TRUE      10.1… Biom… This st…  <span style="text-decoration: underline;">2</span>020 jour… S0000000…              9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 3</span> W0000000… TRUE      10.1… Colo… This st…  <span style="text-decoration: underline;">2</span>024 jour… S0000000…             28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 4</span> W0000000… TRUE      10.1… Tumo… This st…  <span style="text-decoration: underline;">2</span>020 revi… S0000000…             29</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 5</span> W0000000… TRUE      10.1… Clin… This st…  <span style="text-decoration: underline;">2</span>020 jour… S0000000…             16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 6</span> W0000000… TRUE      10.1… Tumo… This st…  <span style="text-decoration: underline;">2</span>018 jour… S0000000…             16</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 7</span> W0000000… TRUE      10.1… Sing… This st…  <span style="text-decoration: underline;">2</span>021 lett… S0000000…             26</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 8</span> W0000000… TRUE      10.1… Colo… This st…  <span style="text-decoration: underline;">2</span>020 jour… S0000000…              7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;"> 9</span> W0000000… TRUE      10.1… Gene… This st…  <span style="text-decoration: underline;">2</span>024 revi… S0000000…              6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">10</span> W0000000… TRUE      10.1… Colo… This st…  <span style="text-decoration: underline;">2</span>019 revi… S0000000…              5</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 188 more rows</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 7 more variables: language &lt;chr&gt;, pmid &lt;chr&gt;, arxiv_id &lt;chr&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   openalex_id &lt;chr&gt;, is_retracted &lt;lgl&gt;, retraction_date &lt;date&gt;,</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   last_refreshed &lt;dttm&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># ℹ 8 more variables: oa_status &lt;chr&gt;, language &lt;chr&gt;, pmid &lt;chr&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   arxiv_id &lt;chr&gt;, openalex_id &lt;chr&gt;, is_retracted &lt;lgl&gt;,</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#   retraction_date &lt;date&gt;, last_refreshed &lt;dttm&gt;</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;">#</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Edge Data: 2,289 × 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    from    to weight</span>

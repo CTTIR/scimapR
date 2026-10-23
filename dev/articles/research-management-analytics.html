@@ -275,7 +275,10 @@ credit across its contributors.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> A000000070 Mei Mueller         13   4.38               91.3</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> A000000041 Raj Andersson       11   4.16               79.9</span></span></code></pre></div>
 <p>Heavy-tailed metrics are summarised robustly with medians, bootstrap
-CIs, and the proportion of papers in the global top 10%.</p>
+CIs, and a citation percentile share. This example has no reference set:
+its <code>pp_top10</code> equals <code>top_pct</code> by construction.
+Supply <code>top_reference</code> with a comparable external
+distribution or OpenAlex flags for an informative share.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sm_metric_summary.html">sm_metric_summary</a></span><span class="op">(</span><span class="va">corpus</span>, metric <span class="op">=</span> <span class="st">"citations"</span>, seed <span class="op">=</span> <span class="fl">1</span>, n_boot <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 1 × 8</span></span></span>

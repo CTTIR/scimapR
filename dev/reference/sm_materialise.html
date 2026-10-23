@@ -81,7 +81,13 @@ cached <code>.rds</code>/<code>.parquet</code> files; or a single directory path
 
 <dt id="arg--by">.by<a class="anchor" aria-label="anchor" href="#arg--by"></a></dt>
 <dd><p>Optional named list mapping table name to its join key column(s).
-Defaults to each table's natural key (e.g. <code>works</code> -&gt; <code>work_id</code>).</p></dd>
+Missing or empty key values never match. Defaults: <code>works</code>, <code>provenance</code>
+and <code>screening</code> use <code>work_id</code>; <code>authors</code> use <code>author_id</code>; <code>institutions</code>
+use <code>institution_id</code>; <code>sources</code> use <code>source_id</code>; <code>authorships</code> use
+<code>(work_id, author_id)</code>; <code>references</code> use <code>(work_id, ref_index)</code> (formerly
+<code>(work_id, cited_work_id)</code>); <code>concepts</code> use <code>(work_id, concept_id)</code>.
+For keywords, use
+<code>.by = list(concepts = c("work_id", "vocabulary", "concept_name"))</code>.</p></dd>
 
 
 <dt id="arg-overwrite">overwrite<a class="anchor" aria-label="anchor" href="#arg-overwrite"></a></dt>
@@ -102,9 +108,16 @@ preserved (this is a column-enrichment join, not a row append).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Missing keys produce a <code><a href="https://cli.r-lib.org/reference/cli_abort.html" class="external-link">cli::cli_warn</a></code> and skip that source rather than
-erroring. Internally, row-binds use a type-safe helper so a <code>NULL</code>/empty
-source never corrupts a column's type. After a merge into <code>concepts</code>,
+    <p>Missing key columns warn and skip the source. Enrichment rows with a
+missing key value are dropped with <code>scimapR_materialise_na_keys</code>;
+corpus rows with missing keys keep their values and produce a
+<code>scimapR_materialise_unmatched_rows</code> message. A repeated complete key in
+<code>works</code>, <code>authors</code>, <code>institutions</code>, <code>sources</code>, <code>references</code> or <code>concepts</code>
+aborts with <code>scimapR_materialise_key_not_unique</code>. The group keys in
+<code>authorships</code>, <code>provenance</code> and <code>screening</code> can repeat: every matching row
+receives the enrichment. Duplicate enrichment keys warn and keep the first.
+Concept vocabularies used as keys are normalised on both sides before
+matching. After a merge into <code>concepts</code>,
 legacy spellings in its <code>vocabulary</code> column are renamed to the names of
 <code><a href="sm_concept_vocabularies.html">sm_concept_vocabularies()</a></code>, without a message.</p>
     </div>
@@ -120,6 +133,8 @@ legacy spellings in its <code>vocabulary</code> column are renamed to the names 
 <code><a href="sm_corpus.html">sm_corpus()</a></code>,
 <code><a href="sm_corpus_from_tables.html">sm_corpus_from_tables()</a></code>,
 <code><a href="sm_dedupe.html">sm_dedupe()</a></code>,
+<code><a href="sm_link_references.html">sm_link_references()</a></code>,
+<code><a href="sm_oa_statuses.html">sm_oa_statuses()</a></code>,
 <code><a href="sm_save_corpus.html">sm_save_corpus()</a></code>,
 <code><a href="sm_validate.html">sm_validate()</a></code>,
 <code><a href="validate_sm_corpus.html">validate_sm_corpus()</a></code></p></div>

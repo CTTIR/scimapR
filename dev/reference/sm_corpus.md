@@ -55,7 +55,10 @@ str(object, ...)
 
 - works:
 
-  A tibble of works (publications). See Details for schema.
+  A tibble of works (publications). See Details for schema. Common
+  spellings of `oa_status` are renamed using
+  [`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md),
+  with a message; unrecognised values are kept and reported as unknown.
 
 - authors:
 
@@ -126,7 +129,9 @@ str(object, ...)
 
 An `sm_corpus` S3 object.
 
-- `[`: An `sm_corpus` with the selected works.
+- `[`: An `sm_corpus` with the selected works and only the authors,
+  institutions and sources they refer to. Counts and the corpus hash
+  describe the subset, including when all works are selected.
 
 - [`length()`](https://rdrr.io/r/base/length.html): Number of works
   (integer).
@@ -155,6 +160,10 @@ An `sm_corpus` S3 object.
 
 ## Details
 
+IDs are unique within a corpus;
+[`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md)
+gives the second corpus new IDs where they collide.
+
 A corpus is a list of tables that share identifiers: `work_id` links
 every table to `works`, `author_id` links `authorships` to `authors`,
 `institution_id` links them to `institutions` and `source_id` links
@@ -176,7 +185,7 @@ write or read. `sm_corpus()` adds the missing required columns of
 | `type` | character | Document type, as the source names it |
 | `source_id` | character | The journal or other source (`sources`) |
 | `cited_by_count` | integer | Citations, as the source counts them |
-| `oa_status` | character | Open-access status |
+| `oa_status` | character | One of [`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md), or `NA` |
 | `language` | character | Language |
 | `pmid`, `arxiv_id`, `openalex_id` | character | Other identifiers |
 | `is_retracted` | logical | Retraction flag |
@@ -322,14 +331,22 @@ and the bibliometrix conversion and exported by
 
 **`references`**: one row per cited reference. Required:
 
-|                 |           |                                       |
-|-----------------|-----------|---------------------------------------|
-| Column          | Type      | Content                               |
-| `work_id`       | character | The citing work                       |
-| `ref_index`     | integer   | Place in the work's reference list    |
-| `cited_work_id` | character | The cited work, when it is in `works` |
-| `cited_doi`     | character | DOI of the cited work                 |
-| `cited_raw`     | character | The reference as the source writes it |
+|                 |           |                                          |
+|-----------------|-----------|------------------------------------------|
+| Column          | Type      | Content                                  |
+| `work_id`       | character | The citing work                          |
+| `ref_index`     | integer   | Place in the work's reference list       |
+| `cited_work_id` | character | Cited work in `works`; see linking below |
+| `cited_doi`     | character | DOI of the cited work                    |
+| `cited_raw`     | character | The reference as the source writes it    |
+
+Reference linking: readers, fetchers,
+[`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md),
+[`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md)
+and
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md)
+set `cited_work_id` from `cited_doi` or an OpenAlex id in `cited_raw`
+when the cited work is in `works`.
 
 Optional: none so far.
 
@@ -413,13 +430,14 @@ replays only searches, never a file read or an enrichment.
 | Column       | Type      | Content                                            |
 | `work_id`    | character | The work                                           |
 | `stage`      | character | Stage, such as `"title-abstract"` or `"full-text"` |
-| `decision`   | character | `"include"`, `"exclude"` or `"unclear"`            |
+| `decision`   | character | `"include"`, `"exclude"` or `"uncertain"`          |
 | `reason`     | character | Reason for the decision                            |
 | `confidence` | double    | Confidence of the decision                         |
 | `source`     | character | Who or what decided                                |
 | `decided_at` | POSIXct   | When                                               |
 
-Optional: none so far.
+Optional: `model` records the chat-provider model for the decision. The
+legacy decision `"unclear"` is read as `"uncertain"`.
 
 **`citations_by_year`**: optional (`NULL` when the corpus has no yearly
 citation counts); one row per work and citation year, as the OpenAlex
@@ -447,7 +465,7 @@ binds them and
 [`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md)
 includes them when there are any.
 
-**`metadata`**: a list. Required:
+**`metadata`**: a list. Entries are required unless marked optional:
 
 |  |  |  |
 |----|----|----|
@@ -456,13 +474,28 @@ includes them when there are any.
 | `build_date` | POSIXct | When the corpus was built |
 | `corpus_hash` | character | Hash of the content ([`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md)) |
 | `is_locked` | logical | Whether [`sm_lock()`](https://cttir.github.io/scimapR/dev/reference/sm_lock.md) locked the corpus |
-| `last_refresh` | POSIXct | When [`sm_refresh()`](https://cttir.github.io/scimapR/dev/reference/sm_refresh.md) last ran |
+| `last_refresh` | POSIXct | Last refresh without a failed request |
+| `n_identified` | integer | Optional count before search deduplication |
 | `question_id` | character | Id of its [`sm_question()`](https://cttir.github.io/scimapR/dev/reference/sm_question.md) |
+| `fetch_incomplete` | list | Optional failed-fetch report (see below) |
+
+`n_identified` includes records removed by question-search deduplication
+or its result limit.
+
+`last_refresh` advances only when
+[`sm_refresh()`](https://cttir.github.io/scimapR/dev/reference/sm_refresh.md)
+refreshed at least one work and no request failed. A recovered partial
+fetch has optional `fetch_incomplete` (list) with `source`, `n_fetched`,
+`n_expected` and `reason`; see the fetchers' Failed requests sections.
 
 `question_id` is set by
 [`sm_corpus_for_question()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_for_question.md).
-Optional: entries the readers add, such as `source_file` and `reader`;
-`hash_version` (integer), the algorithm of `corpus_hash`
+Optional entries `locked_at` (POSIXct), `lock_reason` (character) and
+`lock_hash` (character) record when, why and which content
+[`sm_lock()`](https://cttir.github.io/scimapR/dev/reference/sm_lock.md)
+locked. Subsets remain locked but discard `lock_hash`. Other optional
+entries include those added by readers, such as `source_file` and
+`reader`; `hash_version` (integer), the algorithm of `corpus_hash`
 ([`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md)),
 which
 [`sm_snapshot()`](https://cttir.github.io/scimapR/dev/reference/sm_snapshot.md)
@@ -540,7 +573,9 @@ Other corpus:
 [`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md),
 [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_from_tables.md),
 [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md),
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md),
 [`sm_materialise()`](https://cttir.github.io/scimapR/dev/reference/sm_materialise.md),
+[`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md),
 [`sm_save_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_save_corpus.md),
 [`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md),
 [`validate_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/validate_sm_corpus.md)

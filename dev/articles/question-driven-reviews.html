@@ -98,7 +98,7 @@ query strings.</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">&lt;sm_question&gt;</span> <span style="color: #00BBBB;">───────────────────────────────────────────────────────────────</span></span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">ID:</span> Q-ecd0161dbb634ba3</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Framework:</span> PICO</span></span>
-<span><span class="co">#&gt; <span style="font-weight: bold;">Created:</span> 2026-10-21 09:23:57</span></span>
+<span><span class="co">#&gt; <span style="font-weight: bold;">Created:</span> 2026-10-23 20:12:32</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Question:</span></span></span>
 <span><span class="co">#&gt; Does spatial transcriptomics improve outcome prediction in colorectal cancer?</span></span>
@@ -166,13 +166,13 @@ query strings.</p>
 <span><span class="co">#&gt; ── Stage: title-abstract (n=200)</span></span>
 <span><span class="co">#&gt; exclude: 96 (48%)</span></span>
 <span><span class="co">#&gt; include: 82 (41%)</span></span>
-<span><span class="co">#&gt; unclear: 22 (11%)</span></span>
+<span><span class="co">#&gt; uncertain: 22 (11%)</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 3 × 4</span></span></span>
-<span><span class="co">#&gt;   stage          decision     n   pct</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> title-abstract exclude     96    48</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> title-abstract include     82    41</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> title-abstract unclear     22    11</span></span></code></pre></div>
+<span><span class="co">#&gt;   stage          decision      n   pct</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> title-abstract exclude      96    48</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> title-abstract include      82    41</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> title-abstract uncertain    22    11</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -185,9 +185,9 @@ query strings.</p>
 <span><span class="co">#&gt;   stage          n_entering n_excluded n_remaining</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> identification        200          0         200</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> screening             200          0         200</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> eligibility           200          0         200</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> inclusion             200          0         200</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> title-abstract        200         96         104</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> full-text             104          0         104</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> inclusion             104          0         104</span></span>
 <span><span class="va">prisma</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="question-driven-reviews_files/figure-html/prisma-1.png" class="r-plt" alt="" width="576"></p>
 </div>

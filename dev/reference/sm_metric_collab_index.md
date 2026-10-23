@@ -36,15 +36,18 @@ A tibble with one row per work and columns:
 
 - `n_countries`:
 
-  Number of distinct countries among co-authors.
+  Distinct known countries; `NA` if none are known.
 
 - `n_institutions`:
 
-  Number of distinct institutions among co-authors.
+  Distinct known `institution_id` values; `NA` if none are known.
+  Affiliation match labels are not counted.
 
 - `is_international`:
 
-  Logical; `TRUE` if authors from more than one country contributed.
+  Logical; `TRUE` if more than one country is known; `FALSE` if exactly
+  one is known, and `NA` if none are known. Missing codes can hide
+  international collaboration.
 
 - `is_multi_authored`:
 
@@ -54,7 +57,11 @@ A tibble with one row per work and columns:
 
 The Collaboration Index (CI) for a set of works is typically defined as
 the mean number of authors per paper. This function returns per-work
-data, from which aggregate CI can be computed by the user.
+data, from which aggregate CI can be computed by the user. Country and
+institution counts are `NA` when no non-blank value is known. With one
+known country, `is_international` is `FALSE`, even if some affiliations
+are missing. Institutions are counted by `institution_id` only; names
+and affiliation text are not matched.
 
 ## See also
 
@@ -81,12 +88,12 @@ head(collab)
 #> # A tibble: 6 × 6
 #>   work_id    n_authors n_countries n_institutions is_international
 #>   <chr>          <int>       <int>          <int> <lgl>           
-#> 1 W000000001         1           1              0 FALSE           
-#> 2 W000000002         6           4              0 TRUE            
-#> 3 W000000003         4           4              0 TRUE            
-#> 4 W000000004         5           5              0 TRUE            
-#> 5 W000000005         4           3              0 TRUE            
-#> 6 W000000006         1           1              0 FALSE           
+#> 1 W000000001         1           1             NA FALSE           
+#> 2 W000000002         6           4             NA TRUE            
+#> 3 W000000003         4           4             NA TRUE            
+#> 4 W000000004         5           5             NA TRUE            
+#> 5 W000000005         4           3             NA TRUE            
+#> 6 W000000006         1           1             NA FALSE           
 #> # ℹ 1 more variable: is_multi_authored <lgl>
 # Aggregate collaboration index:
 mean(collab$n_authors)

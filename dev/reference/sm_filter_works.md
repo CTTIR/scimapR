@@ -31,7 +31,10 @@ sm_filter_works(corpus, ..., year_range = NULL, types = NULL, oa_only = FALSE)
 
 - oa_only:
 
-  Logical; keep only open access works?
+  Logical; keep every status in
+  [`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md)
+  except `closed`, including recognised export spellings. Missing and
+  unrecognised statuses are dropped.
 
 ## Value
 

@@ -2,7 +2,8 @@
 
 Audits the distribution of funding sources across works in a corpus.
 Funding metadata is extracted from either Crossref `funder` fields or
-OpenAlex `grants` fields, depending on the `source` parameter.
+OpenAlex `funders` and `awards` fields (also accepting legacy `grants`),
+depending on the `source` parameter.
 
 The result includes funder counts, the proportion of works with known
 funding, and a concentration analysis.
@@ -13,6 +14,8 @@ funding, and a concentration analysis.
 sm_audit_funding(
   corpus,
   source = c("crossref", "openalex"),
+  api_key = Sys.getenv("OPENALEX_API_KEY"),
+  mailto = Sys.getenv("SCIMAPR_MAILTO"),
   call = rlang::caller_env()
 )
 
@@ -29,7 +32,16 @@ print(x, ...)
 - source:
 
   Character. Where to look for funding data: `"crossref"` (uses DOIs to
-  query Crossref funder metadata) or `"openalex"` (uses OpenAlex IDs).
+  query Crossref funder metadata) or `"openalex"` (uses OpenAlex IDs,
+  with DOI fallback).
+
+- api_key:
+
+  OpenAlex API key, sent in the authorization header.
+
+- mailto:
+
+  Contact address for Crossref requests.
 
 - call:
 
@@ -49,11 +61,13 @@ An `sm_audit_funding` S3 object containing:
 
 - funders:
 
-  Tibble with columns `funder_name`, `funder_doi`, `n_works`, `pct`.
+  Tibble with columns `funder_name`, `funder_doi`, `n_works`, `pct`
+  (percentage of checked works).
 
 - coverage:
 
-  Proportion of works with at least one funder.
+  Proportion of checked works with at least one funder; `NA` if none
+  could be checked, and 0 for an empty corpus.
 
 - n_works_total:
 
@@ -62,6 +76,18 @@ An `sm_audit_funding` S3 object containing:
 - n_works_funded:
 
   Number of works with funding data.
+
+- n_works_checked:
+
+  Works returned by the source.
+
+- n_works_failed:
+
+  Works whose request failed; reported in a warning.
+
+- n_works_no_id:
+
+  Works without an identifier for the chosen source.
 
 - source:
 
@@ -83,14 +109,14 @@ Other audit:
 corpus <- sm_example_corpus(n_works = 20, n_authors = 10)
 corpus$works$doi <- NA_character_
 funding <- sm_audit_funding(corpus, source = "crossref")
-#> ℹ No funding data found via "crossref".
-#> ℹ This may be because the works lack DOIs/identifiers, or the source does not
-#>   have funding metadata.
+#> No funding data: works lack DOIs or identifiers.
 print(funding)
 #> 
 #> ── <sm_audit_funding> ──────────────────────────────────────────────────────────
 #> Data source: crossref
-#> Works with funding data: 0 / 20 (0%)
+#> Works with funding data: 0 / 0 checked (NA%)
+#> Failed lookups: 0; no identifier: 20.
+#> No work could be checked.
 #> 
 #> No funding data found.
 #> 
@@ -105,7 +131,7 @@ print(funding)
 #> • Absence of funding data does not mean a work was unfunded; it may simply be
 #> unreported.
 if (FALSE) { # interactive()
-# Live lookup: one Crossref request per DOI (the example DOIs are invented,
+# Live lookup: batched Crossref requests (the example DOIs are invented,
 # so no funders are found).
 corpus <- sm_example_corpus(n_works = 3, n_authors = 3)
 funding <- sm_audit_funding(corpus, source = "crossref")

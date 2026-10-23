@@ -3,8 +3,10 @@
 Summarises a work-level impact metric robustly. Citation-based metrics
 are heavy-tailed, so the mean is a poor central estimate; this function
 reports the median with a bootstrap confidence interval and the
-proportion of papers in the global top 10% by citations
-(`%PP(top 10%)`), alongside the mean for comparison.
+proportion of papers in the top citation fraction of a chosen reference,
+alongside the mean. Without an external reference, `pp_top10` equals
+`top_pct` by construction and does not measure impact relative to other
+publications.
 
 ## Usage
 
@@ -18,6 +20,7 @@ sm_metric_summary(
   top_pct = 0.1,
   seed = NULL,
   min_cell = NULL,
+  top_reference = NULL,
   call = rlang::caller_env()
 )
 ```
@@ -59,8 +62,10 @@ sm_metric_summary(
 
 - top_pct:
 
-  Top-fraction threshold for `pp_top10` (default `0.1`, i.e. the top 10%
-  of works by citation count within the corpus).
+  Single number strictly between 0 and 1: the top fraction of the
+  reference distribution (default `0.1`). Ties share credit
+  fractionally. The output column remains named `pp_top10` for any
+  fraction.
 
 - seed:
 
@@ -75,6 +80,19 @@ sm_metric_summary(
   [`sm_metric_fnci()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_fnci.md)
   when the impact is derived from citation counts, as in
   [`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md).
+
+- top_reference:
+
+  Reference for `pp_top10`: `NULL` uses the corpus itself; a numeric
+  vector supplies citation counts (at least two after dropping `NA`); a
+  data frame supplies numeric `cited_by_count` and optionally `year`
+  and/or `field`, matched on keys present in both it and `works`.
+  Missing keys or unmatched cells are excluded with a message; no
+  matching works gives `NA`. Reference counts must be finite and
+  non-negative. Data-frame cells may contain a single reference work.
+  `"openalex"` uses `is_top_10pct` for `top_pct = 0.1` or `is_top_1pct`
+  for `0.01`, averaging non-missing flags; see
+  [`sm_enrich_openalex_impact()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_openalex_impact.md).
 
 - call:
 
@@ -99,14 +117,24 @@ the source too.
 
 The bootstrap uses base-R resampling by default; if the optional boot
 package is installed it is used instead (percentile interval).
-`pp_top10` is computed against the within-corpus citation distribution
-(the global top-10% threshold is the upper `top_pct` quantile of
-`cited_by_count`).
+`pp_top10` remains citation-based for every `metric`; `top_reference`
+changes neither the metric summary nor the bootstrap. Tied citation
+counts share the part of their reference block in the top fraction
+equally, following Waltman and Schreiber (2013). Using the corpus itself
+gives `top_pct` exactly before rounding. An external reference from
+comparable fields and years, or OpenAlex flags, makes this an
+informative share.
 
 For `"cnci"` and `"fwci"` only works with a finite value count, and for
 `"cnci"` only works of `corpus$works` (a `corpus$metrics` table may hold
 others). `metric = "fwci"` aborts (class `scimapR_no_fwci`) when the
 works have no `fwci` value.
+
+## References
+
+Waltman, L., & Schreiber, M. (2013). On the calculation of
+percentile-based bibliometric indicators. Journal of the American
+Society for Information Science and Technology, 64(2), 372–379.
 
 ## See also
 

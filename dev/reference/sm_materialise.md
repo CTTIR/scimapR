@@ -35,7 +35,13 @@ sm_materialise(
 - .by:
 
   Optional named list mapping table name to its join key column(s).
-  Defaults to each table's natural key (e.g. `works` -\> `work_id`).
+  Missing or empty key values never match. Defaults: `works`,
+  `provenance` and `screening` use `work_id`; `authors` use `author_id`;
+  `institutions` use `institution_id`; `sources` use `source_id`;
+  `authorships` use `(work_id, author_id)`; `references` use
+  `(work_id, ref_index)` (formerly `(work_id, cited_work_id)`);
+  `concepts` use `(work_id, concept_id)`. For keywords, use
+  `.by = list(concepts = c("work_id", "vocabulary", "concept_name"))`.
 
 - overwrite:
 
@@ -55,12 +61,17 @@ preserved (this is a column-enrichment join, not a row append).
 
 ## Details
 
-Missing keys produce a
-[`cli::cli_warn`](https://cli.r-lib.org/reference/cli_abort.html) and
-skip that source rather than erroring. Internally, row-binds use a
-type-safe helper so a `NULL`/empty source never corrupts a column's
-type. After a merge into `concepts`, legacy spellings in its
-`vocabulary` column are renamed to the names of
+Missing key columns warn and skip the source. Enrichment rows with a
+missing key value are dropped with `scimapR_materialise_na_keys`; corpus
+rows with missing keys keep their values and produce a
+`scimapR_materialise_unmatched_rows` message. A repeated complete key in
+`works`, `authors`, `institutions`, `sources`, `references` or
+`concepts` aborts with `scimapR_materialise_key_not_unique`. The group
+keys in `authorships`, `provenance` and `screening` can repeat: every
+matching row receives the enrichment. Duplicate enrichment keys warn and
+keep the first. Concept vocabularies used as keys are normalised on both
+sides before matching. After a merge into `concepts`, legacy spellings
+in its `vocabulary` column are renamed to the names of
 [`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md),
 without a message.
 
@@ -77,6 +88,8 @@ Other corpus:
 [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md),
 [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_from_tables.md),
 [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md),
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md),
+[`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md),
 [`sm_save_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_save_corpus.md),
 [`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md),
 [`validate_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/validate_sm_corpus.md)

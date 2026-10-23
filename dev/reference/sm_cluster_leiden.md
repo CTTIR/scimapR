@@ -51,6 +51,11 @@ Works that are not nodes of the network, such as works without a row in
 
 ## Details
 
+Work IDs and network node names must be unique. Repeated IDs stop with
+class `scimapR_duplicate_ids`; use
+[`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md)
+to inspect them.
+
 The Leiden algorithm (Traag et al., 2019) is a refinement of the Louvain
 algorithm that guarantees well-connected communities. It operates on the
 edge weights of the network.

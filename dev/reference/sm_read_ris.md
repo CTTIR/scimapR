@@ -54,6 +54,13 @@ Reuters). Each record starts with `TY -` and ends with `ER -`. Tags are
 two uppercase letters followed by two spaces, a hyphen, and a space.
 Repeating tags (AU, KW) generate multiple values per record.
 
+Publication year comes from the first usable year in `PY`, `Y1`, then
+`DA`. Bare years and dates such as `2019/03/01/` or `2020///` are
+accepted: the first isolated four-digit year from 1000 through 2999 is
+used. `Y2` is never a fallback because it often holds an access or
+secondary date. Unrecognised dates yield `NA` without a coercion
+warning.
+
 ## References
 
 Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for

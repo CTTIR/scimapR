@@ -108,7 +108,10 @@ scimapR 0.4.0).</p></dd>
 (character): where the summarised values come from, such as
 <code>"works$fwci (OpenAlex)"</code> for <code>metric = "cnci"</code> on a corpus with
 OpenAlex impact fields, and <code>NA</code> on the <code>n = 0</code> row (added after
-scimapR 0.4.0, without changing the columns).</p></dd>
+scimapR 0.4.0, without changing the columns). <code>pp_top10</code> now shares
+ties fractionally: its default value equals <code>top_pct</code> relative to the
+corpus itself. Use <code>top_reference</code> for an external comparison. The
+column name and numeric type are unchanged.</p></dd>
 
 <dt><code><a href="sm_citation_window.html">sm_citation_window()</a></code></dt>
 <dd><p>A tibble with one row per work, in the
@@ -139,6 +142,8 @@ names, and <code><a href="sm_corpus.html">sm_corpus()</a></code> and <code><a hr
 spellings to them. <code>sm_concept_vocabularies(describe = TRUE)</code> returns a
 tibble with the factor columns <code>level</code> and <code>family</code> and a character
 <code>description</code>.</p>
+<p>The <code>works$oa_status</code> column also stays character, so tables bind and
+hash as before. Its values are those of <code><a href="sm_oa_statuses.html">sm_oa_statuses()</a></code>.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

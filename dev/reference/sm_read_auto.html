@@ -97,6 +97,8 @@ to the selected reader. Ignored for formats without engine support
 (OpenAlex JSON), <code>.xml</code> (PubMed XML or EndNote XML).</p></li>
 <li><p><strong>Content-based</strong>: For <code>.csv</code>, <code>.tsv</code>, and <code>.txt</code> files, the first
 few lines are inspected for format-specific signatures:</p><ul><li><p>WoS plaintext: begins with <code>FN </code> or <code>PT </code> tags</p></li>
+<li><p>WoS tab-delimited: header contains PT, AU, TI and UT; also detected
+in <code>.tab</code> files and files without an extension</p></li>
 <li><p>Scopus CSV: contains <code>EID</code> column header</p></li>
 <li><p>Lens CSV: contains <code>Lens ID</code> column header</p></li>
 <li><p>Dimensions CSV: contains <code>Dimensions ID</code> or <code>PubYear</code> header</p></li>
@@ -104,9 +106,16 @@ few lines are inspected for format-specific signatures:</p><ul><li><p>WoS plaint
 <li><p>Zotero CSV: contains <code>Key</code> and <code>Item Type</code> columns</p></li>
 <li><p>RIS-format content in non-<code>.ris</code> files</p></li>
 </ul></li>
-</ol><p>For XML files, the root element or DTD is inspected to distinguish
-PubMed XML (<code>PubmedArticleSet</code> or <code>PubmedArticle</code>) from
-EndNote XML (<code>xml/records</code> or <code>records</code>).</p>
+</ol><p>For XML files, the parsed root distinguishes PubMed XML
+(<code>PubmedArticleSet</code>, <code>PubmedArticle</code>, <code>PubmedBookArticleSet</code>) from
+EndNote XML (<code>xml/records</code> or <code>records</code>). Unknown roots are unsupported;
+malformed XML raises a file-reading error.</p>
+<p>For <code>.nbib</code> and <code>.enw</code>, the first 20 lines determine the content: RIS
+records are accepted, but MEDLINE text (<code>PMID- </code> in <code>.nbib</code>, <code>.txt</code> or
+files without extensions) and Refer text (<code>%</code> tags in <code>.enw</code>) are not
+supported. Export MEDLINE records as PubMed XML, or use
+<code><a href="sm_fetch_pubmed.html">sm_fetch_pubmed()</a></code>; export Refer libraries as RIS or EndNote XML.
+A leading UTF-8 BOM is ignored for text format detection.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

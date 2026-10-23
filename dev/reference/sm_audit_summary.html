@@ -129,17 +129,17 @@ not run has no funders, <code>source = "none"</code> and <code>coverage = NA</co
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_example_corpus.html">sm_example_corpus</a></span><span class="op">(</span>n_works <span class="op">=</span> <span class="fl">50</span>, n_authors <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="co"># The funding audit needs one Crossref request per DOI, so it is not run</span></span></span>
+<span class="r-in"><span><span class="co"># The funding audit sends batched Crossref requests, so it is not run</span></span></span>
 <span class="r-in"><span><span class="co"># unless online = TRUE.</span></span></span>
 <span class="r-in"><span><span class="va">summary_audit</span> <span class="op">&lt;-</span> <span class="fu">sm_audit_summary</span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Skipped the funding audit, which sends one Crossref request per DOI.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Skipped the funding audit, which sends batched Crossref requests.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Use `online = TRUE` to run it, or pass a precomputed `sm_audit_funding()`</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   result.</span>
 <span class="r-in"><span><span class="va">summary_audit</span><span class="op">$</span><span class="va">overview</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   audit       coverage top_finding                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> geographic         1 DE (17.27%)                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> geographic         1 DE (15.54%)                  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> gender             0 NA (100%)                    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> funding           <span style="color: #BB0000;">NA</span> not run (needs online = TRUE)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> open_access        1 54% open access              </span>
@@ -149,18 +149,16 @@ not run has no funders, <code>source = "none"</code> and <code>coverage = NA</co
 <span class="r-in"><span><span class="va">no_doi</span> <span class="op">&lt;-</span> <span class="va">corpus</span></span></span>
 <span class="r-in"><span><span class="va">no_doi</span><span class="op">$</span><span class="va">works</span><span class="op">$</span><span class="va">doi</span> <span class="op">&lt;-</span> <span class="cn">NA_character_</span></span></span>
 <span class="r-in"><span><span class="va">funding</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_audit_funding.html">sm_audit_funding</a></span><span class="op">(</span><span class="va">no_doi</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> No funding data found via <span style="color: #0000BB;">"crossref"</span>.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> This may be because the works lack DOIs/identifiers, or the source does not</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   have funding metadata.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No funding data: works lack DOIs or identifiers.</span>
 <span class="r-in"><span><span class="va">summary_audit</span> <span class="op">&lt;-</span> <span class="fu">sm_audit_summary</span><span class="op">(</span><span class="va">corpus</span>, <span class="va">funding</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">summary_audit</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">&lt;sm_audit_summary&gt;</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ── Overview </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> geographic: coverage 100% | DE (17.27%)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> geographic: coverage 100% | DE (15.54%)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> gender: coverage 0% | NA (100%)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> funding: coverage 0% | no data</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> funding: coverage n/a | no work could be checked</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> open_access: coverage 100% | 54% open access</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Use `print(x$geographic)`, `print(x$gender)`, etc. for detailed reports.</span>

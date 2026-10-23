@@ -90,7 +90,9 @@ without a row in <code>corpus$embeddings</code>, get <code>NA</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The Leiden algorithm (Traag et al., 2019) is a refinement of the Louvain
+    <p>Work IDs and network node names must be unique. Repeated IDs stop
+with class <code>scimapR_duplicate_ids</code>; use <code><a href="sm_validate.html">sm_validate()</a></code> to inspect them.</p>
+<p>The Leiden algorithm (Traag et al., 2019) is a refinement of the Louvain
 algorithm that guarantees well-connected communities. It operates on
 the edge weights of the network.</p>
 <p>When <code>network = NULL</code>, embeddings must be present in the corpus so that

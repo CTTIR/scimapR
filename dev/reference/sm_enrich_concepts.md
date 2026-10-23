@@ -14,6 +14,7 @@ sm_enrich_concepts(
   corpus,
   source = c("openalex", "mesh"),
   verbose = TRUE,
+  api_key = Sys.getenv("OPENALEX_API_KEY"),
   call = rlang::caller_env()
 )
 ```
@@ -34,6 +35,10 @@ sm_enrich_concepts(
 
   Print progress messages?
 
+- api_key:
+
+  OpenAlex API key, sent in the authorization header.
+
 - call:
 
   Caller environment for error reporting.
@@ -41,7 +46,8 @@ sm_enrich_concepts(
 ## Value
 
 An `sm_corpus` object with updated `concepts` table and new provenance
-rows.
+rows for enriched works. Failed OpenAlex lookups warn and stop at a rate
+limit, preserving earlier successful results.
 
 ## See also
 

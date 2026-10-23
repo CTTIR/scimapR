@@ -43,17 +43,25 @@ A single character string containing the hex-encoded SHA-256 hash.
 ## Details
 
 `version` selects the algorithm. Version 2, the default from scimapR
-0.5.0 on, sorts the columns of every table by name and the rows of the
-embeddings by work id before hashing, so the order in which the steps
-that built a corpus added their columns no longer changes the hash.
-Hashes of version 2 therefore differ from the hashes that earlier
-versions of scimapR computed for the same content. Version 1 is the
-algorithm of these earlier versions. Certificates
+0.5.0 on, hashes canonical UTF-8 text, independently of R's binary
+serialisation. Table columns are sorted by name and rows by their text
+values, using radix ordering. Missing values are distinct from the
+string `"NA"`. Numbers use 15 significant digits, signed zero becomes
+zero, dates use ISO dates and timestamps use UTC with six decimal places
+for seconds. List cells use JSON. Column classes are included in the
+text. Embeddings are sorted by work id and rounded to eight decimal
+places. These rules make version 2 independent of the R version,
+platform, time zone and collation locale. Hashes of version 2 therefore
+differ from the hashes that earlier versions of scimapR computed for the
+same content. Version 1 is the algorithm of these earlier versions.
+Certificates
 ([`sm_certificate()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md))
 and snapshots
 ([`sm_snapshot()`](https://cttir.github.io/scimapR/dev/reference/sm_snapshot.md))
 record the version they used as `hash_version`; those written before it
-existed are checked with version 1, so they stay verifiable.
+existed are checked with version 1. Version 1 uses R's binary
+serialisation and depends on the R version: older certificates and
+snapshots remain verifiable on the R version that wrote them.
 
 ## See also
 
@@ -70,7 +78,7 @@ Other reproducibility:
 ``` r
 corpus <- sm_example_corpus()
 sm_hash_corpus(corpus)
-#> [1] "017544b82f936536e14ed0f83a6ecd62acad9bd817d0a11e4b712ad833165c20"
+#> [1] "61c0637eede72e86bf489cf7d8a27949789b82485ea6646cc707da9ec1945bb6"
 
 # the order of the columns does not matter
 reordered <- corpus

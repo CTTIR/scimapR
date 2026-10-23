@@ -84,17 +84,17 @@ Other audit:
 
 ``` r
 corpus <- sm_example_corpus(n_works = 50, n_authors = 20)
-# The funding audit needs one Crossref request per DOI, so it is not run
+# The funding audit sends batched Crossref requests, so it is not run
 # unless online = TRUE.
 summary_audit <- sm_audit_summary(corpus)
-#> ℹ Skipped the funding audit, which sends one Crossref request per DOI.
+#> ℹ Skipped the funding audit, which sends batched Crossref requests.
 #> ℹ Use `online = TRUE` to run it, or pass a precomputed `sm_audit_funding()`
 #>   result.
 summary_audit$overview
 #> # A tibble: 4 × 3
 #>   audit       coverage top_finding                  
 #>   <chr>          <dbl> <chr>                        
-#> 1 geographic         1 DE (17.27%)                  
+#> 1 geographic         1 DE (15.54%)                  
 #> 2 gender             0 NA (100%)                    
 #> 3 funding           NA not run (needs online = TRUE)
 #> 4 open_access        1 54% open access              
@@ -104,18 +104,16 @@ summary_audit$overview
 no_doi <- corpus
 no_doi$works$doi <- NA_character_
 funding <- sm_audit_funding(no_doi)
-#> ℹ No funding data found via "crossref".
-#> ℹ This may be because the works lack DOIs/identifiers, or the source does not
-#>   have funding metadata.
+#> No funding data: works lack DOIs or identifiers.
 summary_audit <- sm_audit_summary(corpus, funding)
 print(summary_audit)
 #> 
 #> ── <sm_audit_summary> ──────────────────────────────────────────────────────────
 #> 
 #> ── Overview 
-#> geographic: coverage 100% | DE (17.27%)
+#> geographic: coverage 100% | DE (15.54%)
 #> gender: coverage 0% | NA (100%)
-#> funding: coverage 0% | no data
+#> funding: coverage n/a | no work could be checked
 #> open_access: coverage 100% | 54% open access
 #> 
 #> Use `print(x$geographic)`, `print(x$gender)`, etc. for detailed reports.

@@ -30,6 +30,8 @@
   : Materialise cached enrichment into a corpus
 - [`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md)
   : Controlled vocabulary for concept vocabularies
+- [`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md)
+  : Controlled vocabulary for open-access statuses
 - [`scimapR-stability`](https://cttir.github.io/scimapR/dev/reference/scimapR-stability.md)
   : scimapR accessor return-type stability contract
 
@@ -56,7 +58,7 @@
 - [`sm_read_scopus()`](https://cttir.github.io/scimapR/dev/reference/sm_read_scopus.md)
   : Read Scopus CSV files
 - [`sm_read_wos()`](https://cttir.github.io/scimapR/dev/reference/sm_read_wos.md)
-  : Read Web of Science plaintext files
+  : Read Web of Science export files
 - [`sm_read_zotero()`](https://cttir.github.io/scimapR/dev/reference/sm_read_zotero.md)
   : Read Zotero CSV export files
 
@@ -122,7 +124,9 @@
 - [`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md)
   : Bind two corpora together
 - [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md)
-  : Deduplicate corpus works by DOI
+  : Deduplicate corpus works by selected columns
+- [`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md)
+  : Link cited references to works in a corpus
 
 ## Research questions and screening
 

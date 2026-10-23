@@ -56,6 +56,14 @@ A CD index near +1 indicates the focal work is highly disruptive: its
 citers tend to ignore its references. A CD index near -1 indicates the
 focal work consolidates existing ideas.
 
+Only citations between works inside the corpus count. Repeated links and
+self-references are ignored. The focal work itself is excluded from
+\\n_k\\, as are works published in an earlier year when both years are
+known. Same-year and undated works remain eligible: publication year is
+the available time resolution. Citers of the focal work always
+contribute to \\n_i\\ or \\n_j\\. Works without linked references or
+without any internal citers receive `NA`.
+
 ## References
 
 Funk, R. J., & Owen-Smith, J. (2017). A Dynamic Network Measure of
@@ -63,6 +71,8 @@ Technological Change. *Management Science*, 63(3), 791–817.
 [doi:10.1287/mnsc.2015.2366](https://doi.org/10.1287/mnsc.2015.2366)
 
 ## See also
+
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md)
 
 Other metrics:
 [`sm_metric_collab_index()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_collab_index.md),
@@ -88,9 +98,9 @@ head(cd)
 #>   work_id    cd_index
 #>   <chr>         <dbl>
 #> 1 W000000001   0     
-#> 2 W000000002   0.0101
-#> 3 W000000003  -0.0642
-#> 4 W000000004   0.167 
-#> 5 W000000005   0.0303
-#> 6 W000000006   0.188 
+#> 2 W000000002   0.0182
+#> 3 W000000003  -0.318 
+#> 4 W000000004   0.321 
+#> 5 W000000005   0.0526
+#> 6 W000000006   0.257 
 ```

@@ -136,7 +136,11 @@ nrow(corpus_ris$works)
 ``` r
 
 combined <- sm_build_corpus(corpus_bib, corpus_ris, dedupe = TRUE)
-#> ✔ Removed 3 duplicate works by DOI.
+#> ℹ Re-keyed 3 works, 0 authors, 0 sources and 0 institutions in the second
+#>   corpus.
+#> ℹ 3 works share a DOI with the first corpus; use `sm_dedupe()` to remove
+#>   duplicates.
+#> ✔ Removed 3 duplicate works with the same doi.
 nrow(combined$works)
 #> [1] 3
 ```

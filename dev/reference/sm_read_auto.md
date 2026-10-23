@@ -60,6 +60,9 @@ Format detection proceeds in two stages:
 
     - WoS plaintext: begins with `FN ` or `PT ` tags
 
+    - WoS tab-delimited: header contains PT, AU, TI and UT; also
+      detected in `.tab` files and files without an extension
+
     - Scopus CSV: contains `EID` column header
 
     - Lens CSV: contains `Lens ID` column header
@@ -73,9 +76,18 @@ Format detection proceeds in two stages:
 
     - RIS-format content in non-`.ris` files
 
-For XML files, the root element or DTD is inspected to distinguish
-PubMed XML (`PubmedArticleSet` or `PubmedArticle`) from EndNote XML
-(`xml/records` or `records`).
+For XML files, the parsed root distinguishes PubMed XML
+(`PubmedArticleSet`, `PubmedArticle`, `PubmedBookArticleSet`) from
+EndNote XML (`xml/records` or `records`). Unknown roots are unsupported;
+malformed XML raises a file-reading error.
+
+For `.nbib` and `.enw`, the first 20 lines determine the content: RIS
+records are accepted, but MEDLINE text (`PMID- ` in `.nbib`, `.txt` or
+files without extensions) and Refer text (`%` tags in `.enw`) are not
+supported. Export MEDLINE records as PubMed XML, or use
+[`sm_fetch_pubmed()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_pubmed.md);
+export Refer libraries as RIS or EndNote XML. A leading UTF-8 BOM is
+ignored for text format detection.
 
 ## References
 

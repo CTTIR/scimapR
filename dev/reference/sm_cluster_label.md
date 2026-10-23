@@ -3,7 +3,7 @@
 Assigns human-readable labels to clusters by extracting representative
 terms. Supports TF-IDF-based extraction (default), labels from the
 author and indexer keywords of the corpus, YAKE keyword extraction, or
-LLM-generated labels via the ellmer package.
+labels from a chat provider via the ellmer package.
 
 ## Usage
 
@@ -17,6 +17,7 @@ sm_cluster_label(
   ngram = 1:2,
   stop_terms = NULL,
   noise = 0L,
+  seed = NULL,
   call = rlang::caller_env()
 )
 ```
@@ -43,7 +44,9 @@ sm_cluster_label(
 
   An ellmer chat provider object (e.g.,
   [`ellmer::chat_openai()`](https://ellmer.tidyverse.org/reference/chat_openai.html)).
-  Required when `method = "llm"`, ignored otherwise.
+  Required when `method = "llm"`, ignored otherwise. Each request uses a
+  fresh copy; earlier turns and the object's system prompt are not used,
+  and the object stays unchanged.
 
 - min_works:
 
@@ -76,6 +79,12 @@ sm_cluster_label(
   assigns. Noise gets no label and does not count for the labels of the
   other clusters. `NULL` labels every id as a cluster; set it for
   clusterings that use another noise label or a real cluster 0.
+
+- seed:
+
+  Optional seed for sampling titles with a chat provider. The session
+  random state is restored afterwards. `NULL` uses the session random
+  stream as before. Used only by `method = "llm"`.
 
 - call:
 

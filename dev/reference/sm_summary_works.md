@@ -28,6 +28,12 @@ A tibble with one row containing summary statistics: `n_works`,
 types), `n_sources` (unique journals/sources), `n_oa` (open access
 works), `pct_oa`, `n_retracted`, `n_languages`.
 
+Open-access percentages use
+[`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md)
+and all works as the denominator, agreeing with
+[`sm_audit_oa()`](https://cttir.github.io/scimapR/dev/reference/sm_audit_oa.md)
+to one decimal place.
+
 ## See also
 
 Other metrics:

@@ -91,7 +91,9 @@ works without text, see <code><a href="sm_embed_works.html">sm_embed_works()</a>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Requires embeddings in <code>corpus$embeddings</code>. Compute them first with
+    <p>Work IDs and embedding row names must be unique. Repeated IDs stop
+with class <code>scimapR_duplicate_ids</code>; use <code><a href="sm_validate.html">sm_validate()</a></code> to inspect them.</p>
+<p>Requires embeddings in <code>corpus$embeddings</code>. Compute them first with
 <code><a href="sm_embed_works.html">sm_embed_works()</a></code> or load from cache with <code><a href="sm_embed_load.html">sm_embed_load()</a></code>.</p>
 <p>K-means is deterministic given a fixed random seed. Consider setting a seed
 before calling this function for reproducibility.</p>

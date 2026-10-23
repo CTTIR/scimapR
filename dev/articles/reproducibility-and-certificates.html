@@ -100,12 +100,12 @@ and run its searches again.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 8</span></span></span>
 <span><span class="co">#&gt;   work_id    source    source_id_external fetch_date          query       engine</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> W000000001 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:24:02</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> W000000002 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:24:02</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> W000000003 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:24:02</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> W000000004 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:24:02</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> W000000005 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:24:02</span> sm_example… native</span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> W000000006 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-21 <span style="color: #949494;">09:24:02</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> W000000001 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-23 <span style="color: #949494;">20:12:38</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> W000000002 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-23 <span style="color: #949494;">20:12:38</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> W000000003 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-23 <span style="color: #949494;">20:12:38</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> W000000004 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-23 <span style="color: #949494;">20:12:38</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> W000000005 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-23 <span style="color: #949494;">20:12:38</span> sm_example… native</span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> W000000006 synthetic <span style="color: #BB0000;">NA</span>                 2026-10-23 <span style="color: #949494;">20:12:38</span> sm_example… native</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># ℹ 2 more variables: scimapR_version &lt;chr&gt;, prompt_hash &lt;chr&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -113,22 +113,22 @@ and run its searches again.</p>
 </h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sm_hash_corpus.html">sm_hash_corpus</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "017544b82f936536e14ed0f83a6ecd62acad9bd817d0a11e4b712ad833165c20"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "61c0637eede72e86bf489cf7d8a27949789b82485ea6646cc707da9ec1945bb6"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="creating-a-certificate">Creating a certificate<a class="anchor" aria-label="anchor" href="#creating-a-certificate"></a>
 </h2>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cert</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_certificate.html">sm_certificate</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Certificate created. Corpus hash: 017544b82f93</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Certificate created. Corpus hash: 61c0637eede7</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">cert</span>, max.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 20</span></span>
 <span><span class="co">#&gt;  $ certificate_version: chr "1.0"</span></span>
-<span><span class="co">#&gt;  $ created            : POSIXct[1:1], format: "2026-10-21 09:24:02"</span></span>
+<span><span class="co">#&gt;  $ created            : POSIXct[1:1], format: "2026-10-23 20:12:38"</span></span>
 <span><span class="co">#&gt;  $ scimapR_version    : chr "0.4.0.9000"</span></span>
 <span><span class="co">#&gt;  $ r_version          : chr "4.6.1"</span></span>
 <span><span class="co">#&gt;  $ platform           : chr "unix"</span></span>
-<span><span class="co">#&gt;  $ corpus_hash        : chr "017544b82f936536e14ed0f83a6ecd62acad9bd817d0a11e4b712ad833165c20"</span></span>
+<span><span class="co">#&gt;  $ corpus_hash        : chr "61c0637eede72e86bf489cf7d8a27949789b82485ea6646cc707da9ec1945bb6"</span></span>
 <span><span class="co">#&gt;  $ hash_version       : int 2</span></span>
 <span><span class="co">#&gt;  $ n_works            : int 200</span></span>
 <span><span class="co">#&gt;  $ n_authors          : int 80</span></span>
@@ -156,7 +156,7 @@ and run its searches again.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 5 × 4</span></span></span>
 <span><span class="co">#&gt;   check          expected         actual           status</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> corpus_hash    017544b82f936536 017544b82f936536 pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> corpus_hash    61c0637eede72e86 61c0637eede72e86 pass  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> n_works        200              200              pass  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> n_authors      80               80               pass  </span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> n_institutions 0                0                pass  </span></span>
@@ -176,17 +176,17 @@ registers the files the tables come from;
 <span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_register_input.html">sm_register_input</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">tracker</span>, role <span class="op">=</span> <span class="st">"publication tracker"</span>,</span>
 <span>                            builder <span class="op">=</span> <span class="st">"R/01_import.R::read_tracker"</span><span class="op">)</span></span>
 <span><span class="va">cert</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_certificate.html">sm_certificate</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Certificate created. Corpus hash: 017544b82f93</span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Certificate created. Corpus hash: 61c0637eede7</span></span>
 <span><span class="fu"><a href="../reference/sm_certificate.html">sm_verify_certificate</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">cert</span><span class="op">)</span><span class="op">$</span><span class="va">checks</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"check"</span>, <span class="st">"status"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 2</span></span></span>
-<span><span class="co">#&gt;   check                     status</span></span>
-<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> corpus_hash               pass  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> n_works                   pass  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> n_authors                 pass  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> n_institutions            pass  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> n_references              pass  </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> input:file3030205f59e.csv pass</span></span>
+<span><span class="co">#&gt;   check                      status</span></span>
+<span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> corpus_hash                pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> n_works                    pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> n_authors                  pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> n_institutions             pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> n_references               pass  </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> input:file2e5239e19cfa.csv pass</span></span>
 <span></span>
 <span><span class="co"># once the file changes, its check fails</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"10.9999/example.2,Unit B\n"</span>, file <span class="op">=</span> <span class="va">tracker</span>, append <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -206,7 +206,7 @@ stops and names the files and the code that read them.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/sm_save_corpus.html">sm_save_corpus</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">tmp</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus saved to <span style="color: #0000BB;">/tmp/RtmpSvoa47/file3030275a59fe.rds</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus saved to <span style="color: #0000BB;">/tmp/RtmpmPRFEF/file2e529a0f858.rds</span></span></span>
 <span><span class="va">loaded</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sm_save_corpus.html">sm_load_corpus</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">loaded</span><span class="op">$</span><span class="va">works</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 200</span></span></code></pre></div>
@@ -217,16 +217,15 @@ stops and names the files and the code that read them.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">snap_path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span>fileext <span class="op">=</span> <span class="st">".rds"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/sm_snapshot.html">sm_snapshot</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">snap_path</span><span class="op">)</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus snapshot saved to <span style="color: #0000BB;">/tmp/RtmpSvoa47/file3030506ebac6.rds</span>.</span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Size: 122K | Hash: 017544b82f93</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Corpus snapshot saved to <span style="color: #0000BB;">/tmp/RtmpmPRFEF/file2e52518cad97.rds</span>.</span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Size: 122K | Hash: 61c0637eede7</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="citation">Citation<a class="anchor" aria-label="anchor" href="#citation"></a>
 </h2>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sm_cite_corpus.html">sm_cite_corpus</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Corpus assembled using scimapR v0.4.0.9000 on 2026-10-21. Contains 200 works by</span></span>
-<span><span class="co">#&gt; 80 authors (2015-2024). Data sources: synthetic. Corpus hash: 017544b82f93.</span></span></code></pre></div>
+<span><span class="co">#&gt; Corpus assembled using scimapR v0.4.0.9000 on 2026-10-23. Contains 200 works by 80 authors (2015-2024). Data sources: synthetic. Corpus hash: 61c0637eede7.</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="locking-a-corpus">Locking a corpus<a class="anchor" aria-label="anchor" href="#locking-a-corpus"></a>

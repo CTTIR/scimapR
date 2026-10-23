@@ -82,11 +82,15 @@ contains <code>from</code>, <code>to</code>, and any additional reference metada
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Empty input (zero works or zero references) returns an empty directed
-<code>tbl_graph</code> with a single <code>name</code> column on nodes and no edges.</p>
+<code>tbl_graph</code> with a single <code>name</code> column on nodes and no edges.
+Each work counts a cited item once: repeated links and self-loops are
+removed. References with no link to a corpus work trigger a warning when
+none is linked; use <code><a href="sm_link_references.html">sm_link_references()</a></code> to resolve identifiers first.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p>Other networks:
+    <div class="dont-index"><p><code><a href="sm_link_references.html">sm_link_references()</a></code></p>
+<p>Other networks:
 <code><a href="sm_network_cocitation.html">sm_network_cocitation()</a></code>,
 <code><a href="sm_network_collab.html">sm_network_collab()</a></code>,
 <code><a href="sm_network_coupling.html">sm_network_coupling()</a></code>,

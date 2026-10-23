@@ -1,10 +1,10 @@
 # Screen corpus using regex matching
 
-A deterministic, LLM-free screening method that uses regular expression
-matching on work titles and abstracts. Works matching any
-`include_terms` (case-insensitive) and none of the `exclude_terms` are
-classified as `"include"`; works matching an exclude term are
-`"exclude"`; works matching no include term are `"exclude"`.
+A deterministic screening method that uses regular expression matching
+on work titles and abstracts. Works matching any `include_terms`
+(case-insensitive) and none of the `exclude_terms` are classified as
+`"include"`; works matching an exclude term are `"exclude"`; works
+matching no include term are `"exclude"`.
 
 ## Usage
 

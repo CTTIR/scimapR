@@ -92,6 +92,18 @@ prevents accidental unlocking of archived corpora.</p></dd>
     <p>A modified <code>sm_corpus</code> with updated lock status.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Merging, deduplication, materialisation, citation maturity, enrichment,
+embedding changes, clustering, labelling, affiliation matching and
+screening refuse locked inputs, as do refreshing and input registration.
+Subsets remain locked but lose their stored lock hash. Merged corpora
+are unlocked; unlock the inputs explicitly before merging.</p>
+<p>The lock records a content hash. <code><a href="sm_certificate.html">sm_certificate()</a></code> warns and
+<code><a href="sm_validate.html">sm_validate()</a></code> reports when direct edits changed that content.
+Printing shows only the lock status and does not hash the corpus.
+Earlier locked corpora without a stored hash are not checked.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other refresh:
 <code><a href="sm_refresh.html">sm_refresh()</a></code>,

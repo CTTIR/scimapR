@@ -2,6 +2,403 @@
 
 ## scimapR (development version)
 
+- [`sm_audit_geographic()`](https://cttir.github.io/scimapR/dev/reference/sm_audit_geographic.md)
+  counts works, not authorship rows. A work counts once in each country,
+  region or income tier of its authors, and with the new
+  `method = "fractional"` it splits one unit among them. Its citations
+  count once per group, `coverage` is the share of works with a known
+  group, and the Gini coefficient uses citations under
+  `weight = "citations"`. Results change for corpora with multi-author
+  works or authors with several addresses. The distribution gains
+  `credit` and `weighted_citations`, appended after its existing columns
+  (`group`, `count`, `citations`, `pct`).
+
+- [`sm_metric_collab_index()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_collab_index.md)
+  returns `NA` instead of 0 and `FALSE` when no author of a work has a
+  country code (`n_countries`, `is_international`) or an institution id
+  (`n_institutions`). Web of Science and Scopus corpora without country
+  data no longer report an international collaboration rate of 0%.
+
+- New
+  [`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md)
+  lists the open-access statuses (`diamond`, `gold`, `hybrid`, `bronze`,
+  `green`, `open`, `closed`).
+  [`sm_audit_oa()`](https://cttir.github.io/scimapR/dev/reference/sm_audit_oa.md),
+  [`sm_summary_works()`](https://cttir.github.io/scimapR/dev/reference/sm_summary_works.md)
+  and
+  [`sm_summary_period()`](https://cttir.github.io/scimapR/dev/reference/sm_summary_period.md)
+  now use one rule: every status except `closed` is open, and missing or
+  unrecognised values are unknown. The audit counts Semantic Scholar’s
+  `open` and OpenAlex’s `diamond` as open, and the summaries no longer
+  count values such as `"Closed"` as open. The distribution of
+  [`sm_audit_oa()`](https://cttir.github.io/scimapR/dev/reference/sm_audit_oa.md)
+  gains `is_open`.
+  [`sm_read_dimensions()`](https://cttir.github.io/scimapR/dev/reference/sm_read_dimensions.md),
+  [`sm_read_lens()`](https://cttir.github.io/scimapR/dev/reference/sm_read_lens.md),
+  [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md)
+  and
+  [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_from_tables.md)
+  map export spellings to these statuses; the last two say so in a
+  message.
+  [`sm_read_lens()`](https://cttir.github.io/scimapR/dev/reference/sm_read_lens.md)
+  takes the status from the open-access colour or status column and no
+  longer from whichever column name starts with “Open Access”.
+
+- `sm_filter_works(oa_only = TRUE)` keeps diamond and other open-access
+  works in any recognised spelling; it used to drop every status except
+  gold, green, hybrid and bronze written in lower case.
+
+- [`sm_metric_summary()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_summary.md)
+  shares tied citation counts fractionally when it computes `pp_top10`,
+  so ties no longer push the value towards 1. Measured against the
+  corpus itself, `pp_top10` now equals `top_pct` by construction. The
+  new `top_reference` argument takes a reference distribution of
+  citation counts (optionally by year and field) or `"openalex"` for
+  OpenAlex’s top-percentile flags, which makes the value informative.
+
+- Printing a chat response,
+  [`sm_chat_render()`](https://cttir.github.io/scimapR/dev/reference/sm_chat_render.md)
+  and
+  [`sm_cite_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_cite_corpus.md)
+  show their text as it is. Before, braces in an answer, a question, a
+  cited title or a citation were run as R code: text such as “{RCT,
+  cohort}” stopped the printing, “{T}he” printed as “TRUEhe”, and
+  `sm_chat_render(format = "quarto")` and
+  `sm_cite_corpus(style = "bibtex")` always failed. The line breaks of
+  BibTeX, YAML and Markdown output are now kept. When a request of
+  [`sm_fetch_arxiv()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_arxiv.md),
+  [`sm_fetch_orcid()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_orcid.md),
+  [`sm_fetch_overton()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_overton.md),
+  or of the rcrossref or rentrez engine of
+  [`sm_fetch_crossref()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_crossref.md)
+  or
+  [`sm_fetch_pubmed()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_pubmed.md),
+  fails, the error shows the original error text as written, also when
+  it contains braces.
+
+- [`sm_unlock()`](https://cttir.github.io/scimapR/dev/reference/sm_lock.md)
+  and the lock check of the functions that modify a corpus show a lock
+  reason that contains braces as written instead of running it as R
+  code.
+
+- `sm_chat_render(format = "html")` escapes `&`, `<`, `>` and quotes in
+  the answer, the question, the model name and the cited titles, so text
+  from the corpus or from the answer can no longer add markup or scripts
+  to the page.
+
+- [`sm_screen_against_question()`](https://cttir.github.io/scimapR/dev/reference/sm_screen_against_question.md),
+  [`sm_chat()`](https://cttir.github.io/scimapR/dev/reference/sm_chat.md)
+  and
+  [`sm_cluster_label()`](https://cttir.github.io/scimapR/dev/reference/sm_cluster_label.md)
+  with a chat provider (`llm_provider`) send every request in a fresh
+  copy of the chat object, with their instructions as its system prompt.
+  Earlier batches, clusters and questions are no longer sent again, and
+  the chat object you pass is left unchanged. Before, the instructions
+  went as a second user message, which providers can reject, and every
+  request carried the whole earlier conversation. A system prompt or
+  conversation already set on the chat object is not used. An object
+  that is not a chat object is refused before any request.
+
+- [`sm_chat()`](https://cttir.github.io/scimapR/dev/reference/sm_chat.md)
+  records the model name of the chat object instead of “unknown”. Its
+  arguments `max_tokens` and `temperature`, which had no effect, are
+  deprecated: set them on the chat object instead.
+
+- [`sm_screen_against_question()`](https://cttir.github.io/scimapR/dev/reference/sm_screen_against_question.md)
+  no longer creates a default chat provider when none is given; pass the
+  chat object that may receive the titles and abstracts. It reports
+  which model receives them, and its screening rows record that model in
+  the new column `model`, which also enters the corpus hash.
+
+- [`sm_screen_against_question()`](https://cttir.github.io/scimapR/dev/reference/sm_screen_against_question.md)
+  sends the works as JSON data, asks for the work ID with every decision
+  and matches decisions to works by that ID instead of by their order in
+  the answer. A skipped, repeated or reordered item no longer moves
+  decisions to other works; such works are recorded as uncertain with
+  source `"llm_incomplete"` or `"llm_misaligned"`. Answers in a code
+  fence, over several lines, as a single object or as one object per
+  line are read, and an answer that cannot be read marks only its own
+  batch as uncertain instead of stopping the run. A corpus with repeated
+  work IDs is refused before anything is sent.
+
+- [`sm_screen_against_question()`](https://cttir.github.io/scimapR/dev/reference/sm_screen_against_question.md)
+  runs title-abstract before full-text, and screens at full-text only
+  the works whose latest title-abstract decision includes them, or
+  leaves them uncertain with `include_uncertain = TRUE`; decisions of
+  other stages, such as regex screening, no longer count. Works whose
+  request failed or whose answer could not be read are screened again on
+  the next run, their old rows are replaced, they are no longer carried
+  forward, and a warning counts them. Screening decisions use one
+  vocabulary, `"include"`, `"exclude"` and `"uncertain"`. `"unclear"` is
+  read as `"uncertain"`, and `sm_example_corpus(with_screening = TRUE)`
+  now writes `"uncertain"`, which changes the hash of that corpus. The
+  full-text stage screens titles and abstracts, as is now documented.
+
+- [`sm_screen_prisma()`](https://cttir.github.io/scimapR/dev/reference/sm_screen_prisma.md)
+  uses the stage names the package writes by default
+  (`"identification"`, `"title-abstract"`, `"full-text"`,
+  `"inclusion"`), so its default flow shows the title-abstract and
+  full-text exclusions instead of none. It counts works instead of
+  decision rows: per stage it takes each work’s latest decision and only
+  works of the corpus that are still in the flow. Repeated decisions
+  therefore no longer count twice, and the remaining count can no longer
+  turn negative. It warns when screening decisions of a stage are left
+  out of the flow and when decisions concern works outside the corpus.
+  The records that
+  [`sm_corpus_for_question()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_for_question.md)
+  found before removing duplicates enter at identification (new argument
+  `n_identified`).
+
+- [`sm_export_rayyan()`](https://cttir.github.io/scimapR/dev/reference/sm_export_rayyan.md)
+  and
+  [`sm_export_covidence()`](https://cttir.github.io/scimapR/dev/reference/sm_export_covidence.md)
+  write each work’s ID (RIS `ID` and a note) and leave out missing
+  fields instead of writing “NA”.
+  [`sm_import_rayyan()`](https://cttir.github.io/scimapR/dev/reference/sm_import_rayyan.md)
+  returns one row per record of the file. It takes the work ID from that
+  note, from a column you name, or from the DOI of a corpus you pass
+  (new arguments `corpus` and `id_col`); it reads the decision from a
+  decision column or from the inclusion notes of the export, maps labels
+  such as “Included”, “Excluded” and “Maybe” to the package vocabulary,
+  and warns about records it cannot match.
+
+- [`sm_cluster_label()`](https://cttir.github.io/scimapR/dev/reference/sm_cluster_label.md)
+  with a chat provider (`llm_provider`) sends the sampled titles as JSON
+  data and gains `seed`, which makes the sample of 20 titles per cluster
+  reproducible without changing the session’s random numbers.
+
+- `sm_audit_gender(method = "genderize")` caches only answers it
+  received: failed lookups, including those an earlier version stored as
+  unknown, are retried on the next run. Names are sent ten per request,
+  and a rate limit stops the lookups with a warning that gives the reset
+  time and the number of names not looked up (new element
+  `n_names_failed`).
+
+- [`sm_audit_funding()`](https://cttir.github.io/scimapR/dev/reference/sm_audit_funding.md)
+  reports failed lookups (`n_works_failed`) and works without an
+  identifier (`n_works_no_id`), and computes `coverage` and the funders’
+  `pct` over the works it could check (`NA` when it could check none);
+  before, both counted as unfunded. It no longer needs rcrossref or
+  openalexR, sends `OPENALEX_API_KEY` and `SCIMAPR_MAILTO` (new
+  `api_key` and `mailto` arguments), and stops further lookups after a
+  rate limit.
+
+- The Crossref, Semantic Scholar, bioRxiv, PubMed and OpenAlex fetchers
+  retry transient failures (HTTP 5xx, network errors, short HTTP 429
+  waits). A request that still fails after earlier pages arrived ends in
+  an error of class `scimapR_fetch_incomplete` that carries the works
+  fetched so far (`rlang::last_error()$partial`).
+  [`sm_fetch_crossref()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_crossref.md)
+  pages with a cursor, so `n_max` above 10,000 works;
+  [`sm_fetch_semantic_scholar()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_semantic_scholar.md)
+  caps relevance search at 1,000 results with a warning; Crossref
+  records with an empty date or an organisation author no longer stop
+  the fetch or lose the author.
+
+- [`sm_refresh()`](https://cttir.github.io/scimapR/dev/reference/sm_refresh.md)
+  marks a work as refreshed, and adds a provenance row, only when new
+  data for it arrived. Works whose request failed, that the source did
+  not return, or whose source cannot be re-queried stay stale and are
+  counted in a warning. `metadata$last_refresh` moves only when works
+  were refreshed and none failed. OpenAlex and Crossref refreshes are
+  sent in batches; OpenAlex requests use `OPENALEX_API_KEY` and Crossref
+  requests `SCIMAPR_MAILTO` (new `api_key` and `mailto` arguments), and
+  a rate limit stops further requests at once. The default `what` is now
+  `c("citations", "oa_status")`, because `"new_refs"` and `"altmetric"`
+  were never implemented; asking for them gives a warning.
+
+- Repeated
+  [`sm_refresh()`](https://cttir.github.io/scimapR/dev/reference/sm_refresh.md)
+  calls query each work once, from the source that first fetched it, and
+  label new provenance rows `<source>_refresh` without adding a suffix
+  per run; rows written by enrichers no longer start a refresh.
+
+- `sm_refresh(sources =)` with an unknown source reports the unknown
+  names and the valid sources instead of an internal formatting error.
+
+- [`sm_enrich_retraction()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_retraction.md)
+  counts a work as checked only when OpenAlex returned its record or a
+  Crossref retraction notice names it: failed or rate-limited requests
+  leave works unchecked and without a provenance row, and are reported
+  in a warning, or in an error when nothing could be checked. It sends
+  `OPENALEX_API_KEY` (new `api_key` and `mailto` arguments), and its
+  Crossref cross-check now looks for retraction notices that update the
+  work’s DOI, in batches and for corpora of any size.
+  `sm_enrich_concepts(source = "openalex")` sends the key (new `api_key`
+  argument) and reports failed lookups.
+
+- [`sm_read_bib()`](https://cttir.github.io/scimapR/dev/reference/sm_read_bib.md)
+  removes BibTeX protective braces and decodes common LaTeX accents and
+  escapes, so Web of Science BibTeX exports give plain DOIs, titles,
+  journals and keywords. It splits authors only at an `and` outside
+  braces, so a braced corporate author stays one author, reads quoted
+  values that contain braced accents, and takes the year from a biblatex
+  `date` field when `year` is missing.
+
+- [`sm_read_wos()`](https://cttir.github.io/scimapR/dev/reference/sm_read_wos.md)
+  and
+  [`sm_read_auto()`](https://cttir.github.io/scimapR/dev/reference/sm_read_auto.md)
+  read Web of Science tab-delimited exports, which they used to read as
+  one empty record. `sm_read_wos(engine = "bibliometrix")` stops with an
+  error on such files. A WoS file whose records carry no title,
+  accession number or author is now an error, and such records among
+  others are dropped with a warning.
+
+- [`sm_read_ris()`](https://cttir.github.io/scimapR/dev/reference/sm_read_ris.md),
+  and
+  [`sm_read_cochrane()`](https://cttir.github.io/scimapR/dev/reference/sm_read_cochrane.md)
+  for RIS files, read years from RIS dates such as `2019/03/01/` or
+  `2020///` in `PY`, `Y1` or `DA`, instead of returning `NA` with a
+  coercion warning.
+
+- [`sm_read_auto()`](https://cttir.github.io/scimapR/dev/reference/sm_read_auto.md)
+  tells EndNote XML from PubMed XML by the root element, so an EndNote
+  library of PubMed records is no longer read as an empty PubMed file.
+  Unrecognised XML, MEDLINE (`.nbib`) and Refer (`.enw`) files now stop
+  with a clear error instead of failing in the XML parser or giving an
+  empty corpus, and `.nbib` or `.enw` files that hold RIS records are
+  read as RIS.
+
+- [`sm_self_citation()`](https://cttir.github.io/scimapR/dev/reference/sm_self_citation.md),
+  the self-corrected h-, g- and m-indices,
+  [`sm_metric_disruption()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_disruption.md)
+  and
+  [`sm_metric_novelty()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_novelty.md)
+  now work on corpora built by the readers and fetchers. Before, they
+  found no linked references and returned empty or uncorrected results.
+  Their warnings now point to
+  [`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md)
+  instead of
+  [`sm_enrich_opencitations()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_opencitations.md),
+  which did not link references.
+
+- [`sm_network_coupling()`](https://cttir.github.io/scimapR/dev/reference/sm_network_coupling.md)
+  and
+  [`sm_network_cocitation()`](https://cttir.github.io/scimapR/dev/reference/sm_network_cocitation.md)
+  now count shared cited references outside the corpus too, by DOI,
+  OpenAlex id or reference text. This changes their default results for
+  corpora with unlinked references. Co-citation nodes gain `in_corpus`;
+  `linked_only = TRUE` keeps the earlier behaviour. Citation networks,
+  and the indicators that need linked references, warn when none are
+  linked.
+
+- [`sm_enrich_opencitations()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_opencitations.md)
+  uses the Index API v2 to add each work’s outgoing references and link
+  those that cite corpus works by DOI or OpenAlex id. Before, it stored
+  the works citing a work as that work’s own references, reversing
+  citation direction. It still sets `cited_by_count` to the
+  OpenCitations count. New reference indices continue after existing
+  ones, and repeated enrichment skips existing cited identifiers,
+  regardless of DOI case.
+
+- [`sm_metric_disruption()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_disruption.md)
+  no longer counts the focal work, or works published before it, among
+  the works that cite only its references. Same-year works and works
+  with missing years remain eligible. Uncited works now get `NA` instead
+  of 0, and repeated or self-directed links are ignored. Existing CD
+  index values can change.
+
+- [`sm_export_gephi()`](https://cttir.github.io/scimapR/dev/reference/sm_export_gephi.md),
+  [`sm_export_vosviewer()`](https://cttir.github.io/scimapR/dev/reference/sm_export_vosviewer.md)
+  and
+  [`sm_export_cytoscape()`](https://cttir.github.io/scimapR/dev/reference/sm_export_cytoscape.md)
+  export the edges of the network. Before, they wrote the node table in
+  place of the edges, so the files had no usable links.
+
+- [`sm_export_gephi()`](https://cttir.github.io/scimapR/dev/reference/sm_export_gephi.md)
+  escapes labels and marks directed networks as directed.
+  [`sm_export_vosviewer()`](https://cttir.github.io/scimapR/dev/reference/sm_export_vosviewer.md)
+  now writes a map file of the node ids and labels (`map_path`) and a
+  network file without a header, with numeric ids and positive link
+  strengths.
+
+- Coupling and co-citation weights count each cited item once per work,
+  and citation networks drop self-citations of a work and repeated
+  links. Before, repeated reference rows raised the weights.
+
+- References now link to the works of the corpus they cite: the Web of
+  Science, bibliometrix, OpenAlex, Crossref and Semantic Scholar readers
+  and fetchers,
+  [`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md)
+  and
+  [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md)
+  set `references$cited_work_id` from the cited DOI or OpenAlex id. New
+  [`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md)
+  links corpora built with
+  [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md)
+  or
+  [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_from_tables.md),
+  or saved earlier. Cited references in the Web of Science form
+  `DOI [a, b]` now get a DOI. Both change the references, and so the
+  corpus hash, of corpora read from files whose works cite each other.
+
+- Functions that modify a corpus now refuse locked inputs, including
+  merging, deduplication, materialisation, citation maturity, enrichers,
+  embeddings, clustering, labels, affiliation matching and screening.
+  Subsets stay locked; merged corpora are unlocked.
+  [`sm_lock()`](https://cttir.github.io/scimapR/dev/reference/sm_lock.md)
+  records a content hash, and
+  [`sm_certificate()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+  and
+  [`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md)
+  report later changes to that content. Printing continues to show only
+  the lock status.
+
+- Subsets (`[`,
+  [`sm_filter_works()`](https://cttir.github.io/scimapR/dev/reference/sm_filter_works.md),
+  [`sm_query()`](https://cttir.github.io/scimapR/dev/reference/sm_query.md))
+  and
+  [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md)
+  keep only the authors, institutions and sources their works refer to,
+  so printing, summaries, citations and certificates count the subset.
+  Its corpus hash changes accordingly.
+
+- [`sm_audit_gender()`](https://cttir.github.io/scimapR/dev/reference/sm_audit_gender.md)
+  and
+  [`sm_summary_authors()`](https://cttir.github.io/scimapR/dev/reference/sm_summary_authors.md)
+  on a filtered corpus count only its contributing authors. The
+  `genderize` and `ssa` methods look up only their names.
+
+- [`sm_cluster_kmeans()`](https://cttir.github.io/scimapR/dev/reference/sm_cluster_kmeans.md),
+  [`sm_cluster_hdbscan()`](https://cttir.github.io/scimapR/dev/reference/sm_cluster_hdbscan.md),
+  [`sm_cluster_leiden()`](https://cttir.github.io/scimapR/dev/reference/sm_cluster_leiden.md)
+  and
+  [`sm_network_semantic()`](https://cttir.github.io/scimapR/dev/reference/sm_network_semantic.md)
+  stop with an error naming repeated work IDs, embedding row names or
+  network nodes instead of adding duplicate works.
+  [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md)
+  keeps one embedding row per retained work, with a warning when
+  duplicate embedding rows are removed.
+
+- `sm_dedupe(by =)` now uses the named works columns, such as `"pmid"`
+  or `c("title", "year")`; previously it ignored `by` and always used
+  DOI. Missing and empty values never count as duplicates, DOIs and
+  titles are normalised, and retained works keep their input order.
+
+- [`sm_materialise()`](https://cttir.github.io/scimapR/dev/reference/sm_materialise.md)
+  skips enrichment rows with missing keys with a warning and leaves
+  corpus rows with missing keys unmatched. Previously, one row could
+  overwrite multiple references or keywords. The default reference key
+  is now `(work_id, ref_index)`, replacing `(work_id, cited_work_id)`.
+  Ambiguous row keys in works, authors, institutions, sources,
+  references or concepts now cause an error; group keys in authorships,
+  provenance and screening may still repeat.
+
+- [`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md)
+  and
+  [`sm_build_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_build_corpus.md)
+  give the second corpus new work, author, source and institution IDs
+  where the first already uses them, and rewrite every table that refers
+  to them. Previously, separately read files merged into colliding works
+  and credited papers to the wrong authors and journals. Identical
+  lookup records share one ID. The new `verbose` argument reports
+  re-keying, and incompatible embedding widths or one-sided embeddings
+  now warn when dropped. The existing `mix_models` rule for different
+  recorded models remains.
+  [`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md)
+  also checks author, source, institution and embedding links and
+  duplicate IDs.
+
 - New synthetic example files shaped like a Web of Science export of
   three invented military-medical units and their civilian partners:
   `example_realuse_corpus.rds` (150 works),
@@ -736,14 +1133,16 @@
   provenance only.
 
 - [`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md)
-  no longer depends on the order of the columns of a table or of the
-  rows of the embeddings (hash version 2; new argument `version`), so
-  hashes of new certificates and snapshots differ from earlier ones for
-  the same content. Certificates and snapshots record `hash_version`,
-  and those written without it are checked with the earlier algorithm
-  (`version = 1`), so they stay verifiable. The documentation now says
-  that the hash leaves out the provenance table, which records fetch
-  dates, and the metadata, the local inputs included.
+  uses canonical text for hash version 2 (new argument `version`), so
+  its values no longer depend on the R version, platform, time zone,
+  collation locale, table column order or embedding row order. Hashes of
+  new certificates and snapshots differ from earlier ones for the same
+  content. Certificates and snapshots record `hash_version`; those
+  written without it use the unchanged earlier algorithm
+  (`version = 1`), whose binary serialisation depends on the R version.
+  Older certificates and snapshots remain verifiable on the R version
+  that wrote them. The hash leaves out provenance, which records fetch
+  dates, and metadata, including local inputs.
 
 - [`sm_cluster_label()`](https://cttir.github.io/scimapR/dev/reference/sm_cluster_label.md)
   ignores noise, scores terms by the share of a cluster’s works that use

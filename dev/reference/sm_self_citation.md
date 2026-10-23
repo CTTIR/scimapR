@@ -85,7 +85,8 @@ function never spins).
 
 ## See also
 
-[`sm_metric_h_index()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_h_index.md)
+[`sm_metric_h_index()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_h_index.md),
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md)
 
 Other metrics:
 [`sm_metric_collab_index()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_collab_index.md),

@@ -1,9 +1,10 @@
 # Enrich corpus with OpenCitations citation data
 
-Look up DOIs in the corpus via the
-[OpenCitations](https://opencitations.net/) COCI API and add incoming
-and outgoing citation counts, plus citation links between works in the
-corpus.
+Look up DOIs using the [OpenCitations Index
+API](https://api.opencitations.net/index/v2) and add outgoing
+references. DOI and OpenAlex identifiers link these references to works
+in the corpus. The separate incoming citation count replaces
+`works$cited_by_count`.
 
 This enricher is idempotent: re-running it updates existing citation
 data rather than duplicating it.
@@ -31,7 +32,8 @@ sm_enrich_opencitations(corpus, verbose = TRUE, call = rlang::caller_env())
 ## Value
 
 An `sm_corpus` object with updated `cited_by_count` in the `works`
-table, enriched `references` table, and new provenance rows.
+table, outgoing `references` linked where possible, and new provenance
+rows for works with usable responses.
 
 ## See also
 

@@ -33,6 +33,8 @@ Other corpus:
 [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md),
 [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_from_tables.md),
 [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md),
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md),
 [`sm_materialise()`](https://cttir.github.io/scimapR/dev/reference/sm_materialise.md),
+[`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md),
 [`sm_save_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_save_corpus.md),
 [`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md)

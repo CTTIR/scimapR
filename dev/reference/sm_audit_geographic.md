@@ -3,7 +3,8 @@
 Audits the geographic distribution of a corpus, tabulating the
 representation of countries, regions, or World Bank income tiers. The
 analysis can be weighted by work count, total citations,
-first-authorship, or corresponding authorship.
+first-authorship, or corresponding authorship. Each work counts once per
+distinct known group, with optional fractional credit.
 
 The result includes a Gini coefficient for concentration and a coverage
 metric (proportion of works with known geography).
@@ -15,6 +16,7 @@ sm_audit_geographic(
   corpus,
   by = c("country", "region", "income_tier"),
   weight = c("count", "citations", "first-author", "corresponding"),
+  method = c("full", "fractional"),
   call = rlang::caller_env()
 )
 
@@ -36,10 +38,16 @@ print(x, ...)
 
 - weight:
 
-  Character. How to weight each work: `"count"` (one per work),
-  `"citations"` (weighted by cited_by_count), `"first-author"` (only
-  first-author affiliations), `"corresponding"` (only
-  corresponding-author affiliations).
+  Character. How to weight each work: `"count"` (one per work and group,
+  before applying `method`), `"citations"` (weighted by cited_by_count),
+  `"first-author"` (only first-author affiliations), `"corresponding"`
+  (only corresponding-author affiliations).
+
+- method:
+
+  Counting rule: `"full"` gives each work one unit per distinct known
+  group; `"fractional"` splits one unit equally among its known groups.
+  Citation credit is split by the same shares.
 
 - call:
 
@@ -59,7 +67,12 @@ An `sm_audit_geographic` S3 object containing:
 
 - distribution:
 
-  Tibble with columns `group`, `count`, `pct`, `citations`.
+  Tibble with columns `group`, `count`, `citations`, `pct`, `credit` and
+  `weighted_citations`. Counts and raw citations include each work once
+  per group under both methods. Percentages and the Gini use credit, or
+  weighted citations for citation weighting. Count percentages describe
+  work-group pairs under full counting and works under fractional
+  counting.
 
 - gini:
 
@@ -77,7 +90,18 @@ An `sm_audit_geographic` S3 object containing:
 
   The weighting method used.
 
+- method:
+
+  The counting rule used.
+
 `x` invisibly (print methods).
+
+## Details
+
+Coverage uses all corpus works as its denominator and counts works with
+at least one known group after the authorship filter. Missing geography
+is excluded from credit allocation; incomplete metadata can therefore
+change both coverage and the shares assigned to known groups.
 
 ## See also
 
@@ -97,29 +121,30 @@ print(geo)
 #> ── <sm_audit_geographic> ───────────────────────────────────────────────────────
 #> Grouping: country
 #> Weighting: count
-#> Coverage: 100% of authorships have known geography
-#> Gini coefficient: 0.143
+#> Counting: full
+#> Coverage: 100% of works have known geography
+#> Gini coefficient: 0.126
 #> 
 #> 
 #> ── Distribution (top 10) 
-#> DE: 77 (10.2%) [1204 cit.]
-#> AU: 50 (6.62%) [727 cit.]
-#> FI: 49 (6.49%) [771 cit.]
-#> NO: 43 (5.7%) [524 cit.]
-#> IT: 41 (5.43%) [571 cit.]
-#> GB: 40 (5.3%) [572 cit.]
-#> CA: 38 (5.03%) [647 cit.]
-#> DK: 38 (5.03%) [576 cit.]
-#> NL: 37 (4.9%) [530 cit.]
-#> BR: 35 (4.64%) [556 cit.]
+#> DE: 63 (9.17%) [954 cit.]
+#> FI: 46 (6.7%) [708 cit.]
+#> AU: 44 (6.4%) [646 cit.]
+#> NO: 38 (5.53%) [472 cit.]
+#> GB: 37 (5.39%) [544 cit.]
+#> IT: 37 (5.39%) [540 cit.]
+#> DK: 36 (5.24%) [500 cit.]
+#> BR: 33 (4.8%) [533 cit.]
+#> CA: 33 (4.8%) [568 cit.]
+#> CH: 33 (4.8%) [474 cit.]
 #> ... and 10 more
 #> 
 #> 
 #> ── Limitations 
 #> • Country codes are derived from author affiliation metadata, which may be
 #> incomplete or inaccurate.
-#> • Multi-country affiliations may be under- or over-counted depending on the
-#> data source.
+#> • Full counting gives a work one unit in each known group; fractional counting
+#> splits one unit among those groups.
 #> • Region and income tier classifications rely on institutional metadata which
 #> may not be populated for all works.
 #> • Geographic representation does not capture diaspora researchers or

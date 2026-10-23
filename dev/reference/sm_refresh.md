@@ -2,10 +2,13 @@
 
 Re-fetches metadata for works whose `last_refreshed` timestamp is older
 than `max_age_days`. For each stale work, the original provenance source
-is consulted (e.g., OpenAlex, Crossref, PubMed) to update citation
-counts, open-access status, new references, and Altmetric data. A new
-provenance row is appended for each refreshed work, making the operation
-fully auditable.
+is consulted: OpenAlex supplies citation counts and open-access status;
+Crossref supplies citation counts. Other sources remain stale. Failed
+requests, missing identifiers and records not returned are reported.
+Only works with returned updates receive a new timestamp and provenance
+row. `metadata$last_refresh` advances only when at least one work was
+refreshed and none failed. Enrichment rows never select a refresh
+source.
 
 The operation is **idempotent**: running it twice in succession will not
 re-fetch works that were just refreshed. The function **refuses to
@@ -19,9 +22,11 @@ first.
 sm_refresh(
   corpus,
   max_age_days = 30,
-  what = c("citations", "oa_status", "new_refs", "altmetric"),
+  what = c("citations", "oa_status"),
   sources = NULL,
   verbose = TRUE,
+  api_key = Sys.getenv("OPENALEX_API_KEY"),
+  mailto = Sys.getenv("SCIMAPR_MAILTO"),
   call = rlang::caller_env()
 )
 ```
@@ -40,7 +45,9 @@ sm_refresh(
 - what:
 
   Character vector of data aspects to refresh. One or more of
-  `"citations"`, `"oa_status"`, `"new_refs"`, `"altmetric"`.
+  `"citations"` and `"oa_status"` (the default). `"new_refs"` and
+  `"altmetric"` are accepted but unsupported: they warn and are ignored,
+  or error when no implemented aspect remains.
 
 - sources:
 
@@ -51,6 +58,14 @@ sm_refresh(
 - verbose:
 
   Logical. Print progress messages?
+
+- api_key:
+
+  OpenAlex API key, sent only in the authorization header.
+
+- mailto:
+
+  Contact address for Crossref requests.
 
 - call:
 

@@ -99,6 +99,22 @@ the original BibTeX documentation (Patashnik, 1988). Field values may be
 enclosed in braces or double-quotes and may span multiple lines. String
 concatenation with <code>#</code> is not supported; <code>@string</code> and <code>@preamble</code>
 entries are skipped.</p>
+<p>Protective braces are removed from titles, journals, abstracts, keywords
+and DOIs; escaped braces remain literal. Common LaTeX accent commands
+(<code>\"</code>, <code>\'</code>, <code>\^</code>, <code>\~</code>, <code>\=</code>, <code>\.</code>, <code>\c</code>, <code>\v</code>, <code>\u</code>,
+<code>\H</code>, <code>\k</code>, <code>\r</code>, and backslash followed by a grave accent) decode
+to precomposed letters where available, else the bare letter.
+Letter commands <code>\ss</code>, <code>\o</code>, <code>\O</code>, <code>\aa</code>, <code>\AA</code>,
+<code>\ae</code>, <code>\AE</code>, <code>\oe</code>, <code>\OE</code>, <code>\l</code>, <code>\L</code> and <code>\i</code> also decode, as do
+<code>\&amp;</code>, <code>\%</code>, <code>\$</code>, <code>\#</code> and <code>\_</code>. DOI cleaning only removes braces
+and decodes those five escapes. Ties (<code>~</code>), <code>--</code> and math expressions
+remain as written. Whitespace outside math is collapsed and trimmed.</p>
+<p>Only a lowercase <code>and</code> outside braces separates authors; a comma outside
+braces flips a name from surname-first to given-name-first. Braced
+corporate names stay together, and a trailing <code>and others</code> is retained.
+Quoted field values end only at a quote outside braces. The first
+isolated four-digit year (1000–2999) in <code>year</code> is used, falling back to
+the BibLaTeX <code>date</code> field when no such year is present.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

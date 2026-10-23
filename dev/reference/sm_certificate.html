@@ -288,16 +288,16 @@ differ from those of the certified corpus.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/writeLines.html" class="external-link">writeLines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"doi,unit"</span>, <span class="st">"10.9999/example.1,Unit A"</span><span class="op">)</span>, <span class="va">tracker</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_register_input.html">sm_register_input</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">tracker</span>, role <span class="op">=</span> <span class="st">"publication tracker"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cert</span> <span class="op">&lt;-</span> <span class="fu">sm_certificate</span><span class="op">(</span><span class="va">corpus</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Certificate created. Corpus hash: 017544b82f93</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Certificate created. Corpus hash: 61c0637eede7</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">cert</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">&lt;sm_certificate&gt;</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Version:</span> 1.0</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Created:</span> 2026-10-21 09:22:34 UTC</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Created:</span> 2026-10-23 20:10:43 UTC</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">scimapR:</span> v0.4.0.9000</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">R:</span> 4.6.1 (unix)</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Corpus hash:</span> 017544b82f936536</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Corpus hash:</span> 61c0637eede72e86</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Works:</span> 200</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Authors:</span> 80</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">References:</span> 1869</span>
@@ -310,12 +310,12 @@ differ from those of the certified corpus.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">&lt;sm_cert_verification&gt;</span> <span style="color: #00BBBB;">──────────────────────────────────────────────────────</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Result: PASS</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> corpus_hash: expected 017544b82f936536, got 017544b82f936536</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> corpus_hash: expected 61c0637eede72e86, got 61c0637eede72e86</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> n_works: expected 200, got 200</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> n_authors: expected 80, got 80</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> n_institutions: expected 0, got 0</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> n_references: expected 1869, got 1869</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> input:file23d420ddbadc.csv: expected 721a6632cca2e6ea, got 721a6632cca2e6ea</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> input:file1ec9652dae1e.csv: expected 721a6632cca2e6ea, got 721a6632cca2e6ea</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># a changed input file fails its check</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"10.9999/example.2,Unit B\n"</span>, file <span class="op">=</span> <span class="va">tracker</span>, append <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

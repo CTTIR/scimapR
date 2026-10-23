@@ -17,7 +17,8 @@ sm_build_corpus(..., dedupe = TRUE, mix_models = FALSE, verbose = TRUE)
 
 - dedupe:
 
-  Logical; deduplicate by DOI after combining?
+  Logical; deduplicate by normalised DOI after combining, keeping the
+  most complete record and its child rows?
 
 - mix_models:
 
@@ -41,7 +42,8 @@ The inputs are bound in turn with
 so its rules for embeddings apply: embeddings that record different
 models in `metadata$embedding`, or of which only one input records its
 model, stop the function (class `scimapR_embedding_model_mismatch`)
-unless `mix_models = TRUE`.
+unless `mix_models = TRUE`. Pass every file of a split export; the IDs
+stay unique.
 
 ## See also
 
@@ -53,7 +55,9 @@ Other corpus:
 [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md),
 [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus_from_tables.md),
 [`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md),
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md),
 [`sm_materialise()`](https://cttir.github.io/scimapR/dev/reference/sm_materialise.md),
+[`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md),
 [`sm_save_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_save_corpus.md),
 [`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md),
 [`validate_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/validate_sm_corpus.md)
@@ -64,5 +68,9 @@ Other corpus:
 c1 <- sm_example_corpus(n_works = 50, seed = 1)
 c2 <- sm_example_corpus(n_works = 50, seed = 2)
 combined <- sm_build_corpus(c1, c2, dedupe = TRUE)
-#> ✔ Removed 50 duplicate works by DOI.
+#> ℹ Re-keyed 50 works, 79 authors, 10 sources and 0 institutions in the second
+#>   corpus.
+#> ℹ 50 works share a DOI with the first corpus; use `sm_dedupe()` to remove
+#>   duplicates.
+#> ✔ Removed 50 duplicate works with the same doi.
 ```
