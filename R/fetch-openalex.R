@@ -67,6 +67,16 @@
 #'   (`query`, `filter`, `n_max` and `engine`), so that
 #'   [sm_rebuild_from_cert()] can run it again.
 #'
+#' @section Failed requests:
+#' Native requests retry transient server and network failures, and short
+#' announced rate-limit waits. Long waits abort immediately. If a later
+#' page fails, the error inherits from `scimapR_fetch_incomplete` and holds
+#' the earlier parsed works in `rlang::last_error()$partial`. Their metadata
+#' records `fetch_incomplete` with the source, received and expected counts,
+#' and failure reason. If those pages cannot be parsed, `partial` is `NULL`.
+#' The default remains an error; an incomplete fetch is never returned as
+#' an ordinary successful result.
+#'
 #' @family fetchers
 #' @seealso [sm_enrich_openalex_impact()], [sm_citation_window()]
 #' @export
@@ -126,6 +136,7 @@ sm_fetch_openalex <- function(query = NULL,
   collected <- list()
   cursor <- "*"
   n_fetched <- 0L
+  n_expected <- n_max
 
   repeat {
     params <- list(per_page = min(per_page, n_max - n_fetched),
@@ -135,15 +146,17 @@ sm_fetch_openalex <- function(query = NULL,
     body <- tryCatch(
       .openalex_request("works", params, api_key = api_key, mailto = mailto,
                         call = call),
-      scimapR_openalex_rate_limit = function(cnd) {
-        .openalex_abort_rate_limit(
-          cnd, key_set = cnd$key_set, n_fetched = n_fetched,
-          context = sprintf("%d works had been fetched; none are returned.",
-                            n_fetched),
-          call = call
+      scimapR_request_failed = function(cnd) {
+        .sm_fetch_abort(
+          cnd, "openalex", collected,
+          function(items) {
+            .record_request(.parse_openalex_results(items, query, FALSE, call),
+                            filter = filter, n_max = n_max)
+          }, n_expected, "OpenAlex API request failed.", call
         )
       }
     )
+    n_expected <- min(n_max, body$meta$count %||% n_max)
     results <- body[["results"]]
 
     if (length(results) == 0L) break

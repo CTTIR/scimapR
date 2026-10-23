@@ -36,6 +36,8 @@
 #'     corresponding).}
 #'   \item{coverage}{Proportion of authors with an inferred gender.}
 #'   \item{method}{The method used.}
+#'   \item{n_names_failed}{Number of distinct names without an API answer;
+#'     these are not cached and are retried on the next run.}
 #'   \item{confidence_summary}{Summary statistics for gender confidence
 #'     scores.}
 #' }
@@ -72,6 +74,7 @@ sm_audit_gender <- function(corpus,
   }
 
   authors <- corpus$authors
+  n_names_failed <- 0L
 
   if (method != "manual") {
     # Extract first names
@@ -89,16 +92,17 @@ sm_audit_gender <- function(corpus,
       gender_result <- .infer_gender_ssa(first_names, call)
     }
 
+    n_names_failed <- as.integer(gender_result$n_failed %||% 0L)
     authors$inferred_gender <- gender_result$gender
     authors$gender_confidence <- gender_result$confidence
     authors$gender_method <- method
   }
 
   # Compute distribution
-  dist <- authors %>%
-    dplyr::count(.data$inferred_gender) %>%
-    dplyr::mutate(pct = round(100 * .data$n / sum(.data$n), 1)) %>%
-    dplyr::rename(count = .data$n) %>%
+  dist <- authors |>
+    dplyr::count(.data$inferred_gender) |>
+    dplyr::mutate(pct = round(100 * .data$n / sum(.data$n), 1)) |>
+    dplyr::rename(count = "n") |>
     dplyr::arrange(dplyr::desc(.data$count))
 
   # By position
@@ -130,6 +134,7 @@ sm_audit_gender <- function(corpus,
       by_position = by_position,
       coverage = round(coverage, 3),
       method = method,
+      n_names_failed = n_names_failed,
       confidence_summary = conf_summary
     ),
     class = "sm_audit_gender"
@@ -153,6 +158,7 @@ sm_audit_gender <- function(corpus,
         pct = double()
       ),
       coverage = 0.0,
+      n_names_failed = 0L,
       method = method,
       confidence_summary = list(
         mean = NA_real_, median = NA_real_,
@@ -199,15 +205,15 @@ sm_audit_gender <- function(corpus,
   # Join with author gender
   aships <- dplyr::left_join(
     aships,
-    dplyr::select(authors, .data$author_id, .data$inferred_gender),
+    dplyr::select(authors, "author_id", "inferred_gender"),
     by = "author_id"
   )
 
-  result <- aships %>%
-    dplyr::group_by(.data$position_type, .data$inferred_gender) %>%
-    dplyr::summarise(count = dplyr::n(), .groups = "drop") %>%
-    dplyr::group_by(.data$position_type) %>%
-    dplyr::mutate(pct = round(100 * .data$count / sum(.data$count), 1)) %>%
+  result <- aships |>
+    dplyr::group_by(.data$position_type, .data$inferred_gender) |>
+    dplyr::summarise(count = dplyr::n(), .groups = "drop") |>
+    dplyr::group_by(.data$position_type) |>
+    dplyr::mutate(pct = round(100 * .data$count / sum(.data$count), 1)) |>
     dplyr::ungroup()
 
   result
@@ -216,41 +222,48 @@ sm_audit_gender <- function(corpus,
 #' Infer gender from first names using genderize.io
 #' @noRd
 .infer_gender_genderize <- function(first_names, api_key, cache_dir, call) {
-  # Ensure cache directory exists
-  if (!fs::dir_exists(cache_dir)) {
-    fs::dir_create(cache_dir, recurse = TRUE)
-  }
-
+  if (!fs::dir_exists(cache_dir)) fs::dir_create(cache_dir, recurse = TRUE)
   cache_file <- file.path(cache_dir, "genderize_cache.rds")
   cache <- if (file.exists(cache_file)) readRDS(cache_file) else list()
-
+  legacy <- vapply(cache, function(entry) {
+    is.na(entry$gender %||% NA_character_) &&
+      is.na(entry$confidence %||% NA_real_)
+  }, logical(1))
+  cache <- cache[!legacy]
   unique_names <- unique(tolower(first_names[!is.na(first_names)]))
+  unique_names <- unique_names[nzchar(unique_names)]
   to_query <- setdiff(unique_names, names(cache))
-
-  if (length(to_query) > 0L) {
-    cli::cli_inform(c(
-      "i" = "Querying genderize.io for {length(to_query)} name{?s}..."
-    ))
-
-    for (nm in to_query) {
-      tryCatch({
-        url <- paste0("https://api.genderize.io?name=", utils::URLencode(nm))
-        if (nzchar(api_key)) {
-          url <- paste0(url, "&apikey=", api_key)
-        }
-        req <- httr2::request(url)
-        resp <- httr2::req_perform(req)
-        body <- httr2::resp_body_json(resp)
-        cache[[nm]] <- list(
-          gender = body$gender %||% NA_character_,
-          confidence = body$probability %||% NA_real_
-        )
-      }, error = function(e) {
-        cache[[nm]] <<- list(gender = NA_character_, confidence = NA_real_)
-      })
+  batches <- unname(split(to_query, ceiling(seq_along(to_query) / 10L)))
+  condition <- NULL
+  for (batch in batches) {
+    query <- list(`name[]` = batch)
+    if (nzchar(.openalex_setting(api_key))) query$apikey <- api_key
+    req <- httr2::request("https://api.genderize.io") |>
+      httr2::req_url_query(!!!query, .multi = "explode")
+    response <- tryCatch(.sm_http_read(req, "genderize.io", call = call),
+                         scimapR_request_failed = identity)
+    if (inherits(response, "scimapR_request_failed")) {
+      condition <- response
+      if (inherits(response, "scimapR_rate_limited")) break
+      next
     }
-
-    saveRDS(cache, cache_file)
+    answers <- response
+    if (!is.null(answers$name)) answers <- list(answers)
+    for (answer in answers) {
+      name <- tolower(answer$name %||% "")
+      if (!name %in% batch) next
+      cache[[name]] <- list(gender = answer$gender %||% NA_character_,
+                            confidence = answer$probability %||% 0,
+                            count = as.integer(answer$count %||% 0L))
+    }
+  }
+  saveRDS(cache, cache_file)
+  failed <- setdiff(to_query, names(cache))
+  if (length(failed)) {
+    message <- sprintf("%d names not looked up; the next run retries them.",
+                       length(failed))
+    .sm_warn_unchecked(failed, condition, "scimapR_gender_lookup_failed",
+                       message, call = call)
   }
 
   # Map results back
@@ -265,7 +278,7 @@ sm_audit_gender <- function(corpus,
     cache[[nm]]$confidence %||% NA_real_
   }, double(1), USE.NAMES = FALSE)
 
-  list(gender = gender, confidence = confidence)
+  list(gender = gender, confidence = confidence, n_failed = length(failed))
 }
 
 #' Infer gender from first names using SSA data

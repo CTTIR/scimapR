@@ -4,6 +4,7 @@ cap_print <- function(x) {
 }
 
 test_that("print.sm_audit_geographic prints and returns invisibly", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 30, n_authors = 15,
                               with_embeddings = FALSE, seed = 1)
   res <- sm_audit_geographic(corpus)
@@ -17,11 +18,13 @@ test_that("print.sm_audit_geographic prints and returns invisibly", {
 })
 
 test_that("print.sm_audit_geographic handles empty distribution", {
+  local_http_env()
   res <- sm_audit_geographic(make_empty_corpus())
   expect_match(cap_print(res), "No geographic data")
 })
 
 test_that("print.sm_audit_geographic shows truncation for >10 groups", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 120, n_authors = 60,
                               with_embeddings = FALSE, seed = 2)
   res <- sm_audit_geographic(corpus)
@@ -31,6 +34,7 @@ test_that("print.sm_audit_geographic shows truncation for >10 groups", {
 })
 
 test_that("print.sm_audit_gender prints distribution, position, limitations", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 30, n_authors = 15,
                               with_embeddings = FALSE, seed = 3)
   corpus$authors$inferred_gender <- rep(c("female", "male"),
@@ -47,11 +51,13 @@ test_that("print.sm_audit_gender prints distribution, position, limitations", {
 })
 
 test_that("print.sm_audit_funding prints with no funders", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 10, with_embeddings = FALSE, seed = 4)
   testthat::local_mocked_bindings(
-    .fetch_funding_crossref = function(works, call) {
-      tibble::tibble(work_id = character(), funder_name = character(),
-                     funder_doi = character())
+    .fetch_funding_crossref = function(works, ...) {
+      funding_answer(tibble::tibble(work_id = character(),
+                                    funder_name = character(),
+                                    funder_doi = character()), works)
     }
   )
   empty_res <- suppressMessages(sm_audit_funding(corpus, source = "crossref"))
@@ -62,6 +68,7 @@ test_that("print.sm_audit_funding prints with no funders", {
 })
 
 test_that("print.sm_audit_funding shows top funders and truncation", {
+  local_http_env()
   funders <- tibble::tibble(
     funder_name = paste0("Funder", 1:12),
     funder_doi = paste0("10.x/", 1:12),
@@ -80,6 +87,7 @@ test_that("print.sm_audit_funding shows top funders and truncation", {
 })
 
 test_that("print.sm_audit_oa prints distribution and limitations", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 30, with_embeddings = FALSE, seed = 5)
   res <- sm_audit_oa(corpus)
   ret <- withVisible(print(res))
@@ -92,6 +100,7 @@ test_that("print.sm_audit_oa prints distribution and limitations", {
 })
 
 test_that("print methods show a funding audit that was not run", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 25, n_authors = 12,
                               with_embeddings = FALSE, seed = 7)
   res <- suppressMessages(sm_audit_summary(corpus))
@@ -104,12 +113,14 @@ test_that("print methods show a funding audit that was not run", {
 })
 
 test_that("print.sm_audit_summary prints overview and limitations", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 25, n_authors = 12,
                               with_embeddings = FALSE, seed = 6)
   testthat::local_mocked_bindings(
-    .fetch_funding_crossref = function(works, call) {
-      tibble::tibble(work_id = character(), funder_name = character(),
-                     funder_doi = character())
+    .fetch_funding_crossref = function(works, ...) {
+      funding_answer(tibble::tibble(work_id = character(),
+                                    funder_name = character(),
+                                    funder_doi = character()), works)
     }
   )
   res <- suppressMessages(sm_audit_summary(corpus))
@@ -120,4 +131,20 @@ test_that("print.sm_audit_summary prints overview and limitations", {
   expect_match(txt, "Overview")
   expect_match(txt, "geographic")
   expect_match(txt, "Limitations")
+})
+
+test_that("funding print distinguishes failed lookups from not running", {
+  local_http_env()
+  res <- .empty_audit_funding()
+  res$n_works_total <- 40L
+  res$n_works_checked <- 20L
+  res$n_works_failed <- 20L
+  res$n_works_funded <- 2L
+  res$coverage <- 0.1
+  txt <- cap_print(res)
+  expect_match(txt, "2 / 20", fixed = TRUE)
+  expect_match(txt, "Failed lookups: 20", fixed = TRUE)
+  res$coverage <- NA_real_
+  expect_false(grepl("Not run", cap_print(res), fixed = TRUE))
+  expect_match(cap_print(.not_run_audit_funding(40L)), "Not run", fixed = TRUE)
 })

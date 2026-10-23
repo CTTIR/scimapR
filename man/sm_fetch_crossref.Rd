@@ -42,9 +42,21 @@ An \code{sm_corpus} object. Its provenance records the search
 Query the \href{https://api.crossref.org/}{Crossref} API for scholarly works
 and return the results as an \code{sm_corpus}.
 
-Uses offset-based pagination to retrieve up to \code{n_max} works. Providing
+Uses cursor pagination to retrieve up to \code{n_max} works. Providing
 a \code{mailto} address enables the polite pool (faster rate limits).
 }
+\section{Failed requests}{
+
+Native requests retry transient server and network failures, and short
+announced rate-limit waits. Long waits abort immediately. If a later
+page fails, the error inherits from \code{scimapR_fetch_incomplete} and holds
+the earlier parsed works in \code{rlang::last_error()$partial}. Their metadata
+records \code{fetch_incomplete} with the source, received and expected counts,
+and failure reason. If those pages cannot be parsed, \code{partial} is \code{NULL}.
+The default remains an error; an incomplete fetch is never returned as
+an ordinary successful result.
+}
+
 \examples{
 \dontrun{
 corpus <- sm_fetch_crossref(query = "bibliometrics", n_max = 10)

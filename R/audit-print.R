@@ -70,6 +70,11 @@ print.sm_audit_gender <- function(x, ...) {
   cli::cli_text("{.strong Coverage:} {round(x$coverage * 100, 1)}% of authors have inferred gender")
   cli::cli_text("")
 
+  n_failed <- x$n_names_failed %||% 0L
+  if (n_failed > 0L) {
+    cli::cli_text("Names not looked up: {n_failed} (retry next run).")
+  }
+
   if (nrow(x$distribution) > 0L) {
     cli::cli_h3("Overall distribution")
     for (i in seq_len(nrow(x$distribution))) {
@@ -147,14 +152,20 @@ print.sm_audit_gender <- function(x, ...) {
 print.sm_audit_funding <- function(x, ...) {
   cli::cli_h1("<sm_audit_funding>")
 
-  if (is.na(x$coverage)) {
+  if (identical(x$source, "none")) {
     cli::cli_text("Not run: no funding source was queried.")
     return(invisible(x))
   }
   cli::cli_text("{.strong Data source:} {x$source}")
-  cli::cli_text(
-    "{.strong Works with funding data:} {x$n_works_funded} / {x$n_works_total} ({round(x$coverage * 100, 1)}%)"
-  )
+  checked <- x$n_works_checked %||% x$n_works_total
+  failed <- x$n_works_failed %||% 0L
+  no_id <- x$n_works_no_id %||% 0L
+  pct <- round(x$coverage * 100, 1)
+  cli::cli_text(sprintf("Works with funding data: %d / %d checked (%s%%)",
+                        x$n_works_funded, checked, pct))
+  cli::cli_text(sprintf("Failed lookups: %d; no identifier: %d.", failed,
+                        no_id))
+  if (is.na(x$coverage)) cli::cli_text("No work could be checked.")
   cli::cli_text("")
 
   if (nrow(x$funders) > 0L) {

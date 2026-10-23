@@ -19,6 +19,16 @@
 #'
 #' @return An `sm_corpus` object.
 #'
+#' @section Failed requests:
+#' Native requests retry transient server and network failures, and short
+#' announced rate-limit waits. Long waits abort immediately. If a later
+#' page fails, the error inherits from `scimapR_fetch_incomplete` and holds
+#' the earlier parsed works in `rlang::last_error()$partial`. Their metadata
+#' records `fetch_incomplete` with the source, received and expected counts,
+#' and failure reason. If those pages cannot be parsed, `partial` is `NULL`.
+#' The default remains an error; an incomplete fetch is never returned as
+#' an ordinary successful result.
+#'
 #' @family fetchers
 #' @export
 #' @examples
@@ -55,24 +65,21 @@ sm_fetch_biorxiv <- function(query = NULL,
 
   collected <- list()
   cursor <- 0L
+  total <- n_max
 
   repeat {
     req <- httr2::request(paste0(base_url, "/", cursor)) |>
       httr2::req_headers(`User-Agent` = .sm_user_agent()) |>
       httr2::req_throttle(rate = 2 / 1)
 
-    resp <- tryCatch(
-      httr2::req_perform(req),
-      error = function(e) {
-        cli::cli_abort(
-          c("{server} API request failed.",
-            "i" = conditionMessage(e)),
-          call = call
-        )
-      }
+    body <- .sm_fetch_page(
+      req, server, server, collected,
+      function(items) {
+        .finish_biorxiv_fetch(items, server, query, n_max,
+                              FALSE, call)
+      },
+      min(n_max, total), paste(server, "API request failed."), call
     )
-
-    body <- httr2::resp_body_json(resp)
     items <- body[["collection"]]
 
     if (length(items) == 0L) break
@@ -95,6 +102,11 @@ sm_fetch_biorxiv <- function(query = NULL,
     return(.empty_corpus_with_provenance(server, query, "native"))
   }
 
+  .finish_biorxiv_fetch(collected, server, query, n_max, verbose, call)
+}
+
+.finish_biorxiv_fetch <- function(collected, server, query, n_max, verbose,
+                                  call) {
   # Local filtering if query is provided
   if (!is.null(query) && nzchar(query)) {
     pattern <- tolower(query)

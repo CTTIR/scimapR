@@ -44,6 +44,18 @@ MeSH headings become concepts in the \code{"mesh"} vocabulary. Their \code{score
 is 1 for a major topic of the article (\code{MajorTopicYN} on the descriptor or
 one of its qualifiers) and 0 otherwise.
 }
+\section{Failed requests}{
+
+Native requests retry transient server and network failures, and short
+announced rate-limit waits. Long waits abort immediately. If a later
+page fails, the error inherits from \code{scimapR_fetch_incomplete} and holds
+the earlier parsed works in \code{rlang::last_error()$partial}. Their metadata
+records \code{fetch_incomplete} with the source, received and expected counts,
+and failure reason. If those pages cannot be parsed, \code{partial} is \code{NULL}.
+The default remains an error; an incomplete fetch is never returned as
+an ordinary successful result.
+}
+
 \examples{
 \dontrun{
 corpus <- sm_fetch_pubmed(query = "bibliometrics[tiab]", n_max = 10)

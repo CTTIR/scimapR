@@ -25,6 +25,16 @@
 #'
 #' @return An `sm_corpus` object.
 #'
+#' @section Failed requests:
+#' Native requests retry transient server and network failures, and short
+#' announced rate-limit waits. Long waits abort immediately. If a later
+#' page fails, the error inherits from `scimapR_fetch_incomplete` and holds
+#' the earlier parsed works in `rlang::last_error()$partial`. Their metadata
+#' records `fetch_incomplete` with the source, received and expected counts,
+#' and failure reason. If those pages cannot be parsed, `partial` is `NULL`.
+#' The default remains an error; an incomplete fetch is never returned as
+#' an ordinary successful result.
+#'
 #' @family fetchers
 #' @export
 #' @examples
@@ -58,6 +68,14 @@ sm_fetch_semantic_scholar <- function(query = NULL,
     ))
   }
 
+  if (n_max > 1000L) {
+    cli::cli_warn(
+      "Semantic Scholar relevance search is capped at 1,000 results.",
+      class = "scimapR_n_max_capped", call = call
+    )
+    n_max <- 1000L
+  }
+
   # ---- search mode ----
   .sm_verbose("Searching Semantic Scholar for: {.val {query}}", verbose)
 
@@ -70,6 +88,7 @@ sm_fetch_semantic_scholar <- function(query = NULL,
 
   collected <- list()
   offset <- 0L
+  total <- n_max
   limit_per <- min(100L, n_max)
 
   repeat {
@@ -87,18 +106,17 @@ sm_fetch_semantic_scholar <- function(query = NULL,
       req <- httr2::req_headers(req, `x-api-key` = api_key)
     }
 
-    resp <- tryCatch(
-      httr2::req_perform(req),
-      error = function(e) {
-        cli::cli_abort(
-          c("Semantic Scholar API request failed.",
-            "i" = conditionMessage(e)),
-          call = call
+    body <- tryCatch(
+      .s2_perform(req, max_tries = 3L, max_wait = 60),
+      scimapR_request_failed = function(cnd) {
+        .sm_fetch_abort(
+          cnd, "semantic_scholar", collected,
+          function(items) {
+            .parse_s2_results(items, query, include_embeddings, FALSE, call)
+          }, min(n_max, total), "Semantic Scholar API request failed.", call
         )
       }
     )
-
-    body <- httr2::resp_body_json(resp)
     papers <- body[["data"]]
 
     if (length(papers) == 0L) break
@@ -155,18 +173,18 @@ sm_fetch_semantic_scholar <- function(query = NULL,
       req <- httr2::req_headers(req, `x-api-key` = api_key)
     }
 
-    resp <- tryCatch(
-      httr2::req_perform(req),
-      error = function(e) {
-        cli::cli_abort(
-          c("Semantic Scholar batch request failed.",
-            "i" = conditionMessage(e)),
-          call = call
+    body <- tryCatch(
+      .s2_perform(req, max_tries = 3L, max_wait = 60),
+      scimapR_request_failed = function(cnd) {
+        .sm_fetch_abort(
+          cnd, "semantic_scholar", collected,
+          function(items) {
+            .parse_s2_results(items, paste(paper_ids, collapse = ","),
+                              include_embeddings, FALSE, call)
+          }, length(paper_ids), "Semantic Scholar batch request failed.", call
         )
       }
     )
-
-    body <- httr2::resp_body_json(resp)
     # Filter out NULL entries (papers not found)
     papers <- purrr::compact(body)
     collected <- c(collected, papers)

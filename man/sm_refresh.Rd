@@ -7,9 +7,11 @@
 sm_refresh(
   corpus,
   max_age_days = 30,
-  what = c("citations", "oa_status", "new_refs", "altmetric"),
+  what = c("citations", "oa_status"),
   sources = NULL,
   verbose = TRUE,
+  api_key = Sys.getenv("OPENALEX_API_KEY"),
+  mailto = Sys.getenv("SCIMAPR_MAILTO"),
   call = rlang::caller_env()
 )
 }
@@ -20,13 +22,19 @@ sm_refresh(
 ago will be re-fetched. Default \code{30}.}
 
 \item{what}{Character vector of data aspects to refresh. One or more of
-\code{"citations"}, \code{"oa_status"}, \code{"new_refs"}, \code{"altmetric"}.}
+\code{"citations"} and \code{"oa_status"} (the default). \code{"new_refs"} and
+\code{"altmetric"} are accepted but unsupported: they warn and are ignored,
+or error when no implemented aspect remains.}
 
 \item{sources}{Optional character vector restricting which provenance
 sources to re-query (e.g., \code{"openalex"}, \code{"crossref"}). If \code{NULL} (the
 default), the original source for each work is used.}
 
 \item{verbose}{Logical. Print progress messages?}
+
+\item{api_key}{OpenAlex API key, sent only in the authorization header.}
+
+\item{mailto}{Contact address for Crossref requests.}
 
 \item{call}{Caller environment for error reporting.}
 }
@@ -37,10 +45,12 @@ provenance rows.
 \description{
 Re-fetches metadata for works whose \code{last_refreshed} timestamp is older
 than \code{max_age_days}. For each stale work, the original provenance source
-is consulted (e.g., OpenAlex, Crossref, PubMed) to update citation counts,
-open-access status, new references, and Altmetric data. A new provenance
-row is appended for each refreshed work, making the operation
-fully auditable.
+is consulted: OpenAlex supplies citation counts and open-access status;
+Crossref supplies citation counts. Other sources remain stale. Failed
+requests, missing identifiers and records not returned are reported.
+Only works with returned updates receive a new timestamp and provenance
+row. \code{metadata$last_refresh} advances only when at least one work was
+refreshed and none failed. Enrichment rows never select a refresh source.
 
 The operation is \strong{idempotent}: running it twice in succession will not
 re-fetch works that were just refreshed. The function \strong{refuses to operate

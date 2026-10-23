@@ -13,7 +13,7 @@ as_specter_v2 <- function(corpus) {
 local_specter_answer <- function(n, vec = as.list(seq_len(4)),
                                  env = parent.frame()) {
   testthat::local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "sm_fake_resp"),
+    req_perform = function(req, ...) httr2::response(status_code = 200L),
     resp_body_json = function(resp, ...) {
       lapply(seq_len(n), function(i) {
         list(paperId = paste0("p", i),
@@ -25,10 +25,12 @@ local_specter_answer <- function(n, vec = as.list(seq_len(4)),
 }
 
 test_that("sm_enrich_specter rejects a non-corpus input", {
+  local_http_env()
   expect_error(sm_enrich_specter(list()), class = "rlang_error")
 })
 
 test_that("specter skips when all works lack DOIs", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 4, n_authors = 3,
                               with_embeddings = FALSE, seed = 1)
   corpus$works$doi <- NA_character_
@@ -44,6 +46,7 @@ test_that("specter skips when all works lack DOIs", {
 })
 
 test_that("specter skips when all works already have embeddings", {
+  local_http_env()
   # the existing embeddings are SPECTER v2 vectors from Semantic Scholar;
   # embeddings of another or an unrecorded model stop instead (below)
   corpus <- as_specter_v2(sm_example_corpus(n_works = 4, n_authors = 3,
@@ -57,6 +60,7 @@ test_that("specter skips when all works already have embeddings", {
 })
 
 test_that("specter attaches embeddings returned by the API", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 3, n_authors = 3,
                               with_embeddings = FALSE, seed = 3)
   local_specter_answer(3)
@@ -81,13 +85,14 @@ test_that("specter attaches embeddings returned by the API", {
 })
 
 test_that("specter asks Semantic Scholar for SPECTER v2 vectors", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 2, n_authors = 2,
                               with_embeddings = FALSE, seed = 3)
   urls <- character()
   testthat::local_mocked_bindings(
     req_perform = function(req, ...) {
       urls <<- c(urls, req$url)
-      structure(list(), class = "sm_fake_resp")
+      httr2::response(status_code = 200L)
     },
     resp_body_json = function(resp, ...) list(),
     .package = "httr2"
@@ -98,10 +103,11 @@ test_that("specter asks Semantic Scholar for SPECTER v2 vectors", {
 })
 
 test_that("specter tolerates a NULL paper / missing embedding", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 2, n_authors = 2,
                               with_embeddings = FALSE, seed = 4)
   testthat::local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "sm_fake_resp"),
+    req_perform = function(req, ...) httr2::response(status_code = 200L),
     resp_body_json = function(resp, ...) {
       list(NULL, list(paperId = "p2"))  # one NULL, one with no embedding
     },
@@ -116,6 +122,7 @@ test_that("specter tolerates a NULL paper / missing embedding", {
 })
 
 test_that("specter warns and returns the corpus unchanged when requests fail", {
+  local_http_env()
   # before, a failed batch was reported only with verbose = TRUE
   corpus <- sm_example_corpus(n_works = 2, n_authors = 2,
                               with_embeddings = FALSE, seed = 5)
@@ -133,6 +140,7 @@ test_that("specter warns and returns the corpus unchanged when requests fail", {
 })
 
 test_that("specter tries once more after HTTP 429", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 1, n_authors = 1,
                               with_embeddings = FALSE, seed = 7)
   answers <- list(
@@ -153,6 +161,7 @@ test_that("specter tries once more after HTTP 429", {
 })
 
 test_that("specter warns about a rate limit that does not pass", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 1, n_authors = 1,
                               with_embeddings = FALSE, seed = 7)
   calls <- 0L
@@ -170,6 +179,7 @@ test_that("specter warns about a rate limit that does not pass", {
 })
 
 test_that("specter fills gaps in its own embeddings and keeps them", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 3, n_authors = 3,
                               with_embeddings = FALSE, seed = 6)
   # One existing SPECTER v2 row of dimension 4 for work 1.
@@ -188,6 +198,7 @@ test_that("specter fills gaps in its own embeddings and keeps them", {
 })
 
 test_that("specter does not mix embeddings of another model by default", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 3, n_authors = 3,
                               with_embeddings = FALSE, seed = 6)
   # one existing row of the same width, but of an unrecorded model
@@ -217,6 +228,7 @@ test_that("specter does not mix embeddings of another model by default", {
 })
 
 test_that("specter mixes models only when asked, as a recorded mix", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 3, n_authors = 3,
                               with_embeddings = FALSE, seed = 6)
   existing <- matrix(c(9, 9, 9, 9), nrow = 1)
@@ -245,6 +257,7 @@ test_that("specter mixes models only when asked, as a recorded mix", {
 })
 
 test_that("specter replaces embeddings of another model only when asked", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 3, n_authors = 3,
                               with_embeddings = FALSE, seed = 6)
   corpus$embeddings <- matrix(1, nrow = 3, ncol = 6,
@@ -264,6 +277,7 @@ test_that("specter replaces embeddings of another model only when asked", {
 })
 
 test_that("specter replaces the example corpus's embeddings as documented", {
+  local_http_env()
   # the call of the embeddings vignette: the example embeddings record no
   # model, so the plain call stops and replace = TRUE goes on
   corpus <- sm_example_corpus(n_works = 3, n_authors = 3,
@@ -283,11 +297,12 @@ test_that("specter replaces the example corpus's embeddings as documented", {
 })
 
 test_that("specter uses an API key header when one is provided", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 1, n_authors = 1,
                               with_embeddings = FALSE, seed = 7)
   vec <- as.list(seq_len(4))
   testthat::local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "sm_fake_resp"),
+    req_perform = function(req, ...) httr2::response(status_code = 200L),
     resp_body_json = function(resp, ...) {
       list(list(paperId = "p1", embedding = list(vector = vec)))
     },
@@ -297,4 +312,16 @@ test_that("specter uses an API key header when one is provided", {
     sm_enrich_specter(corpus, api_key = "fake-key", verbose = FALSE)
   )
   expect_equal(nrow(out$embeddings), 1L)
+})
+
+test_that("specter rejects long rate limits without another request", {
+  local_http_env()
+  calls <- 0L
+  local_mocked_bindings(req_perform = function(...) {
+    calls <<- calls + 1L
+    http_response(status = 429L, headers = list(`Retry-After` = "3600"))
+  }, .package = "httr2")
+  expect_error(.s2_perform(httr2::request("https://example.org")),
+               class = "scimapR_rate_limited")
+  expect_identical(calls, 1L)
 })

@@ -361,16 +361,22 @@ yearly counts (see \code{works$citations_as_of} and \code{\link[=sm_citation_win
 Subsetting keeps the rows of the kept works, \code{\link[=sm_bind_corpora]{sm_bind_corpora()}} binds
 them and \code{\link[=sm_hash_corpus]{sm_hash_corpus()}} includes them when there are any.
 
-\strong{\code{metadata}}: a list. Required:\tabular{lll}{
+\strong{\code{metadata}}: a list. Entries are required unless marked optional:\tabular{lll}{
    Entry \tab Type \tab Content \cr
    \code{scimapR_version} \tab character \tab The scimapR version that built the corpus \cr
    \code{build_date} \tab POSIXct \tab When the corpus was built \cr
    \code{corpus_hash} \tab character \tab Hash of the content (\code{\link[=sm_hash_corpus]{sm_hash_corpus()}}) \cr
    \code{is_locked} \tab logical \tab Whether \code{\link[=sm_lock]{sm_lock()}} locked the corpus \cr
-   \code{last_refresh} \tab POSIXct \tab When \code{\link[=sm_refresh]{sm_refresh()}} last ran \cr
+   \code{last_refresh} \tab POSIXct \tab Last refresh without a failed request \cr
    \code{question_id} \tab character \tab Id of its \code{\link[=sm_question]{sm_question()}} \cr
+   \code{fetch_incomplete} \tab list \tab Optional failed-fetch report (see below) \cr
 }
 
+
+\code{last_refresh} advances only when \code{\link[=sm_refresh]{sm_refresh()}} refreshed at least one
+work and no request failed. A recovered partial fetch has optional
+\code{fetch_incomplete} (list) with \code{source}, \code{n_fetched}, \code{n_expected} and
+\code{reason}; see the fetchers' Failed requests sections.
 
 \code{question_id} is set by \code{\link[=sm_corpus_for_question]{sm_corpus_for_question()}}. Optional entries
 \code{locked_at} (POSIXct), \code{lock_reason} (character) and \code{lock_hash}
