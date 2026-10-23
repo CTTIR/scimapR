@@ -309,3 +309,15 @@ test_that("Crossref retries transient failures and reports malformed pages", {
   expect_null(err$partial)
   expect_match(conditionMessage(err), "could not be parsed", fixed = TRUE)
 })
+
+
+test_that("request error bullets preserve braces as data", {
+  skip_if_not_installed("rcrossref")
+  text <- "bad query {x} {stop('evaluated')}"
+  local_mocked_bindings(cr_works = function(...) stop(text),
+                        .package = "rcrossref")
+  expect_error(
+    sm_fetch_crossref("x", engine = "rcrossref", verbose = FALSE),
+    text, fixed = TRUE
+  )
+})

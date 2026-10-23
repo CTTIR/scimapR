@@ -129,6 +129,7 @@ sm_corpus_for_question <- function(question,
 
   # Combine and deduplicate
   combined_works <- dplyr::bind_rows(all_works)
+  n_identified <- as.integer(nrow(combined_works))
   combined_prov <- dplyr::bind_rows(all_prov)
 
   # Deduplicate on DOI
@@ -154,7 +155,7 @@ sm_corpus_for_question <- function(question,
   corpus <- sm_corpus(
     works = combined_works,
     provenance = combined_prov,
-    metadata = list(question_id = question$id)
+    metadata = list(question_id = question$id, n_identified = n_identified)
   )
 
   .sm_verbose(

@@ -106,3 +106,12 @@ test_that("sm_fetch_arxiv aborts on request failure", {
     "arXiv API request failed"
   )
 })
+
+
+test_that("request error bullets preserve braces as data", {
+  skip_if_not_installed("httr2")
+  text <- "bad query {x} {stop('evaluated')}"
+  local_mocked_bindings(req_perform = function(...) stop(text),
+                        .package = "httr2")
+  expect_error(sm_fetch_arxiv("x", verbose = FALSE), text, fixed = TRUE)
+})

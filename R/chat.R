@@ -4,29 +4,31 @@
 #' Ask a question of a corpus using retrieval-augmented generation (RAG).
 #' The function retrieves the most relevant works from the corpus using
 #' embeddings, TF-IDF, or a hybrid method, then sends them as context to
-#' an LLM along with the user's question. The response includes inline
+#' a chat provider along with the user's question. The response includes inline
 #' citations keyed to work IDs. No hallucinated references are possible
 #' because citations are constrained to retrieved works.
 #'
 #' @param corpus An `sm_corpus` object.
 #' @param question Character. The user's question in natural language.
 #' @param provider An ellmer chat provider object (e.g., from
-#'   `ellmer::chat_openai()`). If `NULL`, errors informatively.
+#'   `ellmer::chat_openai()`). If `NULL`, errors informatively. Each request
+#'   runs in a fresh copy: the object passed is unchanged, and its earlier
+#'   turns and system prompt are not used.
 #' @param retrieve_n Integer. Number of works to retrieve as context.
 #'   Default `30`.
 #' @param retrieve_method Character. Retrieval method:
 #'   - `"embedding"`: cosine similarity on `corpus$embeddings`.
 #'   - `"tfidf"`: TF-IDF on titles and abstracts.
 #'   - `"hybrid"`: weighted average of both methods.
-#' @param cite Logical. If `TRUE`, the prompt instructs the LLM to include
+#' @param cite Logical. If `TRUE`, the prompt asks the chat provider for
 #'   inline citations using work IDs.
-#' @param max_tokens Integer. Maximum tokens for the LLM response.
-#' @param temperature Numeric. LLM temperature (0 = deterministic).
+#' @param max_tokens,temperature Deprecated; these arguments never affected
+#'   requests. Set response parameters on the chat object instead.
 #' @param call Caller environment for error reporting.
 #'
 #' @return An `sm_chat_response` S3 object with fields:
 #' \describe{
-#'   \item{answer}{Character. The LLM's response.}
+#'   \item{answer}{Character. The chat provider's response.}
 #'   \item{citations}{Tibble of cited work IDs and their details.}
 #'   \item{retrieved_works}{Tibble of the works sent as context.}
 #'   \item{prompt_hash}{SHA-256 hash of the full prompt for reproducibility.}
@@ -40,7 +42,7 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' # Requires ellmer package and LLM API access:
+#' # Requires ellmer package and chat-provider API access:
 #' # response <- sm_chat(corpus, "What methods dominate?",
 #' #                     provider = ellmer::chat_openai())
 #' }
@@ -50,21 +52,37 @@ sm_chat <- function(corpus,
                     retrieve_n = 30L,
                     retrieve_method = c("embedding", "tfidf", "hybrid"),
                     cite = TRUE,
-                    max_tokens = 2000L,
-                    temperature = 0.2,
+                    max_tokens = lifecycle::deprecated(),
+                    temperature = lifecycle::deprecated(),
                     call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   .check_string(question, call = call)
 
   if (is.null(provider)) {
     cli::cli_abort(c(
-      "{.fn sm_chat} requires an LLM provider via the {.pkg ellmer} package.",
+      "{.fn sm_chat} requires a chat provider via the {.pkg ellmer} package.",
       "i" = 'Install with: {.code install.packages("ellmer")}',
       "i" = 'Usage: {.code sm_chat(corpus, question, provider = ellmer::chat_openai())}'
     ), call = call)
   }
 
+  .check_chat_provider(provider, call = call)
   .check_llm_available(call = call)
+  details <- paste0(
+    "Set response parameters on the chat object, e.g. ",
+    "ellmer::chat_openai(params = ellmer::params(",
+    "temperature = 0.2, max_tokens = 2000))."
+  )
+  if (lifecycle::is_present(max_tokens)) {
+    lifecycle::deprecate_warn(
+      "0.5.0", "sm_chat(max_tokens)", details = details
+    )
+  }
+  if (lifecycle::is_present(temperature)) {
+    lifecycle::deprecate_warn(
+      "0.5.0", "sm_chat(temperature)", details = details
+    )
+  }
   retrieve_method <- match.arg(retrieve_method)
 
   if (nrow(corpus$works) == 0L) {
@@ -85,7 +103,7 @@ sm_chat <- function(corpus,
     .llm_chat(provider, system_prompt, user_prompt, call = call),
     error = function(e) {
       cli::cli_abort(
-        "LLM chat failed: {conditionMessage(e)}",
+        "Chat request failed: {conditionMessage(e)}",
         call = call
       )
     }
@@ -101,9 +119,7 @@ sm_chat <- function(corpus,
   citations <- .parse_chat_citations(response_text, retrieved)
 
   # Detect model name
-  model_name <- tryCatch({
-    if (!is.null(provider$model)) provider$model else "unknown"
-  }, error = function(e) "unknown")
+  model_name <- .llm_model_name(provider)
 
   # Append provenance
   prov_row <- tibble::tibble(
@@ -151,7 +167,7 @@ print.sm_chat_response <- function(x, ...) {
   cli::cli_text("{.strong Timestamp:} {format(x$timestamp, '%Y-%m-%d %H:%M:%S')}")
   cli::cli_text("")
   cli::cli_rule("Answer")
-  cli::cli_text(x$answer)
+  cli::cli_verbatim(x$answer)
 
   if (nrow(x$citations) > 0L) {
     cli::cli_text("")

@@ -494,9 +494,8 @@ test_that("sm_cluster_label llm requires a provider", {
 
 test_that("sm_cluster_label llm uses a mocked provider", {
   corpus <- make_clustered_corpus(seed = 7)
-  fake_provider <- list(
-    chat = function(user_prompt, system_prompt = NULL) "Mocked Topic Label"
-  )
+  local_mocked_bindings(.check_llm_available = function(...) NULL)
+  fake_provider <- fake_chat(function(x) "Mocked Topic Label")
   out <- suppressMessages(
     sm_cluster_label(corpus, method = "llm", llm_provider = fake_provider)
   )
@@ -511,12 +510,11 @@ test_that("sm_cluster_label llm leaves noise unlabelled", {
   corpus <- label_corpus(c(bleeding_titles, heat_titles),
                          c(1L, 1L, 1L, 1L, 0L, 0L, 0L, 0L))
   asked <- 0L
-  fake_provider <- list(
-    chat = function(user_prompt, system_prompt = NULL) {
-      asked <<- asked + 1L
-      "Mocked Topic Label"
-    }
-  )
+  local_mocked_bindings(.check_llm_available = function(...) NULL)
+  fake_provider <- fake_chat(function(x) {
+    asked <<- asked + 1L
+    "Mocked Topic Label"
+  })
   out <- suppressMessages(
     sm_cluster_label(corpus, method = "llm", llm_provider = fake_provider)
   )
@@ -537,4 +535,34 @@ test_that("sm_cluster_label keeps the label columns typed on empty input", {
   out <- suppressMessages(sm_cluster_label(only_noise))
   expect_type(out$works$cluster_label, "character")
   expect_true(all(is.na(out$works$cluster_label)))
+})
+
+
+test_that("provider labels use fresh chats and reproducible title samples", {
+  local_mocked_bindings(.check_llm_available = function(...) NULL)
+  corpus <- label_corpus(paste("Invented title", 1:60), rep(1:2, each = 30))
+  ch <- fake_chat(function(x) "Topic")
+  set.seed(55)
+  before <- .Random.seed
+  for (i in 1:2) {
+    out <- suppressMessages(sm_cluster_label(corpus, method = "llm",
+                                             llm_provider = ch, seed = 1))
+    expect_identical(.Random.seed, before)
+    expect_true(all(out$works$cluster_label == "Topic"))
+  }
+  calls <- ch$log$calls
+  expect_length(calls, 4L)
+  expect_identical(calls[[1]]$user_text, calls[[3]]$user_text)
+  expect_identical(calls[[2]]$user_text, calls[[4]]$user_text)
+  expect_length(ch$turns, 0L)
+  for (entry in calls) {
+    expect_identical(entry$n_turns, 0L)
+    json <- regmatches(entry$user_text,
+                       regexpr("(?s)\\[.*\\]", entry$user_text, perl = TRUE))
+    expect_length(jsonlite::parse_json(json), 20L)
+    expect_match(entry$system_prompt, "data", fixed = TRUE)
+  }
+  expect_error(sm_cluster_label(corpus, method = "llm",
+                                llm_provider = list(chat = identity)),
+               class = "scimapR_chat_provider_invalid")
 })

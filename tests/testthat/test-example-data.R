@@ -144,3 +144,9 @@ test_that("the real-use plaintext twin matches the fixture works", {
     )
   }
 })
+
+test_that("example screening uses the canonical decision vocabulary", {
+  corpus <- sm_example_corpus(n_works = 100, with_screening = TRUE)
+  expect_true(all(corpus$screening$decision %in%
+                    c("include", "exclude", "uncertain")))
+})

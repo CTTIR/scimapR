@@ -1,0 +1,4 @@
+title,notes
+Invented Study A,"scimapR work_id: paper-a | RAYYAN-INCLUSION: {""reviewer-a""=>""Included""}"
+Invented Study B,"scimapR work_id: paper-b | RAYYAN-INCLUSION: {""reviewer-a""=>""Excluded""} | RAYYAN-EXCLUSION-REASONS: Wrong design | extra"
+Invented Study C,"scimapR work_id: paper-c | RAYYAN-INCLUSION: {""reviewer-a""=>""Included"", ""reviewer-b""=>""Excluded""}"

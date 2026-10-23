@@ -21,32 +21,39 @@ sm_screen_against_question(
 \item{question}{An \code{sm_question} object.}
 
 \item{stages}{Character vector of screening stages to run. One or more
-of \code{"title-abstract"} and \code{"full-text"}.}
+of \code{"title-abstract"} and \code{"full-text"}, run in that order. The full-text
+stage still screens titles and abstracts using its instruction: no full
+texts are fetched.}
 
 \item{llm}{An ellmer chat provider object (e.g., from
-\code{ellmer::chat_openai()}). If \code{NULL}, the function will attempt to
-create a default provider.}
+\code{ellmer::chat_openai()}). Required: no default provider is created.
+Titles and abstracts are sent to this provider. Each request uses a fresh
+copy: the object is unchanged, and its system prompt and earlier turns
+are not used.}
 
-\item{batch_size}{Integer. Number of works to send per LLM prompt.}
+\item{batch_size}{Integer. Number of works to send per request.}
 
 \item{include_uncertain}{Logical. If \code{TRUE}, works classified as
-\code{"uncertain"} are carried forward to the next stage.}
+\code{"uncertain"} by the latest successful title-abstract decision are carried
+forward. Failed provider rows are retried and never carried forward.}
 
 \item{verbose}{Logical. Print progress?}
 
 \item{call}{Caller environment for error reporting.}
 }
 \value{
-A modified \code{sm_corpus} with updated \code{screening} table.
+A modified \code{sm_corpus} with updated \code{screening} table, including
+the provider model on each new row. Failed batches warn and are retried
+on the next run, replacing their earlier failed rows.
 }
 \description{
-\code{sm_screen_against_question()} uses an LLM (via ellmer) to screen each
+\code{sm_screen_against_question()} uses a chat provider to screen each
 work in a corpus against a structured research question. For each work,
-the LLM is asked to classify the title/abstract as \code{"include"},
+the provider is asked to classify the title/abstract as \code{"include"},
 \code{"exclude"}, or \code{"uncertain"}, with a confidence score and brief reason.
 Results are written to the corpus's \code{screening} table.
 
-\code{sm_screen_regex()} provides a deterministic, LLM-free fallback using
+\code{sm_screen_regex()} provides a deterministic fallback using
 regular-expression matching on titles and abstracts.
 
 \code{sm_screen_summary()} returns a count summary of screening decisions
@@ -58,7 +65,7 @@ q <- sm_question(
   text = "spatial transcriptomics in cancer",
   framework = "free"
 )
-# Deterministic regex screening (no LLM needed):
+# Deterministic regex screening (no provider needed):
 screened <- sm_screen_regex(
   corpus, include_terms = c("spatial", "transcriptom")
 )

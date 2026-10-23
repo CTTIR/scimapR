@@ -2,10 +2,6 @@
 # testthat::local_mocked_bindings on the package-internal .llm_chat and
 # .check_llm_available helpers -- never hits the network.
 
-fake_provider <- function(model = "test-model") {
-  list(model = model, chat = function(...) "should-not-be-called")
-}
-
 # Mock the LLM layer: stub availability check + the actual chat call.
 mock_llm <- function(answer) {
   testthat::local_mocked_bindings(
@@ -29,7 +25,7 @@ test_that("sm_chat requires a string question", {
 test_that("sm_chat errors informatively when no provider is given", {
   corpus <- sm_example_corpus(n_works = 10, n_authors = 4, seed = 1)
   expect_error(sm_chat(corpus, "What methods dominate?", provider = NULL),
-               "requires an LLM provider")
+               "requires a chat provider")
 })
 
 test_that("sm_chat aborts on an empty corpus", {
@@ -124,7 +120,7 @@ test_that("sm_chat surfaces LLM failures as a clean error", {
   expect_error(
     sm_chat(corpus, "q", provider = fake_provider(),
             retrieve_n = 4, retrieve_method = "tfidf"),
-    "LLM chat failed"
+    "Chat request failed"
   )
 })
 
@@ -139,4 +135,53 @@ test_that("print.sm_chat_response runs without error", {
     expect_invisible(print(resp))
   )
   expect_identical(out, resp)
+})
+
+
+test_that("chat printing treats answers as literal text", {
+  corpus <- sm_example_corpus(n_works = 3, n_authors = 2)
+  mock_llm("unused")
+  resp <- sm_chat(corpus, "methods", provider = fake_provider(),
+                  retrieve_method = "tfidf")
+  for (answer in c("Designs were {RCT, cohort}", "{T}he effect",
+                   "{stop('evaluated')}")) {
+    resp$answer <- answer
+    printed <- paste(cli::cli_fmt(print(resp)), collapse = "\n")
+    expect_match(printed, answer, fixed = TRUE)
+  }
+})
+
+
+test_that("chat calls use fresh conversations and the actual model name", {
+  local_mocked_bindings(.check_llm_available = function(...) NULL)
+  corpus <- sm_example_corpus(n_works = 3, n_authors = 2)
+  ch <- fake_chat(function(x) "An answer")
+  for (i in 1:2) {
+    resp <- sm_chat(corpus, "methods", provider = ch, retrieve_method = "tfidf")
+    expect_identical(resp$model, "fake-model")
+  }
+  expect_length(ch$turns, 0L)
+  for (entry in ch$log$calls) {
+    expect_identical(entry$n_turns, 0L)
+    expect_identical(entry$n_args, 1L)
+    expect_identical(entry$arg_names, "")
+    expect_true(nzchar(entry$system_prompt))
+    expect_identical(entry$echo, "none")
+  }
+  expect_error(sm_chat(corpus, "methods", provider = list(chat = identity)),
+               class = "scimapR_chat_provider_invalid")
+})
+
+test_that("unused chat parameters are deprecated only when supplied", {
+  local_mocked_bindings(.check_llm_available = function(...) NULL)
+  withr::local_options(lifecycle_verbosity = "warning")
+  corpus <- sm_example_corpus(n_works = 3, n_authors = 2)
+  ch <- fake_chat(function(x) "An answer")
+  expect_no_warning(sm_chat(corpus, "q", ch, retrieve_method = "tfidf"))
+  lifecycle::expect_deprecated(
+    sm_chat(corpus, "q", ch, max_tokens = 100, retrieve_method = "tfidf")
+  )
+  lifecycle::expect_deprecated(
+    sm_chat(corpus, "q", ch, temperature = 0.5, retrieve_method = "tfidf")
+  )
 })

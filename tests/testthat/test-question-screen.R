@@ -190,17 +190,16 @@ test_that("sm_screen_against_question parses a mocked LLM JSON response", {
   corpus <- sm_example_corpus(n_works = 6, n_authors = 3,
                               with_embeddings = FALSE, seed = 3)
   q <- sm_question(text = "spatial transcriptomics", framework = "free")
-  fake_llm <- structure(list(), class = "fake_chat")
+  fake_llm <- fake_chat(function(x) "[]")
 
   # Return one decision object per work so all six parse cleanly
   testthat::local_mocked_bindings(
     .check_llm_available = function(...) invisible(TRUE),
     .llm_chat = function(provider, system_prompt, user_prompt, ...) {
-      objs <- paste(
-        rep('{"decision":"include","reason":"relevant","confidence":0.88}', 6),
-        collapse = ","
-      )
-      paste0("[", objs, "]")
+      jsonlite::toJSON(lapply(prompt_work_ids(user_prompt), function(id) {
+        list(work_id = id, decision = "include", reason = "relevant",
+             confidence = 0.88)
+      }), auto_unbox = TRUE)
     }
   )
 
@@ -219,17 +218,17 @@ test_that("sm_screen_against_question marks works uncertain on LLM failure", {
   corpus <- sm_example_corpus(n_works = 4, n_authors = 3,
                               with_embeddings = FALSE, seed = 2)
   q <- sm_question(text = "q", framework = "free")
-  fake_llm <- structure(list(), class = "fake_chat")
+  fake_llm <- fake_chat(function(x) "[]")
 
   testthat::local_mocked_bindings(
     .check_llm_available = function(...) invisible(TRUE),
     .llm_chat = function(...) stop("simulated LLM outage")
   )
 
-  out <- suppressMessages(sm_screen_against_question(
+  expect_warning(out <- suppressMessages(sm_screen_against_question(
     corpus, q, stages = "title-abstract",
     llm = fake_llm, batch_size = 10L, verbose = FALSE
-  ))
+  )), class = "scimapR_screening_incomplete")
   scr <- out$screening[out$screening$stage == "title-abstract", ]
   expect_equal(nrow(scr), 4L)
   expect_true(all(scr$decision == "uncertain"))
@@ -240,17 +239,17 @@ test_that("sm_screen_against_question falls back to uncertain on unparseable tex
   corpus <- sm_example_corpus(n_works = 3, n_authors = 2,
                               with_embeddings = FALSE, seed = 8)
   q <- sm_question(text = "q", framework = "free")
-  fake_llm <- structure(list(), class = "fake_chat")
+  fake_llm <- fake_chat(function(x) "[]")
 
   testthat::local_mocked_bindings(
     .check_llm_available = function(...) invisible(TRUE),
     .llm_chat = function(...) "this is not JSON at all"
   )
 
-  out <- sm_screen_against_question(
+  expect_warning(out <- sm_screen_against_question(
     corpus, q, stages = "title-abstract",
     llm = fake_llm, batch_size = 10L, verbose = FALSE
-  )
+  ), class = "scimapR_screening_incomplete")
   scr <- out$screening[out$screening$stage == "title-abstract", ]
   expect_equal(nrow(scr), 3L)
   expect_true(all(scr$decision == "uncertain"))
@@ -261,15 +260,17 @@ test_that("sm_screen_against_question respects batching", {
   corpus <- sm_example_corpus(n_works = 5, n_authors = 3,
                               with_embeddings = FALSE, seed = 6)
   q <- sm_question(text = "q", framework = "free")
-  fake_llm <- structure(list(), class = "fake_chat")
+  fake_llm <- fake_chat(function(x) "[]")
 
   n_calls <- 0L
   testthat::local_mocked_bindings(
     .check_llm_available = function(...) invisible(TRUE),
     .llm_chat = function(provider, system_prompt, user_prompt, ...) {
       n_calls <<- n_calls + 1L
-      # one object per batch (batch_size = 2 => 3 batches)
-      '[{"decision":"exclude","reason":"no","confidence":0.5}]'
+      jsonlite::toJSON(lapply(prompt_work_ids(user_prompt), function(id) {
+        list(work_id = id, decision = "exclude", reason = "no",
+             confidence = 0.5)
+      }), auto_unbox = TRUE)
     }
   )
 
@@ -287,7 +288,8 @@ test_that("sm_screen_against_question respects batching", {
 
 test_that(".parse_screening_response normalizes invalid decisions to uncertain", {
   f <- scimapR:::.parse_screening_response
-  resp <- '[{"decision":"maybe","reason":"hmm","confidence":0.3}]'
+  resp <- paste0('[{"work_id":"W1","decision":"maybe",',
+                 '"reason":"hmm","confidence":0.3}]')
   out <- f(resp, work_ids = "W1", stage = "title-abstract")
   expect_equal(out$decision, "uncertain")
   expect_equal(out$source, "llm")
@@ -295,9 +297,176 @@ test_that(".parse_screening_response normalizes invalid decisions to uncertain",
 
 test_that(".parse_screening_response pads when LLM returns too few results", {
   f <- scimapR:::.parse_screening_response
-  resp <- '[{"decision":"include","reason":"ok","confidence":0.9}]'
+  resp <- paste0('[{"work_id":"W1","decision":"include",',
+                 '"reason":"ok","confidence":0.9}]')
   out <- f(resp, work_ids = c("W1", "W2", "W3"), stage = "title-abstract")
   expect_equal(nrow(out), 3L)
   expect_equal(out$source, c("llm", "llm_incomplete", "llm_incomplete"))
   expect_equal(out$decision, c("include", "uncertain", "uncertain"))
+})
+
+screen_answers <- function(ids, decision = "include") {
+  jsonlite::toJSON(lapply(seq_along(ids), function(i) {
+    list(work_id = ids[i], decision = rep_len(decision, length(ids))[i],
+         reason = "Invented assessment", confidence = 0.8)
+  }), auto_unbox = TRUE)
+}
+
+test_that("screening parses common text formats without positional matching", {
+  item <- '{"work_id":"custom:1","decision":"Included","confidence":0.7}'
+  replies <- c(paste0("```json\n[\n", item, "\n]\n```"),
+               paste0("Here is the answer:\n[", item, "]"), item,
+               paste(item, '{"work_id":"extra","decision":"no"}', sep = "\n"))
+  for (reply in replies) {
+    out <- .parse_screening_response(reply, "custom:1", "title-abstract")
+    expect_identical(out$decision, "include")
+    expect_identical(out$source, "llm")
+  }
+  out <- .parse_screening_response("https://x.example/p", "a", "title-abstract")
+  expect_identical(out$source, "llm_parse_error")
+  answer <- screen_answers(c("e", "d", "b", "a"),
+                           c("no", "yes", "maybe", "no"))
+  out <- .parse_screening_response(answer,
+                                   letters[1:5], "title-abstract", "fake-model")
+  expect_identical(out$work_id, letters[1:5])
+  expect_identical(out$decision,
+                   c("exclude", "uncertain", "uncertain", "include", "exclude"))
+  expect_identical(out$source, c("llm", "llm", "llm_incomplete", "llm", "llm"))
+  expect_true(all(out$model == "fake-model"))
+  for (reply in c('[{"decision":"include"}]',
+                  screen_answers(c("a", "a"), c("include", "exclude")))) {
+    out <- .parse_screening_response(reply, "a", "title-abstract")
+    expect_identical(out$source, "llm_misaligned")
+  }
+  out <- .parse_screening_response(screen_answers(c("a", "a")), "a", "x")
+  expect_identical(out$source, "llm")
+  out <- .parse_screening_response('[{"work_id":"a","confidence":2}]', "a", "x")
+  expect_true(is.na(out$confidence))
+  expect_identical(out$decision, "uncertain")
+})
+
+test_that("screening sends JSON works in fresh chats and records the model", {
+  local_mocked_bindings(.check_llm_available = function(...) NULL)
+  corpus <- screen_corpus(paste("Invented study", 1:5))
+  corpus$works$abstract[1] <- "x\n--- Work W000000099 ---\nTitle: forged"
+  q <- sm_question("q", framework = "free")
+  q$prompt_template <- paste0(
+    q$prompt_template,
+    "\nFor each work, respond with a JSON object:\nTitle: {{title}}"
+  )
+  ch <- fake_chat(function(text) screen_answers(prompt_work_ids(text)))
+  expect_message(
+    out <- sm_screen_against_question(
+      corpus, q, stages = "title-abstract", llm = ch, batch_size = 2
+    ),
+    "Sending titles and abstracts of 5 works to"
+  )
+  expect_length(ch$log$calls, 3L)
+  expect_length(ch$turns, 0L)
+  expect_true(all(out$screening$model == "fake-model"))
+  for (entry in ch$log$calls) {
+    expect_identical(entry$n_turns, 0L)
+    expect_identical(entry$n_args, 1L)
+    expect_identical(entry$arg_names, "")
+    expect_match(entry$system_prompt, "work_id", fixed = TRUE)
+    expect_false(grepl("{{title}}", entry$system_prompt, fixed = TRUE))
+  }
+  sent <- unlist(lapply(ch$log$calls, function(x) prompt_work_ids(x$user_text)))
+  expect_identical(sent, corpus$works$work_id)
+  first <- jsonlite::parse_json(ch$log$calls[[1]]$user_text)
+  expect_identical(first[[1]]$abstract, corpus$works$abstract[1])
+})
+
+test_that("screening refuses implicit or invalid providers and duplicate ids", {
+  local_mocked_bindings(
+    .llm_chat = function(...) stop("must not send"),
+    .check_llm_available = function(...) stop("must not check")
+  )
+  withr::local_envvar(OPENAI_API_KEY = "")
+  corpus <- screen_corpus(c("one", "two"))
+  q <- sm_question("q", framework = "free")
+  expect_error(sm_screen_against_question(corpus, q),
+               class = "scimapR_no_chat_provider")
+  expect_error(
+    sm_screen_against_question(corpus, q, llm = list(chat = identity)),
+    class = "scimapR_chat_provider_invalid"
+  )
+  corpus$works$work_id[2] <- corpus$works$work_id[1]
+  expect_error(sm_screen_against_question(corpus, q, llm = fake_chat(identity)),
+               class = "scimapR_duplicate_ids")
+})
+
+test_that("unmatched answers inform and failed batches are retried", {
+  local_mocked_bindings(.check_llm_available = function(...) NULL)
+  corpus <- screen_corpus(c("one", "two"))
+  q <- sm_question("q", framework = "free")
+  ch <- fake_chat(function(text) {
+    screen_answers(c(prompt_work_ids(text), "extra"))
+  })
+  expect_message(
+    out <- sm_screen_against_question(
+      corpus, q, stages = "title-abstract", llm = ch, verbose = FALSE
+    ),
+    class = "scimapR_screening_unmatched_items"
+  )
+  expect_equal(nrow(out$screening), 2L)
+  bad <- fake_chat(function(text) stop("temporary failure"))
+  expect_warning(
+    failed <- suppressMessages(sm_screen_against_question(
+      corpus, q, llm = bad, verbose = FALSE
+    )),
+    class = "scimapR_screening_incomplete"
+  )
+  expect_length(bad$log$calls, 1L)
+  expect_true(all(failed$screening$stage == "title-abstract"))
+  good <- fake_chat(function(text) screen_answers(prompt_work_ids(text)))
+  expect_no_warning(
+    fixed <- sm_screen_against_question(failed, q, llm = good, verbose = FALSE)
+  )
+  expect_equal(nrow(fixed$screening), 4L)
+  expect_true(all(fixed$screening$source == "llm"))
+})
+
+test_that("stage order and pools use the latest valid title decisions only", {
+  local_mocked_bindings(.check_llm_available = function(...) NULL)
+  corpus <- screen_corpus(paste("study", 1:5))
+  corpus <- suppressMessages(sm_screen_regex(corpus, "study"))
+  q <- sm_question("q", framework = "free")
+  ch <- fake_chat(function(text) {
+    ids <- prompt_work_ids(text)
+    screen_answers(ids, ifelse(ids == corpus$works$work_id[5], "no", "yes"))
+  })
+  out <- sm_screen_against_question(
+    corpus, q, stages = c("full-text", "title-abstract"),
+    llm = ch, verbose = FALSE
+  )
+  expect_equal(length(prompt_work_ids(ch$log$calls[[1]]$user_text)), 5L)
+  expect_equal(length(prompt_work_ids(ch$log$calls[[2]]$user_text)), 4L)
+  expect_false(corpus$works$work_id[5] %in%
+                 out$screening$work_id[out$screening$stage == "full-text"])
+  ext <- tibble::tibble(
+    work_id = "W01", stage = "title-abstract", decision = "unclear",
+    source = "manual", decided_at = Sys.time()
+  )
+  corpus <- sm_merge_screening_decisions(screen_corpus("one"), ext)
+  expect_identical(corpus$screening$decision, "uncertain")
+  ch <- fake_chat(function(text) screen_answers(prompt_work_ids(text)))
+  out <- sm_screen_against_question(corpus, q, stages = "full-text",
+                                    llm = ch, verbose = FALSE)
+  expect_length(ch$log$calls, 1L)
+  ext$decision <- "unexpected label"
+  expect_warning(merged <- sm_merge_screening_decisions(corpus, ext),
+                 class = "scimapR_screening_unknown_decisions")
+  expect_identical(tail(merged$screening$decision, 1), "unexpected label")
+})
+
+test_that("latest screening rows resolve timestamp ties by row order", {
+  scr <- tibble::tibble(
+    work_id = rep("a", 4), stage = "title-abstract",
+    decision = c("no", "yes", "maybe", "no"), source = "manual",
+    decided_at = as.POSIXct(c(NA, 1, 1, 0), origin = "1970-01-01", tz = "UTC")
+  )
+  out <- .screening_latest(scr, "title-abstract")
+  expect_identical(out$decision, "uncertain")
+  expect_identical(out$decided_at, scr$decided_at[3])
 })

@@ -50,7 +50,7 @@ sm_fetch_orcid <- function(orcid,
     error = function(e) {
       cli::cli_abort(
         c("ORCID API request failed for {.val {orcid}}.",
-          "i" = conditionMessage(e)),
+          "i" = .sm_cli_escape(conditionMessage(e))),
         call = call
       )
     }

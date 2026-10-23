@@ -286,3 +286,15 @@ test_that("PubMed preserves fetched XML pages after a request fails", {
   expect_identical(err$partial$works$pmid, "1")
   expect_identical(err$partial$metadata$fetch_incomplete$n_fetched, 1L)
 })
+
+
+test_that("request error bullets preserve braces as data", {
+  skip_if_not_installed("rentrez")
+  text <- "bad query {x} {stop('evaluated')}"
+  local_mocked_bindings(entrez_search = function(...) stop(text),
+                        .package = "rentrez")
+  expect_error(
+    sm_fetch_pubmed("x", engine = "rentrez", verbose = FALSE),
+    text, fixed = TRUE
+  )
+})

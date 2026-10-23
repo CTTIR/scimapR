@@ -77,11 +77,13 @@ sm_unlock <- function(corpus,
   }
 
   if (!isTRUE(confirm)) {
+    reason <- corpus$metadata$lock_reason
     cli::cli_abort(
       c(
         "Corpus is locked. Set {.arg confirm = TRUE} to unlock.",
-        "i" = if (!is.na(corpus$metadata$lock_reason %||% NA_character_)) {
-          paste0("Lock reason: ", corpus$metadata$lock_reason)
+        "i" = if (is.character(reason) && length(reason) == 1L &&
+                    !is.na(reason)) {
+          paste0("Lock reason: ", .sm_cli_escape(reason))
         }
       ),
       call = call
@@ -103,12 +105,14 @@ sm_unlock <- function(corpus,
 .check_corpus_unlocked <- function(corpus,
                                    call = rlang::caller_env()) {
   if (isTRUE(corpus$metadata$is_locked)) {
+    reason <- corpus$metadata$lock_reason
     cli::cli_abort(
       c(
         "Corpus is locked and cannot be modified.",
         "i" = "Use {.fun sm_unlock} with {.arg confirm = TRUE} to unlock.",
-        "i" = if (!is.na(corpus$metadata$lock_reason %||% NA_character_)) {
-          paste0("Lock reason: ", corpus$metadata$lock_reason)
+        "i" = if (is.character(reason) && length(reason) == 1L &&
+                    !is.na(reason)) {
+          paste0("Lock reason: ", .sm_cli_escape(reason))
         }
       ),
       call = call, class = "scimapR_corpus_locked"

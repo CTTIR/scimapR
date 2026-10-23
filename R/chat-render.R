@@ -41,7 +41,7 @@ sm_chat_render <- function(response,
                                   response)
   )
 
-  cli::cli_text(rendered)
+  cli::cli_verbatim(rendered)
   invisible(rendered)
 }
 
@@ -101,12 +101,13 @@ sm_chat_render <- function(response,
 #' Render chat as HTML
 #' @noRd
 .render_chat_html <- function(text, citations, response) {
+  text <- .html_escape(text)
   # Replace cite tokens with tooltip spans
   for (i in seq_len(nrow(citations))) {
     token <- citations$cite_token[i]
     tooltip <- paste0(
-      '<sup title="', citations$work_id[i], ': ',
-      gsub('"', '&quot;', citations$snippet[i] %||% ""),
+      '<sup title="', .html_escape(citations$work_id[i]), ": ",
+      .html_escape(citations$snippet[i]),
       '">[', i, ']</sup>'
     )
     text <- gsub(token, tooltip, text, fixed = TRUE)
@@ -118,7 +119,8 @@ sm_chat_render <- function(response,
   if (nrow(citations) > 0L) {
     ref_items <- vapply(seq_len(nrow(citations)), function(i) {
       row <- citations[i, ]
-      paste0('<li><strong>[', row$work_id, ']</strong> ', row$snippet, '</li>')
+      paste0("<li><strong>[", .html_escape(row$work_id), "]</strong> ",
+             .html_escape(row$snippet), "</li>")
     }, character(1))
     refs_html <- paste0(
       '<h3>References</h3>\n<ol>\n',
@@ -130,8 +132,8 @@ sm_chat_render <- function(response,
   html <- paste0(
     '<div class="sm-chat-response">\n',
     '<h2>Corpus Chat</h2>\n',
-    '<p><strong>Question:</strong> ', response$question, '</p>\n',
-    '<p><strong>Model:</strong> ', response$model,
+    "<p><strong>Question:</strong> ", .html_escape(response$question), "</p>\n",
+    "<p><strong>Model:</strong> ", .html_escape(response$model),
     ' | <strong>Retrieved:</strong> ', nrow(response$retrieved_works),
     ' works</p>\n',
     '<hr>\n',
@@ -140,7 +142,7 @@ sm_chat_render <- function(response,
     refs_html, '\n',
     '<hr>\n',
     '<p class="meta"><em>Prompt hash: <code>',
-    substr(response$prompt_hash, 1, 12),
+    .html_escape(substr(response$prompt_hash, 1, 12)),
     '</code> | Generated: ',
     format(response$timestamp, "%Y-%m-%d %H:%M:%S"),
     '</em></p>\n',
@@ -205,4 +207,14 @@ sm_chat_render <- function(response,
   )
 
   paste(lines, collapse = "\n")
+}
+
+
+.html_escape <- function(x) {
+  x <- as.character(x)
+  x[is.na(x)] <- ""
+  from <- c("&", "<", ">", "\"", "'")
+  to <- c("&amp;", "&lt;", "&gt;", "&quot;", "&#39;")
+  for (i in seq_along(from)) x <- gsub(from[i], to[i], x, fixed = TRUE)
+  x
 }

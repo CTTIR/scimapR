@@ -12,8 +12,8 @@ sm_chat(
   retrieve_n = 30L,
   retrieve_method = c("embedding", "tfidf", "hybrid"),
   cite = TRUE,
-  max_tokens = 2000L,
-  temperature = 0.2,
+  max_tokens = lifecycle::deprecated(),
+  temperature = lifecycle::deprecated(),
   call = rlang::caller_env()
 )
 
@@ -25,7 +25,9 @@ sm_chat(
 \item{question}{Character. The user's question in natural language.}
 
 \item{provider}{An ellmer chat provider object (e.g., from
-\code{ellmer::chat_openai()}). If \code{NULL}, errors informatively.}
+\code{ellmer::chat_openai()}). If \code{NULL}, errors informatively. Each request
+runs in a fresh copy: the object passed is unchanged, and its earlier
+turns and system prompt are not used.}
 
 \item{retrieve_n}{Integer. Number of works to retrieve as context.
 Default \code{30}.}
@@ -37,12 +39,11 @@ Default \code{30}.}
 \item \code{"hybrid"}: weighted average of both methods.
 }}
 
-\item{cite}{Logical. If \code{TRUE}, the prompt instructs the LLM to include
+\item{cite}{Logical. If \code{TRUE}, the prompt asks the chat provider for
 inline citations using work IDs.}
 
-\item{max_tokens}{Integer. Maximum tokens for the LLM response.}
-
-\item{temperature}{Numeric. LLM temperature (0 = deterministic).}
+\item{max_tokens, temperature}{Deprecated; these arguments never affected
+requests. Set response parameters on the chat object instead.}
 
 \item{call}{Caller environment for error reporting.}
 
@@ -53,7 +54,7 @@ inline citations using work IDs.}
 \value{
 An \code{sm_chat_response} S3 object with fields:
 \describe{
-\item{answer}{Character. The LLM's response.}
+\item{answer}{Character. The chat provider's response.}
 \item{citations}{Tibble of cited work IDs and their details.}
 \item{retrieved_works}{Tibble of the works sent as context.}
 \item{prompt_hash}{SHA-256 hash of the full prompt for reproducibility.}
@@ -67,13 +68,13 @@ An \code{sm_chat_response} S3 object with fields:
 Ask a question of a corpus using retrieval-augmented generation (RAG).
 The function retrieves the most relevant works from the corpus using
 embeddings, TF-IDF, or a hybrid method, then sends them as context to
-an LLM along with the user's question. The response includes inline
+a chat provider along with the user's question. The response includes inline
 citations keyed to work IDs. No hallucinated references are possible
 because citations are constrained to retrieved works.
 }
 \examples{
 \dontrun{
-# Requires ellmer package and LLM API access:
+# Requires ellmer package and chat-provider API access:
 # response <- sm_chat(corpus, "What methods dominate?",
 #                     provider = ellmer::chat_openai())
 }

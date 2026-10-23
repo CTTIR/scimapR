@@ -130,7 +130,8 @@ test_that("prompt template includes the research question and facets", {
   expect_match(pt, "Outcome: OS")
   expect_match(pt, "Must contain: trial")
   expect_match(pt, "Must NOT contain: rodent")
-  expect_match(pt, "\\{\\{title\\}\\}")
+  expect_match(pt, "work_id", fixed = TRUE)
+  expect_false(grepl("{{title}}", pt, fixed = TRUE))
 })
 
 test_that("prompt template includes design for PICOS", {

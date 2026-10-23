@@ -15,7 +15,18 @@ sm_export_rayyan(corpus, path)
 \code{path} invisibly.
 }
 \description{
-Write corpus works in RIS format for import into Rayyan.
+Write corpus works in RIS format for import into Rayyan. Work IDs appear
+in the RIS ID field and a note; missing fields are omitted.
+}
+\details{
+Keep the ID or the scimapR work_id note when exporting decisions.
+}
+\examples{
+path <- tempfile(fileext = ".ris")
+sm_export_rayyan(sm_example_corpus(n_works = 2), path)
+readLines(path, n = 3)
+unlink(path)
+
 }
 \seealso{
 Other screening:

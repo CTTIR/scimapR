@@ -7,7 +7,8 @@
 sm_screen_prisma(
   corpus,
   decisions = NULL,
-  stages = c("identification", "screening", "eligibility", "inclusion")
+  stages = c("identification", "title-abstract", "full-text", "inclusion"),
+  n_identified = NULL
 )
 }
 \arguments{
@@ -15,7 +16,13 @@ sm_screen_prisma(
 
 \item{decisions}{Optional external decisions tibble.}
 
-\item{stages}{Stage names for the flow.}
+\item{stages}{Stage names in flow order. Defaults to identification,
+title-abstract, full-text and inclusion. Only current works still in the
+flow count; each stage uses the latest decision per work.}
+
+\item{n_identified}{Whole count before deduplication and other removals,
+at least the corpus size. Defaults to \code{metadata$n_identified} when set,
+otherwise the corpus size. Ignored without an identification stage.}
 }
 \value{
 A list with \verb{$counts} (tibble) and \verb{$plot} (ggplot).

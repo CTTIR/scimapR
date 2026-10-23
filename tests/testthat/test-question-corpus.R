@@ -274,3 +274,14 @@ test_that("a question corpus records and replays the engine and limit used", {
                           n_max = prov$n_max[i]))
   }
 })
+
+test_that("question corpora record the count before deduplication and limits", {
+  local_mocked_bindings(.fetch_from_source = function(...) {
+    list(works = fake_works(c("10.9999/a", "10.9999/a", "10.9999/b")),
+         n_fetched = 3L)
+  })
+  corpus <- sm_corpus_for_question(make_q(), sources = "openalex",
+                                   n_max = 1L, verbose = FALSE)
+  expect_identical(corpus$metadata$n_identified, 3L)
+  expect_equal(nrow(corpus$works), 1L)
+})

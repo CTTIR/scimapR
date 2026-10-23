@@ -407,7 +407,7 @@ sm_fetch_crossref <- function(query = NULL,
   }, error = function(e) {
     cli::cli_abort(
       c("rcrossref fetch failed.",
-        "i" = conditionMessage(e)),
+        "i" = .sm_cli_escape(conditionMessage(e))),
       call = call
     )
   })
