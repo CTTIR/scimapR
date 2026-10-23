@@ -91,6 +91,6 @@ sm_cite_corpus <- function(corpus,
     )
   }
 
-  cli::cli_text(citation)
+  cli::cli_verbatim(citation)
   invisible(citation)
 }

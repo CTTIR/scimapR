@@ -247,13 +247,14 @@
 #' | --- | --- | --- |
 #' | `work_id` | character | The work |
 #' | `stage` | character | Stage, such as `"title-abstract"` or `"full-text"` |
-#' | `decision` | character | `"include"`, `"exclude"` or `"unclear"` |
+#' | `decision` | character | `"include"`, `"exclude"` or `"uncertain"` |
 #' | `reason` | character | Reason for the decision |
 #' | `confidence` | double | Confidence of the decision |
 #' | `source` | character | Who or what decided |
 #' | `decided_at` | POSIXct | When |
 #'
-#' Optional: none so far.
+#' Optional: `model` records the chat-provider model for the decision.
+#' The legacy decision `"unclear"` is read as `"uncertain"`.
 #'
 #' **`citations_by_year`**: optional (`NULL` when the corpus has no yearly
 #' citation counts); one row per work and citation year, as the OpenAlex
@@ -282,8 +283,12 @@
 #' | `corpus_hash` | character | Hash of the content ([sm_hash_corpus()]) |
 #' | `is_locked` | logical | Whether [sm_lock()] locked the corpus |
 #' | `last_refresh` | POSIXct | Last refresh without a failed request |
+#' | `n_identified` | integer | Optional count before search deduplication |
 #' | `question_id` | character | Id of its [sm_question()] |
 #' | `fetch_incomplete` | list | Optional failed-fetch report (see below) |
+#'
+#' `n_identified` includes records removed by question-search deduplication
+#' or its result limit.
 #'
 #' `last_refresh` advances only when [sm_refresh()] refreshed at least one
 #' work and no request failed. A recovered partial fetch has optional

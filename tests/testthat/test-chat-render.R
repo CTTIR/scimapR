@@ -85,12 +85,6 @@ test_that("html render escapes double quotes in snippets", {
 })
 
 test_that("quarto render: the .render_chat_quarto string builder is correct", {
-  # NOTE: sm_chat_render(format = "quarto") currently ERRORS at runtime --
-  # source bug in chat-render.R:44 passes the rendered string to
-  # cli::cli_text(), and Quarto's `::: {.callout-note}` blocks contain a
-  # `{.` literal that cli >= 3.4.0 rejects ("starts with a dot"). We exercise
-  # the internal string builder directly to verify the formatting logic, and
-  # separately assert the public wrapper raises that cli error. See report.
   resp <- make_response(with_citations = TRUE)
   out <- scimapR:::.render_chat_quarto(resp$answer, resp$citations, resp)
   expect_match(out, 'title: "Corpus Chat Response"', fixed = TRUE)
@@ -100,9 +94,11 @@ test_that("quarto render: the .render_chat_quarto string builder is correct", {
   expect_false(grepl("[cite:W000000002]", out, fixed = TRUE))
 })
 
-test_that("sm_chat_render(quarto) currently errors via cli (known source bug)", {
+test_that("quarto output prints literal callout markup", {
   resp <- make_response(with_citations = TRUE)
-  expect_error(quiet_render(resp, format = "quarto"), "starts with a dot")
+  printed <- cli::cli_fmt(out <- sm_chat_render(resp, format = "quarto"))
+  expect_match(out, "::: {.callout-note}", fixed = TRUE)
+  expect_true(any(grepl("::: {.callout-note}", printed, fixed = TRUE)))
 })
 
 test_that("sm_chat_render returns its string invisibly", {
@@ -112,4 +108,30 @@ test_that("sm_chat_render returns its string invisibly", {
     expect_invisible(sm_chat_render(resp, format = "markdown"))
   )
   expect_type(out, "character")
+})
+
+
+test_that("markdown output preserves literal braces", {
+  resp <- make_response()
+  resp$answer <- "{T}he effect {stop('evaluated')}"
+  resp$citations$snippet[1] <- "The {CRISPR} screen"
+  printed <- paste(cli::cli_fmt(sm_chat_render(resp)), collapse = "\n")
+  expect_match(printed, resp$answer, fixed = TRUE)
+  expect_match(printed, resp$citations$snippet[1], fixed = TRUE)
+})
+
+test_that("HTML escapes every data field while retaining generated markup", {
+  resp <- make_response()
+  resp$answer <- "<img src=x onerror=alert(1)>\n[cite:W000000001]"
+  resp$citations$snippet[1] <- "E. coli & CO<sub>2</sub>"
+  resp$question <- "<question> & 'quoted'"
+  resp$model <- '<model "x">'
+  resp$citations$work_id[1] <- '<work "x">'
+  out <- quiet_render(resp, format = "html")
+  for (literal in c("&lt;img", "&amp;", "&lt;sub&gt;", "&#39;",
+                    "&lt;model &quot;x&quot;&gt;", "&lt;work &quot;x&quot;&gt;",
+                    "<br>", "<sup")) {
+    expect_match(out, literal, fixed = TRUE)
+  }
+  expect_false(grepl("<img src=x", out, fixed = TRUE))
 })

@@ -263,7 +263,7 @@ sm_example_corpus <- function(n_works = 200L,
     screening <- tibble::tibble(
       work_id = work_ids,
       stage = "title-abstract",
-      decision = sample(c("include", "exclude", "unclear"),
+      decision = sample(c("include", "exclude", "uncertain"),
                         n_works, replace = TRUE, prob = c(0.4, 0.45, 0.15)),
       reason = "Synthetic screening decision",
       confidence = round(stats::runif(n_works, 0.5, 1.0), 2),

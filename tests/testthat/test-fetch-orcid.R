@@ -135,3 +135,15 @@ test_that("sm_fetch_orcid leaves position and corresponding author unknown", {
   expect_identical(a$position, c(NA_integer_, NA_integer_))
   expect_identical(a$is_corresponding, c(NA, NA))
 })
+
+
+test_that("request error bullets preserve braces as data", {
+  skip_if_not_installed("httr2")
+  text <- "bad query {x} {stop('evaluated')}"
+  local_mocked_bindings(req_perform = function(...) stop(text),
+                        .package = "httr2")
+  expect_error(
+    sm_fetch_orcid("0000-0000-0000-0001", verbose = FALSE),
+    text, fixed = TRUE
+  )
+})

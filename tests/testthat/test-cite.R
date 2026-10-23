@@ -28,19 +28,12 @@ test_that("text style reports counts, year range and hash", {
   expect_match(out, "synthetic")
 })
 
-# KNOWN BUG: the bibtex citation string contains literal `{` / `}` (BibTeX
-# braces). `cli::cli_text(citation)` then tries to interpret them as cli/glue
-# expressions and fails to parse. So `style = "bibtex"` currently errors before
-# it can return the (otherwise correctly built) citation string. This test
-# pins that behaviour; if the source switches to a verbatim printer the test
-# should be updated to assert on the returned string instead.
-test_that("bibtex style currently errors on cli brace parsing (known bug)", {
-  corpus <- sm_example_corpus(n_works = 5, n_authors = 4,
-                              with_embeddings = FALSE, seed = 3)
-  expect_error(
-    sm_cite_corpus(corpus, style = "bibtex"),
-    "cli"
-  )
+test_that("BibTeX citation prints and returns its literal braces", {
+  corpus <- sm_example_corpus(n_works = 5, n_authors = 4, seed = 3)
+  printed <- cli::cli_fmt(out <- sm_cite_corpus(corpus, style = "bibtex"))
+  expect_match(out, "@misc{", fixed = TRUE)
+  expect_match(out, "title = {scimapR Corpus}", fixed = TRUE)
+  expect_true(any(grepl("@misc{", printed, fixed = TRUE)))
 })
 
 test_that("yaml style produces a structured block", {
@@ -82,4 +75,14 @@ test_that("refresh sources are stripped from the source listing", {
   corpus$provenance$source[1] <- "openalex_refresh"
   out <- suppressMessages(sm_cite_corpus(corpus, style = "text"))
   expect_no_match(out, "openalex_refresh")
+})
+
+
+test_that("citation printing preserves YAML indentation and source braces", {
+  corpus <- sm_example_corpus(n_works = 5, n_authors = 3)
+  printed <- cli::cli_fmt(sm_cite_corpus(corpus, style = "yaml"))
+  expect_true("  tool: scimapR" %in% printed)
+  corpus$provenance$source[1] <- "{T}est"
+  printed <- paste(cli::cli_fmt(sm_cite_corpus(corpus)), collapse = "\n")
+  expect_match(printed, "{T}est", fixed = TRUE)
 })

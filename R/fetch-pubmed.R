@@ -442,7 +442,7 @@ sm_fetch_pubmed <- function(query,
   }, error = function(e) {
     cli::cli_abort(
       c("rentrez fetch failed.",
-        "i" = conditionMessage(e)),
+        "i" = .sm_cli_escape(conditionMessage(e))),
       call = call
     )
   })

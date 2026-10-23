@@ -32,7 +32,7 @@ ASCII-only classes.}
 A modified \code{sm_corpus} with updated \code{screening} table.
 }
 \description{
-A deterministic, LLM-free screening method that uses regular expression
+A deterministic screening method that uses regular expression
 matching on work titles and abstracts. Works matching any \code{include_terms}
 (case-insensitive) and none of the \code{exclude_terms} are classified as
 \code{"include"}; works matching an exclude term are \code{"exclude"}; works

@@ -73,3 +73,21 @@ test_that("locks record a content hash and subsets keep only lock status", {
   old$metadata$lock_hash <- NULL
   expect_null(suppressMessages(sm_lock(old))$metadata$lock_hash)
 })
+
+
+test_that("lock reasons are literal data and malformed reasons are omitted", {
+  locked <- suppressMessages(sm_lock(sm_example_corpus(n_works = 2)))
+  for (reason in c("frozen for {reviewer}", "{stop('evaluated')}")) {
+    locked$metadata$lock_reason <- reason
+    expect_error(sm_unlock(locked), reason, fixed = TRUE)
+    expect_error(sm_refresh(locked), reason, fixed = TRUE,
+                 class = "scimapR_corpus_locked")
+  }
+  for (reason in list(c("a", "b"), 1L, NA_character_, NULL)) {
+    locked$metadata$lock_reason <- reason
+    err <- tryCatch(sm_refresh(locked), error = identity)
+    expect_s3_class(err, "scimapR_corpus_locked")
+    expect_false(grepl("Lock reason:", conditionMessage(err), fixed = TRUE))
+    expect_error(sm_unlock(locked), "Corpus is locked", fixed = TRUE)
+  }
+})

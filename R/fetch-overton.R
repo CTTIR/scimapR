@@ -62,7 +62,7 @@ sm_fetch_overton <- function(query,
       error = function(e) {
         cli::cli_abort(
           c("Overton API request failed.",
-            "i" = conditionMessage(e)),
+            "i" = .sm_cli_escape(conditionMessage(e))),
           call = call
         )
       }

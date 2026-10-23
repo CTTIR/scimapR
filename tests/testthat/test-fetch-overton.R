@@ -120,3 +120,15 @@ test_that("sm_fetch_overton aborts on request failure", {
     "Overton API request failed"
   )
 })
+
+
+test_that("request error bullets preserve braces as data", {
+  skip_if_not_installed("httr2")
+  text <- "bad query {x} {stop('evaluated')}"
+  local_mocked_bindings(req_perform = function(...) stop(text),
+                        .package = "httr2")
+  expect_error(
+    sm_fetch_overton("x", api_key = "test", verbose = FALSE),
+    text, fixed = TRUE
+  )
+})

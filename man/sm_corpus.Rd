@@ -333,7 +333,7 @@ only searches, never a file read or an enrichment.
    Column \tab Type \tab Content \cr
    \code{work_id} \tab character \tab The work \cr
    \code{stage} \tab character \tab Stage, such as \code{"title-abstract"} or \code{"full-text"} \cr
-   \code{decision} \tab character \tab \code{"include"}, \code{"exclude"} or \code{"unclear"} \cr
+   \code{decision} \tab character \tab \code{"include"}, \code{"exclude"} or \code{"uncertain"} \cr
    \code{reason} \tab character \tab Reason for the decision \cr
    \code{confidence} \tab double \tab Confidence of the decision \cr
    \code{source} \tab character \tab Who or what decided \cr
@@ -341,7 +341,8 @@ only searches, never a file read or an enrichment.
 }
 
 
-Optional: none so far.
+Optional: \code{model} records the chat-provider model for the decision.
+The legacy decision \code{"unclear"} is read as \code{"uncertain"}.
 
 \strong{\code{citations_by_year}}: optional (\code{NULL} when the corpus has no yearly
 citation counts); one row per work and citation year, as the OpenAlex
@@ -368,10 +369,14 @@ them and \code{\link[=sm_hash_corpus]{sm_hash_corpus()}} includes them when ther
    \code{corpus_hash} \tab character \tab Hash of the content (\code{\link[=sm_hash_corpus]{sm_hash_corpus()}}) \cr
    \code{is_locked} \tab logical \tab Whether \code{\link[=sm_lock]{sm_lock()}} locked the corpus \cr
    \code{last_refresh} \tab POSIXct \tab Last refresh without a failed request \cr
+   \code{n_identified} \tab integer \tab Optional count before search deduplication \cr
    \code{question_id} \tab character \tab Id of its \code{\link[=sm_question]{sm_question()}} \cr
    \code{fetch_incomplete} \tab list \tab Optional failed-fetch report (see below) \cr
 }
 
+
+\code{n_identified} includes records removed by question-search deduplication
+or its result limit.
 
 \code{last_refresh} advances only when \code{\link[=sm_refresh]{sm_refresh()}} refreshed at least one
 work and no request failed. A recovered partial fetch has optional

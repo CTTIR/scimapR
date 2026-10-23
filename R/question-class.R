@@ -305,11 +305,7 @@ is_sm_question <- function(x) {
   }
 
   parts <- c(parts, "",
-    "For each work, respond with a JSON object:",
-    '{"decision": "include"|"exclude"|"uncertain", "reason": "brief explanation", "confidence": 0.0-1.0}',
-    "",
-    "Title: {{title}}",
-    "Abstract: {{abstract}}"
+    "Works are supplied separately as JSON with work_id, title and abstract."
   )
 
   paste(parts, collapse = "\n")

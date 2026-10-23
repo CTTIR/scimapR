@@ -4,16 +4,35 @@
 \alias{sm_import_rayyan}
 \title{Import screening decisions from Rayyan}
 \usage{
-sm_import_rayyan(path)
+sm_import_rayyan(path, corpus = NULL, id_col = NULL)
 }
 \arguments{
 \item{path}{Path to Rayyan CSV export.}
+
+\item{corpus}{Optional corpus for DOI matching and ID validation.}
+
+\item{id_col}{Optional name of the CSV column containing work IDs.}
 }
 \value{
-A tibble of screening decisions.
+One screening row per CSV record. Unmatched work IDs remain
+missing and warn. Decisions use include, exclude and uncertain.
 }
 \description{
 Read Rayyan CSV export and parse screening decisions.
+}
+\details{
+IDs come from the named column, otherwise from the scimapR
+work_id note, or from unique matching corpus DOIs. Decisions and reasons
+come from their columns or Rayyan inclusion and exclusion notes.
+Disagreeing reviewers give an uncertain decision.
+}
+\examples{
+path <- tempfile(fileext = ".csv")
+utils::write.csv(data.frame(id = "paper-a", decision = "Included"),
+                 path, row.names = FALSE)
+sm_import_rayyan(path, id_col = "id")
+unlink(path)
+
 }
 \seealso{
 Other screening:

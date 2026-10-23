@@ -13,6 +13,7 @@ sm_cluster_label(
   ngram = 1:2,
   stop_terms = NULL,
   noise = 0L,
+  seed = NULL,
   call = rlang::caller_env()
 )
 }
@@ -28,7 +29,8 @@ label. Defaults to \code{5L}.}
 
 \item{llm_provider}{An \pkg{ellmer} chat provider object (e.g.,
 \code{ellmer::chat_openai()}). Required when \code{method = "llm"}, ignored
-otherwise.}
+otherwise. Each request uses a fresh copy; earlier turns and the
+object's system prompt are not used, and the object stays unchanged.}
 
 \item{min_works}{For \code{"tfidf"} and \code{"keywords"}: the number of a
 cluster's works a term must occur in to enter its label. \code{NULL}
@@ -52,6 +54,10 @@ claims: \code{0L} by default, as \code{\link[=sm_cluster_hdbscan]{sm_cluster_hdb
 no label and does not count for the labels of the other clusters.
 \code{NULL} labels every id as a cluster; set it for clusterings that use
 another noise label or a real cluster 0.}
+
+\item{seed}{Optional seed for sampling titles with a chat provider.
+The session random state is restored afterwards. \code{NULL} uses the
+session random stream as before. Used only by \code{method = "llm"}.}
 
 \item{call}{Caller environment for error reporting.}
 }
@@ -77,7 +83,7 @@ its titles; \code{"yake"} or \code{"llm"} for these methods; \code{NA} where
 Assigns human-readable labels to clusters by extracting representative
 terms. Supports TF-IDF-based extraction (default), labels from the
 author and indexer keywords of the corpus, YAKE keyword extraction,
-or LLM-generated labels via the \pkg{ellmer} package.
+or labels from a chat provider via the \pkg{ellmer} package.
 }
 \details{
 \strong{Noise and clusters without a label}: works whose \code{cluster_id} is
