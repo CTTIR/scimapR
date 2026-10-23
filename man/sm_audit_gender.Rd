@@ -53,6 +53,8 @@ address rows the author has; corresponding authors are those with
 corresponding).}
 \item{coverage}{Proportion of authors with an inferred gender.}
 \item{method}{The method used.}
+\item{n_names_failed}{Number of distinct names without an API answer;
+these are not cached and are retried on the next run.}
 \item{confidence_summary}{Summary statistics for gender confidence
 scores.}
 }

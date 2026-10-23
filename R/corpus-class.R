@@ -273,7 +273,7 @@
 #' Subsetting keeps the rows of the kept works, [sm_bind_corpora()] binds
 #' them and [sm_hash_corpus()] includes them when there are any.
 #'
-#' **`metadata`**: a list. Required:
+#' **`metadata`**: a list. Entries are required unless marked optional:
 #'
 #' | Entry | Type | Content |
 #' | --- | --- | --- |
@@ -281,8 +281,14 @@
 #' | `build_date` | POSIXct | When the corpus was built |
 #' | `corpus_hash` | character | Hash of the content ([sm_hash_corpus()]) |
 #' | `is_locked` | logical | Whether [sm_lock()] locked the corpus |
-#' | `last_refresh` | POSIXct | When [sm_refresh()] last ran |
+#' | `last_refresh` | POSIXct | Last refresh without a failed request |
 #' | `question_id` | character | Id of its [sm_question()] |
+#' | `fetch_incomplete` | list | Optional failed-fetch report (see below) |
+#'
+#' `last_refresh` advances only when [sm_refresh()] refreshed at least one
+#' work and no request failed. A recovered partial fetch has optional
+#' `fetch_incomplete` (list) with `source`, `n_fetched`, `n_expected` and
+#' `reason`; see the fetchers' Failed requests sections.
 #'
 #' `question_id` is set by [sm_corpus_for_question()]. Optional entries
 #' `locked_at` (POSIXct), `lock_reason` (character) and `lock_hash`

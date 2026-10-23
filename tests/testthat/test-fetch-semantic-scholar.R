@@ -34,16 +34,19 @@
 }
 
 test_that("sm_fetch_semantic_scholar requires query or paper_ids", {
+  local_http_env()
   expect_error(sm_fetch_semantic_scholar(), "query.*paper_ids|paper_ids.*query")
 })
 
 test_that("sm_fetch_semantic_scholar validates n_max", {
+  local_http_env()
   expect_error(sm_fetch_semantic_scholar(query = "x", n_max = 0), "positive integer")
 })
 
 test_that("sm_fetch_semantic_scholar search parses papers into an sm_corpus", {
+  local_http_env()
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) .s2_search_body(list(.s2_paper())),
     .package = "httr2"
   )
@@ -70,8 +73,9 @@ test_that("sm_fetch_semantic_scholar search parses papers into an sm_corpus", {
 })
 
 test_that("sm_fetch_semantic_scholar honours an API key header path", {
+  local_http_env()
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) .s2_search_body(list(.s2_paper())),
     .package = "httr2"
   )
@@ -81,8 +85,9 @@ test_that("sm_fetch_semantic_scholar honours an API key header path", {
 })
 
 test_that("sm_fetch_semantic_scholar attaches embeddings when requested", {
+  local_http_env()
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) {
       .s2_search_body(list(.s2_paper(with_embedding = TRUE)))
     },
@@ -102,8 +107,9 @@ test_that("sm_fetch_semantic_scholar attaches embeddings when requested", {
 })
 
 test_that("sm_fetch_semantic_scholar verbose prints progress", {
+  local_http_env()
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) .s2_search_body(list(.s2_paper())),
     .package = "httr2"
   )
@@ -115,8 +121,9 @@ test_that("sm_fetch_semantic_scholar verbose prints progress", {
 })
 
 test_that("sm_fetch_semantic_scholar returns empty corpus on no data", {
+  local_http_env()
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) .s2_search_body(list()),
     .package = "httr2"
   )
@@ -126,6 +133,7 @@ test_that("sm_fetch_semantic_scholar returns empty corpus on no data", {
 })
 
 test_that("sm_fetch_semantic_scholar aborts on search request failure", {
+  local_http_env()
   local_mocked_bindings(
     req_perform = function(req, ...) stop("boom"),
     .package = "httr2"
@@ -138,8 +146,9 @@ test_that("sm_fetch_semantic_scholar aborts on search request failure", {
 })
 
 test_that("sm_fetch_semantic_scholar batch (paper_ids) parses an sm_corpus", {
+  local_http_env()
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     # batch endpoint returns a bare list of papers (no $data wrapper)
     resp_body_json = function(resp, ...) list(.s2_paper("P1"), .s2_paper("P2")),
     .package = "httr2"
@@ -153,8 +162,9 @@ test_that("sm_fetch_semantic_scholar batch (paper_ids) parses an sm_corpus", {
 })
 
 test_that("sm_fetch_semantic_scholar batch returns empty corpus when none found", {
+  local_http_env()
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) list(),
     .package = "httr2"
   )
@@ -164,6 +174,7 @@ test_that("sm_fetch_semantic_scholar batch returns empty corpus when none found"
 })
 
 test_that("sm_fetch_semantic_scholar batch aborts on request failure", {
+  local_http_env()
   local_mocked_bindings(
     req_perform = function(req, ...) stop("boom"),
     .package = "httr2"
@@ -177,6 +188,7 @@ test_that("sm_fetch_semantic_scholar batch aborts on request failure", {
 
 
 test_that("Semantic Scholar fetches link a reference to another fetched work", {
+  local_http_env()
   a <- .s2_paper("INVENTED1")
   b <- .s2_paper("INVENTED2")
   a$externalIds$DOI <- "10.9999/link.a"
@@ -184,11 +196,67 @@ test_that("Semantic Scholar fetches link a reference to another fetched work", {
   a$references <- list()
   b$references <- list(list(externalIds = list(DOI = "10.9999/LINK.A")))
   local_mocked_bindings(
-    req_perform = function(...) structure(list(), class = "httr2_response"),
+    req_perform = function(...) http_response(),
     resp_body_json = function(...) .s2_search_body(list(a, b)),
     .package = "httr2"
   )
   x <- suppressMessages(sm_fetch_semantic_scholar(query = "invented links",
                                                   n_max = 2, verbose = FALSE))
   expect_identical(x$references$cited_work_id, x$works$work_id[1])
+})
+
+test_that("Semantic Scholar search caps requests and preserves partial pages", {
+  local_http_env()
+  seen <- list()
+  fail <- FALSE
+  local_mocked_bindings(.sm_sleep = function(seconds) NULL)
+  local_mocked_bindings(req_perform = function(req, ...) {
+    q <- httr2::url_parse(req$url)$query
+    seen[[length(seen) + 1L]] <<- q
+    expect_lte(as.integer(q$offset) + as.integer(q$limit), 1000L)
+    if (fail && length(seen) > 1L) return(http_response(status = 503L))
+    papers <- lapply(seq_len(as.integer(q$limit)), function(i) {
+      list(paperId = paste0("paper", as.integer(q$offset) + i),
+           title = "Invented")
+    })
+    http_response(list(data = papers, total = 2000L, `next` = 100L))
+  }, .package = "httr2")
+  expect_warning(
+    out <- sm_fetch_semantic_scholar(query = "invented", n_max = 2000,
+                                     api_key = "", verbose = FALSE),
+    class = "scimapR_n_max_capped"
+  )
+  expect_identical(nrow(out$works), 1000L)
+  seen <- list()
+  fail <- TRUE
+  err <- expect_error(
+    sm_fetch_semantic_scholar(query = "invented", n_max = 200,
+                              api_key = "", verbose = FALSE),
+    class = "scimapR_fetch_incomplete"
+  )
+  expect_identical(nrow(err$partial$works), 100L)
+})
+
+test_that("paper-id batches keep their limit and recover earlier results", {
+  local_http_env()
+  calls <- 0L
+  fail <- FALSE
+  local_mocked_bindings(req_perform = function(req, ...) {
+    calls <<- calls + 1L
+    if (fail && calls == 2L) return(http_response(status = 429L))
+    http_response(list(list(paperId = paste0("P", calls), title = "Invented")))
+  }, .package = "httr2")
+  out <- sm_fetch_semantic_scholar(paper_ids = paste0("P", 1:1050),
+                                   api_key = "", verbose = FALSE)
+  expect_identical(calls, 3L)
+  expect_identical(nrow(out$works), 3L)
+  calls <- 0L
+  fail <- TRUE
+  err <- expect_error(
+    sm_fetch_semantic_scholar(paper_ids = paste0("P", 1:1050),
+                              api_key = "", verbose = FALSE),
+    class = "scimapR_fetch_incomplete"
+  )
+  expect_identical(calls, 2L)
+  expect_identical(nrow(err$partial$works), 1L)
 })

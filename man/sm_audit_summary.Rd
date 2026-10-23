@@ -48,7 +48,7 @@ are run with default parameters, except that the gender audit uses
 }
 \examples{
 corpus <- sm_example_corpus(n_works = 50, n_authors = 20)
-# The funding audit needs one Crossref request per DOI, so it is not run
+# The funding audit sends batched Crossref requests, so it is not run
 # unless online = TRUE.
 summary_audit <- sm_audit_summary(corpus)
 summary_audit$overview

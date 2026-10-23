@@ -56,6 +56,7 @@
 }
 
 test_that("sm_fetch_pubmed validates query and n_max", {
+  local_http_env()
   expect_error(sm_fetch_pubmed(query = ""), "non-empty")
   expect_error(sm_fetch_pubmed(query = 123), "single string")
   expect_error(sm_fetch_pubmed(query = "x", n_max = 0), "positive integer")
@@ -63,12 +64,14 @@ test_that("sm_fetch_pubmed validates query and n_max", {
 })
 
 test_that("sm_fetch_pubmed rejects an unknown engine", {
+  local_http_env()
   expect_error(sm_fetch_pubmed(query = "x", engine = "nope"))
 })
 
 test_that("sm_fetch_pubmed native parses esearch+efetch into an sm_corpus", {
+  local_http_env()
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) .pubmed_esearch_body(),
     resp_body_string = function(resp, ...) .pubmed_xml(),
     .package = "httr2"
@@ -102,6 +105,7 @@ test_that("sm_fetch_pubmed native parses esearch+efetch into an sm_corpus", {
 })
 
 test_that("sm_fetch_pubmed records major MeSH topics as score 1", {
+  local_http_env()
   flagged <- sub(
     '<DescriptorName UI="D000001">Bibliometrics</DescriptorName>',
     paste0('<DescriptorName UI="D000001" MajorTopicYN="Y">Bibliometrics',
@@ -112,7 +116,7 @@ test_that("sm_fetch_pubmed records major MeSH topics as score 1", {
   )
   local_mocked_bindings(
     req_perform = function(req, ...) {
-      structure(list(), class = "httr2_response")
+      http_response()
     },
     resp_body_json = function(resp, ...) .pubmed_esearch_body(),
     resp_body_string = function(resp, ...) flagged,
@@ -126,8 +130,9 @@ test_that("sm_fetch_pubmed records major MeSH topics as score 1", {
 })
 
 test_that("sm_fetch_pubmed native honours an API key path (higher rate)", {
+  local_http_env()
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) .pubmed_esearch_body("11111111"),
     resp_body_string = function(resp, ...) .pubmed_xml(),
     .package = "httr2"
@@ -141,8 +146,9 @@ test_that("sm_fetch_pubmed native honours an API key path (higher rate)", {
 })
 
 test_that("sm_fetch_pubmed verbose prints progress", {
+  local_http_env()
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) .pubmed_esearch_body(),
     resp_body_string = function(resp, ...) .pubmed_xml(),
     .package = "httr2"
@@ -155,8 +161,9 @@ test_that("sm_fetch_pubmed verbose prints progress", {
 })
 
 test_that("sm_fetch_pubmed returns an empty corpus when esearch finds nothing", {
+  local_http_env()
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) .pubmed_esearch_body(character()),
     .package = "httr2"
   )
@@ -167,6 +174,7 @@ test_that("sm_fetch_pubmed returns an empty corpus when esearch finds nothing", 
 })
 
 test_that("sm_fetch_pubmed aborts when the esearch request fails", {
+  local_http_env()
   local_mocked_bindings(
     req_perform = function(req, ...) stop("network down"),
     .package = "httr2"
@@ -179,11 +187,12 @@ test_that("sm_fetch_pubmed aborts when the esearch request fails", {
 })
 
 test_that("sm_fetch_pubmed aborts when the efetch request fails", {
+  local_http_env()
   calls <- 0L
   local_mocked_bindings(
     req_perform = function(req, ...) {
       calls <<- calls + 1L
-      if (calls == 1L) structure(list(), class = "httr2_response")
+      if (calls == 1L) http_response()
       else stop("efetch broke")
     },
     resp_body_json = function(resp, ...) .pubmed_esearch_body(),
@@ -197,12 +206,13 @@ test_that("sm_fetch_pubmed aborts when the efetch request fails", {
 })
 
 test_that("sm_fetch_pubmed engine='auto' falls back to native when rentrez absent", {
+  local_http_env()
   local_mocked_bindings(
     is_installed = function(pkg, ...) FALSE,
     .package = "rlang"
   )
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) .pubmed_esearch_body("11111111"),
     resp_body_string = function(resp, ...) .pubmed_xml(),
     .package = "httr2"
@@ -215,6 +225,7 @@ test_that("sm_fetch_pubmed engine='auto' falls back to native when rentrez absen
 })
 
 test_that("sm_fetch_pubmed engine='rentrez' errors when rentrez not installed", {
+  local_http_env()
   local_mocked_bindings(
     check_installed = function(pkg, ...) {
       cli::cli_abort("The package {.pkg rentrez} is required.")
@@ -228,9 +239,10 @@ test_that("sm_fetch_pubmed engine='rentrez' errors when rentrez not installed", 
 })
 
 test_that("sm_fetch_pubmed records its request for a rebuild", {
+  local_http_env()
   local_mocked_bindings(
     req_perform = function(req, ...) {
-      structure(list(), class = "httr2_response")
+      http_response()
     },
     resp_body_json = function(resp, ...) .pubmed_esearch_body(),
     resp_body_string = function(resp, ...) .pubmed_xml(),
@@ -243,4 +255,34 @@ test_that("sm_fetch_pubmed records its request for a rebuild", {
   expect_identical(unique(prov$n_max), 10L)
   expect_identical(unique(prov$filter), NA_character_)
   expect_identical(unique(prov$query), "bibliometrics")
+})
+
+test_that("PubMed preserves fetched XML pages after a request fails", {
+  local_http_env()
+  calls <- 0L
+  local_mocked_bindings(req_perform = function(req, ...) {
+    calls <<- calls + 1L
+    if (grepl("esearch", req$url)) {
+      result <- list(count = "501", webenv = "env", querykey = "1",
+                     idlist = as.list(as.character(1:501)))
+      return(http_response(list(esearchresult = result)))
+    }
+    if (calls > 2L) return(http_response(status = 429L))
+    xml <- paste0(
+      "<PubmedArticleSet><PubmedArticle><MedlineCitation>",
+      "<PMID>1</PMID><Article><ArticleTitle>Invented</ArticleTitle>",
+      "<Journal><JournalIssue><PubDate><Year>2024</Year></PubDate>",
+      "</JournalIssue></Journal></Article></MedlineCitation>",
+      "</PubmedArticle></PubmedArticleSet>"
+    )
+    httr2::response(status_code = 200L, body = charToRaw(xml))
+  }, .package = "httr2")
+  err <- expect_error(
+    sm_fetch_pubmed(query = "invented", n_max = 501,
+                    api_key = "", verbose = FALSE),
+    class = "scimapR_fetch_incomplete"
+  )
+  expect_identical(calls, 3L)
+  expect_identical(err$partial$works$pmid, "1")
+  expect_identical(err$partial$metadata$fetch_incomplete$n_fetched, 1L)
 })

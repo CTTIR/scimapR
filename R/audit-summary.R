@@ -34,7 +34,7 @@
 #' @export
 #' @examples
 #' corpus <- sm_example_corpus(n_works = 50, n_authors = 20)
-#' # The funding audit needs one Crossref request per DOI, so it is not run
+#' # The funding audit sends batched Crossref requests, so it is not run
 #' # unless online = TRUE.
 #' summary_audit <- sm_audit_summary(corpus)
 #' summary_audit$overview
@@ -78,8 +78,8 @@ sm_audit_summary <- function(corpus,
   cli::cli_progress_update(.envir = environment())
   if (is.null(funding) && !online) {
     cli::cli_inform(c(
-      "i" = paste("Skipped the funding audit, which sends one Crossref",
-                  "request per DOI."),
+      "i" = paste("Skipped the funding audit, which sends batched Crossref",
+                  "requests."),
       "i" = paste("Use {.code online = TRUE} to run it, or pass a",
                   "precomputed {.fn sm_audit_funding} result.")
     ))
@@ -117,8 +117,10 @@ sm_audit_summary <- function(corpus,
       } else {
         "no data"
       },
-      if (is.na(funding$coverage)) {
+      if (identical(funding$source, "none")) {
         "not run (needs online = TRUE)"
+      } else if (is.na(funding$coverage)) {
+        "no work could be checked"
       } else if (nrow(funding$funders) > 0L) {
         paste0(funding$funders$funder_name[1], " (",
                funding$funders$n_works[1], " works)")
@@ -156,6 +158,9 @@ sm_audit_summary <- function(corpus,
       coverage = NA_real_,
       n_works_total = n_works_total,
       n_works_funded = NA_integer_,
+      n_works_checked = NA_integer_,
+      n_works_failed = NA_integer_,
+      n_works_no_id = NA_integer_,
       source = "none"
     ),
     class = "sm_audit_funding"

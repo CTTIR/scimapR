@@ -4,7 +4,7 @@
 #' Query the [Crossref](https://api.crossref.org/) API for scholarly works
 #' and return the results as an `sm_corpus`.
 #'
-#' Uses offset-based pagination to retrieve up to `n_max` works. Providing
+#' Uses cursor pagination to retrieve up to `n_max` works. Providing
 #' a `mailto` address enables the polite pool (faster rate limits).
 #'
 #' @param query Free-text search query. If `NULL`, `filter` must be supplied.
@@ -22,6 +22,16 @@
 #' @return An `sm_corpus` object. Its provenance records the search
 #'   (`query`, `filter`, `n_max` and `engine`), so that
 #'   [sm_rebuild_from_cert()] can run it again.
+#'
+#' @section Failed requests:
+#' Native requests retry transient server and network failures, and short
+#' announced rate-limit waits. Long waits abort immediately. If a later
+#' page fails, the error inherits from `scimapR_fetch_incomplete` and holds
+#' the earlier parsed works in `rlang::last_error()$partial`. Their metadata
+#' records `fetch_incomplete` with the source, received and expected counts,
+#' and failure reason. If those pages cannot be parsed, `partial` is `NULL`.
+#' The default remains an error; an incomplete fetch is never returned as
+#' an ordinary successful result.
 #'
 #' @family fetchers
 #' @export
@@ -68,14 +78,15 @@ sm_fetch_crossref <- function(query = NULL,
 
   rows_per_page <- 100L
   collected <- list()
-  offset <- 0L
+  cursor <- "*"
+  total_results <- n_max
 
   repeat {
     this_page <- min(rows_per_page, n_max - length(collected))
     if (this_page <= 0L) break
 
     req <- httr2::request("https://api.crossref.org/works") |>
-      httr2::req_url_query(rows = this_page, offset = offset) |>
+      httr2::req_url_query(rows = this_page, cursor = cursor) |>
       httr2::req_headers(`User-Agent` = .sm_user_agent()) |>
       httr2::req_throttle(rate = 50 / 1)
 
@@ -89,24 +100,19 @@ sm_fetch_crossref <- function(query = NULL,
       req <- httr2::req_url_query(req, mailto = mailto)
     }
 
-    resp <- tryCatch(
-      httr2::req_perform(req),
-      error = function(e) {
-        cli::cli_abort(
-          c("Crossref API request failed.",
-            "i" = conditionMessage(e)),
-          call = call
-        )
-      }
+    body <- .sm_fetch_page(
+      req, "Crossref", "crossref", collected,
+      function(items) {
+        .record_request(.parse_crossref_results(items, query, FALSE, call),
+                        filter = filter, n_max = n_max)
+      }, min(n_max, total_results), "Crossref API request failed.", call
     )
-
-    body <- httr2::resp_body_json(resp)
     items <- body[["message"]][["items"]]
 
     if (length(items) == 0L) break
 
     collected <- c(collected, items)
-    offset <- offset + length(items)
+    cursor <- body[["message"]][["next-cursor"]]
 
     total_results <- body[["message"]][["total-results"]] %||% n_max
 
@@ -115,7 +121,8 @@ sm_fetch_crossref <- function(query = NULL,
       verbose
     )
 
-    if (length(collected) >= n_max || offset >= total_results) break
+    if (length(collected) >= n_max || is.null(cursor) ||
+          length(collected) >= total_results) break
   }
 
   if (length(collected) == 0L) {
@@ -148,12 +155,7 @@ sm_fetch_crossref <- function(query = NULL,
       ab <- x[["abstract"]]
       if (is.null(ab)) NA_character_ else gsub("<[^>]+>", "", ab)
     }),
-    year = as.integer(purrr::map_int(items, \(x) {
-      dp <- x[["published-print"]][["date-parts"]][[1]] %||%
-            x[["published-online"]][["date-parts"]][[1]] %||%
-            x[["issued"]][["date-parts"]][[1]]
-      if (is.null(dp) || length(dp) == 0) NA_integer_ else as.integer(dp[[1]])
-    })),
+    year = vapply(items, .crossref_year, integer(1)),
     type = purrr::map_chr(items, "type", .default = NA_character_),
     source_id = purrr::map_chr(items, \(x) {
       issn <- x[["ISSN"]]
@@ -218,7 +220,15 @@ sm_fetch_crossref <- function(query = NULL,
       name <- trimws(name)
       orcid <- .normalize_orcid(a[["ORCID"]])
 
-      key <- if (!is.na(orcid)) orcid else tolower(name)
+      organization <- !nzchar(name)
+      if (organization) name <- trimws(a[["name"]] %||% "")
+      key <- if (!is.na(orcid)) {
+        orcid
+      } else if (!nzchar(name)) {
+        paste0("unnamed:", work_ids[i], ":", j)
+      } else {
+        paste0(if (organization) "org:" else "person:", tolower(name))
+      }
       if (is.null(author_map[[key]])) {
         aid <- paste0("A", formatC(length(author_map) + 1L, width = 9, flag = "0"))
         author_map[[key]] <- list(
@@ -401,4 +411,16 @@ sm_fetch_crossref <- function(query = NULL,
       call = call
     )
   })
+}
+
+.crossref_year <- function(item) {
+  for (field in c("published-print", "published-online", "issued")) {
+    parts <- item[[field]][["date-parts"]]
+    if (!length(parts) || !length(parts[[1]])) next
+    year <- parts[[1]][[1]]
+    if (is.numeric(year) && length(year) == 1L && is.finite(year)) {
+      return(as.integer(year))
+    }
+  }
+  NA_integer_
 }

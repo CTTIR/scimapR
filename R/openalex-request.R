@@ -61,44 +61,26 @@
 .openalex_request <- function(endpoint, query = list(), api_key = "",
                               mailto = "", call = rlang::caller_env()) {
   api_key <- .openalex_setting(api_key)
-  mailto <- .openalex_setting(mailto)
   req <- .openalex_build_request(endpoint, query, api_key = api_key,
                                  mailto = mailto)
-
-  for (attempt in 1:2) {
-    resp <- tryCatch(
-      httr2::req_perform(req),
-      error = function(e) {
-        cli::cli_abort(
-          c("OpenAlex API request failed.",
-            "i" = .sm_cli_escape(.openalex_scrub(conditionMessage(e),
-                                                 mailto))),
-          class = c("scimapR_openalex_failed", "scimapR_openalex_error"),
-          status = NA_integer_, call = call
-        )
+  body <- tryCatch(
+    .sm_http_read(req, "OpenAlex", max_tries = 2L,
+                  max_wait = .openalex_short_wait, call = call),
+    scimapR_request_failed = function(cnd) {
+      if (inherits(cnd, "scimapR_rate_limited")) {
+        .openalex_abort_rate_limit(cnd, key_set = nzchar(api_key), call = call)
       }
-    )
-    status <- httr2::resp_status(resp)
-    if (status == 429L) {
-      info <- .openalex_rate_info(resp)
-      short <- !is.na(info$retry_after) &&
-        info$retry_after <= .openalex_short_wait
-      if (attempt == 1L && short) {
-        Sys.sleep(info$retry_after)
-        next
-      }
-      .openalex_abort_rate_limit(info, key_set = nzchar(api_key), call = call)
-    }
-    if (status >= 400L) {
       cli::cli_abort(
-        c("OpenAlex API request failed.",
-          "i" = "OpenAlex answered HTTP {status}."),
-        class = c("scimapR_openalex_failed", "scimapR_openalex_error"),
-        status = as.integer(status), call = call
+        "OpenAlex API request failed.",
+        class = c("scimapR_openalex_failed", "scimapR_openalex_error",
+                  class(cnd)[startsWith(class(cnd), "scimapR_")]),
+        status = cnd$status, service = "OpenAlex",
+        retry_after = cnd$retry_after, reset_at = cnd$reset_at,
+        remaining = cnd$remaining, parent = cnd, call = call
       )
     }
-    return(httr2::resp_body_json(resp))
-  }
+  )
+  body
 }
 
 #' A failure message without query strings and without the mailto address
@@ -165,17 +147,25 @@
 #' @noRd
 .openalex_batches <- function(batches, fetch, on_failure = c("abort", "skip"),
                               context = character(),
-                              call = rlang::caller_env()) {
+                              call = rlang::caller_env(),
+                              on_rate_limit = c("abort", "return")) {
   on_failure <- rlang::arg_match(on_failure)
+  on_rate_limit <- rlang::arg_match(on_rate_limit)
   n <- length(batches)
   results <- vector("list", n)
   failed <- integer()
+  condition <- NULL
   for (i in seq_len(n)) {
     done <- sprintf("%d of %d batch%s had been fetched.", i - 1L, n,
                     if (n == 1L) "" else "es")
     results[i] <- list(tryCatch(
       fetch(batches[[i]]),
       scimapR_openalex_rate_limit = function(cnd) {
+        if (on_rate_limit == "return") {
+          failed <<- c(failed, seq.int(i, n))
+          condition <<- cnd
+          return(NULL)
+        }
         .openalex_abort_rate_limit(cnd, key_set = cnd$key_set,
                                    context = c(done, context),
                                    n_done = i - 1L, n_batches = n,
@@ -185,6 +175,7 @@
       scimapR_openalex_failed = function(cnd) {
         if (on_failure == "skip") {
           failed <<- c(failed, i)
+          condition <<- cnd
           return(NULL)
         }
         status <- if (is.na(cnd$status)) {
@@ -197,14 +188,16 @@
                     i, n, status),
             stats::setNames(.sm_cli_escape(c(done, context)),
                             rep("i", length(c(done, context))))),
-          class = c("scimapR_openalex_failed", "scimapR_openalex_error"),
+          class = c("scimapR_openalex_failed", "scimapR_openalex_error",
+                    "scimapR_request_failed"),
           status = cnd$status, n_done = i - 1L, n_batches = n, call = call
         )
       }
     ))
+    if (inherits(condition, "scimapR_rate_limited")) break
   }
   list(results = results, failed = failed, n_failed = length(failed),
-       n_batches = n)
+       n_batches = n, condition = condition)
 }
 
 #' Rate-limit headers of an OpenAlex HTTP 429 response
@@ -219,60 +212,11 @@
 #'   when absent).
 #' @noRd
 .openalex_rate_info <- function(resp, now = Sys.time()) {
-  header <- function(name) {
-    value <- httr2::resp_header(resp, name)
-    if (is.null(value) || !nzchar(trimws(value[1]))) {
-      NA_character_
-    } else {
-      trimws(value[1])
-    }
-  }
-  retry_after <- .openalex_wait_seconds(header("Retry-After"), now)
-  reset <- .openalex_wait_seconds(header("X-RateLimit-Reset"), now)
-  wait <- if (is.na(retry_after)) reset else retry_after
-  budget <- c("X-RateLimit-Remaining-USD", "X-RateLimit-Remaining")
-  values <- vapply(budget, header, character(1))
-  hit <- which(!is.na(values))[1]
-  list(
-    retry_after = retry_after,
-    reset_at = .POSIXct(as.numeric(now) + wait, tz = "UTC"),
-    remaining = if (is.na(hit)) NA_character_ else unname(values[hit]),
-    remaining_header = if (is.na(hit)) NA_character_ else budget[hit]
-  )
+  .sm_rate_limit_info(resp, now)
 }
 
-#' Seconds to wait, from a header that gives seconds, an epoch time or an
-#' HTTP date; `NA` when the value is missing or unreadable
-#' @noRd
 .openalex_wait_seconds <- function(value, now = Sys.time()) {
-  if (is.na(value)) return(NA_real_)
-  secs <- suppressWarnings(as.numeric(value))
-  if (!is.na(secs)) {
-    # a large number is a point in time (epoch seconds), not a delay
-    if (secs > 1e9) secs <- secs - as.numeric(now)
-    return(if (is.finite(secs)) max(secs, 0) else NA_real_)
-  }
-  at <- .http_date_seconds(value)
-  if (is.na(at)) NA_real_ else max(at - as.numeric(now), 0)
-}
-
-#' Epoch seconds of an HTTP date such as "Wed, 21 Oct 2026 00:00:00 GMT",
-#' read without the locale's month names; `NA` when it does not parse
-#' @noRd
-.http_date_seconds <- function(x) {
-  shape <- paste0("^[A-Za-z]{3},\\s*([0-9]{1,2})\\s+([A-Za-z]{3})\\s+",
-                  "([0-9]{4})\\s+([0-9]{2}):([0-9]{2}):([0-9]{2})\\s*GMT$")
-  parts <- regmatches(x, regexec(shape, x))[[1]]
-  if (length(parts) == 0L) return(NA_real_)
-  months <- c("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep",
-              "oct", "nov", "dec")
-  month <- match(tolower(parts[3]), months)
-  if (is.na(month)) return(NA_real_)
-  # parts: 2 day, 3 month, 4 year, 5-7 hours, minutes, seconds
-  num <- as.integer(parts[c(2L, 4:7)])
-  at <- ISOdatetime(num[2], month, num[1], num[3], num[4], num[5],
-                    tz = "UTC")
-  as.numeric(at)
+  .sm_wait_seconds(value, now)
 }
 
 #' Abort because OpenAlex answered HTTP 429
@@ -331,7 +275,9 @@
   cli::cli_abort(
     c("OpenAlex refused the request with HTTP 429 (too many requests).",
       stats::setNames(.sm_cli_escape(lines), rep("i", length(lines)))),
-    class = c("scimapR_openalex_rate_limit", "scimapR_openalex_error"),
+    class = c("scimapR_openalex_rate_limit", "scimapR_openalex_error",
+              "scimapR_rate_limited", "scimapR_request_failed"),
+    service = "OpenAlex",
     status = 429L,
     retry_after = info$retry_after %||% NA_real_,
     reset_at = reset_at,
@@ -351,4 +297,61 @@
   if (hours >= 1.5) return(paste(round(hours), "hours"))
   minutes <- max(round(hours * 60), 1)
   paste(minutes, if (minutes == 1) "minute" else "minutes")
+}
+
+# Lookup results include failed identifiers separately from absent records.
+.openalex_lookup <- function(ids, by = c("doi", "openalex"), select,
+                             api_key = "", call = rlang::caller_env()) {
+  by <- rlang::arg_match(by)
+  normalize <- if (by == "doi") .normalize_doi else .openalex_short_id
+  ids <- unique(normalize(ids))
+  ids <- ids[!is.na(ids) & nzchar(ids)]
+  batches <- unname(split(ids, ceiling(seq_along(ids) / 50L)))
+  run <- .openalex_batches(
+    batches,
+    function(batch) {
+      .openalex_fetch_all("works", list(
+        filter = paste0(by, ":", paste(batch, collapse = "|")),
+        select = select
+      ), per_page = 100L, api_key = api_key, call = call)
+    }, on_failure = "skip", on_rate_limit = "return", call = call
+  )
+  records <- unlist(run$results, recursive = FALSE, use.names = FALSE)
+  records <- lapply(records, function(record) {
+    if (!is.null(record$doi)) record$doi <- .normalize_doi(record$doi)
+    if (!is.null(record$id)) record$id <- .openalex_short_id(record$id)
+    record
+  })
+  list(records = records, failed = as.character(unlist(batches[run$failed],
+                                                       use.names = FALSE)),
+       condition = run$condition)
+}
+
+# Prefer an OpenAlex identifier, with DOI fallback only when it is absent.
+.openalex_work_lookup <- function(works, select, api_key, call) {
+  keys <- .openalex_lookup_keys(works, by = c("openalex_id", "doi"))
+  records <- vector("list", nrow(works))
+  failed <- character()
+  condition <- NULL
+  for (type in c("openalex_id", "doi")) {
+    rows <- which(keys$type == type & !is.na(keys$key))
+    if (!length(rows)) next
+    if (inherits(condition, "scimapR_rate_limited")) {
+      failed <- c(failed, works$work_id[rows])
+      next
+    }
+    run <- .openalex_lookup(keys$key[rows],
+                            by = if (type == "doi") "doi" else "openalex",
+                            select = select, api_key = api_key, call = call)
+    ids <- vapply(run$records, function(record) {
+      if (type == "doi") .normalize_doi(record$doi %||% NA_character_) else
+        .openalex_short_id(record$id %||% NA_character_)
+    }, character(1))
+    hit <- match(keys$key[rows], ids)
+    records[rows[!is.na(hit)]] <- run$records[hit[!is.na(hit)]]
+    failed <- c(failed, works$work_id[rows[keys$key[rows] %in% run$failed]])
+    condition <- run$condition %||% condition
+  }
+  list(records = records, failed = failed, condition = condition,
+       ids = keys$key)
 }

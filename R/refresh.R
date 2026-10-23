@@ -3,10 +3,12 @@
 #' @description
 #' Re-fetches metadata for works whose `last_refreshed` timestamp is older
 #' than `max_age_days`. For each stale work, the original provenance source
-#' is consulted (e.g., OpenAlex, Crossref, PubMed) to update citation counts,
-#' open-access status, new references, and Altmetric data. A new provenance
-#' row is appended for each refreshed work, making the operation
-#' fully auditable.
+#' is consulted: OpenAlex supplies citation counts and open-access status;
+#' Crossref supplies citation counts. Other sources remain stale. Failed
+#' requests, missing identifiers and records not returned are reported.
+#' Only works with returned updates receive a new timestamp and provenance
+#' row. `metadata$last_refresh` advances only when at least one work was
+#' refreshed and none failed. Enrichment rows never select a refresh source.
 #'
 #' The operation is **idempotent**: running it twice in succession will not
 #' re-fetch works that were just refreshed. The function **refuses to operate
@@ -16,11 +18,15 @@
 #' @param max_age_days Numeric. Works last refreshed more than this many days
 #'   ago will be re-fetched. Default `30`.
 #' @param what Character vector of data aspects to refresh. One or more of
-#'   `"citations"`, `"oa_status"`, `"new_refs"`, `"altmetric"`.
+#'   `"citations"` and `"oa_status"` (the default). `"new_refs"` and
+#'   `"altmetric"` are accepted but unsupported: they warn and are ignored,
+#'   or error when no implemented aspect remains.
 #' @param sources Optional character vector restricting which provenance
 #'   sources to re-query (e.g., `"openalex"`, `"crossref"`). If `NULL` (the
 #'   default), the original source for each work is used.
 #' @param verbose Logical. Print progress messages?
+#' @param api_key OpenAlex API key, sent only in the authorization header.
+#' @param mailto Contact address for Crossref requests.
 #' @param call Caller environment for error reporting.
 #'
 #' @return A refreshed `sm_corpus` with updated fields and appended
@@ -32,280 +38,217 @@
 #' corpus <- sm_example_corpus()
 #' # In practice, this would re-fetch from APIs:
 #' # refreshed <- sm_refresh(corpus, max_age_days = 7)
-sm_refresh <- function(corpus,
-                       max_age_days = 30,
-                       what = c("citations", "oa_status", "new_refs",
-                                "altmetric"),
-                       sources = NULL,
-                       verbose = TRUE,
+sm_refresh <- function(corpus, max_age_days = 30,
+                       what = c("citations", "oa_status"), sources = NULL,
+                       verbose = TRUE, api_key = Sys.getenv("OPENALEX_API_KEY"),
+                       mailto = Sys.getenv("SCIMAPR_MAILTO"),
                        call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   .check_corpus_unlocked(corpus, call = call)
-  what <- match.arg(what, several.ok = TRUE)
-
-  if (!is.null(sources)) {
-    valid_sources <- c("openalex", "crossref", "pubmed", "semantic_scholar",
-                       "arxiv", "biorxiv", "unpaywall", "altmetric")
-    bad <- setdiff(tolower(sources), valid_sources)
-    if (length(bad) > 0L) {
-      cli::cli_abort(
-        "Unknown source{?s}: {.val {bad}}. Valid sources: {.val {valid_sources}}.",
-        call = call
-      )
+  what <- rlang::arg_match(what, c("citations", "oa_status", "new_refs",
+                                   "altmetric"),
+                           multiple = TRUE, error_call = call)
+  unsupported <- intersect(what, c("new_refs", "altmetric"))
+  what <- setdiff(what, unsupported)
+  if (length(unsupported)) {
+    message <- "Unsupported refresh aspects: {.val {unsupported}}."
+    if (!length(what)) {
+      cli::cli_abort(message, class = "scimapR_refresh_aspect_unsupported",
+                     call = call)
     }
+    cli::cli_warn(message, class = "scimapR_refresh_aspect_unsupported",
+                  call = call)
   }
-
+  valid_sources <- c("openalex", "crossref", "pubmed", "semantic_scholar",
+                     "arxiv", "biorxiv", "unpaywall", "altmetric")
+  bad <- setdiff(tolower(sources), valid_sources)
+  if (length(bad)) {
+    cli::cli_abort(
+      c("Unknown {cli::qty(length(bad))}source{?s}: {.val {bad}}.",
+        "i" = "Valid sources: {.val {valid_sources}}."),
+      class = "scimapR_refresh_unknown_source", call = call
+    )
+  }
   staleness <- sm_staleness(corpus, threshold_days = max_age_days, call = call)
   stale_ids <- staleness$work_id[staleness$is_stale]
-
-  if (length(stale_ids) == 0L) {
+  if (!length(stale_ids)) {
     .sm_verbose("No stale works found. Corpus is up to date.", verbose)
     return(corpus)
   }
-
-  .sm_verbose(
-    "Refreshing {length(stale_ids)} stale work{?s} for: {.val {what}}.",
-    verbose
-  )
-
-  # Determine provenance source for each stale work
-  prov <- corpus$provenance
-  stale_prov <- dplyr::filter(prov, .data$work_id %in% stale_ids)
-
-  # Group by source to batch API calls
-  if (!is.null(sources)) {
-    stale_prov <- dplyr::filter(stale_prov, tolower(.data$source) %in% tolower(sources))
-    stale_ids <- intersect(stale_ids, stale_prov$work_id)
-  }
-
-  if (length(stale_ids) == 0L) {
+  bases <- .refresh_base_sources(corpus)
+  chosen <- match(stale_ids, corpus$works$work_id)
+  if (!is.null(sources)) chosen <- chosen[bases[chosen] %in% tolower(sources)]
+  if (!length(chosen)) {
     .sm_verbose("No stale works match the specified sources.", verbose)
     return(corpus)
   }
-
-  # Per-source refresh dispatch
-  source_groups <- if (nrow(stale_prov) > 0L) {
-    split(stale_prov$work_id, stale_prov$source)
-  } else {
-    list(unknown = stale_ids)
-  }
-
-  new_prov_rows <- list()
+  groups <- split(corpus$works$work_id[chosen], bases[chosen])
+  statuses <- list()
+  condition <- NULL
   now <- Sys.time()
-  pkg_version <- tryCatch(
-    as.character(utils::packageVersion("scimapR")),
-    error = function(e) "0.1.0"
-  )
-
-  for (src_name in names(source_groups)) {
-    src_ids <- unique(source_groups[[src_name]])
-
-    .sm_verbose(
-      "Source {.val {src_name}}: refreshing {length(src_ids)} work{?s}.",
-      verbose
-    )
-
-    refreshed <- .refresh_from_source(
-      corpus = corpus,
-      work_ids = src_ids,
-      source = src_name,
-      what = what,
-      call = call
-    )
-
-    # Apply updates
-    if (!is.null(refreshed$works_update)) {
-      for (wid in names(refreshed$works_update)) {
-        idx <- which(corpus$works$work_id == wid)
-        if (length(idx) == 1L) {
-          updates <- refreshed$works_update[[wid]]
-          for (col_name in names(updates)) {
-            if (col_name %in% names(corpus$works)) {
-              corpus$works[[col_name]][idx] <- updates[[col_name]]
-            }
-          }
-          corpus$works$last_refreshed[idx] <- now
-        }
+  for (source in names(groups)) {
+    run <- .refresh_from_source(corpus, unique(groups[[source]]), source,
+                                what, api_key = api_key, mailto = mailto,
+                                call = call)
+    statuses[[source]] <- dplyr::mutate(run$status, source = source)
+    condition <- if (inherits(condition, "scimapR_rate_limited")) condition else
+      run$condition %||% condition
+    refreshed <- run$status$work_id[run$status$status == "refreshed"]
+    for (wid in refreshed) {
+      i <- match(wid, corpus$works$work_id)
+      updates <- run$updates[[wid]]
+      for (column in names(updates)) {
+        corpus$works[[column]][i] <- updates[[column]]
       }
-    }
-
-    # Append new references
-    if (!is.null(refreshed$new_refs) && nrow(refreshed$new_refs) > 0L) {
-      corpus$references <- dplyr::bind_rows(
-        corpus$references,
-        refreshed$new_refs
+      corpus$works$last_refreshed[i] <- now
+      aspects <- c(cited_by_count = "citations", oa_status = "oa_status")
+      actual <- unname(aspects[names(updates)])
+      external <- if (source == "openalex") {
+        .openalex_lookup_keys(corpus$works[i, ], by = c("openalex_id",
+                                                        "doi"))$key
+      } else {
+        .normalize_doi(corpus$works$doi[i])
+      }
+      row <- .make_provenance_rows(
+        wid, paste0(source, "_refresh"), external,
+        paste0("sm_refresh(what=", paste(actual, collapse = ","), ")"),
+        "native", kind = "refresh"
       )
-      corpus$references <- dplyr::distinct(
-        corpus$references,
-        .data$work_id, .data$cited_work_id, .data$cited_doi,
-        .keep_all = TRUE
-      )
+      row$fetch_date <- now
+      corpus$provenance <- dplyr::bind_rows(corpus$provenance, row)
     }
-
-    # Build provenance rows
-    new_prov_rows[[src_name]] <- tibble::tibble(
-      work_id = src_ids,
-      source = paste0(src_name, "_refresh"),
-      source_id_external = NA_character_,
-      fetch_date = now,
-      query = paste0("sm_refresh(what=", paste(what, collapse = ","), ")"),
-      engine = "native",
-      scimapR_version = pkg_version,
-      prompt_hash = NA_character_
+  }
+  status <- dplyr::bind_rows(statuses)
+  n <- sum(status$status == "refreshed")
+  failed <- status$work_id[status$status == "failed"]
+  if (n > 0L && !length(failed)) corpus$metadata$last_refresh <- now
+  if (length(failed)) {
+    .sm_warn_unchecked(
+      failed, condition, "scimapR_refresh_failed",
+      sprintf(paste0("%d works remain stale after failed requests; ",
+                     "metadata$last_refresh is unchanged."), length(failed)),
+      call = call, key_setting = "OPENALEX_API_KEY"
     )
   }
-
-  # Append provenance
-  if (length(new_prov_rows) > 0L) {
-    corpus$provenance <- dplyr::bind_rows(
-      corpus$provenance,
-      dplyr::bind_rows(new_prov_rows)
-    )
+  skipped <- status[status$status %in% c("not_found", "no_id", "unsupported"), ]
+  if (nrow(skipped)) {
+    labels <- ifelse(skipped$status == "unsupported",
+                     paste0("unsupported (", skipped$source, ")"),
+                     skipped$status)
+    counts <- table(labels)
+    details <- paste(paste(names(counts), as.integer(counts), sep = ": "),
+                     collapse = "; ")
+    cli::cli_warn(.sm_cli_escape(paste0("Works left stale: ", details, ".")),
+                  class = "scimapR_refresh_skipped", call = call)
   }
-
-  corpus$metadata$last_refresh <- now
-
-  .sm_verbose(
-    "Refresh complete. {length(stale_ids)} work{?s} updated.",
-    verbose
-  )
-
+  total <- nrow(status)
+  .sm_verbose(sprintf("Refreshed %d of %d stale works.", n, total), verbose)
   corpus
 }
 
-#' Dispatch refresh to the appropriate source API
-#' @noRd
-.refresh_from_source <- function(corpus, work_ids, source, what,
-                                 call = rlang::caller_env()) {
-  result <- list(works_update = list(), new_refs = NULL)
+.refresh_base_sources <- function(corpus) {
+  prov <- corpus$provenance
+  source <- tolower(prov$source)
+  kind <- .provenance_kind(source, prov[["kind"]], prov$query)
+  enrichment <- c("retraction_check", "unpaywall", "altmetric",
+                  "opencitations", "orcid", "ror")
+  drop <- kind == "enrichment" | source %in% enrichment |
+    (!is.na(prov$query) & startsWith(prov$query, "enrich_"))
+  prov <- prov[!drop, ]
+  prov <- prov[order(prov$fetch_date, seq_len(nrow(prov)), na.last = TRUE), ]
+  base <- sub("(_refresh)+$", "", tolower(prov$source))
+  out <- base[match(corpus$works$work_id, prov$work_id)]
+  out[is.na(out) | !nzchar(out)] <- "unknown"
+  out
+}
 
-  works_sub <- dplyr::filter(corpus$works, .data$work_id %in% work_ids)
+.refresh_result <- function(works, status = "unsupported") {
+  list(status = tibble::tibble(work_id = works$work_id,
+                               status = rep(status, nrow(works)),
+                               reason = status),
+       updates = list(), condition = NULL)
+}
 
-  src_lower <- tolower(source)
+.refresh_from_source <- function(corpus, work_ids, source, what, api_key = "",
+                                 mailto = "", call = rlang::caller_env()) {
+  works <- corpus$works[match(work_ids, corpus$works$work_id), ]
+  switch(source,
+         openalex = .refresh_openalex(works, what, api_key, call),
+         crossref = .refresh_crossref(works, what, mailto, call),
+         .refresh_result(works))
+}
 
-  if (src_lower %in% c("openalex", "openalex_refresh")) {
-    result <- .refresh_openalex(works_sub, what, call = call)
-  } else if (src_lower %in% c("crossref", "crossref_refresh")) {
-    result <- .refresh_crossref(works_sub, what, call = call)
-  } else if (src_lower %in% c("pubmed", "pubmed_refresh")) {
-    result <- .refresh_pubmed(works_sub, what, call = call)
-  } else {
-    # Generic: just mark as refreshed without API call
-    result$works_update <- stats::setNames(
-      lapply(work_ids, function(wid) list()),
-      work_ids
-    )
+.refresh_openalex <- function(works, what, api_key = "",
+                              call = rlang::caller_env()) {
+  run <- .openalex_work_lookup(works, "id,doi,cited_by_count,open_access",
+                               api_key, call)
+  result <- .refresh_result(works, "not_found")
+  result$condition <- run$condition
+  for (i in seq_len(nrow(works))) {
+    record <- run$records[[i]]
+    wid <- works$work_id[i]
+    state <- if (is.na(run$ids[i])) {
+      "no_id"
+    } else if (wid %in% run$failed) {
+      "failed"
+    } else if (is.null(record)) {
+      "not_found"
+    } else {
+      "refreshed"
+    }
+    updates <- list()
+    if (state == "refreshed") {
+      count <- record$cited_by_count
+      oa <- record$open_access$oa_status
+      if ("citations" %in% what && length(count) == 1L && !is.na(count)) {
+        updates$cited_by_count <- as.integer(count)
+      }
+      if ("oa_status" %in% what && length(oa) == 1L && !is.na(oa)) {
+        updates$oa_status <- as.character(oa)
+      }
+      if (!length(updates)) state <- "not_found"
+    }
+    if (state == "refreshed") result$updates[[wid]] <- updates
+    result$status$status[i] <- state
+    result$status$reason[i] <- state
   }
-
   result
 }
 
-#' Refresh works from OpenAlex
-#' @noRd
-.refresh_openalex <- function(works, what, call = rlang::caller_env()) {
-  result <- list(works_update = list(), new_refs = NULL)
-
-  # Attempt to use openalexR if available
-  has_oalex <- rlang::is_installed("openalexR")
-
+.refresh_crossref <- function(works, what, mailto = "",
+                              call = rlang::caller_env()) {
+  if (!"citations" %in% what) return(.refresh_result(works))
+  dois <- .normalize_doi(works$doi)
+  run <- .crossref_lookup(dois, select = "DOI,is-referenced-by-count",
+                          mailto = mailto, call = call)
+  returned <- vapply(run$records, function(x) .normalize_doi(x$DOI),
+                     character(1))
+  result <- .refresh_result(works, "not_found")
+  result$condition <- run$condition
   for (i in seq_len(nrow(works))) {
-    wid <- works$work_id[i]
-    oaid <- works$openalex_id[i]
-    updates <- list()
-
-    if (has_oalex && !is.na(oaid)) {
-      tryCatch({
-        fetched <- openalexR::oa_fetch(
-          entity = "works",
-          identifier = oaid,
-          verbose = FALSE
+    hit <- match(dois[i], returned)
+    state <- if (is.na(dois[i]) || !nzchar(dois[i])) {
+      "no_id"
+    } else if (dois[i] %in% run$failed) {
+      "failed"
+    } else {
+      "not_found"
+    }
+    if (!is.na(hit)) {
+      count <- run$records[[hit]][["is-referenced-by-count"]]
+      if (length(count) == 1L && !is.na(count)) {
+        state <- "refreshed"
+        result$updates[[works$work_id[i]]] <- list(
+          cited_by_count = as.integer(count)
         )
-        if (nrow(fetched) > 0L) {
-          if ("citations" %in% what && "cited_by_count" %in% names(fetched)) {
-            updates$cited_by_count <- as.integer(fetched$cited_by_count[1])
-          }
-          if ("oa_status" %in% what && "oa_status" %in% names(fetched)) {
-            updates$oa_status <- as.character(fetched$oa_status[1])
-          }
-        }
-      }, error = function(e) {
-        cli::cli_inform(c(
-          "!" = "OpenAlex refresh failed for {.val {wid}}: {conditionMessage(e)}"
-        ))
-      })
+      }
     }
-
-    result$works_update[[wid]] <- updates
+    result$status$status[i] <- state
+    result$status$reason[i] <- state
   }
-
   result
 }
 
-#' Refresh works from Crossref
-#' @noRd
-.refresh_crossref <- function(works, what, call = rlang::caller_env()) {
-  result <- list(works_update = list(), new_refs = NULL)
-
-  has_cr <- rlang::is_installed("rcrossref")
-
-  for (i in seq_len(nrow(works))) {
-    wid <- works$work_id[i]
-    doi_val <- works$doi[i]
-    updates <- list()
-
-    if (has_cr && !is.na(doi_val)) {
-      tryCatch({
-        fetched <- rcrossref::cr_works(dois = doi_val)
-        if (!is.null(fetched$data) && nrow(fetched$data) > 0L) {
-          row <- fetched$data[1, ]
-          if ("citations" %in% what && "is.referenced.by.count" %in% names(row)) {
-            updates$cited_by_count <- as.integer(row[["is.referenced.by.count"]])
-          }
-        }
-      }, error = function(e) {
-        cli::cli_inform(c(
-          "!" = "Crossref refresh failed for {.val {wid}}: {conditionMessage(e)}"
-        ))
-      })
-    }
-
-    result$works_update[[wid]] <- updates
-  }
-
-
-  result
-}
-
-#' Refresh works from PubMed
-#' @noRd
 .refresh_pubmed <- function(works, what, call = rlang::caller_env()) {
-  result <- list(works_update = list(), new_refs = NULL)
-
-  has_rentrez <- rlang::is_installed("rentrez")
-
-  for (i in seq_len(nrow(works))) {
-    wid <- works$work_id[i]
-    pmid_val <- works$pmid[i]
-    updates <- list()
-
-    if (has_rentrez && !is.na(pmid_val)) {
-      tryCatch({
-        rec <- rentrez::entrez_fetch(
-          db = "pubmed",
-          id = pmid_val,
-          rettype = "xml"
-        )
-        # Minimal parse; full implementation would extract updated fields
-        updates <- list()
-      }, error = function(e) {
-        cli::cli_inform(c(
-          "!" = "PubMed refresh failed for {.val {wid}}: {conditionMessage(e)}"
-        ))
-      })
-    }
-
-    result$works_update[[wid]] <- updates
-  }
-
-  result
+  .refresh_result(works)
 }

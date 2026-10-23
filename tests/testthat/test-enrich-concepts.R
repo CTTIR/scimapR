@@ -12,10 +12,12 @@ mock_no_network <- function() {
 }
 
 test_that("sm_enrich_concepts rejects a non-corpus input", {
+  local_http_env()
   expect_error(sm_enrich_concepts(list()), class = "rlang_error")
 })
 
 test_that("sm_enrich_concepts validates the source argument", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 5, n_authors = 3,
                               with_embeddings = FALSE, seed = 1)
   expect_error(sm_enrich_concepts(corpus, source = "bogus"),
@@ -23,16 +25,18 @@ test_that("sm_enrich_concepts validates the source argument", {
 })
 
 test_that("openalex enrichment adds concepts from mocked responses", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 3, n_authors = 3,
                               with_embeddings = FALSE, seed = 1)
   # Remove any existing openalex concepts so all 3 works are targets.
   corpus$concepts <- corpus$concepts[corpus$concepts$vocabulary != "openalex", ]
 
   testthat::local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "sm_fake_resp"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) {
       list(results = list(list(
         id = "https://openalex.org/W123",
+        doi = corpus$works$doi[1],
         concepts = list(
           list(id = "C1", display_name = "Oncology", level = 1L, score = 0.9),
           list(id = "C2", display_name = "Genomics", level = 2L, score = 0.5)
@@ -42,12 +46,11 @@ test_that("openalex enrichment adds concepts from mocked responses", {
     .package = "httr2"
   )
 
-  n_before <- nrow(corpus$concepts)
   out <- sm_enrich_concepts(corpus, source = "openalex", verbose = FALSE)
 
   expect_s3_class(out, "sm_corpus")
   oa <- out$concepts[out$concepts$vocabulary == "openalex", ]
-  expect_gt(nrow(oa), n_before)
+  expect_equal(nrow(oa), 2L)
   expect_true("Oncology" %in% oa$concept_name)
   expect_true("Genomics" %in% oa$concept_name)
   expect_true(all(out$concepts$vocabulary %in% sm_concept_vocabularies()))
@@ -56,6 +59,7 @@ test_that("openalex enrichment adds concepts from mocked responses", {
 })
 
 test_that("openalex enrichment short-circuits when no DOIs present", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 4, n_authors = 3,
                               with_embeddings = FALSE, seed = 2)
   corpus$works$doi <- NA_character_
@@ -68,6 +72,7 @@ test_that("openalex enrichment short-circuits when no DOIs present", {
 })
 
 test_that("openalex enrichment is idempotent when all works already enriched", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 4, n_authors = 3,
                               with_embeddings = FALSE, seed = 3)
   # Example corpus already supplies openalex concepts for every work.
@@ -80,6 +85,7 @@ test_that("openalex enrichment is idempotent when all works already enriched", {
 })
 
 test_that("openalex tolerates API errors and empty result sets", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 3, n_authors = 3,
                               with_embeddings = FALSE, seed = 4)
   corpus$concepts <- corpus$concepts[corpus$concepts$vocabulary != "openalex", ]
@@ -88,13 +94,15 @@ test_that("openalex tolerates API errors and empty result sets", {
     req_perform = function(req, ...) stop("boom"),
     .package = "httr2"
   )
-  # tryCatch in source swallows the error -> no concepts added, returns corpus.
-  out <- sm_enrich_concepts(corpus, source = "openalex", verbose = FALSE)
+  expect_warning(out <- sm_enrich_concepts(corpus, source = "openalex",
+                                           verbose = FALSE, api_key = ""),
+                 class = "scimapR_concepts_unchecked")
   expect_s3_class(out, "sm_corpus")
   expect_equal(nrow(out$concepts[out$concepts$vocabulary == "openalex", ]), 0L)
 })
 
 test_that("mesh enrichment short-circuits when no PMIDs present", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 4, n_authors = 3,
                               with_embeddings = FALSE, seed = 5)
   corpus$works$pmid <- NA_character_
@@ -107,6 +115,7 @@ test_that("mesh enrichment short-circuits when no PMIDs present", {
 })
 
 test_that("mesh enrichment parses MeSH descriptors from mocked XML", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 2, n_authors = 3,
                               with_embeddings = FALSE, seed = 6)
   pmid1 <- corpus$works$pmid[1]
@@ -121,7 +130,7 @@ test_that("mesh enrichment parses MeSH descriptors from mocked XML", {
   )
 
   testthat::local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "sm_fake_resp"),
+    req_perform = function(req, ...) http_response(),
     resp_body_string = function(resp, ...) xml_str,
     .package = "httr2"
   )
@@ -138,6 +147,7 @@ test_that("mesh enrichment parses MeSH descriptors from mocked XML", {
 })
 
 test_that("mesh enrichment records major topics as score 1", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 2, n_authors = 3,
                               with_embeddings = FALSE, seed = 6)
   xml_str <- paste0(
@@ -153,7 +163,7 @@ test_that("mesh enrichment records major topics as score 1", {
     "</PubmedArticleSet>"
   )
   testthat::local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "sm_fake_resp"),
+    req_perform = function(req, ...) http_response(),
     resp_body_string = function(resp, ...) xml_str,
     .package = "httr2"
   )
@@ -164,6 +174,7 @@ test_that("mesh enrichment records major topics as score 1", {
 })
 
 test_that("mesh enrichment tolerates a request error gracefully", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 2, n_authors = 3,
                               with_embeddings = FALSE, seed = 7)
   testthat::local_mocked_bindings(
@@ -176,6 +187,7 @@ test_that("mesh enrichment tolerates a request error gracefully", {
 })
 
 test_that("enrichment counts concepts stored under another spelling", {
+  local_http_env()
   corpus <- sm_example_corpus(n_works = 4, n_authors = 3,
                               with_embeddings = FALSE, seed = 3)
   # Direct assignment keeps these spellings; the enricher normalises them.
@@ -203,16 +215,18 @@ test_that("enrichment counts concepts stored under another spelling", {
 })
 
 test_that("concept enrichment records its provenance as an enrichment", {
+  local_http_env()
   # the rows carry the API name; their kind keeps a certificate rebuild
   # from sending the placeholder query as a search
   corpus <- sm_example_corpus(n_works = 3, n_authors = 3,
                               with_embeddings = FALSE, seed = 1)
   corpus$concepts <- corpus$concepts[corpus$concepts$vocabulary != "openalex", ]
   testthat::local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "sm_fake_resp"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) {
       list(results = list(list(
         id = "https://openalex.org/W123",
+        doi = corpus$works$doi[1],
         concepts = list(
           list(id = "C1", display_name = "Oncology", level = 1L, score = 0.9)
         )
@@ -225,4 +239,28 @@ test_that("concept enrichment records its provenance as an enrichment", {
   expect_gt(nrow(rows), 0L)
   expect_identical(unique(rows$kind), "enrichment")
   expect_identical(unique(rows$query), "enrich_concepts_openalex")
+})
+
+test_that("concept lookups retain successes and stop after a rate limit", {
+  local_http_env()
+  corpus <- sm_example_corpus(n_works = 110, n_authors = 3)
+  corpus$concepts <- corpus$concepts[0, ]
+  corpus$works$doi <- paste0("10.9999/concept", 1:110)
+  calls <- 0L
+  local_mocked_bindings(req_perform = function(req, ...) {
+    calls <<- calls + 1L
+    if (calls == 2L) return(http_response(status = 429L))
+    concept <- list(id = "C1", display_name = "Invented field",
+                    level = 1L, score = 0.5)
+    record <- list(doi = corpus$works$doi[1], concepts = list(concept))
+    http_response(list(results = list(record)))
+  }, .package = "httr2")
+  warn <- expect_warning(out <- sm_enrich_concepts(corpus, verbose = FALSE,
+                                                   api_key = ""),
+                         class = "scimapR_concepts_unchecked")
+  expect_identical(calls, 2L)
+  expect_length(warn$work_ids, 60L)
+  expect_identical(out$concepts$work_id, corpus$works$work_id[1])
+  added <- out$provenance[out$provenance$query == "enrich_concepts_openalex", ]
+  expect_identical(added$work_id, corpus$works$work_id[1])
 })

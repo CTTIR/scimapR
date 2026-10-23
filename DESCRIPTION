@@ -42,7 +42,7 @@ Imports:
     readr,
     xml2,
     jsonlite,
-    httr2,
+    httr2 (>= 1.0.0),
     tidygraph,
     ggplot2 (>= 3.4.0),
     viridisLite,

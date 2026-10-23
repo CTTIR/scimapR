@@ -4,24 +4,36 @@
 \alias{sm_enrich_retraction}
 \title{Enrich corpus with retraction data}
 \usage{
-sm_enrich_retraction(corpus, verbose = TRUE, call = rlang::caller_env())
+sm_enrich_retraction(
+  corpus,
+  verbose = TRUE,
+  api_key = Sys.getenv("OPENALEX_API_KEY"),
+  mailto = Sys.getenv("SCIMAPR_MAILTO"),
+  call = rlang::caller_env()
+)
 }
 \arguments{
 \item{corpus}{An \code{sm_corpus} object.}
 
 \item{verbose}{Print progress messages?}
 
+\item{api_key}{OpenAlex API key, sent in the authorization header.}
+
+\item{mailto}{Contact address sent only to Crossref.}
+
 \item{call}{Caller environment for error reporting.}
 }
 \value{
 An \code{sm_corpus} object with updated \code{is_retracted} and
 \code{retraction_date} columns in the \code{works} table, plus new provenance
-rows.
+rows for checked works only. Failed requests warn; when no work could
+be checked they error without changing the corpus. Missing records are
+reported separately. Existing retraction flags are never cleared.
 }
 \description{
 Check works in the corpus against the
 \href{https://retractionwatch.com/}{Retraction Watch} database (via the
-Crossref API retracted-article filter and OpenAlex) to identify
+Crossref update notices and OpenAlex) to identify
 retracted publications.
 
 Updates the \code{is_retracted} and \code{retraction_date} columns in the

@@ -16,6 +16,7 @@ too_many <- function(headers = list()) {
 }
 
 test_that("the API key goes into the header and never into the URL", {
+  local_http_env()
   req <- .openalex_build_request("works", list(filter = "doi:10.9999/a"),
                                  api_key = "KEY-0001", mailto = "")
   expect_false(grepl("KEY-0001", req$url, fixed = TRUE))
@@ -32,6 +33,7 @@ test_that("the API key goes into the header and never into the URL", {
 })
 
 test_that("HTTP 429 aborts at once with the reset time and the budget", {
+  local_http_env()
   calls <- 0L
   local_mocked_bindings(
     req_perform = function(req, ...) {
@@ -61,6 +63,7 @@ test_that("HTTP 429 aborts at once with the reset time and the budget", {
 })
 
 test_that("HTTP 429 with a key says the budget of the key is spent", {
+  local_http_env()
   local_mocked_bindings(
     req_perform = function(req, ...) {
       too_many(list(`x-ratelimit-reset` = "3600",
@@ -80,6 +83,7 @@ test_that("HTTP 429 with a key says the budget of the key is spent", {
 })
 
 test_that("rate-limit headers are read in their documented forms", {
+  local_http_env()
   now <- as.POSIXct("2026-10-20 18:00:00", tz = "UTC")
   date <- too_many(list(`Retry-After` = "Wed, 21 Oct 2026 00:00:00 GMT"))
   info <- .openalex_rate_info(date, now = now)
@@ -99,6 +103,7 @@ test_that("rate-limit headers are read in their documented forms", {
 })
 
 test_that("a 429 without headers still names the key setting", {
+  local_http_env()
   local_mocked_bindings(
     req_perform = function(req, ...) too_many(),
     .package = "httr2"
@@ -110,6 +115,7 @@ test_that("a 429 without headers still names the key setting", {
 })
 
 test_that("a short Retry-After (the per-second limit) is retried once", {
+  local_http_env()
   calls <- 0L
   local_mocked_bindings(
     req_perform = function(req, ...) {
@@ -143,6 +149,8 @@ test_that("a short Retry-After (the per-second limit) is retried once", {
 })
 
 test_that("other failures abort with their status, without the query", {
+  local_http_env()
+  local_mocked_bindings(.sm_sleep = function(seconds) NULL)
   local_mocked_bindings(
     req_perform = function(req, ...) {
       json_response(list(error = "Internal"), status = 500L)
@@ -167,12 +175,13 @@ test_that("other failures abort with their status, without the query", {
   )
   expect_true(is.na(err$status))
   msg <- conditionMessage(err)
-  expect_match(msg, "https://api.openalex.org/works", fixed = TRUE)
+  expect_false(grepl("https://", msg, fixed = TRUE))
   expect_false(grepl("10.9999", msg, fixed = TRUE))
   expect_false(grepl("example.org", msg, fixed = TRUE))
 })
 
 test_that("cursor paging collects every page", {
+  local_http_env()
   pages <- list(
     `*` = list(meta = list(next_cursor = "page2"),
                results = list(list(id = "W1"), list(id = "W2"))),
@@ -195,6 +204,7 @@ test_that("cursor paging collects every page", {
 })
 
 test_that("batches count failures or stop, and a rate limit always stops", {
+  local_http_env()
   fetch <- function(b) {
     if (b == "bad") {
       cli::cli_abort("failed", class = c("scimapR_openalex_failed",

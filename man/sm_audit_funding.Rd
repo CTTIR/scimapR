@@ -8,6 +8,8 @@
 sm_audit_funding(
   corpus,
   source = c("crossref", "openalex"),
+  api_key = Sys.getenv("OPENALEX_API_KEY"),
+  mailto = Sys.getenv("SCIMAPR_MAILTO"),
   call = rlang::caller_env()
 )
 
@@ -18,7 +20,11 @@ sm_audit_funding(
 
 \item{source}{Character. Where to look for funding data: \code{"crossref"}
 (uses DOIs to query Crossref funder metadata) or \code{"openalex"} (uses
-OpenAlex IDs).}
+OpenAlex IDs, with DOI fallback).}
+
+\item{api_key}{OpenAlex API key, sent in the authorization header.}
+
+\item{mailto}{Contact address for Crossref requests.}
 
 \item{call}{Caller environment for error reporting.}
 
@@ -30,17 +36,22 @@ OpenAlex IDs).}
 An \code{sm_audit_funding} S3 object containing:
 \describe{
 \item{funders}{Tibble with columns \code{funder_name}, \code{funder_doi},
-\code{n_works}, \code{pct}.}
-\item{coverage}{Proportion of works with at least one funder.}
+\code{n_works}, \code{pct} (percentage of checked works).}
+\item{coverage}{Proportion of checked works with at least one funder;
+\code{NA} if none could be checked, and 0 for an empty corpus.}
 \item{n_works_total}{Total number of works in corpus.}
 \item{n_works_funded}{Number of works with funding data.}
+\item{n_works_checked}{Works returned by the source.}
+\item{n_works_failed}{Works whose request failed; reported in a warning.}
+\item{n_works_no_id}{Works without an identifier for the chosen source.}
 \item{source}{The data source used.}
 }
 }
 \description{
 Audits the distribution of funding sources across works in a corpus.
 Funding metadata is extracted from either Crossref \code{funder} fields or
-OpenAlex \code{grants} fields, depending on the \code{source} parameter.
+OpenAlex \code{funders} and \code{awards} fields (also accepting legacy \code{grants}),
+depending on the \code{source} parameter.
 
 The result includes funder counts, the proportion of works with known
 funding, and a concentration analysis.
@@ -53,7 +64,7 @@ corpus$works$doi <- NA_character_
 funding <- sm_audit_funding(corpus, source = "crossref")
 print(funding)
 \dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
-# Live lookup: one Crossref request per DOI (the example DOIs are invented,
+# Live lookup: batched Crossref requests (the example DOIs are invented,
 # so no funders are found).
 corpus <- sm_example_corpus(n_works = 3, n_authors = 3)
 funding <- sm_audit_funding(corpus, source = "crossref")

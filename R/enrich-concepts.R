@@ -13,10 +13,12 @@
 #'   `"mesh"` (fetch MeSH terms via PubMed PMID; the concept `score` is 1
 #'   for a major topic of the article and 0 otherwise).
 #' @param verbose Print progress messages?
+#' @param api_key OpenAlex API key, sent in the authorization header.
 #' @param call Caller environment for error reporting.
 #'
 #' @return An `sm_corpus` object with updated `concepts` table and new
-#'   provenance rows.
+#'   provenance rows for enriched works. Failed OpenAlex lookups warn and
+#'   stop at a rate limit, preserving earlier successful results.
 #'
 #' @family enrichers
 #' @export
@@ -28,13 +30,14 @@
 sm_enrich_concepts <- function(corpus,
                                source = c("openalex", "mesh"),
                                verbose = TRUE,
+                               api_key = Sys.getenv("OPENALEX_API_KEY"),
                                call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   .check_corpus_unlocked(corpus, call = call)
   source <- rlang::arg_match(source, error_call = call)
 
   if (source == "openalex") {
-    return(.enrich_concepts_openalex(corpus, verbose, call))
+    return(.enrich_concepts_openalex(corpus, verbose, call, api_key))
   }
 
   .enrich_concepts_mesh(corpus, verbose, call)
@@ -43,8 +46,8 @@ sm_enrich_concepts <- function(corpus,
 # ---- OpenAlex concepts ----
 
 #' @noRd
-.enrich_concepts_openalex <- function(corpus, verbose, call) {
-  dois <- corpus$works$doi
+.enrich_concepts_openalex <- function(corpus, verbose, call, api_key = "") {
+  dois <- .normalize_doi(corpus$works$doi)
   has_doi <- !is.na(dois) & nzchar(dois)
 
   if (!any(has_doi)) {
@@ -72,50 +75,31 @@ sm_enrich_concepts <- function(corpus,
     verbose
   )
 
+  run <- .openalex_lookup(target_dois, select = "doi,concepts",
+                          api_key = api_key, call = call)
   new_concepts <- list()
-
-  for (i in seq_along(target_dois)) {
-    result <- tryCatch({
-      req <- httr2::request("https://api.openalex.org/works") |>
-        httr2::req_url_query(
-          filter = paste0("doi:", target_dois[i]),
-          select = "id,concepts"
-        ) |>
-        httr2::req_headers(`User-Agent` = .sm_user_agent()) |>
-        httr2::req_throttle(rate = 10 / 1)
-
-      resp <- httr2::req_perform(req)
-      body <- httr2::resp_body_json(resp)
-      body[["results"]]
-    }, error = function(e) {
-      NULL
-    })
-
-    if (!is.null(result) && length(result) > 0) {
-      concepts <- result[[1]][["concepts"]] %||% list()
-      if (length(concepts) > 0) {
-        new_concepts[[length(new_concepts) + 1L]] <- tibble::tibble(
-          work_id = target_ids[i],
-          concept_id = purrr::map_chr(concepts, "id", .default = NA_character_),
-          concept_name = purrr::map_chr(concepts, "display_name",
-                                        .default = NA_character_),
-          level = as.integer(
-            purrr::map_int(concepts, "level", .default = NA_integer_)
-          ),
-          score = as.double(
-            purrr::map_dbl(concepts, "score", .default = NA_real_)
-          ),
-          vocabulary = "openalex"
-        )
-      }
-    }
-
-    if (verbose && i %% 50 == 0) {
-      .sm_verbose(
-        "OpenAlex concepts: {i} / {length(target_dois)} works processed.",
-        verbose
+  for (record in run$records) {
+    ids <- target_ids[target_dois %in% record$doi]
+    concepts <- record$concepts %||% list()
+    if (!length(ids) || !length(concepts)) next
+    for (wid in ids) {
+      new_concepts[[length(new_concepts) + 1L]] <- tibble::tibble(
+        work_id = wid,
+        concept_id = purrr::map_chr(concepts, "id", .default = NA_character_),
+        concept_name = purrr::map_chr(concepts, "display_name",
+                                      .default = NA_character_),
+        level = purrr::map_int(concepts, "level", .default = NA_integer_),
+        score = purrr::map_dbl(concepts, "score", .default = NA_real_),
+        vocabulary = "openalex"
       )
     }
+  }
+  failed <- target_ids[target_dois %in% run$failed]
+  if (length(failed)) {
+    .sm_warn_unchecked(failed, run$condition, "scimapR_concepts_unchecked",
+                       sprintf("Concept lookups failed for %d works.",
+                               length(failed)),
+                       call = call, key_setting = "OPENALEX_API_KEY")
   }
 
   if (length(new_concepts) > 0) {

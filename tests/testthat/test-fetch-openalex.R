@@ -1,6 +1,7 @@
 # Tests for R/fetch-openalex.R parsers (offline; no request is sent).
 
 test_that("OpenAlex concepts are parsed into the openalex vocabulary", {
+  local_http_env()
   results <- list(
     list(concepts = list(
       list(id = "https://openalex.org/C1", display_name = "Biology",
@@ -20,6 +21,7 @@ test_that("OpenAlex concepts are parsed into the openalex vocabulary", {
 })
 
 test_that("the OpenAlex fetcher reads the corresponding author", {
+  local_http_env()
   # The same saved works as for sm_read_openalex_json(): the second author
   # of W1 is corresponding, W2 and W3 do not tell (NA), W4 lists its
   # corresponding author in corresponding_author_ids.
@@ -36,6 +38,7 @@ test_that("the OpenAlex fetcher reads the corresponding author", {
 # ---- impact fields (fixtures/openalex-impact.json) --------------------------
 
 test_that("the native parser keeps fwci, percentiles and yearly counts", {
+  local_http_env()
   results <- jsonlite::read_json(test_path("fixtures", "openalex-impact.json"))
   fetched <- as.POSIXct("2026-10-19 12:00:00", tz = "UTC")
   corpus <- suppressMessages(
@@ -58,6 +61,7 @@ test_that("the native parser keeps fwci, percentiles and yearly counts", {
 })
 
 test_that("the native parser reads raw affiliation strings", {
+  local_http_env()
   # raw_affiliation_strings (joined), else affiliations[], else the
   # institution names; the old single raw_affiliation_string still counts
   results <- jsonlite::read_json(test_path("fixtures", "openalex-impact.json"))
@@ -81,6 +85,7 @@ test_that("the native parser reads raw affiliation strings", {
 })
 
 test_that("the native parser stores ORCIDs without the URL prefix", {
+  local_http_env()
   results <- jsonlite::read_json(test_path("fixtures", "openalex-impact.json"))
   authors <- .parse_openalex_authorships(results, paste0("W", 1:3))$authors
   expect_identical(unname(authors$orcid), c("0000-0002-9999-001X", NA, NA))
@@ -96,6 +101,7 @@ test_that("the native parser stores ORCIDs without the URL prefix", {
 })
 
 test_that("sm_fetch_openalex() stops on HTTP 429 with the reset time", {
+  local_http_env()
   withr::local_envvar(OPENALEX_API_KEY = "", SCIMAPR_MAILTO = "")
   calls <- 0L
   local_mocked_bindings(
@@ -124,6 +130,7 @@ test_that("sm_fetch_openalex() stops on HTTP 429 with the reset time", {
 })
 
 test_that("sm_fetch_openalex() pages through the API with the helper", {
+  local_http_env()
   withr::local_envvar(OPENALEX_API_KEY = "", SCIMAPR_MAILTO = "")
   results <- jsonlite::read_json(test_path("fixtures", "openalex-impact.json"))
   local_mocked_bindings(
@@ -170,6 +177,7 @@ openalexr_works <- function() {
 }
 
 test_that("the openalexR engine keeps fwci and the yearly counts", {
+  local_http_env()
   skip_if_not_installed("openalexR", minimum_version = "3.1.1")
   withr::local_envvar(OPENALEX_API_KEY = "", openalexR.max_tries = NA)
   seen <- list()
@@ -200,6 +208,7 @@ test_that("the openalexR engine keeps fwci and the yearly counts", {
 })
 
 test_that("the openalexR engine passes the key and turns 429 into an error", {
+  local_http_env()
   skip_if_not_installed("openalexR", minimum_version = "3.1.1")
   withr::local_envvar(openalexR.apikey = NA)
   seen <- list()
@@ -228,6 +237,7 @@ test_that("the openalexR engine passes the key and turns 429 into an error", {
 })
 
 test_that("sm_fetch_openalex() records its request for a rebuild", {
+  local_http_env()
   withr::local_envvar(OPENALEX_API_KEY = "", SCIMAPR_MAILTO = "")
   results <- jsonlite::read_json(test_path("fixtures", "openalex-impact.json"))
   local_mocked_bindings(
@@ -254,6 +264,7 @@ test_that("sm_fetch_openalex() records its request for a rebuild", {
 })
 
 test_that("the openalexR engine records its request too", {
+  local_http_env()
   skip_if_not_installed("openalexR", minimum_version = "3.1.1")
   withr::local_envvar(OPENALEX_API_KEY = "", openalexR.max_tries = NA)
   local_mocked_bindings(
@@ -272,6 +283,7 @@ test_that("the openalexR engine records its request too", {
 
 
 test_that("the native OpenAlex parser links local work identifiers", {
+  local_http_env()
   path <- test_path("fixtures", "link-openalex-two.json")
   records <- jsonlite::read_json(path)
   x <- suppressMessages(.parse_openalex_results(
@@ -279,4 +291,30 @@ test_that("the native OpenAlex parser links local work identifiers", {
   ))
   expect_identical(x$references$cited_work_id,
                    c(NA_character_, x$works$work_id[1], NA_character_))
+})
+
+test_that("OpenAlex rate limits preserve pages and condition classes", {
+  local_http_env()
+  calls <- 0L
+  local_mocked_bindings(req_perform = function(req, ...) {
+    calls <<- calls + 1L
+    if (calls > 1L) {
+      return(http_response(status = 429L,
+                           headers = list(`Retry-After` = "3600")))
+    }
+    record <- list(id = "https://openalex.org/W99999019",
+                   doi = "https://doi.org/10.9999/partial", title = "Invented")
+    http_response(list(results = list(record),
+                       meta = list(next_cursor = "page2", count = 2L)))
+  }, .package = "httr2")
+  err <- expect_error(
+    sm_fetch_openalex(query = "invented", n_max = 2,
+                      api_key = "", mailto = "", verbose = FALSE),
+    class = "scimapR_fetch_incomplete"
+  )
+  expect_s3_class(err, "scimapR_openalex_rate_limit")
+  expect_s3_class(err, "scimapR_rate_limited")
+  expect_identical(err$n_fetched, 1L)
+  expect_identical(err$partial$works$doi, "10.9999/partial")
+  expect_match(conditionMessage(err), "OPENALEX_API_KEY", fixed = TRUE)
 })

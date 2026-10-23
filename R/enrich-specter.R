@@ -258,16 +258,9 @@ sm_enrich_specter <- function(corpus,
 #' other failure, is an error.
 #' @return The parsed JSON body.
 #' @noRd
-.s2_perform <- function(req) {
-  resp <- tryCatch(
-    httr2::req_perform(req),
-    httr2_http_429 = function(cnd) cnd
-  )
-  if (inherits(resp, "httr2_http_429")) {
-    Sys.sleep(.s2_retry_wait(resp$resp))
-    resp <- httr2::req_perform(req)
-  }
-  httr2::resp_body_json(resp)
+.s2_perform <- function(req, max_tries = 2L, max_wait = .s2_short_wait) {
+  .sm_http_read(req, "Semantic Scholar", max_tries = max_tries,
+                max_wait = max_wait)
 }
 
 #' Seconds to wait before the retry
@@ -288,7 +281,7 @@ sm_enrich_specter <- function(corpus,
   n_failed <- length(failed)
   if (n_failed == 0L) return(invisible(NULL))
   rate_limited <- !key_set &&
-    any(vapply(failed, inherits, logical(1), what = "httr2_http_429"))
+    any(vapply(failed, inherits, logical(1), what = "scimapR_rate_limited"))
   cli::cli_warn(
     c("{n_failed} of {n_batches} Semantic Scholar request{?s} failed, so
        their works got no SPECTER vector.",

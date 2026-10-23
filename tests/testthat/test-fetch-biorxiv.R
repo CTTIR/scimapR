@@ -21,14 +21,16 @@
 }
 
 test_that("sm_fetch_biorxiv validates server and n_max", {
+  local_http_env()
   expect_error(sm_fetch_biorxiv(server = "bogus"))
   expect_error(sm_fetch_biorxiv(n_max = 0), "positive integer")
 })
 
 test_that("sm_fetch_biorxiv parses preprints into an sm_corpus", {
+  local_http_env()
   call_n <- 0L
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) {
       call_n <<- call_n + 1L
       if (call_n == 1L) .biorxiv_body(list(.biorxiv_item()), total = 1L)
@@ -57,9 +59,10 @@ test_that("sm_fetch_biorxiv parses preprints into an sm_corpus", {
 })
 
 test_that("sm_fetch_biorxiv default date range works (NULL dates)", {
+  local_http_env()
   call_n <- 0L
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) {
       call_n <<- call_n + 1L
       if (call_n == 1L) .biorxiv_body(list(.biorxiv_item()), total = 1L)
@@ -73,6 +76,7 @@ test_that("sm_fetch_biorxiv default date range works (NULL dates)", {
 })
 
 test_that("sm_fetch_biorxiv local query filter keeps only matching items", {
+  local_http_env()
   call_n <- 0L
   items <- list(
     .biorxiv_item(title = "Cancer immunotherapy study",
@@ -81,7 +85,7 @@ test_that("sm_fetch_biorxiv local query filter keeps only matching items", {
                   abstract = "about leaves", doi = "10.1101/b")
   )
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) {
       call_n <<- call_n + 1L
       if (call_n == 1L) .biorxiv_body(items, total = 2L)
@@ -97,9 +101,10 @@ test_that("sm_fetch_biorxiv local query filter keeps only matching items", {
 })
 
 test_that("sm_fetch_biorxiv returns empty corpus when query matches nothing", {
+  local_http_env()
   call_n <- 0L
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) {
       call_n <<- call_n + 1L
       if (call_n == 1L) .biorxiv_body(list(.biorxiv_item()), total = 1L)
@@ -115,9 +120,10 @@ test_that("sm_fetch_biorxiv returns empty corpus when query matches nothing", {
 })
 
 test_that("sm_fetch_biorxiv verbose prints progress", {
+  local_http_env()
   call_n <- 0L
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) {
       call_n <<- call_n + 1L
       if (call_n == 1L) .biorxiv_body(list(.biorxiv_item()), total = 1L)
@@ -133,8 +139,9 @@ test_that("sm_fetch_biorxiv verbose prints progress", {
 })
 
 test_that("sm_fetch_biorxiv returns empty corpus when API has no collection", {
+  local_http_env()
   local_mocked_bindings(
-    req_perform = function(req, ...) structure(list(), class = "httr2_response"),
+    req_perform = function(req, ...) http_response(),
     resp_body_json = function(resp, ...) .biorxiv_body(list()),
     .package = "httr2"
   )
@@ -144,6 +151,7 @@ test_that("sm_fetch_biorxiv returns empty corpus when API has no collection", {
 })
 
 test_that("sm_fetch_biorxiv aborts on request failure", {
+  local_http_env()
   local_mocked_bindings(
     req_perform = function(req, ...) stop("boom"),
     .package = "httr2"
@@ -156,6 +164,7 @@ test_that("sm_fetch_biorxiv aborts on request failure", {
 })
 
 test_that("sm_fetch_biorxiv takes the corresponding author from the API", {
+  local_http_env()
   # author_corresponding names the second author in another name form; a
   # preprint without it gets NA (unknown) for every author
   call_n <- 0L
@@ -164,7 +173,7 @@ test_that("sm_fetch_biorxiv takes the corresponding author from the API", {
   named$author_corresponding <- "James Watson"
   local_mocked_bindings(
     req_perform = function(req, ...) {
-      structure(list(), class = "httr2_response")
+      http_response()
     },
     resp_body_json = function(resp, ...) {
       call_n <<- call_n + 1L
@@ -184,4 +193,24 @@ test_that("sm_fetch_biorxiv takes the corresponding author from the API", {
   w <- match(a$work_id, corpus$works$work_id)
   expect_identical(a$is_corresponding[w == 1L], c(FALSE, TRUE))
   expect_identical(a$is_corresponding[w == 2L], c(NA, NA))
+})
+
+test_that("bioRxiv preserves parsed pages after a request fails", {
+  local_http_env()
+  calls <- 0L
+  local_mocked_bindings(req_perform = function(req, ...) {
+    calls <<- calls + 1L
+    if (calls > 1L) return(http_response(status = 429L))
+    items <- lapply(1:100, function(i) {
+      list(doi = paste0("10.9999/bio", i),
+           title = "Invented preprint",
+           date = "2024-01-01")
+    })
+    http_response(list(collection = items, messages = list(list(total = 200L))))
+  }, .package = "httr2")
+  err <- expect_error(sm_fetch_biorxiv(n_max = 200, verbose = FALSE),
+                      class = "scimapR_fetch_incomplete")
+  expect_identical(calls, 2L)
+  expect_identical(nrow(err$partial$works), 100L)
+  expect_identical(err$partial$metadata$fetch_incomplete$source, "biorxiv")
 })

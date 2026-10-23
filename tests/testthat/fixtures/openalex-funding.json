@@ -1,0 +1,20 @@
+{
+  "id": "https://openalex.org/W99999019",
+  "doi": "https://doi.org/10.9999/funding19",
+  "funders": [
+    {
+      "id": "https://openalex.org/F99999019",
+      "display_name": "Invented Research Fund"
+    }
+  ],
+  "awards": [
+    {
+      "id": "https://openalex.org/G99999019",
+      "display_name": "Invented Award",
+      "funder_award_id": "TEST-19",
+      "funder_id": "https://openalex.org/F99999019",
+      "funder_display_name": "Invented Research Fund",
+      "doi": "https://doi.org/10.9999/award19"
+    }
+  ]
+}

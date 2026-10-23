@@ -8,6 +8,7 @@ sm_enrich_concepts(
   corpus,
   source = c("openalex", "mesh"),
   verbose = TRUE,
+  api_key = Sys.getenv("OPENALEX_API_KEY"),
   call = rlang::caller_env()
 )
 }
@@ -20,11 +21,14 @@ for a major topic of the article and 0 otherwise).}
 
 \item{verbose}{Print progress messages?}
 
+\item{api_key}{OpenAlex API key, sent in the authorization header.}
+
 \item{call}{Caller environment for error reporting.}
 }
 \value{
 An \code{sm_corpus} object with updated \code{concepts} table and new
-provenance rows.
+provenance rows for enriched works. Failed OpenAlex lookups warn and
+stop at a rate limit, preserving earlier successful results.
 }
 \description{
 Look up works in the corpus via OpenAlex or PubMed to retrieve

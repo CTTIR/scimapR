@@ -24,6 +24,16 @@
 #'   (`query`, `n_max` and `engine`), so that [sm_rebuild_from_cert()] can
 #'   run it again.
 #'
+#' @section Failed requests:
+#' Native requests retry transient server and network failures, and short
+#' announced rate-limit waits. Long waits abort immediately. If a later
+#' page fails, the error inherits from `scimapR_fetch_incomplete` and holds
+#' the earlier parsed works in `rlang::last_error()$partial`. Their metadata
+#' records `fetch_incomplete` with the source, received and expected counts,
+#' and failure reason. If those pages cannot be parsed, `partial` is `NULL`.
+#' The default remains an error; an incomplete fetch is never returned as
+#' an ordinary successful result.
+#'
 #' @family fetchers
 #' @export
 #' @examples
@@ -77,18 +87,10 @@ sm_fetch_pubmed <- function(query,
     search_req <- httr2::req_url_query(search_req, api_key = api_key)
   }
 
-  search_resp <- tryCatch(
-    httr2::req_perform(search_req),
-    error = function(e) {
-      cli::cli_abort(
-        c("PubMed esearch request failed.",
-          "i" = conditionMessage(e)),
-        call = call
-      )
-    }
+  search_body <- .sm_fetch_page(
+    search_req, "PubMed", "pubmed", list(), NULL, n_max,
+    "PubMed esearch request failed.", call
   )
-
-  search_body <- httr2::resp_body_json(search_resp)
   result <- search_body[["esearchresult"]]
   count <- as.integer(result[["count"]] %||% 0L)
   webenv <- result[["webenv"]]
@@ -128,19 +130,17 @@ sm_fetch_pubmed <- function(query,
       fetch_req <- httr2::req_url_query(fetch_req, api_key = api_key)
     }
 
-    fetch_resp <- tryCatch(
-      httr2::req_perform(fetch_req),
-      error = function(e) {
-        cli::cli_abort(
-          c("PubMed efetch request failed.",
-            "i" = conditionMessage(e)),
-          call = call
-        )
+    articles <- .sm_fetch_page(
+      fetch_req, "PubMed", "pubmed", all_articles,
+      function(items) {
+        .record_request(.parse_pubmed_results(items, query, FALSE, call),
+                        n_max = n_max)
+      }, min(n_max, count), "PubMed efetch request failed.", call,
+      read = function(resp) {
+        xml_doc <- xml2::read_xml(httr2::resp_body_string(resp))
+        xml2::xml_find_all(xml_doc, ".//PubmedArticle")
       }
     )
-
-    xml_doc <- xml2::read_xml(httr2::resp_body_string(fetch_resp))
-    articles <- xml2::xml_find_all(xml_doc, ".//PubmedArticle")
     all_articles <- c(all_articles, articles)
 
     retstart <- retstart + retmax_page
