@@ -212,7 +212,6 @@ test_that("H8: certificates record and verify local input files", {
 })
 
 test_that("H9: version metadata agree and print formats refresh times", {
-  skip("H9 pending - prompt A10")
   # Intent: the package version matches the top NEWS heading (a
   # development heading for .9000 versions), and the fixture's numeric
   # last_refresh prints as a date instead of a number.

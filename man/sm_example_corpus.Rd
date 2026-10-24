@@ -31,7 +31,8 @@ sm_example_corpus(
 \item{with_trajectory_seed}{Logical; create a prolific author for
 trajectory demonstration?}
 
-\item{seed}{Random seed for reproducibility.}
+\item{seed}{Random seed for reproducibility. \code{NULL} chooses a fresh seed.
+The session random-number state is restored after generation.}
 }
 \value{
 An \code{sm_corpus} object.

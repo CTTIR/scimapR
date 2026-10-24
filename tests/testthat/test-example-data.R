@@ -150,3 +150,27 @@ test_that("example screening uses the canonical decision vocabulary", {
   expect_true(all(corpus$screening$decision %in%
                     c("include", "exclude", "uncertain")))
 })
+
+test_that("example generation preserves the caller's random stream", {
+  withr::local_seed(123)
+  before <- .Random.seed
+  expected <- runif(3)
+  set.seed(123)
+  sm_example_corpus(n_works = 10, seed = 42)
+  expect_identical(.Random.seed, before)
+  expect_identical(runif(3), expected)
+})
+
+test_that("example generation preserves an absent random seed", {
+  withr::local_seed(123)
+  rm(list = ".Random.seed", envir = globalenv())
+  sm_example_corpus(n_works = 10, seed = 42)
+  expect_false(exists(".Random.seed", envir = globalenv(), inherits = FALSE))
+})
+
+test_that("example generation also preserves the stream with a random seed", {
+  withr::local_seed(123)
+  before <- .Random.seed
+  sm_example_corpus(n_works = 10, seed = NULL)
+  expect_identical(.Random.seed, before)
+})

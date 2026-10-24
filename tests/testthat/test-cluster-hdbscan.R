@@ -27,6 +27,7 @@ test_that("sm_cluster_hdbscan errors when uwot is not installed", {
 })
 
 test_that("sm_cluster_hdbscan validates min_cluster_size and reducer", {
+  skip_if_not_installed("dbscan")
   corpus <- sm_example_corpus(n_works = 30, with_embeddings = TRUE, seed = 3)
   expect_error(sm_cluster_hdbscan(corpus, min_cluster_size = 0),
                "positive integer")
@@ -35,11 +36,13 @@ test_that("sm_cluster_hdbscan validates min_cluster_size and reducer", {
 })
 
 test_that("sm_cluster_hdbscan aborts without embeddings", {
+  skip_if_not_installed("dbscan")
   corpus <- sm_example_corpus(n_works = 30, with_embeddings = FALSE, seed = 4)
   expect_error(sm_cluster_hdbscan(corpus), "No embeddings")
 })
 
 test_that("sm_cluster_hdbscan assigns cluster_id for all works (pca)", {
+  skip_if_not_installed("dbscan")
   corpus <- sm_example_corpus(n_works = 80, n_clusters = 4,
                               with_embeddings = TRUE, seed = 5)
   out <- suppressMessages(
@@ -54,6 +57,8 @@ test_that("sm_cluster_hdbscan assigns cluster_id for all works (pca)", {
 })
 
 test_that("sm_cluster_hdbscan works with reducer = umap", {
+  skip_if_not_installed("dbscan")
+  skip_if_not_installed("uwot")
   corpus <- sm_example_corpus(n_works = 80, n_clusters = 4,
                               with_embeddings = TRUE, seed = 6)
   out <- suppressMessages(
@@ -64,6 +69,7 @@ test_that("sm_cluster_hdbscan works with reducer = umap", {
 })
 
 test_that("sm_cluster_hdbscan works with reducer = none", {
+  skip_if_not_installed("dbscan")
   corpus <- sm_example_corpus(n_works = 60, n_clusters = 3,
                               with_embeddings = TRUE, seed = 7)
   out <- suppressMessages(
@@ -73,6 +79,7 @@ test_that("sm_cluster_hdbscan works with reducer = none", {
 })
 
 test_that("sm_cluster_hdbscan uses default min_samples = min_cluster_size", {
+  skip_if_not_installed("dbscan")
   corpus <- sm_example_corpus(n_works = 50, n_clusters = 3,
                               with_embeddings = TRUE, seed = 8)
   out <- suppressMessages(
@@ -84,7 +91,6 @@ test_that("sm_cluster_hdbscan uses default min_samples = min_cluster_size", {
 
 test_that("works without an embedding row get no cluster", {
   skip_if_not_installed("dbscan")
-  skip_if_not_installed("uwot")
   # a partial matrix, as sm_embed_works() leaves for works without text
   corpus <- sm_example_corpus(n_works = 60, n_clusters = 3,
                               with_embeddings = TRUE, seed = 8)
@@ -98,7 +104,6 @@ test_that("works without an embedding row get no cluster", {
 })
 test_that("density clustering rejects repeated work and embedding IDs", {
   skip_if_not_installed("dbscan")
-  skip_if_not_installed("uwot")
   x <- sm_example_corpus(n_works = 10, n_authors = 5, seed = 1)
   rownames(x$embeddings)[2] <- rownames(x$embeddings)[1]
   expect_error(sm_cluster_hdbscan(x, reducer = "pca"),
@@ -107,4 +112,17 @@ test_that("density clustering rejects repeated work and embedding IDs", {
   x$works$work_id[2] <- x$works$work_id[1]
   expect_error(sm_cluster_hdbscan(x, reducer = "pca"),
                class = "scimapR_duplicate_ids")
+})
+
+test_that("density clustering requires UMAP only when it reduces with UMAP", {
+  skip_if_not_installed("dbscan")
+  x <- sm_example_corpus(n_works = 30)
+  local_mocked_bindings(check_installed = function(pkg, ...) {
+    if (pkg == "uwot") stop("UMAP dependency requested")
+  }, .package = "rlang")
+  for (reducer in c("pca", "none")) {
+    expect_no_error(suppressMessages(sm_cluster_hdbscan(x, reducer = reducer)))
+  }
+  x$embeddings <- x$embeddings[, 1:2, drop = FALSE]
+  expect_no_error(suppressMessages(sm_cluster_hdbscan(x)))
 })
