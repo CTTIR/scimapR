@@ -83,7 +83,7 @@ threshold, so \code{"terms"} can report no transition at all. Use
 \examples{
 \donttest{
 corpus <- sm_example_corpus(with_embeddings = TRUE)
-corpus <- sm_cluster_kmeans(corpus, k = 5)
+corpus <- sm_cluster_kmeans(corpus, k = 5, reducer = "pca")
 evo <- sm_cluster_evolution(corpus)
 evo$snapshots
 evo$transitions

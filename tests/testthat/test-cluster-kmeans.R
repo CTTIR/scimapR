@@ -41,12 +41,56 @@ test_that("sm_cluster_kmeans works with reducer = none", {
 })
 
 test_that("sm_cluster_kmeans works with reducer = umap", {
+  skip_if_not_installed("uwot")
   corpus <- sm_example_corpus(n_works = 60, n_clusters = 4,
                               with_embeddings = TRUE, seed = 6)
   set.seed(1)
   out <- suppressMessages(sm_cluster_kmeans(corpus, k = 4, reducer = "umap"))
   expect_true("cluster_id" %in% names(out$works))
   expect_false(any(is.na(out$works$cluster_id)))
+})
+
+test_that("k-means checks the optional reducer before calling it", {
+  x <- sm_example_corpus(n_works = 30)
+  local_mocked_bindings(check_installed = function(pkg, ...) {
+    if (pkg == "uwot") stop("UMAP dependency requested")
+  }, .package = "rlang")
+  expect_error(sm_cluster_kmeans(x, k = 3), "UMAP dependency requested")
+  expect_no_error(suppressMessages(
+    sm_cluster_kmeans(x, k = 3, reducer = "pca")
+  ))
+  x$embeddings <- x$embeddings[, 1:2, drop = FALSE]
+  expect_no_error(suppressMessages(sm_cluster_kmeans(x, k = 3)))
+})
+
+test_that("UMAP recovers from the older-R PCA dependency error", {
+  skip_if_not_installed("uwot")
+  skip_if_not_installed("irlba")
+  reduce <- uwot::umap
+  local_mocked_bindings(umap = function(...) {
+    reduce(..., init = "pca")
+  }, .package = "uwot")
+  original <- get("oknum", asNamespace("irlba"))
+  local_mocked_bindings(oknum = function(x) {
+    if (is.null(x)) {
+      stop(simpleError("LENGTH or similar applied to NULL object",
+                       call = quote(oknum(scale))))
+    }
+    original(x)
+  }, .package = "irlba")
+  x <- sm_example_corpus(n_works = 30)
+  expect_message(out <- sm_cluster_kmeans(x, k = 3),
+                 class = "scimapR_umap_pca_fallback")
+  expect_s3_class(out, "sm_corpus")
+  expect_false(anyNA(out$works$cluster_id))
+})
+
+test_that("UMAP preserves unrelated dependency errors", {
+  skip_if_not_installed("uwot")
+  local_mocked_bindings(umap = function(...) stop("unrelated failure"),
+                        .package = "uwot")
+  x <- sm_example_corpus(n_works = 30)
+  expect_error(sm_cluster_kmeans(x, k = 3), "unrelated failure")
 })
 
 test_that("sm_cluster_kmeans warns when k exceeds number of works", {

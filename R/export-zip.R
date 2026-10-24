@@ -34,7 +34,9 @@ sm_export_zip <- function(corpus,
       reason = "to write XLSX tables in the export bundle.")
   }
 
-  tmpdir <- withr::local_tempdir()
+  tmpdir <- tempfile("scimapR-bundle-")
+  dir.create(tmpdir)
+  on.exit(unlink(tmpdir, recursive = TRUE), add = TRUE)
 
   if ("rds" %in% include) {
     sm_export_rds(corpus, file.path(tmpdir, "corpus.rds"))

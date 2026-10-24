@@ -43,11 +43,16 @@ Requires embeddings in \code{corpus$embeddings}. Compute them first with
 
 K-means is deterministic given a fixed random seed. Consider setting a seed
 before calling this function for reproducibility.
+
+UMAP requires its optional dependency only when reduction is needed.
+If the PCA dependency raises the known NULL-input error on older R,
+reduction retries with base SVD initialisation and reports
+\code{scimapR_umap_pca_fallback}. Other errors propagate unchanged.
 }
 \examples{
 \donttest{
 corpus <- sm_example_corpus(with_embeddings = TRUE)
-corpus <- sm_cluster_kmeans(corpus, k = 5)
+corpus <- sm_cluster_kmeans(corpus, k = 5, reducer = "pca")
 table(corpus$works$cluster_id)
 }
 }

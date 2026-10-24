@@ -132,7 +132,7 @@
 #' @examplesIf requireNamespace("tidytext", quietly = TRUE)
 #' \donttest{
 #' corpus <- sm_example_corpus(with_embeddings = TRUE)
-#' corpus <- sm_cluster_kmeans(corpus, k = 5)
+#' corpus <- sm_cluster_kmeans(corpus, k = 5, reducer = "pca")
 #' corpus <- sm_cluster_label(corpus, method = "tfidf", n_terms = 3L)
 #' unique(corpus$works[, c("cluster_id", "cluster_label",
 #'                         "cluster_label_basis")])

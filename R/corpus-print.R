@@ -47,8 +47,20 @@ print.sm_corpus <- function(x, ...) {
     cli::cli_text("{.strong Status:} Locked")
   } else {
     lr <- x$metadata$last_refresh
-    lr_txt <- if (is.null(lr) || is.na(lr)) "never" else format(lr)
-    cli::cli_text("{.strong Status:} Unlocked (last refreshed: {lr_txt})")
+    lr_txt <- if (is.null(lr) || (length(lr) == 1L && is.na(lr))) {
+      "never"
+    } else if (length(lr) == 1L) {
+      time <- .as_utc_time(lr, what = "last_refresh")
+      if (is.na(time)) {
+        format(lr)
+      } else {
+        format(time, "%Y-%m-%d %H:%M UTC", tz = "UTC")
+      }
+    } else {
+      format(lr)
+    }
+    cli::cli_text("{.strong Status:} Unlocked (last refreshed: {lr_txt})",
+                  .envir = list(lr_txt = lr_txt))
   }
 
   if (nrow(x$screening) > 0) {
