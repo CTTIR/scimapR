@@ -293,7 +293,7 @@ sm_figure_manifest(dir)
 #> # A tibble: 1 × 6
 #>   file        caption alt_text width height   dpi
 #>   <chr>       <chr>   <chr>    <int>  <int> <dbl>
-#> 1 fig_its.png ""      ""         900    600    59
+#> 1 fig_its.png ""      ""         900    600  59.0
 ```
 
 Together these functions cover the recurring tasks of a
