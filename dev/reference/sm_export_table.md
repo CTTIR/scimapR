@@ -70,5 +70,5 @@ Other export:
 dat <- data.frame(Author = "Smith J", Works = 10L, Citations = 150L)
 path <- tempfile(fileext = ".xlsx")
 sm_export_table(dat, path)
-#> ✔ Table saved to /tmp/RtmpRkJWHY/file1f9f3c0b45e3.xlsx
+#> ✔ Table saved to /tmp/RtmpUg7HuS/file1c541a4b0d6c.xlsx
 ```
