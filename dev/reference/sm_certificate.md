@@ -223,7 +223,7 @@ print(cert)
 #> 
 #> ── <sm_certificate> ────────────────────────────────────────────────────────────
 #> Version: 1.0
-#> Created: 2026-10-26 15:17:45 UTC
+#> Created: 2026-10-26 19:20:03 UTC
 #> scimapR: v0.4.0.9000
 #> R: 4.6.1 (unix)
 #> 
@@ -245,7 +245,7 @@ print(verification)
 #> ✔ n_authors: expected 80, got 80
 #> ✔ n_institutions: expected 0, got 0
 #> ✔ n_references: expected 1869, got 1869
-#> ✔ input:file1c5b2afa5f4.csv: expected 721a6632cca2e6ea, got 721a6632cca2e6ea
+#> ✔ input:file1f447c7f45ad.csv: expected 721a6632cca2e6ea, got 721a6632cca2e6ea
 
 # a changed input file fails its check
 cat("10.9999/example.2,Unit B\n", file = tracker, append = TRUE)
