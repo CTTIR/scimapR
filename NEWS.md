@@ -1,5 +1,8 @@
 # scimapR (development version)
 
+* Standardize the named v5 package logo across README, documentation pages
+  and available application headers, with matching light and dark artwork.
+
 - `sm_audit_geographic()` counts works, not authorship rows. A work counts once in each country, region or income tier of its authors, and with the new `method = "fractional"` it splits one unit among them. Its citations count once per group, `coverage` is the share of works with a known group, and the Gini coefficient uses citations under `weight = "citations"`. Results change for corpora with multi-author works or authors with several addresses. The distribution gains `credit` and `weighted_citations`, appended after its existing columns (`group`, `count`, `citations`, `pct`).
 
 - `sm_metric_collab_index()` returns `NA` instead of 0 and `FALSE` when no author of a work has a country code (`n_countries`, `is_international`) or an institution id (`n_institutions`). Web of Science and Scopus corpora without country data no longer report an international collaboration rate of 0%.
