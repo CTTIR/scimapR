@@ -146,5 +146,5 @@ corpus$metadata$local_inputs[, c("basename", "role", "sha256")]
 #> # A tibble: 1 × 3
 #>   basename             role         sha256                                      
 #>   <chr>                <chr>        <chr>                                       
-#> 1 file1f4466f15d5b.csv source table 9bb0667922c6df1d6b32720e3a67d05d4e6e79d9977…
+#> 1 file1c534362426e.csv source table 9bb0667922c6df1d6b32720e3a67d05d4e6e79d9977…
 ```

@@ -2,7 +2,7 @@
 
 Clusters works using the HDBSCAN (Hierarchical Density-Based Spatial
 Clustering of Applications with Noise) algorithm via
-[`dbscan::hdbscan()`](http://michael.hahsler.net/dbscan/reference/hdbscan.md).
+[`dbscan::hdbscan()`](https://michael.hahsler.net/dbscan/reference/hdbscan.html).
 Optionally reduces embedding dimensions first with UMAP or PCA.
 
 ## Usage

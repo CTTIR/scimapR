@@ -2,6 +2,10 @@
 
 ## scimapR (development version)
 
+- Standardize the named v5 package logo across README, documentation
+  pages and available application headers, with matching light and dark
+  artwork.
+
 - [`sm_audit_geographic()`](https://cttir.github.io/scimapR/dev/reference/sm_audit_geographic.md)
   counts works, not authorship rows. A work counts once in each country,
   region or income tier of its authors, and with the new

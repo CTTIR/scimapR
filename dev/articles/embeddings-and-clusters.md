@@ -1,5 +1,7 @@
 # Embeddings and Cluster Discovery
 
+![scimapR logo](figures/logo.svg)![scimapR logo](figures/logo-dark.svg)
+
 [![R-CMD-check](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml)
 [![pkgdown](https://github.com/CTTIR/scimapR/actions/workflows/pkgdown.yaml/badge.svg)](https://cttir.github.io/scimapR/)
 [![CRAN
@@ -69,7 +71,7 @@ head(labels)
 #> Sources (journals): 5
 #> Embeddings: 6 x 64
 #> Provenance: synthetic (6)
-#> Status: Unlocked (last refreshed: 2026-10-26 19:21:54)
+#> Status: Unlocked (last refreshed: 2026-10-28 08:36:49)
 ```
 
 ## Thematic map

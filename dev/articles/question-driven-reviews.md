@@ -1,5 +1,7 @@
 # Question-Driven Reviews
 
+![scimapR logo](figures/logo.svg)![scimapR logo](figures/logo-dark.svg)
+
 [![R-CMD-check](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml)
 [![pkgdown](https://github.com/CTTIR/scimapR/actions/workflows/pkgdown.yaml/badge.svg)](https://cttir.github.io/scimapR/)
 [![CRAN
@@ -39,7 +41,7 @@ print(rq)
 #> ── <sm_question> ───────────────────────────────────────────────────────────────
 #> ID: Q-ecd0161dbb634ba3
 #> Framework: PICO
-#> Created: 2026-10-26 19:22:17
+#> Created: 2026-10-28 08:37:10
 #> 
 #> Question:
 #> Does spatial transcriptomics improve outcome prediction in colorectal cancer?

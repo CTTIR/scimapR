@@ -1,5 +1,7 @@
 # Getting Started with scimapR
 
+![scimapR logo](figures/logo.svg)![scimapR logo](figures/logo-dark.svg)
+
 [![R-CMD-check](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml)
 [![pkgdown](https://github.com/CTTIR/scimapR/actions/workflows/pkgdown.yaml/badge.svg)](https://cttir.github.io/scimapR/)
 [![CRAN
@@ -48,7 +50,7 @@ print(corpus)
 #> Sources (journals): 10
 #> Embeddings: 100 x 64
 #> Provenance: synthetic (100)
-#> Status: Unlocked (last refreshed: 2026-10-26 19:22:36)
+#> Status: Unlocked (last refreshed: 2026-10-28 08:37:29)
 ```
 
 ## Exploring the corpus

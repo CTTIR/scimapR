@@ -1,5 +1,7 @@
 # Modern Citation Indicators
 
+![scimapR logo](figures/logo.svg)![scimapR logo](figures/logo-dark.svg)
+
 [![R-CMD-check](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml)
 [![pkgdown](https://github.com/CTTIR/scimapR/actions/workflows/pkgdown.yaml/badge.svg)](https://cttir.github.io/scimapR/)
 [![CRAN
