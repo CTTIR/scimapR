@@ -77,3 +77,42 @@ test_that("the landscape shows the works that have an embedding row", {
   p <- sm_plot_landscape(corpus, reducer = "pca")
   expect_identical(sort(p$data$work_id), sort(corpus$works$work_id[-(1:4)]))
 })
+
+test_that("landscape UMAP recovers from the older-R PCA error without changing its metric", {
+  skip_if_not_installed("uwot")
+  skip_if_not_installed("irlba")
+  reduce <- uwot::umap
+  calls <- list()
+  local_mocked_bindings(umap = function(...) {
+    calls[[length(calls) + 1L]] <<- list(...)
+    reduce(..., init = "pca")
+  }, .package = "uwot")
+  original <- get("oknum", asNamespace("irlba"))
+  local_mocked_bindings(oknum = function(x) {
+    if (is.null(x)) {
+      stop(simpleError("LENGTH or similar applied to NULL object",
+                       call = quote(oknum(scale))))
+    }
+    original(x)
+  }, .package = "irlba")
+  corpus <- sm_example_corpus(n_works = 30, seed = 10)
+  expect_message(plot <- sm_plot_landscape(corpus),
+                 class = "scimapR_umap_pca_fallback")
+  expect_s3_class(plot, "ggplot")
+  expect_setequal(plot$data$work_id, corpus$works$work_id)
+  expect_true(all(is.finite(plot$data$x) & is.finite(plot$data$y)))
+  expect_length(calls, 2L)
+  expect_identical(calls[[1L]]$metric, "euclidean")
+  expect_null(calls[[1L]]$n_threads)
+  expect_null(calls[[1L]]$pca_method)
+  expect_identical(calls[[2L]]$metric, "euclidean")
+  expect_identical(calls[[2L]]$pca_method, "svd")
+})
+
+test_that("landscape UMAP preserves unrelated dependency errors", {
+  skip_if_not_installed("uwot")
+  local_mocked_bindings(umap = function(...) stop("unrelated landscape failure"),
+                        .package = "uwot")
+  corpus <- sm_example_corpus(n_works = 30)
+  expect_error(sm_plot_landscape(corpus), "unrelated landscape failure")
+})

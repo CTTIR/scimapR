@@ -1,5 +1,9 @@
 # scimapR (development version)
 
+* `sm_plot_landscape()` now uses the same narrowly scoped older-R PCA
+  compatibility repair as clustering. Its Euclidean distance and automatic
+  thread defaults are unchanged; unrelated dependency errors still propagate.
+
 * Standardize the named v5 package logo across README, documentation pages
   and available application headers, with matching light and dark artwork.
 

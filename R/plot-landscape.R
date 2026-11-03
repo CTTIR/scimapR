@@ -13,6 +13,11 @@
 #' @return A `ggplot` object with one point per row of
 #'   `corpus$embeddings`, so works without an embedding are not shown.
 #'
+#' @details UMAP retains its Euclidean metric and automatic thread settings.
+#'   If its PCA dependency raises the known older-R NULL-input error, it
+#'   retries with base SVD initialisation and reports
+#'   `scimapR_umap_pca_fallback`. Other errors propagate unchanged.
+#'
 #' @family plots
 #' @export
 #' @examplesIf requireNamespace("dbscan", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE)
@@ -43,8 +48,8 @@ sm_plot_landscape <- function(corpus,
       if (n_neighbors < 2) {
         cli::cli_abort("Need at least 3 works for UMAP.")
       }
-      uwot::umap(emb, n_components = n_components,
-                  n_neighbors = n_neighbors, verbose = FALSE)
+      .umap_reduce(emb, n_components, n_neighbors, rlang::caller_env(),
+                   metric = "euclidean", n_threads = NULL)
     },
     pca = {
       pc <- stats::prcomp(emb, center = TRUE, scale. = FALSE)

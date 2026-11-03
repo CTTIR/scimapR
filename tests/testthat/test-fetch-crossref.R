@@ -37,6 +37,8 @@ test_that("the package engine restores its email after success or failure", {
   for (old in c(NA_character_, "", "before@example.org")) {
     for (fails in c(FALSE, TRUE)) {
       withr::with_envvar(c(crossref_email = old), {
+        # Windows represents an empty environment value as an unset variable.
+        before <- Sys.getenv("crossref_email", unset = NA_character_)
         seen <- NULL
         local_mocked_bindings(cr_works = function(...) {
           seen <<- Sys.getenv("crossref_email", unset = NA_character_)
@@ -56,7 +58,7 @@ test_that("the package engine restores its email after success or failure", {
         }
         expect_identical(seen, "during@example.org")
         expect_identical(
-          Sys.getenv("crossref_email", unset = NA_character_), old
+          Sys.getenv("crossref_email", unset = NA_character_), before
         )
       })
     }
