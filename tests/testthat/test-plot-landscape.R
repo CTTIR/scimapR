@@ -78,7 +78,7 @@ test_that("the landscape shows the works that have an embedding row", {
   expect_identical(sort(p$data$work_id), sort(corpus$works$work_id[-(1:4)]))
 })
 
-test_that("landscape UMAP recovers from the older-R PCA error without changing its metric", {
+test_that("landscape UMAP preserves its metric when retrying older-R PCA", {
   skip_if_not_installed("uwot")
   skip_if_not_installed("irlba")
   reduce <- uwot::umap
@@ -111,8 +111,9 @@ test_that("landscape UMAP recovers from the older-R PCA error without changing i
 
 test_that("landscape UMAP preserves unrelated dependency errors", {
   skip_if_not_installed("uwot")
-  local_mocked_bindings(umap = function(...) stop("unrelated landscape failure"),
-                        .package = "uwot")
+  local_mocked_bindings(umap = function(...) {
+    stop("unrelated landscape failure")
+  }, .package = "uwot")
   corpus <- sm_example_corpus(n_works = 30)
   expect_error(sm_plot_landscape(corpus), "unrelated landscape failure")
 })
