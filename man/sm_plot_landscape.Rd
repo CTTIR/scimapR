@@ -33,6 +33,12 @@ A \code{ggplot} object with one point per row of
 \description{
 UMAP/t-SNE/PCA scatter plot of work embeddings, coloured by cluster.
 }
+\details{
+UMAP retains its Euclidean metric and automatic thread settings.
+If its PCA dependency raises the known older-R NULL-input error, it
+retries with base SVD initialisation and reports
+\code{scimapR_umap_pca_fallback}. Other errors propagate unchanged.
+}
 \examples{
 \dontshow{if (requireNamespace("dbscan", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 corpus <- sm_example_corpus()

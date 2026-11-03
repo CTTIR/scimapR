@@ -187,11 +187,12 @@ sm_cluster_hdbscan <- function(corpus,
   emb
 }
 
-.umap_reduce <- function(emb, n_components, n_neighbors, call) {
+.umap_reduce <- function(emb, n_components, n_neighbors, call,
+                         metric = "cosine", n_threads = 1L) {
   run <- function(pca_method = NULL) {
     uwot::umap(emb,
       n_components = n_components, n_neighbors = n_neighbors,
-      metric = "cosine", n_threads = 1L, verbose = FALSE,
+      metric = metric, n_threads = n_threads, verbose = FALSE,
       pca_method = pca_method
     )
   }
