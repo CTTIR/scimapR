@@ -40,6 +40,7 @@ test_that("sm_export_figure multi_dpi creates multiple files", {
 })
 
 test_that("sm_export_table writes an XLSX file", {
+  skip_if_not_installed("openxlsx2")
   dat <- data.frame(Author = "Smith J", Works = 10L, Citations = 150L)
 
   tmpdir <- withr::local_tempdir()

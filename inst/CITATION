@@ -5,15 +5,17 @@ citHeader(
 
 bibentry(
   bibtype  = "Manual",
+  key      = "scimapR",
   title    = "scimapR: Reproducible, Question-Driven, Embedding-Aware Science Mapping",
   author   = person("R.", "Heller"),
   year     = "2026",
-  note     = "R package version 0.1.0",
+  note     = paste("R package version", meta$Version),
   url      = "https://github.com/CTTIR/scimapR"
 )
 
 bibentry(
   bibtype  = "Article",
+  key      = "bibliometrix",
   title    = "bibliometrix: An R-tool for comprehensive science mapping analysis",
   author   = c(
     person("Massimo", "Aria"),

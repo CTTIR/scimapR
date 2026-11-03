@@ -54,8 +54,8 @@
   digest::digest(prompt, algo = "sha256", serialize = FALSE)
 }
 
-.with_preserved_seed <- function(seed, code) {
-  if (is.null(seed)) return(force(code))
+.with_preserved_seed <- function(seed, code, preserve = !is.null(seed)) {
+  if (!preserve) return(force(code))
   rng_env <- globalenv()
   old <- if (exists(".Random.seed", envir = globalenv(), inherits = FALSE)) {
     get(".Random.seed", envir = globalenv())

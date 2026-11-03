@@ -3,6 +3,13 @@
 * Standardize the named v5 package logo across README, documentation pages
   and available application headers, with matching light and dark artwork.
 
+- The UMAP reducer now retries with base SVD initialisation when its PCA dependency raises the older-R NULL-input error. Other errors are still reported unchanged; successful UMAP calls retain their existing defaults.
+
+- Version metadata aligned across DESCRIPTION, CITATION, CITATION.cff and .zenodo.json; corpus print shows refresh times as UTC dates; `?sm_corpus` documents the column schema.
+
+- `sm_example_corpus()` preserves the session random-number state, including when no seed existed. The package engine of `sm_fetch_crossref()` restores the previous `crossref_email` environment variable after success or failure.
+
+- Clustering checks for the optional UMAP dependency only when it actually uses UMAP, so PCA and unreduced density clustering work without it. Examples, tests and trajectory plots guard their optional dependencies. `sm_export_zip()` creates and cleans its temporary directory using base R.
 - `sm_audit_geographic()` counts works, not authorship rows. A work counts once in each country, region or income tier of its authors, and with the new `method = "fractional"` it splits one unit among them. Its citations count once per group, `coverage` is the share of works with a known group, and the Gini coefficient uses citations under `weight = "citations"`. Results change for corpora with multi-author works or authors with several addresses. The distribution gains `credit` and `weighted_citations`, appended after its existing columns (`group`, `count`, `citations`, `pct`).
 
 - `sm_metric_collab_index()` returns `NA` instead of 0 and `FALSE` when no author of a work has a country code (`n_countries`, `is_international`) or an institution id (`n_institutions`). Web of Science and Scopus corpora without country data no longer report an international collaboration rate of 0%.

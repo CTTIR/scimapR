@@ -32,6 +32,11 @@
 #' The reducer step helps HDBSCAN work in a lower-dimensional space where
 #' density estimation is more reliable.
 #'
+#' UMAP requires its optional dependency only when reduction is needed.
+#' If the PCA dependency raises the known NULL-input error on older R,
+#' reduction retries with base SVD initialisation and reports
+#' `scimapR_umap_pca_fallback`. Other errors propagate unchanged.
+#'
 #' @family clustering
 #' @export
 #' @examplesIf requireNamespace("dbscan", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE)
@@ -49,7 +54,6 @@ sm_cluster_hdbscan <- function(corpus,
   .check_sm_corpus(corpus, call = call)
   .check_corpus_unlocked(corpus, call = call)
   rlang::check_installed("dbscan", reason = "for HDBSCAN clustering.")
-  rlang::check_installed("uwot", reason = "for UMAP dimensionality reduction.")
   min_cluster_size <- .check_positive_int(min_cluster_size, call = call)
   reducer <- rlang::arg_match(reducer, error_call = call)
   n_components <- .check_positive_int(n_components, call = call)
@@ -172,15 +176,36 @@ sm_cluster_hdbscan <- function(corpus,
       # Too few points for UMAP, fall back to raw
       return(emb)
     }
-    reduced <- uwot::umap(emb,
-                           n_components = n_components,
-                           n_neighbors = n_neighbors,
-                           metric = "cosine",
-                           n_threads = 1L,
-                           verbose = FALSE)
+    rlang::check_installed("uwot",
+      reason = "for UMAP dimensionality reduction.", call = call
+    )
+    reduced <- .umap_reduce(emb, n_components, n_neighbors, call)
     rownames(reduced) <- rownames(emb)
     return(reduced)
   }
 
   emb
+}
+
+.umap_reduce <- function(emb, n_components, n_neighbors, call) {
+  run <- function(pca_method = NULL) {
+    uwot::umap(emb,
+      n_components = n_components, n_neighbors = n_neighbors,
+      metric = "cosine", n_threads = 1L, verbose = FALSE,
+      pca_method = pca_method
+    )
+  }
+  tryCatch(run(), error = function(cnd) {
+    origin <- conditionCall(cnd)
+    null_error <- identical(conditionMessage(cnd),
+                            "LENGTH or similar applied to NULL object")
+    from_pca <- is.call(origin) && identical(origin[[1]], quote(oknum))
+    if (!null_error || !from_pca) stop(cnd)
+    cli::cli_inform(
+      paste0("The PCA dependency failed on this R version; ",
+             "retrying UMAP with base SVD."),
+      class = "scimapR_umap_pca_fallback", call = call
+    )
+    run("svd")
+  })
 }

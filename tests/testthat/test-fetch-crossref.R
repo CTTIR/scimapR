@@ -32,6 +32,37 @@
   ))
 }
 
+test_that("the package engine restores its email after success or failure", {
+  skip_if_not_installed("rcrossref")
+  for (old in c(NA_character_, "", "before@example.org")) {
+    for (fails in c(FALSE, TRUE)) {
+      withr::with_envvar(c(crossref_email = old), {
+        seen <- NULL
+        local_mocked_bindings(cr_works = function(...) {
+          seen <<- Sys.getenv("crossref_email", unset = NA_character_)
+          if (fails) stop("request failed")
+          list(data = data.frame())
+        }, .package = "rcrossref")
+        if (fails) {
+          expect_error(sm_fetch_crossref(
+            "test", engine = "rcrossref",
+            mailto = "during@example.org", verbose = FALSE
+          ))
+        } else {
+          expect_s3_class(sm_fetch_crossref(
+            "test", engine = "rcrossref",
+            mailto = "during@example.org", verbose = FALSE
+          ), "sm_corpus")
+        }
+        expect_identical(seen, "during@example.org")
+        expect_identical(
+          Sys.getenv("crossref_email", unset = NA_character_), old
+        )
+      })
+    }
+  }
+})
+
 test_that("sm_fetch_crossref requires query or filter", {
   local_http_env()
   expect_error(sm_fetch_crossref(), "query.*filter|filter.*query")

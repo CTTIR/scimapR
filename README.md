@@ -6,14 +6,21 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21889960.svg)](https://doi.org/10.5281/zenodo.21889960)
 
 <!-- badges: start -->
+
 [![R-CMD-check](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml)
 [![pkgdown](https://github.com/CTTIR/scimapR/actions/workflows/pkgdown.yaml/badge.svg)](https://cttir.github.io/scimapR/)
-[![CRAN status](https://www.r-pkg.org/badges/version/scimapR)](https://CRAN.R-project.org/package=scimapR)
-[![Codecov test coverage](https://codecov.io/gh/CTTIR/scimapR/branch/main/graph/badge.svg)](https://app.codecov.io/gh/CTTIR/scimapR?branch=main)
-[![CRAN downloads](https://cranlogs.r-pkg.org/badges/scimapR)](https://cran.r-project.org/package=scimapR)
-[![CRAN downloads total](https://cranlogs.r-pkg.org/badges/grand-total/scimapR)](https://cran.r-project.org/package=scimapR)
-[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/scimapR)](https://CRAN.R-project.org/package=scimapR)
+[![Codecov test
+coverage](https://codecov.io/gh/CTTIR/scimapR/branch/main/graph/badge.svg)](https://app.codecov.io/gh/CTTIR/scimapR?branch=main)
+[![CRAN
+downloads](https://cranlogs.r-pkg.org/badges/scimapR)](https://cran.r-project.org/package=scimapR)
+[![CRAN downloads
+total](https://cranlogs.r-pkg.org/badges/grand-total/scimapR)](https://cran.r-project.org/package=scimapR)
+[![License:
+MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
 **The reproducible, equity-aware, question-driven, AI-assisted
@@ -37,8 +44,8 @@ visualisations.
   `sm_screen_against_question()`).
 - **Reproducible-by-construction corpus certificates.** A YAML document
   that records how your corpus was built, its local input files included
-  (with SHA-256 hashes), so that another researcher can verify it and run
-  its searches again (`sm_certificate()`, `sm_verify_certificate()`,
+  (with SHA-256 hashes), so that another researcher can verify it and
+  run its searches again (`sm_certificate()`, `sm_verify_certificate()`,
   `sm_rebuild_from_cert()`).
 - **Author trajectory analysis.** Track topic pivots, collaborator
   turnover, and productivity curves across a career
@@ -95,7 +102,7 @@ print(corpus)
 #> Sources (journals): 10
 #> Embeddings: 100 x 64
 #> Provenance: synthetic (100)
-#> Status: Unlocked (last refreshed: 2026-06-10 09:09:01)
+#> Status: Unlocked (last refreshed: 2026-10-23 19:47 UTC)
 
 # Visualise production
 sm_plot_production(corpus)
@@ -156,9 +163,9 @@ citation("scimapR")
 ``` bibtex
 @Manual{scimapR,
   title = {scimapR: Reproducible, Question-Driven, Embedding-Aware Science Mapping},
-  author = {Raban Heller},
+  author = {R. Heller},
   year = {2026},
-  note = {R package version 0.1.0},
+  note = {R package version 0.4.0.9000},
   url = {https://github.com/CTTIR/scimapR},
 }
 

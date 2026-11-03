@@ -340,6 +340,15 @@ sm_fetch_crossref <- function(query = NULL,
 
   .sm_verbose("Fetching via rcrossref...", verbose)
 
+  old_email <- Sys.getenv("crossref_email", unset = NA_character_)
+  on.exit({
+    if (is.na(old_email)) {
+      Sys.unsetenv("crossref_email")
+    } else {
+      Sys.setenv(crossref_email = old_email)
+    }
+  }, add = TRUE)
+
   tryCatch({
     if (nzchar(mailto)) {
       Sys.setenv(crossref_email = mailto)
