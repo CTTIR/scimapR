@@ -46,6 +46,13 @@ sm_plot_landscape(
 A `ggplot` object with one point per row of `corpus$embeddings`, so
 works without an embedding are not shown.
 
+## Details
+
+UMAP retains its Euclidean metric and automatic thread settings. If its
+PCA dependency raises the known older-R NULL-input error, it retries
+with base SVD initialisation and reports `scimapR_umap_pca_fallback`.
+Other errors propagate unchanged.
+
 ## See also
 
 Other plots:

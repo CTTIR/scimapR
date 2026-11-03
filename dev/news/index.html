@@ -48,7 +48,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="scimapr-development-version">scimapR (development version)<a class="anchor" aria-label="anchor" href="#scimapr-development-version"></a></h2>
-<ul><li><p>Standardize the named v5 package logo across README, documentation pages and available application headers, with matching light and dark artwork.</p></li>
+<ul><li><p><code><a href="../reference/sm_plot_landscape.html">sm_plot_landscape()</a></code> now uses the same narrowly scoped older-R PCA compatibility repair as clustering. Its Euclidean distance and automatic thread defaults are unchanged; unrelated dependency errors still propagate.</p></li>
+<li><p>Standardize the named v5 package logo across README, documentation pages and available application headers, with matching light and dark artwork.</p></li>
 <li><p>The UMAP reducer now retries with base SVD initialisation when its PCA dependency raises the older-R NULL-input error. Other errors are still reported unchanged; successful UMAP calls retain their existing defaults.</p></li>
 <li><p>Version metadata aligned across DESCRIPTION, CITATION, CITATION.cff and .zenodo.json; corpus print shows refresh times as UTC dates; <code><a href="../reference/sm_corpus.html">?sm_corpus</a></code> documents the column schema.</p></li>
 <li><p><code><a href="../reference/sm_example_corpus.html">sm_example_corpus()</a></code> preserves the session random-number state, including when no seed existed. The package engine of <code><a href="../reference/sm_fetch_crossref.html">sm_fetch_crossref()</a></code> restores the previous <code>crossref_email</code> environment variable after success or failure.</p></li>

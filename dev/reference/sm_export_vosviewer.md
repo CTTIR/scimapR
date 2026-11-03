@@ -49,7 +49,7 @@ Other export:
 corpus <- sm_example_corpus()
 net <- sm_network_cocitation(corpus)
 sm_export_vosviewer(net, tempfile(fileext = ".tsv"))
-#> ✔ Network exported for VOSviewer to /tmp/RtmpTd5hLF/file1e62197d82ee.tsv
+#> ✔ Network exported for VOSviewer to /tmp/RtmpfuqprV/file1c1f1c14b699.tsv
 # The matching map file is written beside the network file.
 # }
 ```

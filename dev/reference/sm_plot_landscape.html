@@ -97,6 +97,13 @@
 <code>corpus$embeddings</code>, so works without an embedding are not shown.</p>
     </div>
     <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>UMAP retains its Euclidean metric and automatic thread settings.
+If its PCA dependency raises the known older-R NULL-input error, it
+retries with base SVD initialisation and reports
+<code>scimapR_umap_pca_fallback</code>. Other errors propagate unchanged.</p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other plots:
 <code><a href="autoplot.sm_corpus.html">autoplot.sm_corpus()</a></code>,
