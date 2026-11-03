@@ -1,5 +1,30 @@
 # Tests for R/export-zip.R (sm_export_zip).
 
+test_that("ZIP export owns and cleans its workspace without a helper package", {
+  x <- sm_example_corpus(n_works = 3)
+  path <- withr::local_tempfile(fileext = ".zip")
+  dir <- NULL
+  fail <- FALSE
+  writer <- sm_export_rds
+  export <- function() {
+    local_mocked_bindings(local_tempdir = function(...) {
+      stop("optional temporary-directory helper used")
+    }, .package = "withr")
+    suppressMessages(sm_export_zip(x, path, include = "rds"))
+  }
+  local_mocked_bindings(sm_export_rds = function(corpus, path) {
+    dir <<- dirname(path)
+    if (fail) stop("export failed")
+    writer(corpus, path)
+  })
+  expect_no_error(export())
+  expect_true(file.exists(path))
+  expect_false(dir.exists(dir))
+  fail <- TRUE
+  expect_error(export(), "export failed")
+  expect_false(dir.exists(dir))
+})
+
 test_that("sm_export_zip rejects a non-corpus input", {
   expect_error(sm_export_zip(list(), tempfile(fileext = ".zip")),
                class = "rlang_error")

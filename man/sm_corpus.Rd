@@ -52,7 +52,7 @@ sm_corpus(
 Common spellings of \code{oa_status} are renamed using \code{\link[=sm_oa_statuses]{sm_oa_statuses()}},
 with a message; unrecognised values are kept and reported as unknown.}
 
-\item{authors}{A tibble of authors. If \code{NULL}, constructed from \code{works}.}
+\item{authors}{A tibble of authors. If \code{NULL}, empty.}
 
 \item{authorships}{A tibble linking works to authors. If \code{NULL}, empty.}
 
@@ -125,13 +125,17 @@ corpus new IDs where they collide.
 A corpus is a list of tables that share identifiers: \code{work_id} links
 every table to \code{works}, \code{author_id} links \code{authorships} to \code{authors},
 \code{institution_id} links them to \code{institutions} and \code{source_id} links
-\code{works} to \code{sources}. The tables below list, for each element, the
-required columns, which the readers and fetchers always write (a value
-may be \code{NA}), and the optional columns that some readers and functions
-write or read. \code{sm_corpus()} adds the missing required columns of
-\code{works} (mostly \code{NA}); it takes the other tables as given.
+\code{works} to \code{sources}. The tables below distinguish the standard schema
+columns (as in the empty tables) from optional columns that particular
+readers and functions write or read. A schema value may be \code{NA}.
+\code{sm_corpus()} adds missing schema columns to \code{works} (mostly \code{NA});
+it takes other supplied tables as given. \code{\link[=validate_sm_corpus]{validate_sm_corpus()}} checks
+the required list elements, that \code{works} is a tibble with \code{work_id},
+that \code{metadata} is a list, and the yearly citation schema below. It does
+not require or check every standard column of the other tables. Use
+\code{\link[=sm_validate]{sm_validate()}} for further data checks.
 
-\strong{\code{works}}: one row per work. Required:\tabular{lll}{
+\strong{\code{works}}: one row per work. Standard schema:\tabular{lll}{
    Column \tab Type \tab Content \cr
    \code{work_id} \tab character \tab Identifier, unique within the corpus \cr
    \code{doi} \tab character \tab DOI, lower case, without \verb{https://doi.org/} \cr
@@ -150,8 +154,10 @@ write or read. \code{sm_corpus()} adds the missing required columns of
 
 
 Optional: \code{quartile}, \code{jif_quartile} or \code{sjr_quartile} (journal
-quartiles such as \code{"Q1"}, for \code{sm_its(outcome = "share_q1")}); \code{cnci},
-\code{fnci}, \code{rcr} and other impact columns (see \code{\link[=sm_its]{sm_its()}}); \code{field} (for
+quartiles such as \code{"Q1"}, for \code{sm_its(outcome = "share_q1")}); numeric
+impact columns \code{cnci}, \code{fwci}, \code{fnci}, \code{rcr}, \code{cnci_value}, \code{ncs}, \code{mncs}
+and \code{field_citation_ratio} (searched in that order by \code{\link[=sm_its]{sm_its()}} and
+\code{\link[=sm_metric_summary]{sm_metric_summary()}}); \code{field} (for
 \code{sm_metric_fnci(classification = "manual")}); \code{citation_mature} and
 \code{cnci_provisional} (\code{\link[=sm_citation_maturity]{sm_citation_maturity()}}); \code{cluster_id} (the
 clustering functions); \code{cluster_label} and \code{cluster_label_basis}, a
@@ -178,7 +184,7 @@ since 1970-01-01, as SQLite keeps dates) or as ISO 8601 text;
 \code{\link[=sm_citation_window]{sm_citation_window()}} and \code{\link[=sm_enrich_openalex_impact]{sm_enrich_openalex_impact()}} read both as
 the date they stand for.
 
-\strong{\code{authors}}: one row per author. Required:\tabular{lll}{
+\strong{\code{authors}}: one row per author. Standard schema:\tabular{lll}{
    Column \tab Type \tab Content \cr
    \code{author_id} \tab character \tab Identifier, unique within the corpus \cr
    \code{orcid} \tab character \tab ORCID iD \cr
@@ -195,7 +201,7 @@ reads the gender columns. Optional: none so far.
 
 \strong{\code{authorships}}: one row per work, author and affiliation, so an author
 with several addresses in a work has several rows, which share
-\code{position} and \code{is_corresponding}. Required:\tabular{lll}{
+\code{position} and \code{is_corresponding}. Standard schema:\tabular{lll}{
    Column \tab Type \tab Content \cr
    \code{work_id}, \code{author_id} \tab character \tab The work and the author \cr
    \code{position} \tab integer \tab Place in the author list, from 1 (\code{NA}: unknown) \cr
@@ -228,7 +234,7 @@ Optional: \code{institution_match}, \code{match_method}, \code{match_signal} and
 (\code{\link[=sm_attribute_institution]{sm_attribute_institution()}}); \code{email} (exported as \code{EM} by
 \code{\link[=sm_to_bibliometrix]{sm_to_bibliometrix()}}).
 
-\strong{\code{institutions}}: one row per institution. Required:\tabular{lll}{
+\strong{\code{institutions}}: one row per institution. Standard schema:\tabular{lll}{
    Column \tab Type \tab Content \cr
    \code{institution_id} \tab character \tab Identifier, as in \code{authorships} \cr
    \code{ror} \tab character \tab ROR id \cr
@@ -241,7 +247,7 @@ Optional: \code{institution_match}, \code{match_method}, \code{match_signal} and
 
 Optional: none so far.
 
-\strong{\code{sources}}: one row per journal or other source. Required:\tabular{lll}{
+\strong{\code{sources}}: one row per journal or other source. Standard schema:\tabular{lll}{
    Column \tab Type \tab Content \cr
    \code{source_id} \tab character \tab Identifier, as in \code{works} \cr
    \code{issn_l} \tab character \tab Linking ISSN \cr
@@ -257,7 +263,7 @@ Optional: \code{abbreviation} and \code{iso_abbreviation} (character; the Web of
 Science abbreviations J9 and JI, written by \code{\link[=sm_read_wos]{sm_read_wos()}} and the
 bibliometrix conversion and exported by \code{\link[=sm_to_bibliometrix]{sm_to_bibliometrix()}}).
 
-\strong{\code{references}}: one row per cited reference. Required:\tabular{lll}{
+\strong{\code{references}}: one row per cited reference. Standard schema:\tabular{lll}{
    Column \tab Type \tab Content \cr
    \code{work_id} \tab character \tab The citing work \cr
    \code{ref_index} \tab integer \tab Place in the work's reference list \cr
@@ -274,7 +280,7 @@ OpenAlex id in \code{cited_raw} when the cited work is in \code{works}.
 Optional: none so far.
 
 \strong{\code{concepts}}: one row per keyword, category or concept of a work.
-Required:\tabular{lll}{
+Standard schema:\tabular{lll}{
    Column \tab Type \tab Content \cr
    \code{work_id} \tab character \tab The work \cr
    \code{concept_id} \tab character \tab Identifier in its vocabulary \cr
@@ -297,7 +303,7 @@ them no cluster (\code{NA}), and \code{\link[=sm_network_semantic]{sm_network_se
 \code{\link[=sm_plot_landscape]{sm_plot_landscape()}} leave them out. \code{metadata$embedding} records the
 model (see below).
 
-\strong{\code{provenance}}: one row per work and source. Required:\tabular{lll}{
+\strong{\code{provenance}}: one row per work and source. Standard schema:\tabular{lll}{
    Column \tab Type \tab Content \cr
    \code{work_id} \tab character \tab The work \cr
    \code{source} \tab character \tab Where the record comes from, such as \code{"wos"} \cr
@@ -331,7 +337,7 @@ records the kind of each step, inferred from the source, query and
 engine for rows without \code{kind}, and \code{\link[=sm_rebuild_from_cert]{sm_rebuild_from_cert()}} replays
 only searches, never a file read or an enrichment.
 
-\strong{\code{screening}}: one row per screening decision. Required:\tabular{lll}{
+\strong{\code{screening}}: one row per screening decision. Standard schema:\tabular{lll}{
    Column \tab Type \tab Content \cr
    \code{work_id} \tab character \tab The work \cr
    \code{stage} \tab character \tab Stage, such as \code{"title-abstract"} or \code{"full-text"} \cr
@@ -364,13 +370,26 @@ yearly counts (see \code{works$citations_as_of} and \code{\link[=sm_citation_win
 Subsetting keeps the rows of the kept works, \code{\link[=sm_bind_corpora]{sm_bind_corpora()}} binds
 them and \code{\link[=sm_hash_corpus]{sm_hash_corpus()}} includes them when there are any.
 
-\strong{\code{metadata}}: a list. Entries are required unless marked optional:\tabular{lll}{
+\strong{\code{metrics}}: an optional legacy table read by the impact resolver
+when no impact column in \code{works} has values. It is not created by
+\code{sm_corpus()} or included in the standard empty schema:\tabular{lll}{
+   Column \tab Type \tab Content \cr
+   \code{work_id} \tab character \tab The work \cr
+   Impact column \tab numeric \tab One of the impact names above, or \code{value} \cr
+}
+
+
+The first named impact column, in the same order as for \code{works} and
+then \code{value}, is used when it contains a nonmissing value. Prefer
+impact columns in \code{works} for new corpora.
+
+\strong{\code{metadata}}: a list. Standard entries unless marked optional:\tabular{lll}{
    Entry \tab Type \tab Content \cr
    \code{scimapR_version} \tab character \tab The scimapR version that built the corpus \cr
    \code{build_date} \tab POSIXct \tab When the corpus was built \cr
    \code{corpus_hash} \tab character \tab Hash of the content (\code{\link[=sm_hash_corpus]{sm_hash_corpus()}}) \cr
    \code{is_locked} \tab logical \tab Whether \code{\link[=sm_lock]{sm_lock()}} locked the corpus \cr
-   \code{last_refresh} \tab POSIXct \tab Last refresh without a failed request \cr
+   \code{last_refresh} \tab timestamp \tab Last refresh without a failed request \cr
    \code{n_identified} \tab integer \tab Optional count before search deduplication \cr
    \code{question_id} \tab character \tab Id of its \code{\link[=sm_question]{sm_question()}} \cr
    \code{fetch_incomplete} \tab list \tab Optional failed-fetch report (see below) \cr
@@ -397,11 +416,14 @@ it used version 1); and \code{local_inputs}, a tibble of the local files the
 corpus was built from, with their SHA-256 hashes, which
 \code{\link[=sm_register_input]{sm_register_input()}} and \code{\link[=sm_corpus_from_tables]{sm_corpus_from_tables()}} (\code{inputs}) write,
 \code{\link[=sm_certificate]{sm_certificate()}} records and \code{\link[=sm_verify_certificate]{sm_verify_certificate()}} checks (see
-\code{\link[=sm_register_input]{sm_register_input()}} for its columns).
+\code{\link[=sm_register_input]{sm_register_input()}} for its columns). \code{local_inputs} is \code{NULL} until
+inputs are registered or supplied.
 \code{build_date} and \code{last_refresh} may also be numbers of seconds since
 1970-01-01 UTC, as corpora restored from tables store them, ISO 8601
 text or dates; \code{\link[=sm_certificate]{sm_certificate()}} and the citation-maturity cut-offs
-read all of these.
+read all of these. \code{print()} also reads these forms for \code{last_refresh}
+and shows \verb{YYYY-MM-DD HH:MM UTC}. \code{NULL} and a single missing value
+print as \code{"never"}; unsupported values and vectors use \code{format()}.
 
 Optional: \code{embedding}, the record of the model behind \code{embeddings}, a
 list that \code{\link[=sm_embed_works]{sm_embed_works()}}, \code{\link[=sm_enrich_specter]{sm_enrich_specter()}},

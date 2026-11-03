@@ -13,7 +13,8 @@
 #' @param with_screening Logical; generate screening decisions?
 #' @param with_trajectory_seed Logical; create a prolific author for
 #'   trajectory demonstration?
-#' @param seed Random seed for reproducibility.
+#' @param seed Random seed for reproducibility. `NULL` chooses a fresh seed.
+#'   The session random-number state is restored after generation.
 #'
 #' @return An `sm_corpus` object.
 #'
@@ -30,7 +31,15 @@ sm_example_corpus <- function(n_works = 200L,
                               with_screening = FALSE,
                               with_trajectory_seed = TRUE,
                               seed = 42L) {
-  set.seed(seed)
+  .with_preserved_seed(seed, .example_corpus(
+    n_works, n_authors, year_range, n_clusters, with_embeddings,
+    with_screening, with_trajectory_seed
+  ), preserve = TRUE)
+}
+
+.example_corpus <- function(n_works, n_authors, year_range, n_clusters,
+                            with_embeddings, with_screening,
+                            with_trajectory_seed) {
 
   topics <- c("spatial transcriptomics", "single-cell RNA-seq",
                "tumor microenvironment", "immune checkpoint",

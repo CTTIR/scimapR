@@ -51,6 +51,11 @@ Requires embeddings in \code{corpus$embeddings}. Compute them first with
 
 The reducer step helps HDBSCAN work in a lower-dimensional space where
 density estimation is more reliable.
+
+UMAP requires its optional dependency only when reduction is needed.
+If the PCA dependency raises the known NULL-input error on older R,
+reduction retries with base SVD initialisation and reports
+\code{scimapR_umap_pca_fallback}. Other errors propagate unchanged.
 }
 \examples{
 \dontshow{if (requireNamespace("dbscan", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE)) withAutoprint(\{ # examplesIf}

@@ -78,7 +78,7 @@ head(oa)
 
 ### Equity dashboard
 
-```{r dashboard, fig.width = 8, fig.height = 6, fig.cap = "Equity dashboard"}
+```{r dashboard, eval = requireNamespace("patchwork", quietly = TRUE), fig.width = 8, fig.height = 6, fig.cap = "Equity dashboard"}
 sm_plot_equity_dashboard(corpus)
 ```
 
@@ -99,7 +99,7 @@ traj <- sm_author_trajectory(corpus, author_id = "A000000001")
 print(traj)
 ```
 
-```{r traj-plot, fig.width = 8, fig.height = 6, fig.cap = "Author trajectory"}
+```{r traj-plot, eval = requireNamespace("patchwork", quietly = TRUE), fig.width = 8, fig.height = 6, fig.cap = "Author trajectory"}
 sm_plot_trajectory(traj)
 ```
 
