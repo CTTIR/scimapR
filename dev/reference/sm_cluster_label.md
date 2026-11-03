@@ -197,7 +197,7 @@ Other clustering:
 ``` r
 # \donttest{
 corpus <- sm_example_corpus(with_embeddings = TRUE)
-corpus <- sm_cluster_kmeans(corpus, k = 5)
+corpus <- sm_cluster_kmeans(corpus, k = 5, reducer = "pca")
 #> ✔ K-means clustering complete.
 #> ℹ 5 clusters, sizes range from 27 to 49.
 corpus <- sm_cluster_label(corpus, method = "tfidf", n_terms = 3L)
@@ -207,11 +207,11 @@ unique(corpus$works[, c("cluster_id", "cluster_label",
 #> # A tibble: 5 × 3
 #>   cluster_id cluster_label                                   cluster_label_basis
 #>        <int> <chr>                                           <chr>              
-#> 1          5 drug resistance; clinical outcomes; cross sect… tfidf              
+#> 1          2 drug resistance; clinical outcomes; cross sect… tfidf              
 #> 2          1 cohort study; investigates drug; machine learn… tfidf              
 #> 3          3 meta analysis; spatial transcriptomics; prospe… tfidf              
 #> 4          4 meta analysis; investigates spatial transcript… tfidf              
-#> 5          2 trial approaches; cross sectional study; immun… tfidf              
+#> 5          5 trial approaches; cross sectional study; immun… tfidf              
 
 # keyword labels: the real-use example corpus grouped by journal category
 fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))

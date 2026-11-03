@@ -242,7 +242,7 @@ and a configured provider.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_example_corpus.html">sm_example_corpus</a></span><span class="op">(</span>with_embeddings <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_cluster_kmeans.html">sm_cluster_kmeans</a></span><span class="op">(</span><span class="va">corpus</span>, k <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_cluster_kmeans.html">sm_cluster_kmeans</a></span><span class="op">(</span><span class="va">corpus</span>, k <span class="op">=</span> <span class="fl">5</span>, reducer <span class="op">=</span> <span class="st">"pca"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> K-means clustering complete.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 5 clusters, sizes range from 27 to 49.</span>
 <span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu">sm_cluster_label</span><span class="op">(</span><span class="va">corpus</span>, method <span class="op">=</span> <span class="st">"tfidf"</span>, n_terms <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span></span>
@@ -252,11 +252,11 @@ and a configured provider.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 5 × 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   cluster_id cluster_label                                   cluster_label_basis</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                                           <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>          5 drug resistance; clinical outcomes; cross sect… tfidf              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span>          2 drug resistance; clinical outcomes; cross sect… tfidf              </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span>          1 cohort study; investigates drug; machine learn… tfidf              </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span>          3 meta analysis; spatial transcriptomics; prospe… tfidf              </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span>          4 meta analysis; investigates spatial transcript… tfidf              </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>          2 trial approaches; cross sectional study; immun… tfidf              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span>          5 trial approaches; cross sectional study; immun… tfidf              </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># keyword labels: the real-use example corpus grouped by journal category</span></span></span>
 <span class="r-in"><span><span class="va">fix</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu"><a href="sm_example_files.html">sm_example_files</a></span><span class="op">(</span><span class="st">"example_realuse_corpus.rds"</span><span class="op">)</span><span class="op">)</span></span></span>

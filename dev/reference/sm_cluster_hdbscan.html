@@ -117,6 +117,10 @@ with class <code>scimapR_duplicate_ids</code>; use <code><a href="sm_validate.ht
 <code><a href="sm_embed_works.html">sm_embed_works()</a></code> or load from cache with <code><a href="sm_embed_load.html">sm_embed_load()</a></code>.</p>
 <p>The reducer step helps HDBSCAN work in a lower-dimensional space where
 density estimation is more reliable.</p>
+<p>UMAP requires its optional dependency only when reduction is needed.
+If the PCA dependency raises the known NULL-input error on older R,
+reduction retries with base SVD initialisation and reports
+<code>scimapR_umap_pca_fallback</code>. Other errors propagate unchanged.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -137,7 +141,7 @@ density estimation is more reliable.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">corpus</span><span class="op">$</span><span class="va">works</span><span class="op">$</span><span class="va">cluster_id</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  1  2  3  4  5 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 45 27 39 40 49 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 45 39 40 27 49 </span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

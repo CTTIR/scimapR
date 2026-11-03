@@ -51,7 +51,8 @@ sm_example_corpus(
 
 - seed:
 
-  Random seed for reproducibility.
+  Random seed for reproducibility. `NULL` chooses a fresh seed. The
+  session random-number state is restored after generation.
 
 ## Value
 
@@ -74,5 +75,5 @@ print(corpus)
 #> Sources (journals): 10
 #> Embeddings: 200 x 64
 #> Provenance: synthetic (200)
-#> Status: Unlocked (last refreshed: 2026-10-28 08:35:24)
+#> Status: Unlocked (last refreshed: 2026-11-03 09:37 UTC)
 ```

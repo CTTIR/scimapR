@@ -73,6 +73,11 @@ or load from cache with
 The reducer step helps HDBSCAN work in a lower-dimensional space where
 density estimation is more reliable.
 
+UMAP requires its optional dependency only when reduction is needed. If
+the PCA dependency raises the known NULL-input error on older R,
+reduction retries with base SVD initialisation and reports
+`scimapR_umap_pca_fallback`. Other errors propagate unchanged.
+
 ## See also
 
 Other clustering:
@@ -92,6 +97,6 @@ corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10L)
 table(corpus$works$cluster_id)
 #> 
 #>  1  2  3  4  5 
-#> 45 27 39 40 49 
+#> 45 39 40 27 49 
 # }
 ```

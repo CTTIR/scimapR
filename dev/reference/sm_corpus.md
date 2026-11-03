@@ -62,7 +62,7 @@ str(object, ...)
 
 - authors:
 
-  A tibble of authors. If `NULL`, constructed from `works`.
+  A tibble of authors. If `NULL`, empty.
 
 - authorships:
 
@@ -167,13 +167,20 @@ gives the second corpus new IDs where they collide.
 A corpus is a list of tables that share identifiers: `work_id` links
 every table to `works`, `author_id` links `authorships` to `authors`,
 `institution_id` links them to `institutions` and `source_id` links
-`works` to `sources`. The tables below list, for each element, the
-required columns, which the readers and fetchers always write (a value
-may be `NA`), and the optional columns that some readers and functions
-write or read. `sm_corpus()` adds the missing required columns of
-`works` (mostly `NA`); it takes the other tables as given.
+`works` to `sources`. The tables below distinguish the standard schema
+columns (as in the empty tables) from optional columns that particular
+readers and functions write or read. A schema value may be `NA`.
+`sm_corpus()` adds missing schema columns to `works` (mostly `NA`); it
+takes other supplied tables as given.
+[`validate_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/validate_sm_corpus.md)
+checks the required list elements, that `works` is a tibble with
+`work_id`, that `metadata` is a list, and the yearly citation schema
+below. It does not require or check every standard column of the other
+tables. Use
+[`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md)
+for further data checks.
 
-**`works`**: one row per work. Required:
+**`works`**: one row per work. Standard schema:
 
 |  |  |  |
 |----|----|----|
@@ -193,9 +200,12 @@ write or read. `sm_corpus()` adds the missing required columns of
 | `last_refreshed` | POSIXct | When the record was read or fetched |
 
 Optional: `quartile`, `jif_quartile` or `sjr_quartile` (journal
-quartiles such as `"Q1"`, for `sm_its(outcome = "share_q1")`); `cnci`,
-`fnci`, `rcr` and other impact columns (see
-[`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md));
+quartiles such as `"Q1"`, for `sm_its(outcome = "share_q1")`); numeric
+impact columns `cnci`, `fwci`, `fnci`, `rcr`, `cnci_value`, `ncs`,
+`mncs` and `field_citation_ratio` (searched in that order by
+[`sm_its()`](https://cttir.github.io/scimapR/dev/reference/sm_its.md)
+and
+[`sm_metric_summary()`](https://cttir.github.io/scimapR/dev/reference/sm_metric_summary.md));
 `field` (for `sm_metric_fnci(classification = "manual")`);
 `citation_mature` and `cnci_provisional`
 ([`sm_citation_maturity()`](https://cttir.github.io/scimapR/dev/reference/sm_citation_maturity.md));
@@ -233,7 +243,7 @@ and
 [`sm_enrich_openalex_impact()`](https://cttir.github.io/scimapR/dev/reference/sm_enrich_openalex_impact.md)
 read both as the date they stand for.
 
-**`authors`**: one row per author. Required:
+**`authors`**: one row per author. Standard schema:
 
 |  |  |  |
 |----|----|----|
@@ -251,7 +261,7 @@ the gender columns. Optional: none so far.
 
 **`authorships`**: one row per work, author and affiliation, so an
 author with several addresses in a work has several rows, which share
-`position` and `is_corresponding`. Required:
+`position` and `is_corresponding`. Standard schema:
 
 |  |  |  |
 |----|----|----|
@@ -296,7 +306,7 @@ Optional: `institution_match`, `match_method`, `match_signal` and
 `email` (exported as `EM` by
 [`sm_to_bibliometrix()`](https://cttir.github.io/scimapR/dev/reference/sm_to_bibliometrix.md)).
 
-**`institutions`**: one row per institution. Required:
+**`institutions`**: one row per institution. Standard schema:
 
 |  |  |  |
 |----|----|----|
@@ -310,7 +320,7 @@ Optional: `institution_match`, `match_method`, `match_signal` and
 
 Optional: none so far.
 
-**`sources`**: one row per journal or other source. Required:
+**`sources`**: one row per journal or other source. Standard schema:
 
 |  |  |  |
 |----|----|----|
@@ -329,7 +339,7 @@ Science abbreviations J9 and JI, written by
 and the bibliometrix conversion and exported by
 [`sm_to_bibliometrix()`](https://cttir.github.io/scimapR/dev/reference/sm_to_bibliometrix.md)).
 
-**`references`**: one row per cited reference. Required:
+**`references`**: one row per cited reference. Standard schema:
 
 |                 |           |                                          |
 |-----------------|-----------|------------------------------------------|
@@ -351,7 +361,7 @@ when the cited work is in `works`.
 Optional: none so far.
 
 **`concepts`**: one row per keyword, category or concept of a work.
-Required:
+Standard schema:
 
 |  |  |  |
 |----|----|----|
@@ -380,7 +390,7 @@ and
 [`sm_plot_landscape()`](https://cttir.github.io/scimapR/dev/reference/sm_plot_landscape.md)
 leave them out. `metadata$embedding` records the model (see below).
 
-**`provenance`**: one row per work and source. Required:
+**`provenance`**: one row per work and source. Standard schema:
 
 |  |  |  |
 |----|----|----|
@@ -423,7 +433,7 @@ engine for rows without `kind`, and
 [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
 replays only searches, never a file read or an enrichment.
 
-**`screening`**: one row per screening decision. Required:
+**`screening`**: one row per screening decision. Standard schema:
 
 |              |           |                                                    |
 |--------------|-----------|----------------------------------------------------|
@@ -465,7 +475,21 @@ binds them and
 [`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md)
 includes them when there are any.
 
-**`metadata`**: a list. Entries are required unless marked optional:
+**`metrics`**: an optional legacy table read by the impact resolver when
+no impact column in `works` has values. It is not created by
+`sm_corpus()` or included in the standard empty schema:
+
+|               |           |                                           |
+|---------------|-----------|-------------------------------------------|
+| Column        | Type      | Content                                   |
+| `work_id`     | character | The work                                  |
+| Impact column | numeric   | One of the impact names above, or `value` |
+
+The first named impact column, in the same order as for `works` and then
+`value`, is used when it contains a nonmissing value. Prefer impact
+columns in `works` for new corpora.
+
+**`metadata`**: a list. Standard entries unless marked optional:
 
 |  |  |  |
 |----|----|----|
@@ -474,7 +498,7 @@ includes them when there are any.
 | `build_date` | POSIXct | When the corpus was built |
 | `corpus_hash` | character | Hash of the content ([`sm_hash_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_hash_corpus.md)) |
 | `is_locked` | logical | Whether [`sm_lock()`](https://cttir.github.io/scimapR/dev/reference/sm_lock.md) locked the corpus |
-| `last_refresh` | POSIXct | Last refresh without a failed request |
+| `last_refresh` | timestamp | Last refresh without a failed request |
 | `n_identified` | integer | Optional count before search deduplication |
 | `question_id` | character | Id of its [`sm_question()`](https://cttir.github.io/scimapR/dev/reference/sm_question.md) |
 | `fetch_incomplete` | list | Optional failed-fetch report (see below) |
@@ -511,11 +535,16 @@ records and
 [`sm_verify_certificate()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
 checks (see
 [`sm_register_input()`](https://cttir.github.io/scimapR/dev/reference/sm_register_input.md)
-for its columns). `build_date` and `last_refresh` may also be numbers of
+for its columns). `local_inputs` is `NULL` until inputs are registered
+or supplied. `build_date` and `last_refresh` may also be numbers of
 seconds since 1970-01-01 UTC, as corpora restored from tables store
 them, ISO 8601 text or dates;
 [`sm_certificate()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
 and the citation-maturity cut-offs read all of these.
+[`print()`](https://rdrr.io/r/base/print.html) also reads these forms
+for `last_refresh` and shows `YYYY-MM-DD HH:MM UTC`. `NULL` and a single
+missing value print as `"never"`; unsupported values and vectors use
+[`format()`](https://rdrr.io/r/base/format.html).
 
 Optional: `embedding`, the record of the model behind `embeddings`, a
 list that

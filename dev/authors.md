@@ -11,14 +11,14 @@ Source:
 [`inst/CITATION`](https://github.com/CTTIR/scimapR/blob/main/inst/CITATION)
 
 Heller R (2026). *scimapR: Reproducible, Question-Driven,
-Embedding-Aware Science Mapping*. R package version 0.1.0,
+Embedding-Aware Science Mapping*. R package version 0.4.0.9000,
 <https://github.com/CTTIR/scimapR>.
 
-    @Manual{,
+    @Manual{scimapR,
       title = {scimapR: Reproducible, Question-Driven, Embedding-Aware Science Mapping},
       author = {R. Heller},
       year = {2026},
-      note = {R package version 0.1.0},
+      note = {R package version 0.4.0.9000},
       url = {https://github.com/CTTIR/scimapR},
     }
 
@@ -27,7 +27,7 @@ science mapping analysis.” *Journal of Informetrics*, **11**(4),
 959–975.
 [doi:10.1016/j.joi.2017.08.007](https://doi.org/10.1016/j.joi.2017.08.007).
 
-    @Article{,
+    @Article{bibliometrix,
       title = {bibliometrix: An R-tool for comprehensive science mapping analysis},
       author = {Massimo Aria and Corrado Cuccurullo},
       journal = {Journal of Informetrics},

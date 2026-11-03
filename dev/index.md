@@ -93,7 +93,7 @@ print(corpus)
 #> Sources (journals): 10
 #> Embeddings: 100 x 64
 #> Provenance: synthetic (100)
-#> Status: Unlocked (last refreshed: 2026-06-10 09:09:01)
+#> Status: Unlocked (last refreshed: 2026-10-23 19:47 UTC)
 
 # Visualise production
 sm_plot_production(corpus)
@@ -163,9 +163,9 @@ citation("scimapR")
 ``` bibtex
 @Manual{scimapR,
   title = {scimapR: Reproducible, Question-Driven, Embedding-Aware Science Mapping},
-  author = {Raban Heller},
+  author = {R. Heller},
   year = {2026},
-  note = {R package version 0.1.0},
+  note = {R package version 0.4.0.9000},
   url = {https://github.com/CTTIR/scimapR},
 }
 

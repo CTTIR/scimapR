@@ -29,5 +29,5 @@ print(sm_example_db)
 #> Sources (journals): 10
 #> Embeddings: 200 x 64
 #> Provenance: synthetic (200)
-#> Status: Unlocked (last refreshed: 2026-05-08 23:20:49)
+#> Status: Unlocked (last refreshed: 2026-05-08 23:20 UTC)
 ```

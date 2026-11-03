@@ -116,7 +116,7 @@ Other clustering:
 ``` r
 # \donttest{
 corpus <- sm_example_corpus(with_embeddings = TRUE)
-corpus <- sm_cluster_kmeans(corpus, k = 5)
+corpus <- sm_cluster_kmeans(corpus, k = 5, reducer = "pca")
 #> ✔ K-means clustering complete.
 #> ℹ 5 clusters, sizes range from 27 to 49.
 evo <- sm_cluster_evolution(corpus)
@@ -126,35 +126,35 @@ evo$snapshots
 #> # A tibble: 15 × 5
 #>    window    cluster_id n_works top_terms                                  share
 #>    <chr>          <int>   <int> <chr>                                      <dbl>
-#>  1 2015-2017          1       8 clinical; outcomes; spatial; transcriptom… 0.154
-#>  2 2015-2017          2       8 expression; gene; biomarker; cross; disco… 0.154
-#>  3 2015-2017          3      11 spatial; transcriptomics; biomarker; cell… 0.212
-#>  4 2015-2017          4      12 spatial; transcriptomics; meta; biomarker… 0.231
-#>  5 2015-2017          5      13 clinical; outcomes; drug; resistance; cro… 0.25 
-#>  6 2018-2020          1      16 cell; rna; seq; single; microenvironment   0.246
-#>  7 2018-2020          2       7 cell; clinical; cohort; outcomes; rna      0.108
-#>  8 2018-2020          3      15 clinical; outcomes; spatial; transcriptom… 0.231
-#>  9 2018-2020          4      14 cancer; colorectal; randomized; trial; ce… 0.215
-#> 10 2018-2020          5      13 microenvironment; tumor; biomarker; disco… 0.2  
-#> 11 2021-2024          1      15 biomarker; cell; discovery; randomized; r… 0.181
-#> 12 2021-2024          2      12 cancer; checkpoint; colorectal; cross; im… 0.145
-#> 13 2021-2024          3      19 spatial; transcriptomics; biomarker; case… 0.229
-#> 14 2021-2024          4      14 clinical; expression; gene; outcomes; bio… 0.169
-#> 15 2021-2024          5      23 cancer; colorectal; drug; resistance; cli… 0.277
+#>  1 2015-2017          1      13 clinical; outcomes; drug; resistance; cro… 0.25 
+#>  2 2015-2017          2       8 clinical; outcomes; spatial; transcriptom… 0.154
+#>  3 2015-2017          3      12 spatial; transcriptomics; meta; biomarker… 0.231
+#>  4 2015-2017          4      11 spatial; transcriptomics; biomarker; cell… 0.212
+#>  5 2015-2017          5       8 expression; gene; biomarker; cross; disco… 0.154
+#>  6 2018-2020          1      13 microenvironment; tumor; biomarker; disco… 0.2  
+#>  7 2018-2020          2      16 cell; rna; seq; single; microenvironment   0.246
+#>  8 2018-2020          3      14 cancer; colorectal; randomized; trial; ce… 0.215
+#>  9 2018-2020          4      15 clinical; outcomes; spatial; transcriptom… 0.231
+#> 10 2018-2020          5       7 cell; clinical; cohort; outcomes; rna      0.108
+#> 11 2021-2024          1      23 cancer; colorectal; drug; resistance; cli… 0.277
+#> 12 2021-2024          2      15 biomarker; cell; discovery; randomized; r… 0.181
+#> 13 2021-2024          3      14 clinical; expression; gene; outcomes; bio… 0.169
+#> 14 2021-2024          4      19 spatial; transcriptomics; biomarker; case… 0.229
+#> 15 2021-2024          5      12 cancer; checkpoint; colorectal; cross; im… 0.145
 evo$transitions
 #> # A tibble: 50 × 6
 #>    from_window to_window from_cluster to_cluster jaccard n_shared
 #>    <chr>       <chr>            <int>      <int>   <dbl>    <int>
-#>  1 2015-2017   2018-2020            1          1   0.871       27
-#>  2 2015-2017   2018-2020            1          5   0.788       26
-#>  3 2015-2017   2018-2020            1          3   0.879       29
-#>  4 2015-2017   2018-2020            1          4   0.879       29
-#>  5 2015-2017   2018-2020            1          2   0.742       23
-#>  6 2015-2017   2018-2020            3          1   0.727       24
-#>  7 2015-2017   2018-2020            3          5   0.758       25
-#>  8 2015-2017   2018-2020            3          3   0.848       28
-#>  9 2015-2017   2018-2020            3          4   0.848       28
-#> 10 2015-2017   2018-2020            3          2   0.710       22
+#>  1 2015-2017   2018-2020            2          2   0.871       27
+#>  2 2015-2017   2018-2020            2          1   0.788       26
+#>  3 2015-2017   2018-2020            2          4   0.879       29
+#>  4 2015-2017   2018-2020            2          3   0.879       29
+#>  5 2015-2017   2018-2020            2          5   0.742       23
+#>  6 2015-2017   2018-2020            4          2   0.727       24
+#>  7 2015-2017   2018-2020            4          1   0.758       25
+#>  8 2015-2017   2018-2020            4          4   0.848       28
+#>  9 2015-2017   2018-2020            4          3   0.848       28
+#> 10 2015-2017   2018-2020            4          5   0.710       22
 #> # ℹ 40 more rows
 
 # one clustering for the whole corpus: follow each cluster id
@@ -165,15 +165,15 @@ evo$transitions
 #> # A tibble: 10 × 6
 #>    from_window to_window from_cluster to_cluster jaccard n_shared
 #>    <chr>       <chr>            <int>      <int>   <dbl>    <int>
-#>  1 2015-2017   2018-2020            1          1   0.871       27
-#>  2 2015-2017   2018-2020            2          2   0.645       20
+#>  1 2015-2017   2018-2020            1          1   0.818       27
+#>  2 2015-2017   2018-2020            2          2   0.871       27
 #>  3 2015-2017   2018-2020            3          3   0.848       28
 #>  4 2015-2017   2018-2020            4          4   0.848       28
-#>  5 2015-2017   2018-2020            5          5   0.818       27
-#>  6 2018-2020   2021-2024            1          1   0.788       26
-#>  7 2018-2020   2021-2024            2          2   0.727       24
-#>  8 2018-2020   2021-2024            3          3   0.970       32
-#>  9 2018-2020   2021-2024            4          4   0.939       31
-#> 10 2018-2020   2021-2024            5          5   0.909       30
+#>  5 2015-2017   2018-2020            5          5   0.645       20
+#>  6 2018-2020   2021-2024            1          1   0.909       30
+#>  7 2018-2020   2021-2024            2          2   0.788       26
+#>  8 2018-2020   2021-2024            3          3   0.939       31
+#>  9 2018-2020   2021-2024            4          4   0.970       32
+#> 10 2018-2020   2021-2024            5          5   0.727       24
 # }
 ```

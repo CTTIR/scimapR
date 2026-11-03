@@ -64,6 +64,11 @@ or load from cache with
 K-means is deterministic given a fixed random seed. Consider setting a
 seed before calling this function for reproducibility.
 
+UMAP requires its optional dependency only when reduction is needed. If
+the PCA dependency raises the known NULL-input error on older R,
+reduction retries with base SVD initialisation and reports
+`scimapR_umap_pca_fallback`. Other errors propagate unchanged.
+
 ## See also
 
 Other clustering:
@@ -77,12 +82,12 @@ Other clustering:
 ``` r
 # \donttest{
 corpus <- sm_example_corpus(with_embeddings = TRUE)
-corpus <- sm_cluster_kmeans(corpus, k = 5)
+corpus <- sm_cluster_kmeans(corpus, k = 5, reducer = "pca")
 #> ✔ K-means clustering complete.
 #> ℹ 5 clusters, sizes range from 27 to 49.
 table(corpus$works$cluster_id)
 #> 
 #>  1  2  3  4  5 
-#> 39 27 45 40 49 
+#> 27 49 40 39 45 
 # }
 ```

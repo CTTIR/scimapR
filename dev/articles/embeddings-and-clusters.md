@@ -42,7 +42,7 @@ corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
 table(corpus$works$cluster_id)
 #> 
 #>  1  2  3  4  5 
-#> 45 27 39 40 49
+#> 45 40 39 27 49
 ```
 
 ### Visualise the landscape
@@ -71,7 +71,7 @@ head(labels)
 #> Sources (journals): 5
 #> Embeddings: 6 x 64
 #> Provenance: synthetic (6)
-#> Status: Unlocked (last refreshed: 2026-10-28 08:36:49)
+#> Status: Unlocked (last refreshed: 2026-11-03 09:38 UTC)
 ```
 
 ## Thematic map

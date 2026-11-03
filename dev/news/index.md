@@ -6,6 +6,30 @@
   pages and available application headers, with matching light and dark
   artwork.
 
+- The UMAP reducer now retries with base SVD initialisation when its PCA
+  dependency raises the older-R NULL-input error. Other errors are still
+  reported unchanged; successful UMAP calls retain their existing
+  defaults.
+
+- Version metadata aligned across DESCRIPTION, CITATION, CITATION.cff
+  and .zenodo.json; corpus print shows refresh times as UTC dates;
+  [`?sm_corpus`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md)
+  documents the column schema.
+
+- [`sm_example_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_example_corpus.md)
+  preserves the session random-number state, including when no seed
+  existed. The package engine of
+  [`sm_fetch_crossref()`](https://cttir.github.io/scimapR/dev/reference/sm_fetch_crossref.md)
+  restores the previous `crossref_email` environment variable after
+  success or failure.
+
+- Clustering checks for the optional UMAP dependency only when it
+  actually uses UMAP, so PCA and unreduced density clustering work
+  without it. Examples, tests and trajectory plots guard their optional
+  dependencies.
+  [`sm_export_zip()`](https://cttir.github.io/scimapR/dev/reference/sm_export_zip.md)
+  creates and cleans its temporary directory using base R.
+
 - [`sm_audit_geographic()`](https://cttir.github.io/scimapR/dev/reference/sm_audit_geographic.md)
   counts works, not authorship rows. A work counts once in each country,
   region or income tier of its authors, and with the new
