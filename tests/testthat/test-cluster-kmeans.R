@@ -65,19 +65,15 @@ test_that("k-means checks the optional reducer before calling it", {
 
 test_that("UMAP recovers from the older-R PCA dependency error", {
   skip_if_not_installed("uwot")
-  skip_if_not_installed("irlba")
   reduce <- uwot::umap
   local_mocked_bindings(umap = function(...) {
-    reduce(..., init = "pca")
-  }, .package = "uwot")
-  original <- get("oknum", asNamespace("irlba"))
-  local_mocked_bindings(oknum = function(x) {
-    if (is.null(x)) {
+    args <- list(...)
+    if (is.null(args$pca_method)) {
       stop(simpleError("LENGTH or similar applied to NULL object",
                        call = quote(oknum(scale))))
     }
-    original(x)
-  }, .package = "irlba")
+    reduce(..., init = "pca")
+  }, .package = "uwot")
   x <- sm_example_corpus(n_works = 30)
   expect_message(out <- sm_cluster_kmeans(x, k = 3),
                  class = "scimapR_umap_pca_fallback")

@@ -80,21 +80,17 @@ test_that("the landscape shows the works that have an embedding row", {
 
 test_that("landscape UMAP preserves its metric when retrying older-R PCA", {
   skip_if_not_installed("uwot")
-  skip_if_not_installed("irlba")
   reduce <- uwot::umap
   calls <- list()
   local_mocked_bindings(umap = function(...) {
-    calls[[length(calls) + 1L]] <<- list(...)
-    reduce(..., init = "pca")
-  }, .package = "uwot")
-  original <- get("oknum", asNamespace("irlba"))
-  local_mocked_bindings(oknum = function(x) {
-    if (is.null(x)) {
+    args <- list(...)
+    calls[[length(calls) + 1L]] <<- args
+    if (is.null(args$pca_method)) {
       stop(simpleError("LENGTH or similar applied to NULL object",
                        call = quote(oknum(scale))))
     }
-    original(x)
-  }, .package = "irlba")
+    reduce(..., init = "pca")
+  }, .package = "uwot")
   corpus <- sm_example_corpus(n_works = 30, seed = 10)
   expect_message(plot <- sm_plot_landscape(corpus),
                  class = "scimapR_umap_pca_fallback")
