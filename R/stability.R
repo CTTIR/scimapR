@@ -30,7 +30,8 @@
 #'     (character), `n_authorships` and `n_works` (integer), sorted by
 #'     `n_authorships` descending and then by `raw_affiliation`.}
 #'   \item{[sm_reconcile()] (`summary()`)}{A one-row tibble: `n_a`, `n_b`,
-#'     `n_both`, `n_only_a`, `n_only_b`, `jaccard`.}
+#'     `n_in_both`, `n_only_a`, `n_only_b`, `jaccard`. The name `n_in_both`
+#'     is unchanged; earlier documentation incorrectly called it `n_both`.}
 #'   \item{[sm_metric_summary()]}{A one-row tibble: `metric`, `n`, `mean`,
 #'     `median`, and (when `robust = TRUE`) `median_ci_low`, `median_ci_high`,
 #'     `pp_top10`, `n_boot`. It carries the attribute `impact_source`
@@ -55,7 +56,7 @@
 #' Free-text controlled columns are emitted as factors with exported level
 #' sets, so downstream filtering is reliable: see [sm_affiliation_signals()]
 #' (`match_signal`), [sm_affiliation_methods()] (`match_method`), and
-#' [sm_match_types()] (coverage `match_type`).
+#' [sm_match_types()] (coverage and reconciliation `match_type`).
 #'
 #' The `vocabulary` column of `corpus$concepts` is the exception: it stays
 #' character, so concept tables bind and hash as before, and its values are

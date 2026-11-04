@@ -130,6 +130,22 @@ test_that(".normalize_issn handles hyphenation and X check digit", {
 
 # ---- A3: sm_reconcile -------------------------------------------------------
 
+test_that("reconciliation keeps its documented summary and match vocabulary", {
+  a <- sm_corpus(tibble::tibble(work_id = c("A", "B"),
+                                doi = c("10.9999/a", "10.9999/b")))
+  b <- sm_corpus(tibble::tibble(work_id = "C", doi = "10.9999/a"))
+  for (other in list(b, b[integer()])) {
+    rec <- sm_reconcile(a, other, match = "doi")
+    expect_named(summary(rec), c("n_a", "n_b", "n_in_both",
+                                 "n_only_a", "n_only_b", "jaccard"))
+    expect_identical(summary(rec)$n_in_both, nrow(other$works))
+    for (table in c("matches", "in_both")) {
+      expect_s3_class(rec[[table]]$match_type, "factor")
+      expect_identical(levels(rec[[table]]$match_type), sm_match_types())
+    }
+  }
+})
+
 test_that("sm_reconcile computes symmetric set differences", {
   a <- make_corpus(n = 20)
   b <- a[5:20]  # 16 works, all in a
