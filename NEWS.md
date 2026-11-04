@@ -1,5 +1,9 @@
 # scimapR (development version)
 
+* Standardize the named v5 package logo across README, documentation pages
+  and available application headers, with matching light and dark artwork.
+
+
 - The UMAP reducer now retries with base SVD initialisation when its PCA dependency raises the older-R NULL-input error. Other errors are still reported unchanged; successful UMAP calls retain their existing defaults.
 
 - Version metadata aligned across DESCRIPTION, CITATION, CITATION.cff and .zenodo.json; corpus print shows refresh times as UTC dates; `?sm_corpus` documents the column schema.

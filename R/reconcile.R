@@ -49,6 +49,7 @@ sm_reconcile <- function(corpus_a, corpus_b,
   b <- .as_match_frame(corpus_b, what = "corpus_b", call = call)
 
   pairs <- .sm_match_records(a, b, match = match, threshold = threshold)
+  pairs$match_type <- factor(pairs$match_type, levels = .match_type_levels())
 
   in_both <- tibble::tibble(
     a_id = pairs$a_id,
