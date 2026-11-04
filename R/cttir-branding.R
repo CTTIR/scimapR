@@ -2,7 +2,12 @@
 # Assets are local package files, independent of application data.
 .cttir_brand_text <- function(file) {
   path <- system.file("branding", file, package = "scimapR")
-  if (!nzchar(path)) stop("The packaged branding asset is missing: ", file)
+  if (!nzchar(path)) {
+    cli::cli_abort(
+      "The packaged branding asset is missing: {.file {file}}",
+      class = "scimapR_branding_asset_missing"
+    )
+  }
   paste(readLines(path, warn = FALSE), collapse = "\n")
 }
 

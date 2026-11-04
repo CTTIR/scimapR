@@ -12,7 +12,7 @@ sm_theme <- bslib::bs_theme(
 )
 
 bslib::page_navbar(
-    window_title = "scimapR",
+  window_title = "scimapR",
   title = shiny::tags$span(
     utils::getFromNamespace(".cttir_brand_logo", "scimapR")(),
     shiny::tags$strong("scimapR"),

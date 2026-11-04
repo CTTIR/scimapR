@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# scimapR <picture class="cttir-readme-logo"><source class="cttir-logo-dark-source" media="(prefers-color-scheme: dark)" srcset="man/figures/logo-with-name-dark.png" /><img src="man/figures/logo-with-name.png" align="right" alt="scimapR logo" width="120" height="139" /></picture>
+# scimapR <picture class="cttir-readme-logo"><source class="cttir-logo-dark-source" media="(prefers-color-scheme: dark)" srcset="man/figures/logo-with-name-dark.png" /><img src="man/figures/logo-with-name.png" align="right" alt="scimapR hex logo" width="120" height="139" /></picture>
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21889960.svg)](https://doi.org/10.5281/zenodo.21889960)
 
@@ -186,3 +186,15 @@ must be reviewed and revised before inclusion, and references must be verified
 against their DOI, arXiv ID or ISBN.
 
 Local software setup: vLLM with Python/PyTorch, plus R and RStudio.
+
+## Branding
+
+Editable R artwork and regeneration instructions are in [tools/branding](https://github.com/CTTIR/scimapR/blob/main/tools/branding/README.md).
+
+## Development checkpoint
+
+The unfinished A11 documentation integration is preserved here for continuation
+on another machine. This checkpoint is not a qualified release or a completed
+M5 milestone. Documentation regeneration, end-to-end validation, application
+smoke checks and the remaining A12 release checks are still pending. No full
+qualification run was completed for this checkpoint.
