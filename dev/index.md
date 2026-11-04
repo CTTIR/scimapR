@@ -216,3 +216,12 @@ Local software setup: vLLM with Python/PyTorch, plus R and RStudio.
 
 Editable R artwork and regeneration instructions are in
 [tools/branding](https://github.com/CTTIR/scimapR/blob/main/tools/branding/README.md).
+
+## Development checkpoint
+
+The unfinished A11 documentation integration is preserved here for
+continuation on another machine. This checkpoint is not a qualified
+release or a completed M5 milestone. Documentation regeneration,
+end-to-end validation, application smoke checks and the remaining A12
+release checks are still pending. No full qualification run was
+completed for this checkpoint.
