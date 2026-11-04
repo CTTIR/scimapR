@@ -40,7 +40,7 @@ Other screening:
 ``` r
 path <- tempfile(fileext = ".ris")
 sm_export_rayyan(sm_example_corpus(n_works = 2), path)
-#> ✔ Exported 2 works to /tmp/RtmpyFHzIn/file1b942924d949.ris
+#> ✔ Exported 2 works to /tmp/Rtmp19KDfu/file1cdb2b4e9fbb.ris
 readLines(path, n = 3)
 #> [1] "TY  - JOUR"                                                 
 #> [2] "ID  - W000000001"                                           
