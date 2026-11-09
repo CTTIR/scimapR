@@ -75,5 +75,5 @@ print(corpus)
 #> Sources (journals): 10
 #> Embeddings: 200 x 64
 #> Provenance: synthetic (200)
-#> Status: Unlocked (last refreshed: 2026-11-09 21:00 UTC)
+#> Status: Unlocked (last refreshed: 2026-11-09 23:15 UTC)
 ```
