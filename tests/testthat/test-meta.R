@@ -5,12 +5,12 @@ test_that("the NEWS heading describes the installed version", {
   news <- readLines(system.file("NEWS.md", package = "scimapR"))
   headings <- grep("^# scimapR", news, value = TRUE)
   parts <- as.integer(strsplit(version, ".", fixed = TRUE)[[1]])
-  expected <- if (length(parts) > 3L && parts[4] >= 9000L) {
-    "# scimapR (development version)"
-  } else {
-    paste("# scimapR", version)
+  # r-universe replaces the development heading with the version at build time
+  expected <- paste("# scimapR", version)
+  if (length(parts) > 3L && parts[4] >= 9000L) {
+    expected <- c("# scimapR (development version)", expected)
   }
-  expect_identical(headings[1], expected)
+  expect_true(headings[1] %in% expected)
   meta <- as.list(read.dcf(path)[1, ])
   entry <- utils::readCitationFile(
     system.file("CITATION", package = "scimapR"), meta = meta

@@ -220,12 +220,12 @@ test_that("H9: version metadata agree and print formats refresh times", {
   headings <- grep("^# scimapR", readLines(news, encoding = "UTF-8"),
                    value = TRUE)
   version <- as.character(utils::packageVersion("scimapR"))
-  expected <- if (grepl("\\.9000$", version)) {
-    "# scimapR (development version)"
-  } else {
-    paste("# scimapR", version)
+  # r-universe replaces the development heading with the version at build time
+  expected <- paste("# scimapR", version)
+  if (grepl("\\.9000$", version)) {
+    expected <- c("# scimapR (development version)", expected)
   }
-  expect_identical(headings[1], expected)
+  expect_true(headings[1] %in% expected)
   out <- cli::cli_fmt(print(realuse_corpus()))
   expect_true(any(grepl("last refreshed: 2026-", out, fixed = TRUE)))
   expect_false(any(grepl("1792195200", out, fixed = TRUE)))
