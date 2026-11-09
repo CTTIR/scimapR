@@ -1,0 +1,150 @@
+# Construct an sm_corpus from a relational set of tables
+
+A documented, validating constructor that builds an `sm_corpus` from a
+named list of data frames – making non-OpenAlex/WoS tabular sources
+first-class and side-stepping format-specific parsers. Required columns
+are validated against the `sm_corpus` schema, column types are coerced
+(with informative messages), absent optional tables are filled with
+correctly-typed 0-row tibbles, and the result is validated before being
+returned. Legacy and common spellings of concept vocabularies (such as
+`"keywords-author"` or `"Author Keywords"`) are renamed to the names of
+[`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md),
+with a message. Values that name no known vocabulary are kept as written
+and listed in the same message, each time a corpus is built from them;
+name a vocabulary of your own `"custom"`.
+
+This is the recommended ingestion path for arbitrary tabular sources.
+
+## Usage
+
+``` r
+sm_corpus_from_tables(
+  tables,
+  schema = NULL,
+  .coerce = TRUE,
+  metadata = list(),
+  inputs = NULL,
+  call = rlang::caller_env()
+)
+```
+
+## Arguments
+
+- tables:
+
+  A named list of data frames. Recognised names are `works`, `authors`,
+  `authorships`, `institutions`, `sources`, `references`, `concepts`,
+  `provenance`, `screening` and `citations_by_year` (yearly citation
+  counts: `work_id`, `year`, `cited_by_count`; see
+  [`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md)).
+  `works` is required (and must have, or be coercible to, a `work_id`
+  column; if absent, work ids are generated). A corpus built without a
+  `citations_by_year` table has no such element.
+
+- schema:
+
+  Optional named list of empty template tibbles overriding the built-in
+  schema (advanced use). Defaults to the standard `sm_corpus` schema.
+
+- .coerce:
+
+  Logical (default `TRUE`); coerce supplied columns to the schema's
+  types. When `FALSE`, columns are used as-is (missing columns are still
+  filled with typed `NA`, and concept vocabularies are still renamed).
+
+- metadata:
+
+  Optional list of corpus-level metadata.
+
+- inputs:
+
+  `NULL` (default) or the local files the tables come from, such as a
+  database snapshot or a publication tracker, registered with
+  [`sm_register_input()`](https://cttir.github.io/scimapR/dev/reference/sm_register_input.md)
+  after the corpus is built: a character vector of paths, whose names
+  (where given) become the `role` of each file, or a data frame with a
+  `path` column and optional `role` and `builder` columns. Files already
+  listed in `metadata$local_inputs` are kept, and a file registered
+  again replaces its row.
+  [`sm_certificate()`](https://cttir.github.io/scimapR/dev/reference/sm_certificate.md)
+  records them with their SHA-256 hashes.
+
+- call:
+
+  Caller environment for error reporting.
+
+## Value
+
+A validated `sm_corpus` object.
+
+## See also
+
+[`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md),
+[`as_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/as_sm_corpus.md)
+
+Other reporting:
+[`sm_figure_manifest()`](https://cttir.github.io/scimapR/dev/reference/sm_figure_manifest.md)
+
+Other corpus:
+[`as_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/as_sm_corpus.md),
+[`is_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/is_sm_corpus.md),
+[`sm_bind_corpora()`](https://cttir.github.io/scimapR/dev/reference/sm_bind_corpora.md),
+[`sm_build_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_build_corpus.md),
+[`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/dev/reference/sm_concept_vocabularies.md),
+[`sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_corpus.md),
+[`sm_dedupe()`](https://cttir.github.io/scimapR/dev/reference/sm_dedupe.md),
+[`sm_link_references()`](https://cttir.github.io/scimapR/dev/reference/sm_link_references.md),
+[`sm_materialise()`](https://cttir.github.io/scimapR/dev/reference/sm_materialise.md),
+[`sm_oa_statuses()`](https://cttir.github.io/scimapR/dev/reference/sm_oa_statuses.md),
+[`sm_save_corpus()`](https://cttir.github.io/scimapR/dev/reference/sm_save_corpus.md),
+[`sm_validate()`](https://cttir.github.io/scimapR/dev/reference/sm_validate.md),
+[`validate_sm_corpus()`](https://cttir.github.io/scimapR/dev/reference/validate_sm_corpus.md)
+
+## Examples
+
+``` r
+works <- data.frame(
+  work_id = c("W1", "W2"),
+  title = c("First", "Second"),
+  year = c("2020", "2021"),   # character -> coerced to integer
+  doi = c("10.1/a", "10.1/b")
+)
+authorships <- data.frame(
+  work_id = c("W1", "W1", "W2"),
+  author_id = c("A1", "A2", "A1"),
+  position = c(1, 2, 1)
+)
+corpus <- sm_corpus_from_tables(list(works = works,
+                                     authorships = authorships))
+#> ℹ works: coerced column year to the schema type.
+#> ℹ works: filled missing column abstract, type, source_id, cited_by_count,
+#>   oa_status, language, pmid, arxiv_id, openalex_id, is_retracted,
+#>   retraction_date, and last_refreshed with typed `NA`.
+#> ℹ authorships: coerced column position to the schema type.
+#> ℹ authorships: filled missing column is_corresponding, institution_id,
+#>   raw_affiliation, and country_code with typed `NA`.
+corpus
+#> 
+#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
+#> Works: 2 | Authors: 0 | Institutions: 0
+#> Years: 2020 - 2021
+#> Sources (journals): 0
+#> Embeddings: none
+#> Status: Unlocked (last refreshed: never)
+
+# record the file the tables were read from
+snapshot <- tempfile(fileext = ".csv")
+utils::write.csv(works, snapshot, row.names = FALSE)
+corpus <- sm_corpus_from_tables(
+  list(works = utils::read.csv(snapshot)),
+  inputs = c("source table" = snapshot)
+)
+#> ℹ works: filled missing column abstract, type, source_id, cited_by_count,
+#>   oa_status, language, pmid, arxiv_id, openalex_id, is_retracted,
+#>   retraction_date, and last_refreshed with typed `NA`.
+corpus$metadata$local_inputs[, c("basename", "role", "sha256")]
+#> # A tibble: 1 × 3
+#>   basename             role         sha256                                      
+#>   <chr>                <chr>        <chr>                                       
+#> 1 file1d4e79c6e81f.csv source table 9bb0667922c6df1d6b32720e3a67d05d4e6e79d9977…
+```
