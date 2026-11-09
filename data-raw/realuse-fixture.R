@@ -17,7 +17,7 @@
 # Sys.time(); every POSIXct column holds a UTC constant; non-ASCII text is
 # written as Unicode escapes. Rerunning the script gives a byte-identical
 # rds with the same R version, platform and locale (last built with
-# R 4.5.3, aarch64-apple-darwin, locale C.UTF-8). Local input files are not
+# R 4.6.1, aarch64-apple-darwin, locale C.UTF-8). Local input files are not
 # registered here, because a registration time would change the rds.
 #
 # Shapes the tests rely on:
