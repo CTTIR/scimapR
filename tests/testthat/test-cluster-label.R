@@ -82,6 +82,7 @@ test_that("sm_cluster_label validates min_works, ngram, stop_terms, noise", {
 })
 
 test_that("sm_cluster_label errors when no cluster_id column", {
+  skip_if_not_installed("tidytext")
   corpus <- sm_example_corpus(n_works = 20, with_embeddings = TRUE, seed = 2)
   expect_error(sm_cluster_label(corpus, method = "tfidf"), "cluster_id")
 })
