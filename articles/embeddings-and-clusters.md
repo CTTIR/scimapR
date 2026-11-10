@@ -1,0 +1,106 @@
+# Embeddings and Cluster Discovery
+
+![scimapR logo](figures/logo.svg)![scimapR logo](figures/logo-dark.svg)
+
+[![R-CMD-check](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/CTTIR/scimapR/actions/workflows/R-CMD-check.yaml)
+[![pkgdown](https://github.com/CTTIR/scimapR/actions/workflows/pkgdown.yaml/badge.svg)](https://cttir.github.io/scimapR/)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/scimapR)](https://CRAN.R-project.org/package=scimapR)
+[![Codecov test
+coverage](https://codecov.io/gh/CTTIR/scimapR/branch/main/graph/badge.svg)](https://app.codecov.io/gh/CTTIR/scimapR?branch=main)
+[![CRAN
+downloads](https://cranlogs.r-pkg.org/badges/scimapR)](https://cran.r-project.org/package=scimapR)
+[![CRAN downloads
+total](https://cranlogs.r-pkg.org/badges/grand-total/scimapR)](https://cran.r-project.org/package=scimapR)
+[![License:
+MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+
+## Semantic research landscape
+
+scimapR uses text embeddings to discover research clusters and visualise
+the intellectual structure of a field.
+
+``` r
+
+library(scimapR)
+
+# Example corpus comes with pre-computed embeddings
+corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
+```
+
+## Clustering
+
+### HDBSCAN
+
+``` r
+
+corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
+#> ✔ HDBSCAN clustering complete.
+#> ℹ 5 clusters found, 0 noise points.
+table(corpus$works$cluster_id)
+#> 
+#>  1  2  3  4  5 
+#> 45 40 39 27 49
+```
+
+### Visualise the landscape
+
+``` r
+
+sm_plot_landscape(corpus, color_by = "cluster_id", reducer = "umap")
+```
+
+![Research landscape coloured by
+cluster](embeddings-and-clusters_files/figure-html/landscape-1.png)
+
+Research landscape coloured by cluster
+
+### Cluster labels (TF-IDF)
+
+``` r
+
+labels <- sm_cluster_label(corpus, method = "tfidf", n_terms = 5)
+#> ✔ 5 clusters labelled using "tfidf" method.
+head(labels)
+#> 
+#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
+#> Works: 6 | Authors: 17 | Institutions: 0
+#> Years: 2018 - 2024
+#> Sources (journals): 5
+#> Embeddings: 6 x 64
+#> Provenance: synthetic (6)
+#> Status: Unlocked (last refreshed: 2026-11-10 01:24 UTC)
+```
+
+## Thematic map
+
+``` r
+
+sm_plot_thematic_map(corpus)
+```
+
+![Strategic
+diagram](embeddings-and-clusters_files/figure-html/thematic-1.png)
+
+Strategic diagram
+
+## Advanced: Python-based embeddings
+
+For production use, compute embeddings with SPECTER2:
+
+``` r
+
+# Requires Python with the packages torch, transformers and adapters
+corpus <- sm_embed_works(corpus, model = "specter2")
+```
+
+Alternatively, fetch pre-computed SPECTER embeddings from Semantic
+Scholar:
+
+``` r
+
+# replace = TRUE: the corpus already has embeddings of another model
+corpus <- sm_enrich_specter(corpus, replace = TRUE)
+```

@@ -1,0 +1,1558 @@
+# Changelog
+
+## scimapR 0.5.0
+
+### CRAN preparation and documentation site
+
+- The pkgdown site is built for this release at the site root again, so
+  the articles and reference pages linked from the README and
+  `DESCRIPTION` resolve (development versions had been published under
+  `/dev/` only, behind a redirecting landing page).
+- The file readers
+  ([`sm_read_bib()`](https://cttir.github.io/scimapR/reference/sm_read_bib.md),
+  [`sm_read_ris()`](https://cttir.github.io/scimapR/reference/sm_read_ris.md),
+  [`sm_read_wos()`](https://cttir.github.io/scimapR/reference/sm_read_wos.md),
+  [`sm_read_scopus()`](https://cttir.github.io/scimapR/reference/sm_read_scopus.md),
+  [`sm_read_lens()`](https://cttir.github.io/scimapR/reference/sm_read_lens.md),
+  [`sm_read_dimensions()`](https://cttir.github.io/scimapR/reference/sm_read_dimensions.md),
+  [`sm_read_pubmed_xml()`](https://cttir.github.io/scimapR/reference/sm_read_pubmed_xml.md),
+  [`sm_read_endnote()`](https://cttir.github.io/scimapR/reference/sm_read_endnote.md),
+  [`sm_read_cochrane()`](https://cttir.github.io/scimapR/reference/sm_read_cochrane.md),
+  [`sm_read_zotero()`](https://cttir.github.io/scimapR/reference/sm_read_zotero.md),
+  [`sm_read_auto()`](https://cttir.github.io/scimapR/reference/sm_read_auto.md))
+  and
+  [`sm_embed_save()`](https://cttir.github.io/scimapR/reference/sm_embed_save.md)
+  /
+  [`sm_embed_load()`](https://cttir.github.io/scimapR/reference/sm_embed_load.md)
+  now have runnable examples based on the bundled example files or small
+  temporary files. Examples that contact web services or need
+  credentials or Python stay in `\dontrun{}` and say why.
+- Maintainer address updated.
+
+### Other changes since 0.4.0
+
+- [`sm_plot_landscape()`](https://cttir.github.io/scimapR/reference/sm_plot_landscape.md)
+  now uses the same narrowly scoped older-R PCA compatibility repair as
+  clustering. Its Euclidean distance and automatic thread defaults are
+  unchanged; unrelated dependency errors still propagate.
+
+- Standardize the named v5 package logo across README, documentation
+  pages and available application headers, with matching light and dark
+  artwork.
+
+- The UMAP reducer now retries with base SVD initialisation when its PCA
+  dependency raises the older-R NULL-input error. Other errors are still
+  reported unchanged; successful UMAP calls retain their existing
+  defaults.
+
+- Version metadata aligned across DESCRIPTION, CITATION, CITATION.cff
+  and .zenodo.json; corpus print shows refresh times as UTC dates;
+  [`?sm_corpus`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  documents the column schema.
+
+- [`sm_example_corpus()`](https://cttir.github.io/scimapR/reference/sm_example_corpus.md)
+  preserves the session random-number state, including when no seed
+  existed. The package engine of
+  [`sm_fetch_crossref()`](https://cttir.github.io/scimapR/reference/sm_fetch_crossref.md)
+  restores the previous `crossref_email` environment variable after
+  success or failure.
+
+- Clustering checks for the optional UMAP dependency only when it
+  actually uses UMAP, so PCA and unreduced density clustering work
+  without it. Examples, tests and trajectory plots guard their optional
+  dependencies.
+  [`sm_export_zip()`](https://cttir.github.io/scimapR/reference/sm_export_zip.md)
+  creates and cleans its temporary directory using base R.
+
+- [`sm_audit_geographic()`](https://cttir.github.io/scimapR/reference/sm_audit_geographic.md)
+  counts works, not authorship rows. A work counts once in each country,
+  region or income tier of its authors, and with the new
+  `method = "fractional"` it splits one unit among them. Its citations
+  count once per group, `coverage` is the share of works with a known
+  group, and the Gini coefficient uses citations under
+  `weight = "citations"`. Results change for corpora with multi-author
+  works or authors with several addresses. The distribution gains
+  `credit` and `weighted_citations`, appended after its existing columns
+  (`group`, `count`, `citations`, `pct`).
+
+- [`sm_metric_collab_index()`](https://cttir.github.io/scimapR/reference/sm_metric_collab_index.md)
+  returns `NA` instead of 0 and `FALSE` when no author of a work has a
+  country code (`n_countries`, `is_international`) or an institution id
+  (`n_institutions`). Web of Science and Scopus corpora without country
+  data no longer report an international collaboration rate of 0%.
+
+- New
+  [`sm_oa_statuses()`](https://cttir.github.io/scimapR/reference/sm_oa_statuses.md)
+  lists the open-access statuses (`diamond`, `gold`, `hybrid`, `bronze`,
+  `green`, `open`, `closed`).
+  [`sm_audit_oa()`](https://cttir.github.io/scimapR/reference/sm_audit_oa.md),
+  [`sm_summary_works()`](https://cttir.github.io/scimapR/reference/sm_summary_works.md)
+  and
+  [`sm_summary_period()`](https://cttir.github.io/scimapR/reference/sm_summary_period.md)
+  now use one rule: every status except `closed` is open, and missing or
+  unrecognised values are unknown. The audit counts Semantic Scholar’s
+  `open` and OpenAlex’s `diamond` as open, and the summaries no longer
+  count values such as `"Closed"` as open. The distribution of
+  [`sm_audit_oa()`](https://cttir.github.io/scimapR/reference/sm_audit_oa.md)
+  gains `is_open`.
+  [`sm_read_dimensions()`](https://cttir.github.io/scimapR/reference/sm_read_dimensions.md),
+  [`sm_read_lens()`](https://cttir.github.io/scimapR/reference/sm_read_lens.md),
+  [`sm_corpus()`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  and
+  [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md)
+  map export spellings to these statuses; the last two say so in a
+  message.
+  [`sm_read_lens()`](https://cttir.github.io/scimapR/reference/sm_read_lens.md)
+  takes the status from the open-access colour or status column and no
+  longer from whichever column name starts with “Open Access”.
+
+- `sm_filter_works(oa_only = TRUE)` keeps diamond and other open-access
+  works in any recognised spelling; it used to drop every status except
+  gold, green, hybrid and bronze written in lower case.
+
+- [`sm_metric_summary()`](https://cttir.github.io/scimapR/reference/sm_metric_summary.md)
+  shares tied citation counts fractionally when it computes `pp_top10`,
+  so ties no longer push the value towards 1. Measured against the
+  corpus itself, `pp_top10` now equals `top_pct` by construction. The
+  new `top_reference` argument takes a reference distribution of
+  citation counts (optionally by year and field) or `"openalex"` for
+  OpenAlex’s top-percentile flags, which makes the value informative.
+
+- Printing a chat response,
+  [`sm_chat_render()`](https://cttir.github.io/scimapR/reference/sm_chat_render.md)
+  and
+  [`sm_cite_corpus()`](https://cttir.github.io/scimapR/reference/sm_cite_corpus.md)
+  show their text as it is. Before, braces in an answer, a question, a
+  cited title or a citation were run as R code: text such as “{RCT,
+  cohort}” stopped the printing, “{T}he” printed as “TRUEhe”, and
+  `sm_chat_render(format = "quarto")` and
+  `sm_cite_corpus(style = "bibtex")` always failed. The line breaks of
+  BibTeX, YAML and Markdown output are now kept. When a request of
+  [`sm_fetch_arxiv()`](https://cttir.github.io/scimapR/reference/sm_fetch_arxiv.md),
+  [`sm_fetch_orcid()`](https://cttir.github.io/scimapR/reference/sm_fetch_orcid.md),
+  [`sm_fetch_overton()`](https://cttir.github.io/scimapR/reference/sm_fetch_overton.md),
+  or of the rcrossref or rentrez engine of
+  [`sm_fetch_crossref()`](https://cttir.github.io/scimapR/reference/sm_fetch_crossref.md)
+  or
+  [`sm_fetch_pubmed()`](https://cttir.github.io/scimapR/reference/sm_fetch_pubmed.md),
+  fails, the error shows the original error text as written, also when
+  it contains braces.
+
+- [`sm_unlock()`](https://cttir.github.io/scimapR/reference/sm_lock.md)
+  and the lock check of the functions that modify a corpus show a lock
+  reason that contains braces as written instead of running it as R
+  code.
+
+- `sm_chat_render(format = "html")` escapes `&`, `<`, `>` and quotes in
+  the answer, the question, the model name and the cited titles, so text
+  from the corpus or from the answer can no longer add markup or scripts
+  to the page.
+
+- [`sm_screen_against_question()`](https://cttir.github.io/scimapR/reference/sm_screen_against_question.md),
+  [`sm_chat()`](https://cttir.github.io/scimapR/reference/sm_chat.md)
+  and
+  [`sm_cluster_label()`](https://cttir.github.io/scimapR/reference/sm_cluster_label.md)
+  with a chat provider (`llm_provider`) send every request in a fresh
+  copy of the chat object, with their instructions as its system prompt.
+  Earlier batches, clusters and questions are no longer sent again, and
+  the chat object you pass is left unchanged. Before, the instructions
+  went as a second user message, which providers can reject, and every
+  request carried the whole earlier conversation. A system prompt or
+  conversation already set on the chat object is not used. An object
+  that is not a chat object is refused before any request.
+
+- [`sm_chat()`](https://cttir.github.io/scimapR/reference/sm_chat.md)
+  records the model name of the chat object instead of “unknown”. Its
+  arguments `max_tokens` and `temperature`, which had no effect, are
+  deprecated: set them on the chat object instead.
+
+- [`sm_screen_against_question()`](https://cttir.github.io/scimapR/reference/sm_screen_against_question.md)
+  no longer creates a default chat provider when none is given; pass the
+  chat object that may receive the titles and abstracts. It reports
+  which model receives them, and its screening rows record that model in
+  the new column `model`, which also enters the corpus hash.
+
+- [`sm_screen_against_question()`](https://cttir.github.io/scimapR/reference/sm_screen_against_question.md)
+  sends the works as JSON data, asks for the work ID with every decision
+  and matches decisions to works by that ID instead of by their order in
+  the answer. A skipped, repeated or reordered item no longer moves
+  decisions to other works; such works are recorded as uncertain with
+  source `"llm_incomplete"` or `"llm_misaligned"`. Answers in a code
+  fence, over several lines, as a single object or as one object per
+  line are read, and an answer that cannot be read marks only its own
+  batch as uncertain instead of stopping the run. A corpus with repeated
+  work IDs is refused before anything is sent.
+
+- [`sm_screen_against_question()`](https://cttir.github.io/scimapR/reference/sm_screen_against_question.md)
+  runs title-abstract before full-text, and screens at full-text only
+  the works whose latest title-abstract decision includes them, or
+  leaves them uncertain with `include_uncertain = TRUE`; decisions of
+  other stages, such as regex screening, no longer count. Works whose
+  request failed or whose answer could not be read are screened again on
+  the next run, their old rows are replaced, they are no longer carried
+  forward, and a warning counts them. Screening decisions use one
+  vocabulary, `"include"`, `"exclude"` and `"uncertain"`. `"unclear"` is
+  read as `"uncertain"`, and `sm_example_corpus(with_screening = TRUE)`
+  now writes `"uncertain"`, which changes the hash of that corpus. The
+  full-text stage screens titles and abstracts, as is now documented.
+
+- [`sm_screen_prisma()`](https://cttir.github.io/scimapR/reference/sm_screen_prisma.md)
+  uses the stage names the package writes by default
+  (`"identification"`, `"title-abstract"`, `"full-text"`,
+  `"inclusion"`), so its default flow shows the title-abstract and
+  full-text exclusions instead of none. It counts works instead of
+  decision rows: per stage it takes each work’s latest decision and only
+  works of the corpus that are still in the flow. Repeated decisions
+  therefore no longer count twice, and the remaining count can no longer
+  turn negative. It warns when screening decisions of a stage are left
+  out of the flow and when decisions concern works outside the corpus.
+  The records that
+  [`sm_corpus_for_question()`](https://cttir.github.io/scimapR/reference/sm_corpus_for_question.md)
+  found before removing duplicates enter at identification (new argument
+  `n_identified`).
+
+- [`sm_export_rayyan()`](https://cttir.github.io/scimapR/reference/sm_export_rayyan.md)
+  and
+  [`sm_export_covidence()`](https://cttir.github.io/scimapR/reference/sm_export_covidence.md)
+  write each work’s ID (RIS `ID` and a note) and leave out missing
+  fields instead of writing “NA”.
+  [`sm_import_rayyan()`](https://cttir.github.io/scimapR/reference/sm_import_rayyan.md)
+  returns one row per record of the file. It takes the work ID from that
+  note, from a column you name, or from the DOI of a corpus you pass
+  (new arguments `corpus` and `id_col`); it reads the decision from a
+  decision column or from the inclusion notes of the export, maps labels
+  such as “Included”, “Excluded” and “Maybe” to the package vocabulary,
+  and warns about records it cannot match.
+
+- [`sm_cluster_label()`](https://cttir.github.io/scimapR/reference/sm_cluster_label.md)
+  with a chat provider (`llm_provider`) sends the sampled titles as JSON
+  data and gains `seed`, which makes the sample of 20 titles per cluster
+  reproducible without changing the session’s random numbers.
+
+- `sm_audit_gender(method = "genderize")` caches only answers it
+  received: failed lookups, including those an earlier version stored as
+  unknown, are retried on the next run. Names are sent ten per request,
+  and a rate limit stops the lookups with a warning that gives the reset
+  time and the number of names not looked up (new element
+  `n_names_failed`).
+
+- [`sm_audit_funding()`](https://cttir.github.io/scimapR/reference/sm_audit_funding.md)
+  reports failed lookups (`n_works_failed`) and works without an
+  identifier (`n_works_no_id`), and computes `coverage` and the funders’
+  `pct` over the works it could check (`NA` when it could check none);
+  before, both counted as unfunded. It no longer needs rcrossref or
+  openalexR, sends `OPENALEX_API_KEY` and `SCIMAPR_MAILTO` (new
+  `api_key` and `mailto` arguments), and stops further lookups after a
+  rate limit.
+
+- The Crossref, Semantic Scholar, bioRxiv, PubMed and OpenAlex fetchers
+  retry transient failures (HTTP 5xx, network errors, short HTTP 429
+  waits). A request that still fails after earlier pages arrived ends in
+  an error of class `scimapR_fetch_incomplete` that carries the works
+  fetched so far (`rlang::last_error()$partial`).
+  [`sm_fetch_crossref()`](https://cttir.github.io/scimapR/reference/sm_fetch_crossref.md)
+  pages with a cursor, so `n_max` above 10,000 works;
+  [`sm_fetch_semantic_scholar()`](https://cttir.github.io/scimapR/reference/sm_fetch_semantic_scholar.md)
+  caps relevance search at 1,000 results with a warning; Crossref
+  records with an empty date or an organisation author no longer stop
+  the fetch or lose the author.
+
+- [`sm_refresh()`](https://cttir.github.io/scimapR/reference/sm_refresh.md)
+  marks a work as refreshed, and adds a provenance row, only when new
+  data for it arrived. Works whose request failed, that the source did
+  not return, or whose source cannot be re-queried stay stale and are
+  counted in a warning. `metadata$last_refresh` moves only when works
+  were refreshed and none failed. OpenAlex and Crossref refreshes are
+  sent in batches; OpenAlex requests use `OPENALEX_API_KEY` and Crossref
+  requests `SCIMAPR_MAILTO` (new `api_key` and `mailto` arguments), and
+  a rate limit stops further requests at once. The default `what` is now
+  `c("citations", "oa_status")`, because `"new_refs"` and `"altmetric"`
+  were never implemented; asking for them gives a warning.
+
+- Repeated
+  [`sm_refresh()`](https://cttir.github.io/scimapR/reference/sm_refresh.md)
+  calls query each work once, from the source that first fetched it, and
+  label new provenance rows `<source>_refresh` without adding a suffix
+  per run; rows written by enrichers no longer start a refresh.
+
+- `sm_refresh(sources =)` with an unknown source reports the unknown
+  names and the valid sources instead of an internal formatting error.
+
+- [`sm_enrich_retraction()`](https://cttir.github.io/scimapR/reference/sm_enrich_retraction.md)
+  counts a work as checked only when OpenAlex returned its record or a
+  Crossref retraction notice names it: failed or rate-limited requests
+  leave works unchecked and without a provenance row, and are reported
+  in a warning, or in an error when nothing could be checked. It sends
+  `OPENALEX_API_KEY` (new `api_key` and `mailto` arguments), and its
+  Crossref cross-check now looks for retraction notices that update the
+  work’s DOI, in batches and for corpora of any size.
+  `sm_enrich_concepts(source = "openalex")` sends the key (new `api_key`
+  argument) and reports failed lookups.
+
+- [`sm_read_bib()`](https://cttir.github.io/scimapR/reference/sm_read_bib.md)
+  removes BibTeX protective braces and decodes common LaTeX accents and
+  escapes, so Web of Science BibTeX exports give plain DOIs, titles,
+  journals and keywords. It splits authors only at an `and` outside
+  braces, so a braced corporate author stays one author, reads quoted
+  values that contain braced accents, and takes the year from a biblatex
+  `date` field when `year` is missing.
+
+- [`sm_read_wos()`](https://cttir.github.io/scimapR/reference/sm_read_wos.md)
+  and
+  [`sm_read_auto()`](https://cttir.github.io/scimapR/reference/sm_read_auto.md)
+  read Web of Science tab-delimited exports, which they used to read as
+  one empty record. `sm_read_wos(engine = "bibliometrix")` stops with an
+  error on such files. A WoS file whose records carry no title,
+  accession number or author is now an error, and such records among
+  others are dropped with a warning.
+
+- [`sm_read_ris()`](https://cttir.github.io/scimapR/reference/sm_read_ris.md),
+  and
+  [`sm_read_cochrane()`](https://cttir.github.io/scimapR/reference/sm_read_cochrane.md)
+  for RIS files, read years from RIS dates such as `2019/03/01/` or
+  `2020///` in `PY`, `Y1` or `DA`, instead of returning `NA` with a
+  coercion warning.
+
+- [`sm_read_auto()`](https://cttir.github.io/scimapR/reference/sm_read_auto.md)
+  tells EndNote XML from PubMed XML by the root element, so an EndNote
+  library of PubMed records is no longer read as an empty PubMed file.
+  Unrecognised XML, MEDLINE (`.nbib`) and Refer (`.enw`) files now stop
+  with a clear error instead of failing in the XML parser or giving an
+  empty corpus, and `.nbib` or `.enw` files that hold RIS records are
+  read as RIS.
+
+- [`sm_self_citation()`](https://cttir.github.io/scimapR/reference/sm_self_citation.md),
+  the self-corrected h-, g- and m-indices,
+  [`sm_metric_disruption()`](https://cttir.github.io/scimapR/reference/sm_metric_disruption.md)
+  and
+  [`sm_metric_novelty()`](https://cttir.github.io/scimapR/reference/sm_metric_novelty.md)
+  now work on corpora built by the readers and fetchers. Before, they
+  found no linked references and returned empty or uncorrected results.
+  Their warnings now point to
+  [`sm_link_references()`](https://cttir.github.io/scimapR/reference/sm_link_references.md)
+  instead of
+  [`sm_enrich_opencitations()`](https://cttir.github.io/scimapR/reference/sm_enrich_opencitations.md),
+  which did not link references.
+
+- [`sm_network_coupling()`](https://cttir.github.io/scimapR/reference/sm_network_coupling.md)
+  and
+  [`sm_network_cocitation()`](https://cttir.github.io/scimapR/reference/sm_network_cocitation.md)
+  now count shared cited references outside the corpus too, by DOI,
+  OpenAlex id or reference text. This changes their default results for
+  corpora with unlinked references. Co-citation nodes gain `in_corpus`;
+  `linked_only = TRUE` keeps the earlier behaviour. Citation networks,
+  and the indicators that need linked references, warn when none are
+  linked.
+
+- [`sm_enrich_opencitations()`](https://cttir.github.io/scimapR/reference/sm_enrich_opencitations.md)
+  uses the Index API v2 to add each work’s outgoing references and link
+  those that cite corpus works by DOI or OpenAlex id. Before, it stored
+  the works citing a work as that work’s own references, reversing
+  citation direction. It still sets `cited_by_count` to the
+  OpenCitations count. New reference indices continue after existing
+  ones, and repeated enrichment skips existing cited identifiers,
+  regardless of DOI case.
+
+- [`sm_metric_disruption()`](https://cttir.github.io/scimapR/reference/sm_metric_disruption.md)
+  no longer counts the focal work, or works published before it, among
+  the works that cite only its references. Same-year works and works
+  with missing years remain eligible. Uncited works now get `NA` instead
+  of 0, and repeated or self-directed links are ignored. Existing CD
+  index values can change.
+
+- [`sm_export_gephi()`](https://cttir.github.io/scimapR/reference/sm_export_gephi.md),
+  [`sm_export_vosviewer()`](https://cttir.github.io/scimapR/reference/sm_export_vosviewer.md)
+  and
+  [`sm_export_cytoscape()`](https://cttir.github.io/scimapR/reference/sm_export_cytoscape.md)
+  export the edges of the network. Before, they wrote the node table in
+  place of the edges, so the files had no usable links.
+
+- [`sm_export_gephi()`](https://cttir.github.io/scimapR/reference/sm_export_gephi.md)
+  escapes labels and marks directed networks as directed.
+  [`sm_export_vosviewer()`](https://cttir.github.io/scimapR/reference/sm_export_vosviewer.md)
+  now writes a map file of the node ids and labels (`map_path`) and a
+  network file without a header, with numeric ids and positive link
+  strengths.
+
+- Coupling and co-citation weights count each cited item once per work,
+  and citation networks drop self-citations of a work and repeated
+  links. Before, repeated reference rows raised the weights.
+
+- References now link to the works of the corpus they cite: the Web of
+  Science, bibliometrix, OpenAlex, Crossref and Semantic Scholar readers
+  and fetchers,
+  [`sm_bind_corpora()`](https://cttir.github.io/scimapR/reference/sm_bind_corpora.md)
+  and
+  [`sm_dedupe()`](https://cttir.github.io/scimapR/reference/sm_dedupe.md)
+  set `references$cited_work_id` from the cited DOI or OpenAlex id. New
+  [`sm_link_references()`](https://cttir.github.io/scimapR/reference/sm_link_references.md)
+  links corpora built with
+  [`sm_corpus()`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  or
+  [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md),
+  or saved earlier. Cited references in the Web of Science form
+  `DOI [a, b]` now get a DOI. Both change the references, and so the
+  corpus hash, of corpora read from files whose works cite each other.
+
+- Functions that modify a corpus now refuse locked inputs, including
+  merging, deduplication, materialisation, citation maturity, enrichers,
+  embeddings, clustering, labels, affiliation matching and screening.
+  Subsets stay locked; merged corpora are unlocked.
+  [`sm_lock()`](https://cttir.github.io/scimapR/reference/sm_lock.md)
+  records a content hash, and
+  [`sm_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md)
+  and
+  [`sm_validate()`](https://cttir.github.io/scimapR/reference/sm_validate.md)
+  report later changes to that content. Printing continues to show only
+  the lock status.
+
+- Subsets (`[`,
+  [`sm_filter_works()`](https://cttir.github.io/scimapR/reference/sm_filter_works.md),
+  [`sm_query()`](https://cttir.github.io/scimapR/reference/sm_query.md))
+  and
+  [`sm_dedupe()`](https://cttir.github.io/scimapR/reference/sm_dedupe.md)
+  keep only the authors, institutions and sources their works refer to,
+  so printing, summaries, citations and certificates count the subset.
+  Its corpus hash changes accordingly.
+
+- [`sm_audit_gender()`](https://cttir.github.io/scimapR/reference/sm_audit_gender.md)
+  and
+  [`sm_summary_authors()`](https://cttir.github.io/scimapR/reference/sm_summary_authors.md)
+  on a filtered corpus count only its contributing authors. The
+  `genderize` and `ssa` methods look up only their names.
+
+- [`sm_cluster_kmeans()`](https://cttir.github.io/scimapR/reference/sm_cluster_kmeans.md),
+  [`sm_cluster_hdbscan()`](https://cttir.github.io/scimapR/reference/sm_cluster_hdbscan.md),
+  [`sm_cluster_leiden()`](https://cttir.github.io/scimapR/reference/sm_cluster_leiden.md)
+  and
+  [`sm_network_semantic()`](https://cttir.github.io/scimapR/reference/sm_network_semantic.md)
+  stop with an error naming repeated work IDs, embedding row names or
+  network nodes instead of adding duplicate works.
+  [`sm_dedupe()`](https://cttir.github.io/scimapR/reference/sm_dedupe.md)
+  keeps one embedding row per retained work, with a warning when
+  duplicate embedding rows are removed.
+
+- `sm_dedupe(by =)` now uses the named works columns, such as `"pmid"`
+  or `c("title", "year")`; previously it ignored `by` and always used
+  DOI. Missing and empty values never count as duplicates, DOIs and
+  titles are normalised, and retained works keep their input order.
+
+- [`sm_materialise()`](https://cttir.github.io/scimapR/reference/sm_materialise.md)
+  skips enrichment rows with missing keys with a warning and leaves
+  corpus rows with missing keys unmatched. Previously, one row could
+  overwrite multiple references or keywords. The default reference key
+  is now `(work_id, ref_index)`, replacing `(work_id, cited_work_id)`.
+  Ambiguous row keys in works, authors, institutions, sources,
+  references or concepts now cause an error; group keys in authorships,
+  provenance and screening may still repeat.
+
+- [`sm_bind_corpora()`](https://cttir.github.io/scimapR/reference/sm_bind_corpora.md)
+  and
+  [`sm_build_corpus()`](https://cttir.github.io/scimapR/reference/sm_build_corpus.md)
+  give the second corpus new work, author, source and institution IDs
+  where the first already uses them, and rewrite every table that refers
+  to them. Previously, separately read files merged into colliding works
+  and credited papers to the wrong authors and journals. Identical
+  lookup records share one ID. The new `verbose` argument reports
+  re-keying, and incompatible embedding widths or one-sided embeddings
+  now warn when dropped. The existing `mix_models` rule for different
+  recorded models remains.
+  [`sm_validate()`](https://cttir.github.io/scimapR/reference/sm_validate.md)
+  also checks author, source, institution and embedding links and
+  duplicate IDs.
+
+- New synthetic example files shaped like a Web of Science export of
+  three invented public-service units and their academic partners:
+  `example_realuse_corpus.rds` (150 works),
+  `example_realuse_reference.csv` (a publication-tracker reference list)
+  and `example_realuse_affiliation_dict.csv` (an affiliation
+  dictionary). See the “Real-use fixture” section of
+  [`?sm_example_files`](https://cttir.github.io/scimapR/reference/sm_example_files.md).
+
+- The examples of
+  [`sm_audit_funding()`](https://cttir.github.io/scimapR/reference/sm_audit_funding.md)
+  and
+  [`sm_audit_summary()`](https://cttir.github.io/scimapR/reference/sm_audit_summary.md)
+  run offline: they no longer send one Crossref request per DOI of the
+  example corpus when `R CMD check --as-cran` runs `\donttest{}` code.
+  The live lookup is shown in an example that runs only in interactive
+  sessions.
+
+- [`sm_audit_summary()`](https://cttir.github.io/scimapR/reference/sm_audit_summary.md)
+  no longer sends web requests by default. Its new `online` argument
+  controls the funding audit, which looks up every DOI on Crossref: with
+  the default `online = FALSE` that audit is reported as not run unless
+  a precomputed
+  [`sm_audit_funding()`](https://cttir.github.io/scimapR/reference/sm_audit_funding.md)
+  result is passed, and `online = TRUE` runs it as before.
+
+- [`sm_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md),
+  [`sm_cite_corpus()`](https://cttir.github.io/scimapR/reference/sm_cite_corpus.md)
+  and citation-maturity cut-offs
+  ([`sm_citation_maturity()`](https://cttir.github.io/scimapR/reference/sm_citation_maturity.md),
+  `sm_its(outcome = "cnci")`) accept numeric, character, Date and
+  POSIXct timestamps in `metadata$build_date` and
+  `metadata$last_refresh`. Numbers are read as seconds since 1970-01-01
+  UTC, as corpora restored from tables store them, and implausible
+  numbers (such as milliseconds) are ignored with a message. Text is
+  read as ISO 8601 (a date, or a date and time with an optional `Z` or
+  `+hh`, `+hhmm` or `+hh:mm` offset); other text counts as missing.
+  Certificates write their timestamps in UTC, for example
+  `2026-10-17T11:45:00Z`, still read the older form, and print the
+  creation time in UTC.
+
+- [`sm_metric_fnci()`](https://cttir.github.io/scimapR/reference/sm_metric_fnci.md)
+  gains `min_cell` and `by_type` (opt-in fallback baselines) and informs
+  when many works sit in tiny cells; `sm_its(outcome = "cnci")` and
+  `sm_metric_summary(metric = "cnci")` show that message too. With
+  `min_cell`, a work whose field-year cell is too small falls back to
+  its field in the neighbouring years and then to its year, `field` may
+  list several `;`-separated categories, and the result reports `n_cell`
+  and `baseline`. `by_type = TRUE` gives articles and reviews baselines
+  of their own.
+
+- `sm_metric_fnci(classification = "manual")` reports a factor `field`
+  by its labels instead of its integer codes.
+
+- `sm_metric_fnci(classification = "mesh")` never uses a MeSH check tag
+  (such as Humans, Female or Adult) or a descriptor of study design or
+  statistics (such as Retrospective Studies, Risk Factors or Treatment
+  Outcome) as a work’s field.
+  [`sm_fetch_pubmed()`](https://cttir.github.io/scimapR/reference/sm_fetch_pubmed.md),
+  [`sm_read_pubmed_xml()`](https://cttir.github.io/scimapR/reference/sm_read_pubmed_xml.md)
+  and `sm_enrich_concepts(source = "mesh")` now record each MeSH
+  heading’s major-topic flag as its concept `score` (1 for a major
+  topic, 0 otherwise; before, always `NA`), so the field is a major
+  topic of the work. Headings without scores, as from other sources,
+  give the work’s heading that is most frequent in the corpus instead of
+  the first one listed, with a message.
+
+- `sm_cluster_evolution(link_by = "cluster_id")` follows a global
+  clustering across windows; snapshots gain `share`. Each cluster
+  present in two consecutive windows gives one transition, except the
+  noise cluster named by the new `noise` argument (default `0L`).
+
+- [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  matches dictionary patterns in Unicode mode, so `\w` and `\b` work on
+  non-ASCII names; new
+  [`sm_affiliation_unmatched()`](https://cttir.github.io/scimapR/reference/sm_affiliation_unmatched.md)
+  lists unmatched affiliation strings. Unicode mode is the new default,
+  for the postcode signal too: `\w`, `\b`, `\d`, `\s` and POSIX classes
+  such as `[[:alpha:]]` now treat umlauts, accented letters and other
+  non-ASCII letters, digits and spaces like ASCII ones. A pattern can
+  stop matching if it used `\W`, `\S`, `\D` or `\B` to stand for a
+  non-ASCII letter, or if it relied on `\b` between an ASCII and a
+  non-ASCII letter: the shipped pattern `\bembl\b` no longer matches
+  “EMBL” directly followed by an umlaut. The new argument
+  `unicode = FALSE` restores the earlier ASCII-only matching.
+  [`sm_attribute_institution()`](https://cttir.github.io/scimapR/reference/sm_attribute_institution.md)
+  has no such argument and matches in Unicode mode when it runs
+  [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  itself; the Details of
+  [`?sm_affiliation_match`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  show how to get its earlier results.
+
+- [`sm_screen_regex()`](https://cttir.github.io/scimapR/reference/sm_screen_regex.md)
+  matches its terms as written, case-insensitively and in Unicode mode
+  like
+  [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md),
+  so a term can stop matching in the same ways (new argument `unicode`,
+  default `TRUE`). It no longer lowercases the patterns, which turned
+  `\W`, `\S`, `\D` and `\B` into `\w`, `\s`, `\d` and `\b`, and a corpus
+  with a single work now gets one screening row instead of several.
+
+- [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md) no
+  longer fails when a year has no finite outcome,
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md) no
+  longer fits silently on fewer years, and
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  no longer passes such years to tidysynth; these years are dropped with
+  a warning and reported (`dropped_years`).
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md)
+  drops them per group, and
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  for every unit so that its panel stays balanced. For
+  `outcome = "cnci"`, works with an infinite impact value are left out
+  of the yearly mean, and a year without usable impact counts as dropped
+  even when it is citation-immature, so `dropped_years` and
+  `provisional_years` never share a year.
+
+- The confidence intervals of
+  [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md) and
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md) use
+  the t distribution with the residual degrees of freedom when the model
+  estimates its dispersion, as their p-values already did: the default
+  Gaussian fits of
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md) and
+  of [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md)
+  for `"share_q1"`, `"cnci"` and `"leadership"`, and quasi families.
+  These intervals are wider than before and agree with the p-values.
+  Poisson fits (the
+  [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md)
+  default for `"count"`) keep normal intervals and now warn when the
+  counts are overdispersed, suggesting `family = "quasipoisson"`.
+
+- With `outcome = "count"`,
+  [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md),
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md) and
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  count a year without works as 0, over every year from the first to the
+  last publication year of the corpus, instead of leaving the year out;
+  filter the corpus to the analysis window first.
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  aborts when a unit has no works.
+
+- [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md)
+  checks the years that remain after all exclusions (years without a
+  usable value and, for `"cnci"`, citation-immature years) instead of
+  before the citation-immature cut. It needs at least 4 years, 2 or more
+  before `intervention_year` and 2 or more from it on, and aborts
+  otherwise, or when a level or slope change cannot be estimated,
+  instead of silently fitting a model without those terms. On exactly 4
+  years a Gaussian or quasi-family fit has no residual degrees of
+  freedom, and
+  [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md) now
+  warns that its standard errors, intervals and p-values are `NaN`.
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md)
+  needs 4 years per group, with years before and from
+  `intervention_year`, and
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  4 panel years, 2 of them before it.
+
+- [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md),
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md) and
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  check `intervention_year` the same way and abort unless it is one
+  whole year, given as a number or as text such as `"2020"`. Before,
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md) and
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  truncated a year such as 2020.5 and read `TRUE` as the year 1, and all
+  three read a factor or a date by its internal number.
+
+- Concept vocabularies are now a controlled set
+  ([`sm_concept_vocabularies()`](https://cttir.github.io/scimapR/reference/sm_concept_vocabularies.md));
+  [`sm_to_bibliometrix()`](https://cttir.github.io/scimapR/reference/sm_to_bibliometrix.md)
+  DE and keyword co-word networks work for file-based corpora.
+  [`sm_corpus()`](https://cttir.github.io/scimapR/reference/sm_corpus.md)
+  and
+  [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md)
+  rename legacy and common spellings such as `"keywords-author"`,
+  `"keyword"` or `"MEDLINE"` to these names, with a message, and the
+  functions that select concepts by vocabulary read every one of these
+  spellings. Values that name no known vocabulary are kept as written
+  and listed in the same message, so a corpus built from such tables now
+  reports them each time; name a vocabulary of your own `"custom"`. DE
+  holds each work’s author keywords; a work without any falls back to
+  its OpenAlex concepts, so corpora built from OpenAlex keep their DE,
+  and arXiv and bioRxiv categories stay out of it as before.
+  [`sm_network_coword()`](https://cttir.github.io/scimapR/reference/sm_network_coword.md)
+  gains `vocabulary`: `field = "keywords"` uses the author keywords by
+  default and, in a corpus without any, the indexer keywords (such as
+  Keywords Plus or MeSH) with a message; a corpus with neither gives an
+  empty network, now with a message. With `field = "concepts"`,
+  `vocabulary` keeps only the vocabularies named.
+
+- [`sm_read_wos()`](https://cttir.github.io/scimapR/reference/sm_read_wos.md)
+  reads the Web of Science categories (WC) into the new vocabulary
+  `wos-category`; `wos-subject-category` keeps the research areas (SC).
+  Corpora read from Web of Science files therefore have more concept
+  rows, which changes the results of functions that use every concept
+  whatever its vocabulary: `sm_network_coword(field = "concepts")`,
+  [`sm_plot_thematic_map()`](https://cttir.github.io/scimapR/reference/sm_plot_thematic_map.md),
+  [`sm_author_trajectory()`](https://cttir.github.io/scimapR/reference/sm_author_trajectory.md)
+  and the corpus hash
+  ([`sm_hash_corpus()`](https://cttir.github.io/scimapR/reference/sm_hash_corpus.md)).
+  [`sm_author_trajectory()`](https://cttir.github.io/scimapR/reference/sm_author_trajectory.md)
+  now counts a concept name once per work in its dominant topics and
+  novelty (before, a name that a work had in two vocabularies counted
+  twice), so a category with the same name as a research area of the
+  work leaves the trajectory unchanged.
+
+- [`sm_to_bibliometrix()`](https://cttir.github.io/scimapR/reference/sm_to_bibliometrix.md)
+  exports C1, RP, ID, WC, SC, UT, SN/EI, J9/JI, EM, AF, one AU entry per
+  author, CR in Web of Science form and `DB = "ISI"` for corpora from
+  Web of Science, so
+  [`bibliometrix::histNetwork()`](https://rdrr.io/pkg/bibliometrix/man/histNetwork.html)
+  and
+  [`bibliometrix::rpys()`](https://rdrr.io/pkg/bibliometrix/man/rpys.html)
+  run; C1 round-trips through
+  [`as_sm_corpus()`](https://cttir.github.io/scimapR/reference/as_sm_corpus.md).
+  Every tag column is present, `NA` where the corpus has no data. New
+  arguments: `keep_extra = FALSE` drops the columns without a field tag,
+  and `db` sets `DB`.
+  [`sm_read_wos()`](https://cttir.github.io/scimapR/reference/sm_read_wos.md)
+  now reads the ISSNs and journal abbreviations (SN, EI, J9, JI) into
+  `sources` (`issn_l`, `issn` and the new columns `abbreviation` and
+  `iso_abbreviation`), so ISSN lookups now work for corpora read from
+  Web of Science files. It also keeps each author name as the file
+  writes it (such as “Garcia Lopez, M”) in
+  `authors$display_name_alternatives`, so the export keeps surnames of
+  several words whole, and cited-reference DOIs lose a trailing period.
+  Because of these changes the corpus hash
+  ([`sm_hash_corpus()`](https://cttir.github.io/scimapR/reference/sm_hash_corpus.md))
+  of corpora read from Web of Science files changes too.
+
+- [`sm_to_bibliometrix()`](https://cttir.github.io/scimapR/reference/sm_to_bibliometrix.md)
+  now upper-cases the text fields that bibliometrix keeps upper-case (as
+  `convert2df()` does); `DI` stays as stored. Its default output changes
+  in a few more ways: `AU` holds names as `SURNAME INITIALS` (such as
+  `VALDEZ P`) instead of the stored display names, `SR` is built as
+  `convert2df()` builds it (first author, year and journal abbreviation,
+  made unique) and gives the row names, `NR` counts the items of `CR`
+  instead of the reference rows, `DE` separates its terms with `;`, and
+  the tag columns come first. `AU_CO` is no longer written, so
+  bibliometrix reads the countries from `C1`
+  (`bibliometrix::metaTagExtraction(M, "AU_CO")`) as it does for
+  `convert2df()` data. With the default `keep_extra = TRUE` the other
+  columns stay, and the ISO country codes that `AU_CO` held are in the
+  new column `country_code`.
+
+- The `"bibliometrix"` and `"auto"` engines of the file readers and
+  [`as_sm_corpus()`](https://cttir.github.io/scimapR/reference/as_sm_corpus.md)
+  for bibliometrix data frames now share one conversion, which also
+  reads the cited references (CR, with the DOI of each reference that
+  has one), the sources (SO, SN, EI, J9, JI), the keywords and
+  categories (DE, ID, WC, SC), the Web of Science accession numbers (UT)
+  and the PubMed IDs; before, these corpora had no references, sources
+  or concepts. Authors keep their full names from AF and get one
+  authorship row per address, linked through the names in C1, and titles
+  and abstracts keep the case of the file. Authors are now told apart by
+  their full names in AF instead of their AU form, so author counts can
+  change; an entry with initials only, or without AF, belongs to the
+  author with the same surname and initials when there is just one.
+  [`as_sm_corpus()`](https://cttir.github.io/scimapR/reference/as_sm_corpus.md)
+  labels the provenance of Web of Science data (`DB = "ISI"`) `"wos"`.
+
+- `sm_coverage_audit(by =)` accepts any reference or works column;
+  corpus-side affiliation uses institution matches before country codes.
+  A name is either one of the named dimensions `"year"`, `"source"` and
+  `"affiliation"` or a column of the reference data frame (matched
+  case-insensitively) or of `works`; a dimension found on one side only
+  gets `NA` for the other side, and a name found on neither side is an
+  error listing the available columns. The affiliation levels of a
+  corpus come from the first of `institution_match`, `institution_name`,
+  `institution_id` and `country_code` that has a value, with a message
+  naming the column on each side and a warning when a side falls back to
+  country codes. A work counts in every institution of its authors, so
+  per-level counts can add up to more than the total; the overall recall
+  and precision count each record once. In a data-frame reference,
+  `"affiliation"` now takes an `affiliation`, `affiliations` or
+  `institution` column before a `country` or `country_code` column, and
+  `"source"` a source name before `source_id`, whatever their order, and
+  the values of each row stay with that row.
+
+- [`sm_coverage_audit()`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md)
+  and
+  [`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
+  identify the rows of a data frame by its `UT` column (Web of Science
+  accession numbers) or an `id`, `work_id`, `reference_id` or `ref_id`
+  column only when its values are unique and none is missing; otherwise
+  rows are identified by their position (`R000001`, …), with a warning.
+  A column named `ID` next to Web of Science field tags holds the
+  Keywords Plus and is never used. Before, missing or repeated
+  identifiers, such as those of the `ID` column that
+  [`sm_to_bibliometrix()`](https://cttir.github.io/scimapR/reference/sm_to_bibliometrix.md)
+  writes, made the recall, the breakdowns, `n_reference_only` and
+  `matches$reference_id` disagree.
+
+- [`sm_coverage_audit()`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md)
+  looks up each reference row on its own for recall, so an item that two
+  rows report (one paper reported by two units) counts as found for both
+  instead of only for the first; precision still pairs each corpus
+  record with at most one reference row. `n_matched` counts the
+  reference rows found and the new element `n_corpus_matched` the corpus
+  records paired, which [`print()`](https://rdrr.io/r/base/print.html)
+  shows for precision and
+  [`summary()`](https://rdrr.io/r/base/summary.html) adds as its last
+  column; the two differ only when reference rows share a corpus record.
+  The new element `reference_matches` shows for each reference row the
+  corpus record it was found in, as `matches` does for the corpus
+  records. When a DOI repeats on both sides, its records now pair in
+  order instead of leaving the later ones to the title fallback.
+
+- The title fallback of
+  [`sm_coverage_audit()`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md)
+  and
+  [`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
+  pairs two records only when their publication years differ by at most
+  one (or a year is missing) and never when both have a DOI and the DOIs
+  differ, so serial titles such as annual reports and generic titles
+  such as “Editorial” no longer match across years. A `Date` or
+  date-time year column of a data frame counts by its calendar year, and
+  a year outside 1000-2999 (such as a day count) as missing.
+
+- Title matching in
+  [`sm_coverage_audit()`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md)
+  and
+  [`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md),
+  and the ROR lookup of
+  [`sm_attribute_institution()`](https://cttir.github.io/scimapR/reference/sm_attribute_institution.md),
+  keep the letters and digits of every script when they normalise text.
+  Before, they dropped every non-ASCII letter, so titles in Cyrillic,
+  Greek or other non-Latin scripts never matched and words with umlauts
+  or accents lost letters.
+
+- `sm_count(level = "institution")` no longer applies the shipped
+  dictionary `sm_affiliation_dict` on its own, which credited any
+  “deaconess hospital” or “church hospital” to “Diakonie Hospital”. This
+  changes its default counts: each authorship row now takes the first of
+  `institution_match`, `institution_name` and `institution_id` (named by
+  `corpus$institutions` when listed) that has a value in that row, and
+  otherwise its raw affiliation string, with a warning. Before, one
+  column served every row, so the rows without a value in it were left
+  out, and `entity_id` was the `institution_id` whenever any row had
+  one; now it is the label, except for rows labelled through
+  `institution_id`. After
+  [`sm_attribute_institution()`](https://cttir.github.io/scimapR/reference/sm_attribute_institution.md),
+  which keeps `institution_match`, the counts therefore follow the
+  dictionary matches instead of their roll-up to ROR ids and names; to
+  count by the vocabulary, replace `institution_match` by
+  `institution_name` where that is set (see
+  [`?sm_count`](https://cttir.github.io/scimapR/reference/sm_count.md)).
+  Run
+  [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  with a dictionary of your institutions first to count them.
+
+- The shipped dictionary `sm_affiliation_dict` no longer credits a bare
+  “deaconess hospital”, “church hospital” or “public services hospital”,
+  which can be a hospital of any country, to “Diakonie Hospital”. Its
+  rows for that hospital now need “Diakonie”, “Protestant Deaconess”,
+  “Protestant Church” or “Protestant Diaconal” before “hospital”, or the
+  German name, so
+  [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  with its default patterns, and
+  [`sm_attribute_institution()`](https://cttir.github.io/scimapR/reference/sm_attribute_institution.md)
+  on a corpus that was not matched first, leave other deaconess
+  hospitals unmatched; an English name with “Diakonie”, such as
+  “Diakonie Hospital”, now matches as well.
+
+- The WoS reader (both engines), the bibliometrix import and both
+  OpenAlex readers take the corresponding author from the RP field or
+  the OpenAlex `is_corresponding` flag instead of assuming the first
+  author; the readers of sources without this information record it as
+  unknown (`NA`). `sm_audit_geographic(weight = "corresponding")` and
+  the gender audit now find corresponding authors (they used
+  [`isTRUE()`](https://rdrr.io/r/base/Logic.html) on a column). RP is
+  read in any case, with the older “(reprint author)” and with its names
+  on one line or several, in both engines; namesakes with the same
+  surname and initials are told apart by the address RP gives, and stay
+  unknown when it does not tell them apart. A work whose RP names none
+  of its authors counts as unknown, and so does an OpenAlex work whose
+  authors are all marked `false` unless its `corresponding_author_ids`
+  lists one of them. This changes default results:
+  [`sm_read_lens()`](https://cttir.github.io/scimapR/reference/sm_read_lens.md),
+  [`sm_read_ris()`](https://cttir.github.io/scimapR/reference/sm_read_ris.md),
+  [`sm_read_scopus()`](https://cttir.github.io/scimapR/reference/sm_read_scopus.md),
+  [`sm_read_bib()`](https://cttir.github.io/scimapR/reference/sm_read_bib.md),
+  [`sm_read_pubmed_xml()`](https://cttir.github.io/scimapR/reference/sm_read_pubmed_xml.md),
+  [`sm_fetch_pubmed()`](https://cttir.github.io/scimapR/reference/sm_fetch_pubmed.md),
+  [`sm_fetch_crossref()`](https://cttir.github.io/scimapR/reference/sm_fetch_crossref.md)
+  and the other readers and fetchers without corresponding-author data
+  now give `NA` instead of `TRUE` for the first author, so
+  [`sm_to_bibliometrix()`](https://cttir.github.io/scimapR/reference/sm_to_bibliometrix.md)
+  exports `RP = NA` for their corpora, and
+  `sm_audit_geographic(weight = "corresponding")` reports the countries
+  of the corresponding authors instead of an empty table with coverage
+  0.
+
+- Leadership outcomes can be restricted to focal institutions and author
+  roles (`institutions`, `lead_role`; `institution_aware` in
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md) and
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md));
+  works with an unknown corresponding author, and works without any
+  authorship rows (before counted as not led), leave the default
+  leadership denominator. A work counts as led when an authorship in the
+  role (`"corresponding"`, `"first"`, `"last"`, `"first_or_last"` or
+  `"any_lead"`) carries one of the institution labels in
+  `institution_match`, `institution_name` or `institution_id`, or the
+  name of that id in `corpus$institutions`; a label that no authorship
+  carries gives a warning naming the nearest labels. The denominator
+  change applies to
+  [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md),
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md) and
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  alike and changes their default `"leadership"` results for corpora
+  with unknown corresponding authors, which now include most corpora
+  from readers other than the WoS and OpenAlex readers: a year without a
+  known corresponding author is dropped with a warning, and when no work
+  has one the functions abort and suggest `lead_role = "first"` or
+  `"last"` with focal institutions. The print methods state the
+  definition used, which the results keep in `leadership`.
+
+- [`sm_read_wos()`](https://cttir.github.io/scimapR/reference/sm_read_wos.md)
+  links the addresses of C1 to the authors by their whole names, as the
+  bibliometrix engine does: the full name of AF, else the surname and
+  initials, else the surname and first initial. It now writes one
+  authorship row per author and address. Before, it gave each author the
+  first C1 line whose bracket contained the author’s surname anywhere,
+  so a short surname such as “He” or “Li” took the address of “Chen” or
+  “Lin”, an author with several addresses kept only the first, and lines
+  without names linked nobody. In both engines and in
+  [`as_sm_corpus()`](https://cttir.github.io/scimapR/reference/as_sm_corpus.md),
+  an address that C1 lists without names, as older records do, now
+  belongs to every author of the record, and the bibliometrix engine
+  keeps such a line apart from the address before it. Authorship rows,
+  address-based counts and the corpus hash of corpora read from Web of
+  Science files change.
+
+- [`sm_fetch_biorxiv()`](https://cttir.github.io/scimapR/reference/sm_fetch_biorxiv.md)
+  takes the corresponding author from the `author_corresponding` field
+  of the bioRxiv API, and
+  [`sm_read_dimensions()`](https://cttir.github.io/scimapR/reference/sm_read_dimensions.md)
+  from a Corresponding Authors column, matching the names to the authors
+  by surname and given names or initials; a name that fits two authors
+  equally leaves both unknown.
+  [`sm_fetch_orcid()`](https://cttir.github.io/scimapR/reference/sm_fetch_orcid.md)
+  records the ORCID holder’s `position` and corresponding-author flag as
+  unknown (`NA`); before, the holder was first and corresponding author
+  of every work, which counted as first authorship in the geographic and
+  gender audits.
+
+- [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md)
+  reports the works that belong to both the treated and the control
+  group, such as works co-authored by both, which pull the two series
+  together and the estimate toward 0: with a warning when the new
+  argument `shared` is not set, and in the new element `shared_works`.
+  `shared = "exclude"` leaves them out of both series and `"lead"` gives
+  each to the group of its lead author (`lead_role`); the default
+  `"keep"` keeps them in both, as before.
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md)
+  aborts when `treated` and `control` share a label.
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md) and
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  gain `lag` and, for `outcome = "cnci"`, now leave out the
+  citation-immature years as
+  [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md) does
+  and list them in `provisional_years`, which changes their default
+  `"cnci"` results.
+
+- [`sm_attribute_institution()`](https://cttir.github.io/scimapR/reference/sm_attribute_institution.md)
+  keeps the `institution_id` and `institution_name` of the authorships
+  it does not match, such as the OpenAlex institution ids of a fetched
+  corpus. Before, it set them to `NA`, so institution counts, the
+  institution h-index and the regional audit lost every institution
+  outside the vocabulary.
+
+- [`sm_summary_authors()`](https://cttir.github.io/scimapR/reference/sm_summary_authors.md),
+  [`sm_summary_period()`](https://cttir.github.io/scimapR/reference/sm_summary_period.md)
+  and the position breakdown of
+  [`sm_audit_gender()`](https://cttir.github.io/scimapR/reference/sm_audit_gender.md)
+  count each author once per work, however many address rows the author
+  has in it, as
+  [`sm_metric_collab_index()`](https://cttir.github.io/scimapR/reference/sm_metric_collab_index.md)
+  does. Before, an author with two address rows counted twice, so a
+  single-author work did not count as single-authored and the authors
+  per work disagreed with
+  [`sm_metric_collab_index()`](https://cttir.github.io/scimapR/reference/sm_metric_collab_index.md).
+
+- OpenAlex fetches and
+  [`sm_read_openalex_json()`](https://cttir.github.io/scimapR/reference/sm_read_openalex_json.md)
+  keep FWCI, citation percentiles and yearly citation counts (new corpus
+  element `citations_by_year`); new
+  [`sm_enrich_openalex_impact()`](https://cttir.github.io/scimapR/reference/sm_enrich_openalex_impact.md)
+  adds them to any corpus by identifier and stops cleanly on HTTP 429;
+  new
+  [`sm_citation_window()`](https://cttir.github.io/scimapR/reference/sm_citation_window.md).
+  The works gain the columns `fwci`, `citation_percentile`,
+  `is_top_10pct`, `is_top_1pct` and `citations_as_of` (the date of these
+  values); the openalexR engine has no percentile.
+  [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/reference/sm_fetch_openalex.md)
+  now stops with the same message on HTTP 429, naming the reset time,
+  the remaining budget and the `OPENALEX_API_KEY` setting, instead of a
+  generic error (native engine) or an empty corpus (openalexR engine),
+  and its openalexR engine now uses `OPENALEX_API_KEY` too and needs
+  openalexR 3.1.1 or later.
+  [`sm_enrich_openalex_impact()`](https://cttir.github.io/scimapR/reference/sm_enrich_openalex_impact.md)
+  sends identifiers only, joins nothing when a request fails, and
+  records its step in provenance with the source `"openalex_impact"` and
+  the kind `"enrichment"`, which
+  [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/reference/sm_certificate.md)
+  never replays; certificates record the kind of each step.
+  [`sm_corpus()`](https://cttir.github.io/scimapR/reference/sm_corpus.md),
+  [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md),
+  subsetting,
+  [`sm_bind_corpora()`](https://cttir.github.io/scimapR/reference/sm_bind_corpora.md),
+  [`sm_dedupe()`](https://cttir.github.io/scimapR/reference/sm_dedupe.md),
+  [`sm_export_csv()`](https://cttir.github.io/scimapR/reference/sm_export_csv.md),
+  [`sm_validate()`](https://cttir.github.io/scimapR/reference/sm_validate.md)
+  and
+  [`sm_hash_corpus()`](https://cttir.github.io/scimapR/reference/sm_hash_corpus.md)
+  carry `citations_by_year`; corpora without it keep their hash.
+
+- `sm_metric_summary(metric = "cnci")` resolves impact like
+  [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md) and
+  reports its source as an attribute; both now use `works$fwci` when
+  `works$cnci` is absent (ahead of other impact columns and
+  `corpus$metrics`), which changes
+  [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md),
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md) and
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  results with `outcome = "cnci"` for such corpora. The attribute
+  `impact_source` is `NA` on the `n = 0` row, which a corpus without
+  usable impact data still gives; a message names the source for
+  `"cnci"` and the new `metric = "fwci"`, and the results of
+  [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md),
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md) and
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  keep it as `impact_source` and print it.
+  [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md),
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md),
+  [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md)
+  and
+  [`sm_metric_summary()`](https://cttir.github.io/scimapR/reference/sm_metric_summary.md)
+  gain `min_cell`, passed to
+  [`sm_metric_fnci()`](https://cttir.github.io/scimapR/reference/sm_metric_fnci.md)
+  when they derive impact from citation counts (default `NULL`, as
+  before). The error for a corpus without impact data has the class
+  `scimapR_no_impact_data`.
+
+- [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/reference/sm_fetch_openalex.md)
+  and
+  [`sm_read_openalex_json()`](https://cttir.github.io/scimapR/reference/sm_read_openalex_json.md)
+  fill `authorships$raw_affiliation` from OpenAlex’s
+  `raw_affiliation_strings` (joined with `"; "`), else from
+  `affiliations[].raw_affiliation_string`, else from the institution
+  names. Before,
+  [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/reference/sm_fetch_openalex.md)
+  read a field OpenAlex no longer has, so `raw_affiliation` was `NA` for
+  every fetched authorship and
+  [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  matched nothing, and
+  [`sm_read_openalex_json()`](https://cttir.github.io/scimapR/reference/sm_read_openalex_json.md)
+  kept only the name of the first institution, without the department
+  and unit text that dictionaries match.
+
+- [`sm_read_openalex_json()`](https://cttir.github.io/scimapR/reference/sm_read_openalex_json.md)
+  links works to their source (`works$source_id`). Before, it was `NA`
+  for every work, so source counts, the source plots and h-index, ISSN
+  lookups in
+  [`sm_coverage_audit()`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md)
+  and `SO` in
+  [`sm_to_bibliometrix()`](https://cttir.github.io/scimapR/reference/sm_to_bibliometrix.md)
+  came out empty. Sources with the same name but different OpenAlex ids
+  now stay apart.
+
+- [`sm_read_openalex_json()`](https://cttir.github.io/scimapR/reference/sm_read_openalex_json.md)
+  reads a saved API response (an object whose `results` hold the works,
+  compact or pretty-printed), a single work object and newline-delimited
+  files whose lines are responses; before, a saved response gave one
+  empty work or a parse error. It also reads abstracts from
+  `abstract_inverted_index` when a record has no plain `abstract`;
+  before, such a record stopped the reader with an error.
+
+- [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/reference/sm_fetch_openalex.md)
+  stores ORCIDs without the `https://orcid.org/` prefix, as the other
+  readers do, and `sm_author_trajectory(orcid =)` accepts an ORCID in
+  either form, so
+  [`sm_researcher_profile()`](https://cttir.github.io/scimapR/reference/sm_researcher_profile.md)
+  finds its researcher; before, it aborted with “No author found with
+  ORCID” for every researcher with 5 or more works.
+  [`sm_researcher_profile()`](https://cttir.github.io/scimapR/reference/sm_researcher_profile.md)
+  gains `n_max` (default 200, as before).
+
+- Timestamps given as ISO 8601 text with more than three decimals of a
+  second, such as `2026-10-01T04:12:33.123456` (the form of OpenAlex’s
+  `updated_date`), are read, for example in `metadata$last_refresh`;
+  before, they counted as missing.
+
+- [`sm_embed_works()`](https://cttir.github.io/scimapR/reference/sm_embed_works.md)
+  with the default model `specter2` loads the SPECTER2 adapter through
+  the Python `adapters` package as the model card describes; it
+  previously failed in `SentenceTransformer()`. This model needs the
+  Python packages `torch`, `transformers` and `adapters`
+  (`install_deps = TRUE` installs `torch` and `adapters`), the other
+  models need `sentence-transformers` as before, and the error for a
+  missing package names it. A model that does not load now stops with an
+  error that names the model and gives the Python error.
+
+- [`sm_embed_works()`](https://cttir.github.io/scimapR/reference/sm_embed_works.md)
+  gains multilingual models (`multilingual-mpnet`, `multilingual-e5`),
+  informs when an English-only model meets a multilingual corpus, warns
+  about works without text, and records the model in the corpus metadata
+  and certificate. Texts for `multilingual-e5` start with `"query: "`,
+  the prefix its model card gives for clustering. The message appears
+  when more than 10% of the works with a known language are not in
+  English; it reads language names such as `"German"`, ISO 639-1 codes
+  such as `"de"` and ISO 639-2 codes such as `"ger"`.
+  `corpus$metadata$embedding` records the model, its Hugging Face id and
+  snapshot revision, the text and prefix used, the versions of the
+  Python packages and the time (see
+  [`?sm_corpus`](https://cttir.github.io/scimapR/reference/sm_corpus.md)).
+  [`sm_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md)
+  reports them in `embedding_info`, whose `method` now names the package
+  or service that made the embeddings, or is `"unknown"` for embeddings
+  without such a record (before: `"recorded"`).
+
+- [`sm_embed_works()`](https://cttir.github.io/scimapR/reference/sm_embed_works.md)
+  leaves works without text out of the embeddings, with a warning giving
+  their number: with the default `text = "title_abstract"` the works
+  with neither a title nor an abstract, with `"title"` or `"abstract"`
+  the works without that field (blank text counts as none). Before, they
+  were all embedded as the same empty text, so they became each other’s
+  nearest neighbours, formed a cluster of their own and stopped
+  `sm_plot_landscape(reducer = "tsne")`. The row names of
+  `corpus$embeddings` are the embedded works, and the clustering
+  functions give the other works no cluster (`NA`), as they do for works
+  missing from a cache loaded with
+  [`sm_embed_load()`](https://cttir.github.io/scimapR/reference/sm_embed_load.md).
+
+- [`sm_embed_works()`](https://cttir.github.io/scimapR/reference/sm_embed_works.md)
+  works on a corpus with a single work; before, it failed with “length
+  of ‘dimnames’ \[1\] not equal to array extent”.
+
+- [`sm_enrich_specter()`](https://cttir.github.io/scimapR/reference/sm_enrich_specter.md)
+  fetches the SPECTER v2 vectors of Semantic Scholar instead of the
+  API’s default SPECTER v1 and records them in `metadata$embedding`. It
+  fills gaps only in embeddings from the same source: for embeddings of
+  another model, or of a model that is not recorded, it stops unless you
+  set `replace = TRUE` (replace them by SPECTER v2 vectors for every
+  work with a DOI) or `mix_models = TRUE` (keep them and add SPECTER v2
+  vectors for the other works, recorded as a mix). Before, it silently
+  mixed the vectors of two models when their widths matched, and
+  discarded every existing embedding, with only a warning, when they did
+  not. It now warns about failed requests also with `verbose = FALSE`,
+  tries a request once more after a short wait when Semantic Scholar
+  answers HTTP 429, and records its provenance rows as an enrichment,
+  which
+  [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/reference/sm_certificate.md)
+  does not replay.
+
+- [`sm_bind_corpora()`](https://cttir.github.io/scimapR/reference/sm_bind_corpora.md)
+  and
+  [`sm_build_corpus()`](https://cttir.github.io/scimapR/reference/sm_build_corpus.md)
+  gain `mix_models`. They stop when the embeddings of two corpora record
+  different models in `metadata$embedding`, or when only one of them
+  records its model, unless `mix_models = TRUE`, which binds them and
+  records a mix; embeddings of corpora that record no model bind as
+  before.
+  [`sm_embed_save()`](https://cttir.github.io/scimapR/reference/sm_embed_save.md)
+  keeps the record with the cache and
+  [`sm_embed_load()`](https://cttir.github.io/scimapR/reference/sm_embed_load.md)
+  restores it, or leaves the model unrecorded for a cache without one,
+  and `sm_fetch_semantic_scholar(include_embeddings = TRUE)` records its
+  SPECTER v1 vectors.
+
+- Certificates record local input files with SHA-256
+  ([`sm_register_input()`](https://cttir.github.io/scimapR/reference/sm_register_input.md),
+  `sm_corpus_from_tables(inputs =)`);
+  [`sm_verify_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md)
+  checks them (`base_dir`), reports a `status` per check and warns about
+  inputs it could not find;
+  [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/reference/sm_certificate.md)
+  names the local inputs it cannot replay. The `checks` of a
+  verification gain the columns `status` (`"pass"`, `"fail"` or
+  `"not checked"`) and `location`, and the result gains `n_not_checked`:
+  a check that was not made has `pass = NA`, and the overall result
+  passes unless a check failed. A relative input path is looked for in
+  `base_dir`, in the folder of the certificate file, in the working
+  directory and last at the absolute path recorded at registration.
+  Printing a verification now shows a symbol for each check, and
+  printing a certificate the number of local inputs.
+  [`sm_bind_corpora()`](https://cttir.github.io/scimapR/reference/sm_bind_corpora.md)
+  keeps the local inputs of both corpora.
+
+- [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/reference/sm_certificate.md)
+  replays only the searches of OpenAlex, PubMed and Crossref, through
+  [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/reference/sm_fetch_openalex.md),
+  [`sm_fetch_pubmed()`](https://cttir.github.io/scimapR/reference/sm_fetch_pubmed.md)
+  or
+  [`sm_fetch_crossref()`](https://cttir.github.io/scimapR/reference/sm_fetch_crossref.md)
+  with the engine, filter and `n_max` they were made with. Before, it
+  cut every search at 1,000 works and sent the file paths of file reads
+  and the placeholder queries of enrichments to the APIs as search text.
+  [`sm_fetch_openalex()`](https://cttir.github.io/scimapR/reference/sm_fetch_openalex.md),
+  [`sm_fetch_pubmed()`](https://cttir.github.io/scimapR/reference/sm_fetch_pubmed.md),
+  [`sm_fetch_crossref()`](https://cttir.github.io/scimapR/reference/sm_fetch_crossref.md)
+  and
+  [`sm_corpus_for_question()`](https://cttir.github.io/scimapR/reference/sm_corpus_for_question.md)
+  now record `kind`, `filter` and `n_max` in provenance, and
+  [`sm_corpus_for_question()`](https://cttir.github.io/scimapR/reference/sm_corpus_for_question.md)
+  records the client package that ran each search (`"openalexR"`,
+  `"rentrez"` or `"rcrossref"`) as its `engine` instead of `"native"`,
+  and for Crossref an `n_max` of at most 1,000, the most its single
+  request returns; the file readers record the kind `"file"` and the
+  file relative to the working directory, or its name, instead of the
+  path as given; the enrichers record the kind `"enrichment"`; and
+  certificates write file steps without absolute paths. A message names
+  the steps and local inputs that were not replayed. When a certificate
+  has no search to replay but records file reads or local inputs, the
+  rebuild stops with an error that names them instead of returning an
+  empty corpus; a certificate of only synthetic records, enrichments,
+  refreshes or searches of other sources still gives an empty corpus. A
+  search without a recorded `n_max`, as in certificates of earlier
+  versions, fetches up to the number of works of the certified corpus.
+  The rebuilt corpus holds the works of the searches and their
+  provenance only.
+
+- [`sm_hash_corpus()`](https://cttir.github.io/scimapR/reference/sm_hash_corpus.md)
+  uses canonical text for hash version 2 (new argument `version`), so
+  its values no longer depend on the R version, platform, time zone,
+  collation locale, table column order or embedding row order. Hashes of
+  new certificates and snapshots differ from earlier ones for the same
+  content. Certificates and snapshots record `hash_version`; those
+  written without it use the unchanged earlier algorithm
+  (`version = 1`), whose binary serialisation depends on the R version.
+  Older certificates and snapshots remain verifiable on the R version
+  that wrote them. The hash leaves out provenance, which records fetch
+  dates, and metadata, including local inputs.
+
+- [`sm_cluster_label()`](https://cttir.github.io/scimapR/reference/sm_cluster_label.md)
+  ignores noise, scores terms by the share of a cluster’s works that use
+  them (so one paper cannot name a cluster), supports bigrams and
+  non-English stop words, and gains `method = "keywords"`. The labels of
+  the default `method = "tfidf"` change: they hold single words and
+  pairs of adjacent words (new argument `ngram`, default `1:2`), or the
+  longer phrase that two overlapping terms form (such as “exertional
+  heat illness” for “exertional heat” and “heat illness”), that occur in
+  at least 3 of the cluster’s works or 5% of them, whichever is more
+  (new argument `min_works`), count singular and plural as one term, and
+  leave out the stop words of each work’s language in `works$language`
+  as well as the English ones, from the stopwords package when it is
+  installed; `method = "yake"` leaves out these stop words too. The
+  works of the noise cluster (new argument `noise`, default `0L`, as
+  [`sm_cluster_hdbscan()`](https://cttir.github.io/scimapR/reference/sm_cluster_hdbscan.md)
+  assigns) get the label `NA` from every method and no longer count for
+  the labels of the other clusters, so
+  `sm_plot_thematic_map(by = "cluster_label")` leaves them out; a
+  cluster whose works share no term gets `NA` too, with a message. The
+  new column `cluster_label_basis` says how each label was made, for
+  example `"tfidf (relaxed)"` when no term reached `min_works` and the
+  terms occur in as few as 2 works, while `cluster_label` still holds
+  only the terms joined with `"; "`. `method = "keywords"` labels
+  clusters by their author and indexer keywords (such as Keywords Plus),
+  and a cluster without keywords by the terms of its titles; the new
+  argument `stop_terms` leaves out terms such as words every cluster
+  shares.
+
+## scimapR 0.4.0
+
+Stability contracts, an enrichment materializer, and
+self-citation-corrected metrics, plus a verify-and-harden pass on three
+v0.3.0 fixes that recurred in heavy use. All new behaviour is opt-in; no
+breaking changes.
+
+### Accessor stability contract (A1)
+
+- New `?scimapR-stability` topic documents the package’s accessor
+  return-type contract: a documented accessor’s column set changes only
+  via a `lifecycle` deprecation and a `NEWS.md` entry. The audited
+  accessors and their stable shapes are listed there.
+- [`sm_coverage_breakdowns()`](https://cttir.github.io/scimapR/reference/sm_coverage_breakdowns.md)
+  gains `tidy = TRUE` (default): a guaranteed long tibble (`dimension`,
+  `level`, `n_reference`, `n_matched`, `recall`, `n_corpus`,
+  `precision`, `f1`). `tidy = FALSE` returns the legacy recall-only
+  shape. (The silent list -\> tibble change between 0.2.0 and 0.3.0
+  motivated this contract.)
+
+### Controlled vocabularies (B1)
+
+- Exported
+  [`sm_affiliation_signals()`](https://cttir.github.io/scimapR/reference/sm_affiliation_signals.md),
+  [`sm_affiliation_methods()`](https://cttir.github.io/scimapR/reference/sm_affiliation_methods.md),
+  and
+  [`sm_match_types()`](https://cttir.github.io/scimapR/reference/sm_match_types.md)
+  (with `describe = TRUE` for level + description). The `match_signal`,
+  `match_method`, and coverage `match_type` columns are now factors with
+  these exact levels, so downstream filtering cannot drift.
+
+### Verify-and-harden (re-reported v0.3.0 fixes)
+
+These were reported again on a real corpus; each now has a regression
+test reproducing the recurrence.
+
+- **C1** `sm_its(outcome = "cnci")`: the resolver now also searches
+  documented impact *side columns* on `works` (`fnci`, `rcr`, `ncs`,
+  `mncs`, `field_citation_ratio`) and a `corpus$metrics` table, in
+  addition to `works$cnci` and `works$cited_by_count`. With no impact
+  anywhere it errors naming every column inspected. (v0.3 only checked
+  `works$cnci` / `cited_by_count`, so impact in a side column still
+  produced “0 observations”.)
+- **C2** `sm_count(level = "institution")`: when structured IDs are
+  absent it now *clusters* `raw_affiliation` via
+  [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  (canonical names where matched, raw string otherwise) with a warning,
+  instead of counting raw strings verbatim. Absent raw affiliation -\>
+  0-row tibble + warning.
+- **C3** network plot `precompute = TRUE` confirmed; the `max_nodes` cap
+  is now **opt-in** (`NULL` default) so large renders are unchanged
+  unless a cap is requested. A ~2,000-node graph builds with
+  `precompute = TRUE` and re-prints without recomputing layout.
+
+### Enrichment materializer (D1)
+
+- `sm_materialise(corpus, sources, .by = NULL, overwrite = FALSE)` joins
+  cached enrichment (named list of tibbles / RDS / parquet paths, or a
+  cache dir) into the matching sub-tibbles by key, returning a validated
+  `sm_corpus`. Missing keys warn (not error); overlapping columns fill
+  `NA` unless `overwrite = TRUE`.
+- Added an internal type-safe row-bind helper (`.sm_bind_rows`) that
+  returns a typed template instead of a logical-column degenerate when
+  all parts are `NULL`/empty; audited the package’s existing
+  `bind_rows()` sites (found safe, guarded behind length checks with
+  typed tibbles).
+
+### Self-citation-corrected metrics (E1, E2, F1)
+
+- `sm_self_citation(corpus, level = c("author", "institution"))`
+  computes self-citation from the corpus reference network (quota-light
+  reference overlap; no per-citation API calls), returning `by_entity`,
+  `by_work`, and a **provenance** tibble (`citing_work_id`,
+  `cited_work_id`, `shared_author_id`/`shared_institution_id`) (F1).
+  Empty references -\> warning + typed empty result (no spin).
+- [`sm_metric_h_index()`](https://cttir.github.io/scimapR/reference/sm_metric_h_index.md),
+  [`sm_metric_g_index()`](https://cttir.github.io/scimapR/reference/sm_metric_g_index.md),
+  [`sm_metric_m_index()`](https://cttir.github.io/scimapR/reference/sm_metric_m_index.md)
+  gain `self_corrected = FALSE`; with `TRUE` the index is recomputed
+  after removing self-citations (author/institution levels). The
+  corrected index is always `<=` the uncorrected one.
+
+### Provenance (F2)
+
+- [`sm_affiliation_summary()`](https://cttir.github.io/scimapR/reference/sm_affiliation_summary.md)
+  now includes `example_evidence` (a representative matched-evidence
+  string per institution x signal) alongside the factorised
+  `match_signal`, so a reader can see which signal matched and on what
+  evidence.
+
+### Fixtures
+
+- `inst/extdata/example_self_citation_corpus.rds`: a small
+  references-bearing synthetic corpus for self-citation examples/tests.
+
+## scimapR 0.3.0
+
+Real-use refinements from running v0.2.0 on a ~6,853-work corpus:
+robustness fixes, friendlier API shapes, two new capabilities, and
+vignettes that ship in the installed binary. The public API is preserved
+(deprecation paths only).
+
+### Bug fixes
+
+- **A1** `sm_its(outcome = "cnci")` no longer fails with a cryptic “Too
+  few yearly observations: 0” when impact lives outside
+  `cited_by_count`. The resolver now searches, in order, `works$cnci`, a
+  `corpus$metrics` table, then `works$cited_by_count` (deriving FNCI);
+  if none is populated it raises an informative error naming the columns
+  it inspected.
+- **A2** `sm_count(level = "institution")` falls back to
+  `authorships$raw_affiliation` (with a `cli` warning that results are
+  un-disambiguated) when structured institution IDs are absent, and
+  warns rather than returning a silent empty result when no institution
+  data exists.
+- **A3**
+  [`sm_metric_disruption()`](https://cttir.github.io/scimapR/reference/sm_metric_disruption.md)
+  and
+  [`sm_metric_novelty()`](https://cttir.github.io/scimapR/reference/sm_metric_novelty.md)
+  fast-exit with a warning when the reference network is empty/absent
+  instead of spinning; the disruption index was rewritten with O(1)
+  adjacency lookups (no longer O(n^2)) and now shows a `cli` progress
+  bar.
+  [`sm_audit_summary()`](https://cttir.github.io/scimapR/reference/sm_audit_summary.md)
+  shows a progress bar across its sub-audits.
+- **A4** Network plots
+  ([`sm_plot_citation_network()`](https://cttir.github.io/scimapR/reference/sm_plot_citation_network.md),
+  [`sm_plot_collab()`](https://cttir.github.io/scimapR/reference/sm_plot_collab.md))
+  gain `precompute = TRUE` (eager layout -\> a self-contained plain
+  `ggplot` that prints cheaply in knitr/`callr`/workflowr subprocesses)
+  and a `max_nodes` cap (default 200) for very large graphs.
+
+### Ergonomics
+
+- **B1** `sm_coverage_audit()$breakdowns` is now a single flat tibble
+  (`dimension`, `level`, `n_reference`, `n_matched`, `recall`). The
+  previous nested list remains available under `$breakdowns_nested` for
+  one release. New accessor
+  [`sm_coverage_breakdowns()`](https://cttir.github.io/scimapR/reference/sm_coverage_breakdowns.md)
+  returns/filters the flat tibble.
+- **B2**
+  [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  documents its added columns and gains
+  [`sm_affiliation_summary()`](https://cttir.github.io/scimapR/reference/sm_affiliation_summary.md)
+  — a tidy works/authorships breakdown by institution and match signal,
+  also surfaced as a `cli` summary on completion.
+- **B3**
+  [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md)
+  is promoted in the ingestion vignette as the recommended “bring your
+  own relational data” entry point.
+
+### New capabilities
+
+- **C1** `sm_coverage_audit(..., index_table = )` additionally assesses
+  journal **indexability** (reusing
+  [`sm_journal_in_index()`](https://cttir.github.io/scimapR/reference/sm_journal_in_index.md)),
+  adding `issn`/`indexable` columns to `$matches` and an `$indexability`
+  summary. Output is unchanged when `index_table` is `NULL`.
+- **C2**
+  [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  returns `match_signal` (`name_token`/`email_domain`/`postcode`) and
+  `match_evidence` (the matched substring/domain/code) for an audit
+  trail, plus an opt-in `postcode_signal = TRUE` matcher (off by default
+  so existing matches are stable).
+
+### Packaging
+
+- **D1** Vignettes now ship in the installed binary; browse them offline
+  with `vignette(package = "scimapR")` / `browseVignettes("scimapR")`,
+  or online at the pkgdown site. New `inst/extdata/` fixtures:
+  `example_affiliation_postcode.csv`.
+
+## scimapR 0.2.0
+
+A new capability layer for research-coverage, affiliation-attribution,
+and policy-evaluation analyses, plus four reproducible bug fixes. All
+existing functionality, the `sm_corpus` schema, bibliometrix interop,
+and the Shiny app are preserved.
+
+### New features
+
+#### Coverage & completeness auditing
+
+- [`sm_coverage_audit()`](https://cttir.github.io/scimapR/reference/sm_coverage_audit.md)
+  computes recall, precision, and F1 of a corpus against a ground-truth
+  reference (manual tracker, ORCID set, repository export, or another
+  `sm_corpus`), with per-`year`/`source`/`affiliation` breakdowns and
+  full match provenance. Returns an `sm_coverage` object with `print`,
+  `summary`, and `autoplot` methods.
+- [`sm_journal_in_index()`](https://cttir.github.io/scimapR/reference/sm_journal_in_index.md)
+  verifies source coverage against a user-supplied journal master list
+  by normalised ISSN (print and electronic), fully offline.
+- [`sm_reconcile()`](https://cttir.github.io/scimapR/reference/sm_reconcile.md)
+  performs a content-based symmetric diff (DOI then fuzzy title)
+  returning an `sm_reconciliation` (`in_both`/`only_a`/`only_b` +
+  provenance), with `print`/`summary`/`autoplot`.
+  [`sm_diff_corpora()`](https://cttir.github.io/scimapR/reference/sm_diff_corpora.md)
+  is now marked superseded in favour of it (and continues to work
+  unchanged).
+
+#### Affiliation disambiguation & attribution
+
+- [`sm_affiliation_match()`](https://cttir.github.io/scimapR/reference/sm_affiliation_match.md)
+  tags authorships with institutions using a multilingual /
+  synonym-aware dictionary and an email-domain fallback, handling
+  multiple affiliations per author.
+- [`sm_attribute_institution()`](https://cttir.github.io/scimapR/reference/sm_attribute_institution.md)
+  rolls matches up to a controlled vocabulary (ROR-backed via an offline
+  ROR table, or a custom vocabulary).
+- `sm_affiliation_dict`: a default, documented, user-overridable
+  dictionary.
+
+#### Causal / policy evaluation
+
+- [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md):
+  turnkey interrupted time series (level + slope terms, counterfactual,
+  `autoplot`), with automatic exclusion of citation-immature years for
+  citation-based outcomes.
+- [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md):
+  difference-in-differences for treated vs control institution sets.
+- [`sm_synth()`](https://cttir.github.io/scimapR/reference/sm_synth.md):
+  synthetic-control helper (optional `tidysynth`, graceful error when
+  absent).
+
+#### Correctness: citation maturity & counting
+
+- [`sm_citation_maturity()`](https://cttir.github.io/scimapR/reference/sm_citation_maturity.md)
+  flags citation-immature recent years (`citation_mature` /
+  `cnci_provisional`), wired into
+  [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md).
+- [`sm_count()`](https://cttir.github.io/scimapR/reference/sm_count.md):
+  full vs fractional counting at institution / author / source level
+  (output credit and fractionally-weighted impact).
+
+#### Robust impact summaries
+
+- `sm_metric_summary(robust = TRUE)` reports medians with bootstrap CIs
+  and %PP(top-10%) alongside means (base-R resampling by default; `boot`
+  optional; reproducible via `seed`).
+
+#### Reproducible reporting glue
+
+- [`sm_figure_manifest()`](https://cttir.github.io/scimapR/reference/sm_figure_manifest.md)
+  scans a figure directory into a captions / alt-text / dimensions
+  manifest (optional `magick`/`png`, sidecar caption files, CSV/YAML
+  output).
+- [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md):
+  a documented, validating constructor from a relational set of data
+  frames — the recommended ingestion path for arbitrary tabular sources.
+
+### Bug fixes
+
+- **G1** `sm_fetch_openalex(engine = "native")`: abstract reconstruction
+  from the OpenAlex inverted index is now type-stable and never aborts a
+  fetch on an empty/`NULL`/malformed record (and no longer passes an
+  invalid `.default` to
+  [`purrr::map_chr()`](https://purrr.tidyverse.org/reference/map.html)).
+- **G2** `sm_fetch_openalex(engine = "openalexR")`: long DOI (or other
+  ID) lists are auto-batched under the API’s OR-filter limit via the new
+  `batch_size` argument, then row-bound and de-duplicated.
+- **G3** `sm_read_bib(engine = "bibliometrix")`: a field-sparse
+  `@article` no longer triggers “undefined columns selected”; the
+  scimapR wrapper catches the failure and falls back to the native
+  parser (clean-room rule preserved).
+- **G4** native BibTeX engine performance: the parser was rewritten from
+  per-character
+  [`substr()`](https://rdrr.io/r/base/substr.html)/[`grepl()`](https://rdrr.io/r/base/grep.html)
+  scanning and per-entry tibble construction to linear character-vector
+  scanning with single-pass column assembly. Parsing ~7,000 entries
+  dropped from ~100 s to ~17 s on R 4.5.2 / Windows.
+
+### New data & fixtures
+
+- `inst/extdata/`: `example_sparse.bib`,
+  `example_openalex_inverted.json`, `example_journal_index.csv`,
+  `example_ror.csv`.
+
+## scimapR 0.1.0
+
+### Initial release
+
+`scimapR` is a comprehensive R toolkit for bibliometric and
+scientometric analysis: the reproducible, equity-aware, question-driven,
+AI-assisted toolkit for working biomedical researchers. Designed as a
+complement to the foundational `bibliometrix` package (Aria &
+Cuccurullo, 2017) with first-class round-trip interop.
+
+#### Distinctive features
+
+- **Live corpus refresh.**
+  [`sm_refresh()`](https://cttir.github.io/scimapR/reference/sm_refresh.md),
+  [`sm_staleness()`](https://cttir.github.io/scimapR/reference/sm_staleness.md),
+  [`sm_lock()`](https://cttir.github.io/scimapR/reference/sm_lock.md).
+- **Research questions as objects.**
+  [`sm_question()`](https://cttir.github.io/scimapR/reference/sm_question.md),
+  [`sm_corpus_for_question()`](https://cttir.github.io/scimapR/reference/sm_corpus_for_question.md),
+  [`sm_screen_against_question()`](https://cttir.github.io/scimapR/reference/sm_screen_against_question.md)
+  with optional LLM grounding.
+- **Reproducible-by-construction corpus certificates.**
+  [`sm_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md),
+  [`sm_rebuild_from_cert()`](https://cttir.github.io/scimapR/reference/sm_certificate.md),
+  [`sm_verify_certificate()`](https://cttir.github.io/scimapR/reference/sm_certificate.md).
+- **Author trajectory analysis.**
+  [`sm_author_trajectory()`](https://cttir.github.io/scimapR/reference/sm_author_trajectory.md)
+  with topic pivots, collaborator turnover, emerging-collaborator
+  detection.
+- **Equity and representation audit.**
+  [`sm_audit_geographic()`](https://cttir.github.io/scimapR/reference/sm_audit_geographic.md),
+  [`sm_audit_gender()`](https://cttir.github.io/scimapR/reference/sm_audit_gender.md),
+  [`sm_audit_funding()`](https://cttir.github.io/scimapR/reference/sm_audit_funding.md),
+  [`sm_audit_oa()`](https://cttir.github.io/scimapR/reference/sm_audit_oa.md)
+  with built-in confidence reporting and limitation caveats.
+- **LLM-grounded corpus chat.**
+  [`sm_chat()`](https://cttir.github.io/scimapR/reference/sm_chat.md)
+  with retrieval-constrained citations.
+
+#### Core modules
+
+- Corpus class (`sm_corpus`) with provenance and screening tables
+- Clean-room native parsers for 12 bibliographic formats
+- API fetchers for 8 scholarly data sources
+- 8 enrichment functions
+- Bibliometrix round-trip interop
+- 6 network builders (citation, co-citation, coupling, collaboration,
+  co-word, semantic)
+- Embedding and clustering (HDBSCAN, Leiden, k-means)
+- Modern indicators (h/g/m-index, CD index, RCR, FNCI, Uzzi novelty)
+- Viridis-themed publication-ready visualization
+- Multi-format export (PNG 300/600 dpi, PDF, SVG, TIFF, XLSX, ZIP
+  bundles)
+- Comprehensive 13-tab Shiny application
+- Systematic review bridge (PRISMA, Rayyan, Covidence)
