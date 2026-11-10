@@ -17,7 +17,7 @@ confidence and method reporting; reproducible-by-construction corpus
 certificates enabling exact re-derivation of a corpus;
 retrieval-grounded conversational corpus exploration; and a
 comprehensive 'shiny' application with publication-ready figure and
-table export. Output is fully 'tidyverse'-compatible with tibble-based
+table export. Output is fully 'tidyverse'-compatible with 'tibble'-based
 corpora, 'viridis'-themed 'ggplot2' visualizations, and 'tidygraph'
 network objects.
 

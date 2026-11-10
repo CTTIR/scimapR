@@ -144,10 +144,24 @@ Other enrichers:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: queries the OpenAlex web API.
-fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
-fix <- sm_enrich_openalex_impact(fix, by = "doi")
-sm_citation_window(fix, window = 3)
-} # }
+# \donttest{
+# Queries the OpenAlex web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = c("W1", "W2"),
+    doi = c("10.1016/j.joi.2017.08.007", "10.1371/journal.pbio.1002541"),
+    year = c(2017L, 2016L)
+  ))
+  enriched <- try(sm_enrich_openalex_impact(corpus, by = "doi"))
+  if (is_sm_corpus(enriched)) sm_citation_window(enriched, window = 3)
+}
+#> ℹ Looking up 2 works on OpenAlex in 1 batch...
+#> ✔ Materialised 2 enrichment rows into works (+5 columns).
+#> ✔ Added OpenAlex impact fields to 2 of 2 works.
+#> # A tibble: 2 × 5
+#>   work_id  year window citations complete
+#>   <chr>   <int>  <int>     <int> <lgl>   
+#> 1 W1       2017      3       581 TRUE    
+#> 2 W2       2016      3       129 FALSE   
+# }
 ```

@@ -52,6 +52,6 @@ sm_import_rayyan(path, id_col = "id")
 #> # A tibble: 1 × 7
 #>   work_id stage          decision reason confidence source decided_at         
 #>   <chr>   <chr>          <chr>    <chr>       <dbl> <chr>  <dttm>             
-#> 1 paper-a title-abstract include  NA             NA rayyan 2026-11-10 08:05:58
+#> 1 paper-a title-abstract include  NA             NA rayyan 2026-11-10 18:14:11
 unlink(path)
 ```

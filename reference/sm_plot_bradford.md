@@ -43,3 +43,10 @@ Other plots:
 [`sm_plot_top()`](https://cttir.github.io/scimapR/reference/sm_plot_top.md),
 [`sm_scale_color()`](https://cttir.github.io/scimapR/reference/sm_scale_color.md),
 [`sm_theme()`](https://cttir.github.io/scimapR/reference/sm_theme.md)
+
+## Examples
+
+``` r
+corpus <- sm_example_corpus()
+sm_plot_bradford(corpus)
+```

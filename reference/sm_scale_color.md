@@ -46,3 +46,17 @@ Other plots:
 [`sm_plot_thematic_map()`](https://cttir.github.io/scimapR/reference/sm_plot_thematic_map.md),
 [`sm_plot_top()`](https://cttir.github.io/scimapR/reference/sm_plot_top.md),
 [`sm_theme()`](https://cttir.github.io/scimapR/reference/sm_theme.md)
+
+## Examples
+
+``` r
+corpus <- sm_example_corpus(n_works = 50)
+ggplot2::ggplot(corpus$works,
+                ggplot2::aes(year, cited_by_count, colour = type)) +
+  ggplot2::geom_point() +
+  sm_scale_color()
+
+ggplot2::ggplot(corpus$works, ggplot2::aes(year, fill = oa_status)) +
+  ggplot2::geom_bar() +
+  sm_scale_fill(option = "mako")
+```

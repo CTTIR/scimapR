@@ -79,3 +79,17 @@ Other corpus:
 [`sm_save_corpus()`](https://cttir.github.io/scimapR/reference/sm_save_corpus.md),
 [`sm_validate()`](https://cttir.github.io/scimapR/reference/sm_validate.md),
 [`validate_sm_corpus()`](https://cttir.github.io/scimapR/reference/validate_sm_corpus.md)
+
+## Examples
+
+``` r
+c1 <- sm_example_corpus(n_works = 20, seed = 1)
+c2 <- sm_example_corpus(n_works = 20, seed = 2)
+bound <- sm_bind_corpora(c1, c2)
+#> ℹ Re-keyed 20 works, 80 authors, 10 sources and 0 institutions in the second
+#>   corpus.
+#> ℹ 20 works share a DOI with the first corpus; use `sm_dedupe()` to remove
+#>   duplicates.
+nrow(bound$works)
+#> [1] 40
+```

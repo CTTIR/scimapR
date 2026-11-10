@@ -44,9 +44,21 @@ Other fetchers:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: queries the ORCID web API.
-corpus <- sm_fetch_orcid("0000-0001-8006-9742")
-print(corpus)
-} # }
+# \donttest{
+# Queries the ORCID public API; 0000-0002-1825-0097 is the ORCID test record.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- try(sm_fetch_orcid("0000-0002-1825-0097"))
+  print(corpus)
+}
+#> ℹ Fetching works for ORCID "0000-0002-1825-0097"...
+#> ✔ Parsed 6 ORCID works into sm_corpus.
+#> 
+#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
+#> Works: 6 | Authors: 1 | Institutions: 0
+#> Years: 1987 - 2012
+#> Sources (journals): 0
+#> Embeddings: none
+#> Provenance: orcid (6)
+#> Status: Unlocked (last refreshed: never)
+# }
 ```

@@ -68,8 +68,22 @@ Other trajectory:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: queries the OpenAlex web API.
-profile <- sm_researcher_profile("0000-0001-8006-9742")
-} # }
+# \donttest{
+# Queries the OpenAlex web API; 0000-0002-1825-0097 is the ORCID test record.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  profile <- try(sm_researcher_profile("0000-0002-1825-0097", n_max = 20))
+  print(profile)
+}
+#> ℹ Fetching works from OpenAlex...
+#> ℹ Fetched 20 / 20 works.
+#> ✔ Parsed 20 OpenAlex works into sm_corpus.
+#> 
+#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
+#> Works: 20 | Authors: 76 | Institutions: 0
+#> Years: 2004 - 2025
+#> Sources (journals): 18
+#> Embeddings: none
+#> Provenance: openalex (20)
+#> Status: Unlocked (last refreshed: never)
+# }
 ```

@@ -47,3 +47,20 @@ Other corpus:
 [`sm_save_corpus()`](https://cttir.github.io/scimapR/reference/sm_save_corpus.md),
 [`sm_validate()`](https://cttir.github.io/scimapR/reference/sm_validate.md),
 [`validate_sm_corpus()`](https://cttir.github.io/scimapR/reference/validate_sm_corpus.md)
+
+## Examples
+
+``` r
+corpus <- sm_example_corpus(n_works = 20, seed = 1)
+doubled <- sm_bind_corpora(corpus, corpus)
+#> ℹ Re-keyed 20 works, 0 authors, 0 sources and 0 institutions in the second
+#>   corpus.
+#> ℹ 20 works share a DOI with the first corpus; use `sm_dedupe()` to remove
+#>   duplicates.
+nrow(doubled$works)
+#> [1] 40
+deduped <- sm_dedupe(doubled)
+#> ✔ Removed 20 duplicate works with the same doi.
+nrow(deduped$works)
+#> [1] 20
+```

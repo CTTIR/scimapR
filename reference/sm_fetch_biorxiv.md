@@ -79,13 +79,26 @@ Other fetchers:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: queries the bioRxiv web API.
-corpus <- sm_fetch_biorxiv(
-  from_date = "2024-01-01",
-  to_date = "2024-01-07",
-  n_max = 10
-)
-print(corpus)
-} # }
+# \donttest{
+# Queries the bioRxiv web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- try(sm_fetch_biorxiv(
+    from_date = "2024-01-01",
+    to_date = "2024-01-02",
+    n_max = 5
+  ))
+  print(corpus)
+}
+#> ℹ Fetching from biorxiv (2024-01-01 to 2024-01-02)...
+#> ℹ Fetched 30 / 5 biorxiv preprints.
+#> ✔ Parsed 5 biorxiv preprints into sm_corpus.
+#> 
+#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
+#> Works: 5 | Authors: 37 | Institutions: 0
+#> Years: 2024 - 2024
+#> Sources (journals): 0
+#> Embeddings: none
+#> Provenance: biorxiv (5)
+#> Status: Unlocked (last refreshed: never)
+# }
 ```

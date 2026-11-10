@@ -149,9 +149,22 @@ Other fetchers:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: queries the OpenAlex web API.
-corpus <- sm_fetch_openalex(query = "bibliometrics", n_max = 10)
-print(corpus)
-} # }
+# \donttest{
+# Queries the OpenAlex web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- try(sm_fetch_openalex(query = "bibliometrics", n_max = 5))
+  print(corpus)
+}
+#> ℹ Fetching works from OpenAlex...
+#> ℹ Fetched 5 / 5 works.
+#> ✔ Parsed 5 OpenAlex works into sm_corpus.
+#> 
+#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
+#> Works: 5 | Authors: 8 | Institutions: 0
+#> Years: 2002 - 2021
+#> Sources (journals): 5
+#> Embeddings: none
+#> Provenance: openalex (5)
+#> Status: Unlocked (last refreshed: never)
+# }
 ```

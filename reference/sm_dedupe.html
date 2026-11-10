@@ -103,6 +103,22 @@ A missing or empty value in any key column never counts as a duplicate.</p></dd>
 <code><a href="validate_sm_corpus.html">validate_sm_corpus()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_example_corpus.html">sm_example_corpus</a></span><span class="op">(</span>n_works <span class="op">=</span> <span class="fl">20</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">doubled</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_bind_corpora.html">sm_bind_corpora</a></span><span class="op">(</span><span class="va">corpus</span>, <span class="va">corpus</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Re-keyed 20 works, 0 authors, 0 sources and 0 institutions in the second</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   corpus.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> 20 works share a DOI with the first corpus; use `sm_dedupe()` to remove</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   duplicates.</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">doubled</span><span class="op">$</span><span class="va">works</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 40</span>
+<span class="r-in"><span><span class="va">deduped</span> <span class="op">&lt;-</span> <span class="fu">sm_dedupe</span><span class="op">(</span><span class="va">doubled</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Removed 20 duplicate works with the same <span style="color: #00BB00;">doi</span>.</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">deduped</span><span class="op">$</span><span class="va">works</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 20</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

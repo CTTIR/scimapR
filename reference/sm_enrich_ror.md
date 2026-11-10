@@ -51,9 +51,19 @@ Other enrichers:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: queries the ROR web API.
-corpus <- sm_example_corpus()
-corpus <- sm_enrich_ror(corpus)
-} # }
+# \donttest{
+# Queries the ROR affiliation matching API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- sm_example_corpus(n_works = 2)
+  corpus$authorships$raw_affiliation <- "University of Oxford, Oxford, UK"
+  enriched <- try(sm_enrich_ror(corpus))
+  if (is_sm_corpus(enriched)) enriched$institutions
+}
+#> ℹ Matching 1 affiliations against ROR...
+#> ✔ Resolved 1 affiliations via ROR; added 1 new institutions.
+#> # A tibble: 1 × 7
+#>   institution_id        ror   display_name country_code region income_tier type 
+#>   <chr>                 <chr> <chr>        <chr>        <chr>  <chr>       <chr>
+#> 1 https://ror.org/052g… http… NA           GB           NA     NA          educ…
+# }
 ```

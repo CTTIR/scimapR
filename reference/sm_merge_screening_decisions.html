@@ -84,6 +84,26 @@ spreadsheet) into the corpus screening table.</p>
 <code><a href="sm_screen_prisma.html">sm_screen_prisma()</a></code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu"><a href="sm_example_corpus.html">sm_example_corpus</a></span><span class="op">(</span>n_works <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">decisions</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  work_id <span class="op">=</span> <span class="va">corpus</span><span class="op">$</span><span class="va">works</span><span class="op">$</span><span class="va">work_id</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>,</span></span>
+<span class="r-in"><span>  stage <span class="op">=</span> <span class="st">"title-abstract"</span>,</span></span>
+<span class="r-in"><span>  decision <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Included"</span>, <span class="st">"Excluded"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  reason <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="st">"wrong population"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  source <span class="op">=</span> <span class="st">"reviewer 1"</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">corpus</span> <span class="op">&lt;-</span> <span class="fu">sm_merge_screening_decisions</span><span class="op">(</span><span class="va">corpus</span>, <span class="va">decisions</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">corpus</span><span class="op">$</span><span class="va">screening</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 2 × 7</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   work_id    stage         decision reason confidence source decided_at</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dttm&gt;</span>    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> W000000001 title-abstra… include  <span style="color: #BB0000;">NA</span>             <span style="color: #BB0000;">NA</span> revie… <span style="color: #BB0000;">NA</span>        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> W000000002 title-abstra… exclude  wrong…         <span style="color: #BB0000;">NA</span> revie… <span style="color: #BB0000;">NA</span>        </span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

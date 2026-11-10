@@ -67,9 +67,22 @@ Other enrichers:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: queries the OpenAlex and Crossref web APIs.
-corpus <- sm_example_corpus()
-corpus <- sm_enrich_retraction(corpus)
-} # }
+# \donttest{
+# Queries the OpenAlex and Crossref web APIs; the second DOI belongs to a
+# retracted article.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = c("W1", "W2"),
+    doi = c("10.1016/j.joi.2017.08.007", "10.1016/S0140-6736(97)11096-0")
+  ))
+  enriched <- try(sm_enrich_retraction(corpus))
+  if (is_sm_corpus(enriched)) enriched$works[, c("doi", "is_retracted")]
+}
+#> ℹ 1 retracted of 2 checked; 0 not found in OpenAlex; 0 not checked.
+#> # A tibble: 2 × 2
+#>   doi                           is_retracted
+#>   <chr>                         <lgl>       
+#> 1 10.1016/j.joi.2017.08.007     FALSE       
+#> 2 10.1016/S0140-6736(97)11096-0 TRUE        
+# }
 ```

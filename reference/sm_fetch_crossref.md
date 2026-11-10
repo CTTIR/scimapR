@@ -86,9 +86,22 @@ Other fetchers:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: queries the Crossref web API.
-corpus <- sm_fetch_crossref(query = "bibliometrics", n_max = 10)
-print(corpus)
-} # }
+# \donttest{
+# Queries the Crossref web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- try(sm_fetch_crossref(query = "bibliometrics", n_max = 5))
+  print(corpus)
+}
+#> ℹ Fetching works from Crossref...
+#> ℹ Fetched 5 / 5 works.
+#> ✔ Parsed 5 Crossref works into sm_corpus.
+#> 
+#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
+#> Works: 5 | Authors: 13 | Institutions: 0
+#> Years: 1979 - 2001
+#> Sources (journals): 4
+#> Embeddings: none
+#> Provenance: crossref (5)
+#> Status: Unlocked (last refreshed: never)
+# }
 ```

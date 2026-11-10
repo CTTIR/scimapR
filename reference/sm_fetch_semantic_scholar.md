@@ -88,9 +88,75 @@ Other fetchers:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: queries the Semantic Scholar web API.
-corpus <- sm_fetch_semantic_scholar(query = "bibliometrics", n_max = 10)
-print(corpus)
-} # }
+# \donttest{
+# Queries the Semantic Scholar web API; without an API key the shared
+# rate limit can refuse the request.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- try(sm_fetch_semantic_scholar(query = "bibliometrics", n_max = 5))
+  print(corpus)
+}
+#> ℹ Searching Semantic Scholar for: "bibliometrics"
+#> Error in eval(expr, envir) : Semantic Scholar API request failed.
+#> Caused by error in `.s2_perform()`:
+#> ! Semantic Scholar request failed: HTTP 429.
+#> ℹ {"message": "Too Many Requests. Please wait and try again or apply for a key
+#>   for higher rate limits. <request> "code": "429"}
+#> [1] "Error in eval(expr, envir) : \033[1m\033[22mSemantic Scholar API request failed.\n\033[1mCaused by error in `.s2_perform()`:\033[22m\n\033[1m\033[22m\033[33m!\033[39m Semantic Scholar request failed: HTTP 429.\n\033[36mℹ\033[39m {\"message\": \"Too Many Requests. Please wait and try again or apply for a key\n  for higher rate limits. <request> \"code\": \"429\"}\n"
+#> attr(,"class")
+#> [1] "try-error"
+#> attr(,"condition")
+#> <error/scimapR_rate_limited>
+#> Error:
+#> ! Semantic Scholar API request failed.
+#> Caused by error in `.s2_perform()`:
+#> ! Semantic Scholar request failed: HTTP 429.
+#> ℹ {"message": "Too Many Requests. Please wait and try again or apply for a key
+#>   for higher rate limits. <request> "code": "429"}
+#> ---
+#> Backtrace:
+#>      ▆
+#>   1. └─pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+#>   2.   └─pkgdown::build_site(...)
+#>   3.     └─pkgdown:::build_site_local(...)
+#>   4.       └─pkgdown::build_reference(...)
+#>   5.         ├─pkgdown:::unwrap_purrr_error(...)
+#>   6.         │ └─base::withCallingHandlers(...)
+#>   7.         └─purrr::map(...)
+#>   8.           └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+#>   9.             ├─purrr:::with_indexed_errors(...)
+#>  10.             │ └─base::withCallingHandlers(...)
+#>  11.             ├─purrr:::call_with_cleanup(...)
+#>  12.             └─pkgdown (local) .f(.x[[i]], ...)
+#>  13.               ├─base::withCallingHandlers(...)
+#>  14.               └─pkgdown:::data_reference_topic(...)
+#>  15.                 └─pkgdown:::run_examples(...)
+#>  16.                   └─pkgdown:::highlight_examples(code, topic, env = env)
+#>  17.                     └─downlit::evaluate_and_highlight(...)
+#>  18.                       └─evaluate::evaluate(code, child_env(env), new_device = TRUE, output_handler = output_handler)
+#>  19.                         ├─base::withRestarts(...)
+#>  20.                         │ └─base (local) withRestartList(expr, restarts)
+#>  21.                         │   ├─base (local) withOneRestart(withRestartList(expr, restarts[-nr]), restarts[[nr]])
+#>  22.                         │   │ └─base (local) doWithOneRestart(return(expr), restart)
+#>  23.                         │   └─base (local) withRestartList(expr, restarts[-nr])
+#>  24.                         │     └─base (local) withOneRestart(expr, restarts[[1L]])
+#>  25.                         │       └─base (local) doWithOneRestart(return(expr), restart)
+#>  26.                         ├─evaluate:::with_handlers(...)
+#>  27.                         │ ├─base::eval(call)
+#>  28.                         │ │ └─base::eval(call)
+#>  29.                         │ └─base::withCallingHandlers(...)
+#>  30.                         ├─base::withVisible(eval(expr, envir))
+#>  31.                         └─base::eval(expr, envir)
+#>  32.                           └─base::eval(expr, envir)
+#>  33.                             ├─base::try(...)
+#>  34.                             │ └─base::tryCatch(...)
+#>  35.                             │   └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+#>  36.                             │     └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+#>  37.                             │       └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+#>  38.                             └─scimapR::sm_fetch_semantic_scholar(query = "bibliometrics", n_max = 5)
+#>  39.                               ├─base::tryCatch(...)
+#>  40.                               │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+#>  41.                               │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+#>  42.                               │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+#>  43.                               └─scimapR:::.s2_perform(req, max_tries = 3L, max_wait = 60)
+# }
 ```

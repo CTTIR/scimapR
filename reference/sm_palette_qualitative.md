@@ -39,3 +39,12 @@ Other plots:
 [`sm_plot_top()`](https://cttir.github.io/scimapR/reference/sm_plot_top.md),
 [`sm_scale_color()`](https://cttir.github.io/scimapR/reference/sm_scale_color.md),
 [`sm_theme()`](https://cttir.github.io/scimapR/reference/sm_theme.md)
+
+## Examples
+
+``` r
+sm_palette_qualitative(5)
+#> [1] "#440154FF" "#3E4B89FF" "#25848EFF" "#38B977FF" "#BBDF27FF"
+sm_palette_qualitative(3, option = "magma")
+#> [1] "#000004FF" "#A1307EFF" "#FECE91FF"
+```

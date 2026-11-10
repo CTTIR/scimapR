@@ -38,3 +38,16 @@ Other corpus:
 [`sm_oa_statuses()`](https://cttir.github.io/scimapR/reference/sm_oa_statuses.md),
 [`sm_save_corpus()`](https://cttir.github.io/scimapR/reference/sm_save_corpus.md),
 [`sm_validate()`](https://cttir.github.io/scimapR/reference/sm_validate.md)
+
+## Examples
+
+``` r
+corpus <- sm_example_corpus(n_works = 10)
+validate_sm_corpus(corpus)
+
+broken <- corpus
+broken$screening <- NULL
+try(validate_sm_corpus(broken))
+#> Error in eval(expr, envir) : 
+#>   Missing required components: screening.
+```

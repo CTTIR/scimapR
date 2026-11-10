@@ -42,6 +42,6 @@ Other export:
 corpus <- sm_example_corpus()
 net <- sm_network_cocitation(corpus)
 sm_export_gephi(net, tempfile(fileext = ".gexf"))
-#> ✔ Network exported to /tmp/Rtmp4ePfW6/file1c5c31cb402.gexf
+#> ✔ Network exported to /tmp/RtmpreoyoG/file1c565d96be87.gexf
 # }
 ```

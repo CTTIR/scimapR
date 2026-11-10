@@ -83,9 +83,23 @@ Other fetchers:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: queries the NCBI E-utilities web API.
-corpus <- sm_fetch_pubmed(query = "bibliometrics[tiab]", n_max = 10)
-print(corpus)
-} # }
+# \donttest{
+# Queries the NCBI E-utilities web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- try(sm_fetch_pubmed(query = "bibliometrics[tiab]", n_max = 5))
+  print(corpus)
+}
+#> ℹ Searching PubMed for: "bibliometrics[tiab]"
+#> ℹ Found 6286 results; fetching 5 records.
+#> ℹ Fetched 5 / 5 PubMed records.
+#> ✔ Parsed 5 PubMed records into sm_corpus.
+#> 
+#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
+#> Works: 5 | Authors: 22 | Institutions: 0
+#> Years: 2026 - 2026
+#> Sources (journals): 5
+#> Embeddings: none
+#> Provenance: pubmed (5)
+#> Status: Unlocked (last refreshed: never)
+# }
 ```

@@ -49,9 +49,22 @@ Other fetchers:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: queries the arXiv web API.
-corpus <- sm_fetch_arxiv(query = "all:bibliometrics", n_max = 10)
-print(corpus)
-} # }
+# \donttest{
+# Queries the arXiv web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- try(sm_fetch_arxiv(query = "all:bibliometrics", n_max = 5))
+  print(corpus)
+}
+#> ℹ Fetching from arXiv: "all:bibliometrics"
+#> ℹ Fetched 5 / 5 arXiv entries.
+#> ✔ Parsed 5 arXiv entries into sm_corpus.
+#> 
+#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
+#> Works: 5 | Authors: 22 | Institutions: 0
+#> Years: 2009 - 2021
+#> Sources (journals): 0
+#> Embeddings: none
+#> Provenance: arxiv (5)
+#> Status: Unlocked (last refreshed: never)
+# }
 ```

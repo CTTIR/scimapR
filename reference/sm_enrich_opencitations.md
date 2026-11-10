@@ -50,9 +50,21 @@ Other enrichers:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: queries the OpenCitations web API.
-corpus <- sm_example_corpus()
-corpus <- sm_enrich_opencitations(corpus)
-} # }
+# \donttest{
+# Queries the OpenCitations web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = "W1",
+    doi = "10.1016/j.joi.2017.08.007"
+  ))
+  enriched <- try(sm_enrich_opencitations(corpus))
+  if (is_sm_corpus(enriched)) enriched$works[, c("doi", "cited_by_count")]
+}
+#> ℹ Looking up 1 DOIs on OpenCitations...
+#> ✔ Enriched 1 works with OpenCitations data.
+#> # A tibble: 1 × 2
+#>   doi                       cited_by_count
+#>   <chr>                              <int>
+#> 1 10.1016/j.joi.2017.08.007          12084
+# }
 ```
