@@ -1,4 +1,22 @@
-# scimapR (development version)
+# scimapR 0.5.0
+
+## CRAN preparation and documentation site
+
+* The pkgdown site is built for this release at the site root again, so the
+  articles and reference pages linked from the README and `DESCRIPTION`
+  resolve (development versions had been published under `/dev/` only,
+  behind a redirecting landing page).
+* The file readers (`sm_read_bib()`, `sm_read_ris()`, `sm_read_wos()`,
+  `sm_read_scopus()`, `sm_read_lens()`, `sm_read_dimensions()`,
+  `sm_read_pubmed_xml()`, `sm_read_endnote()`, `sm_read_cochrane()`,
+  `sm_read_zotero()`, `sm_read_auto()`) and `sm_embed_save()` /
+  `sm_embed_load()` now have runnable examples based on the bundled example
+  files or small temporary files. Examples that contact web services or need
+  credentials or Python stay in `\dontrun{}` and say why.
+* Maintainer address updated.
+
+## Other changes since 0.4.0
+
 
 * `sm_plot_landscape()` now uses the same narrowly scoped older-R PCA
   compatibility repair as clustering. Its Euclidean distance and automatic

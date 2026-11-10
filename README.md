@@ -164,7 +164,7 @@ citation("scimapR")
   title = {scimapR: Reproducible, Question-Driven, Embedding-Aware Science Mapping},
   author = {R. Heller},
   year = {2026},
-  note = {R package version 0.4.0.9000},
+  note = {R package version 0.5.0},
   url = {https://github.com/CTTIR/scimapR},
 }
 

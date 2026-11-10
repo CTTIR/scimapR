@@ -1,7 +1,7 @@
 {
   "upload_type": "software",
   "title": "scimapR: Reproducible, question-driven science mapping and bibliometrics",
-  "version": "0.4.0.9000",
+  "version": "0.5.0",
   "publication_date": "2026-08-11",
   "description": "<p>scimapR is a toolkit for bibliometric and scientometric analysis, built as a complement to established science mapping software. It offers unified ingestion from major bibliographic sources including OpenAlex, Crossref, Semantic Scholar, PubMed, arXiv, bioRxiv, ORCID, Overton and Unpaywall, as well as Scopus and Web of Science exports, so that a corpus can be assembled from several providers consistently. It supports classical science mapping such as co-citation, bibliographic coupling, co-authorship and co-word networks, together with modern citation indicators including the CD index and field-normalised measures. The design emphasises reproducibility and starting from an explicit research question rather than an ad hoc query. It is aimed at researchers conducting literature-scale quantitative analyses.</p>",
   "creators": [
