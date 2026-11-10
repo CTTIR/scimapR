@@ -22,7 +22,7 @@ Description: A comprehensive toolkit for bibliometric and scientometric
     enabling exact re-derivation of a corpus; retrieval-grounded
     conversational corpus exploration; and a comprehensive 'shiny'
     application with publication-ready figure and table export.
-    Output is fully 'tidyverse'-compatible with tibble-based corpora,
+    Output is fully 'tidyverse'-compatible with 'tibble'-based corpora,
     'viridis'-themed 'ggplot2' visualizations, and 'tidygraph' network objects.
 License: MIT + file LICENSE
 URL: https://github.com/CTTIR/scimapR,
