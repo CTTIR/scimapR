@@ -58,12 +58,20 @@
 #' @family enrichers
 #' @export
 #' @examples
+#' \donttest{
+#' # Queries the Semantic Scholar web API; without an API key the shared
+#' # rate limit can refuse the request.
+#' if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+#'   corpus <- sm_corpus(works = tibble::tibble(
+#'     work_id = c("W1", "W2"),
+#'     doi = c("10.1016/j.joi.2017.08.007", "10.1371/journal.pbio.1002541")
+#'   ))
+#'   enriched <- try(sm_enrich_specter(corpus))
+#'   if (is_sm_corpus(enriched)) enriched$metadata$embedding$model_id
+#' }
+#' }
 #' \dontrun{
-#' # Not run: queries the Semantic Scholar web API.
-#' corpus <- sm_example_corpus(with_embeddings = FALSE)
-#' corpus <- sm_enrich_specter(corpus)
-#' corpus$metadata$embedding$model_id
-#'
+#' # Not run: sm_embed_works() needs Python with 'sentence-transformers'.
 #' # a corpus with embeddings of another model
 #' corpus <- sm_embed_works(corpus, model = "mpnet")
 #' corpus <- sm_enrich_specter(corpus, replace = TRUE)

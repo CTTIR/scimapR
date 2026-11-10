@@ -112,11 +112,17 @@ known.
 }
 
 \examples{
-\dontrun{
-# Not run: queries the OpenAlex web API.
-fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
-fix <- sm_enrich_openalex_impact(fix, by = "doi")
-sm_citation_window(fix, window = 3)
+\donttest{
+# Queries the OpenAlex web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = c("W1", "W2"),
+    doi = c("10.1016/j.joi.2017.08.007", "10.1371/journal.pbio.1002541"),
+    year = c(2017L, 2016L)
+  ))
+  enriched <- try(sm_enrich_openalex_impact(corpus, by = "doi"))
+  if (is_sm_corpus(enriched)) sm_citation_window(enriched, window = 3)
+}
 }
 }
 \seealso{

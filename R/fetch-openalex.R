@@ -81,10 +81,12 @@
 #' @seealso [sm_enrich_openalex_impact()], [sm_citation_window()]
 #' @export
 #' @examples
-#' \dontrun{
-#' # Not run: queries the OpenAlex web API.
-#' corpus <- sm_fetch_openalex(query = "bibliometrics", n_max = 10)
-#' print(corpus)
+#' \donttest{
+#' # Queries the OpenAlex web API.
+#' if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+#'   corpus <- try(sm_fetch_openalex(query = "bibliometrics", n_max = 5))
+#'   print(corpus)
+#' }
 #' }
 sm_fetch_openalex <- function(query = NULL,
                               filter = NULL,

@@ -40,9 +40,12 @@ One-shot workflow: fetch all works for a researcher by ORCID, enrich,
 embed, and build a trajectory analysis.
 }
 \examples{
-\dontrun{
-# Not run: queries the OpenAlex web API.
-profile <- sm_researcher_profile("0000-0001-8006-9742")
+\donttest{
+# Queries the OpenAlex web API; 0000-0002-1825-0097 is the ORCID test record.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  profile <- try(sm_researcher_profile("0000-0002-1825-0097", n_max = 20))
+  print(profile)
+}
 }
 }
 \seealso{

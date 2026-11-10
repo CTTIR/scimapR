@@ -53,14 +53,16 @@ an ordinary successful result.
 }
 
 \examples{
-\dontrun{
-# Not run: queries the bioRxiv web API.
-corpus <- sm_fetch_biorxiv(
-  from_date = "2024-01-01",
-  to_date = "2024-01-07",
-  n_max = 10
-)
-print(corpus)
+\donttest{
+# Queries the bioRxiv web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- try(sm_fetch_biorxiv(
+    from_date = "2024-01-01",
+    to_date = "2024-01-02",
+    n_max = 5
+  ))
+  print(corpus)
+}
 }
 }
 \seealso{

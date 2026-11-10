@@ -39,10 +39,16 @@ This enricher is idempotent: re-running it updates existing concept
 data rather than duplicating rows.
 }
 \examples{
-\dontrun{
-# Not run: queries the OpenAlex web API.
-corpus <- sm_example_corpus()
-corpus <- sm_enrich_concepts(corpus, source = "openalex")
+\donttest{
+# Queries the OpenAlex web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = c("W1", "W2"),
+    doi = c("10.1016/j.joi.2017.08.007", "10.1371/journal.pbio.1002541")
+  ))
+  enriched <- try(sm_enrich_concepts(corpus, source = "openalex"))
+  if (is_sm_corpus(enriched)) enriched$concepts
+}
 }
 }
 \seealso{

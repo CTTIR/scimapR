@@ -38,10 +38,13 @@
 #' @family fetchers
 #' @export
 #' @examples
-#' \dontrun{
-#' # Not run: queries the Semantic Scholar web API.
-#' corpus <- sm_fetch_semantic_scholar(query = "bibliometrics", n_max = 10)
-#' print(corpus)
+#' \donttest{
+#' # Queries the Semantic Scholar web API; without an API key the shared
+#' # rate limit can refuse the request.
+#' if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+#'   corpus <- try(sm_fetch_semantic_scholar(query = "bibliometrics", n_max = 5))
+#'   print(corpus)
+#' }
 #' }
 sm_fetch_semantic_scholar <- function(query = NULL,
                                       paper_ids = NULL,

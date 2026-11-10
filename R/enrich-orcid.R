@@ -20,10 +20,13 @@
 #' @family enrichers
 #' @export
 #' @examples
-#' \dontrun{
-#' # Not run: queries the ORCID web API.
-#' corpus <- sm_example_corpus()
-#' corpus <- sm_enrich_orcid(corpus)
+#' \donttest{
+#' # Queries the ORCID public API; 0000-0002-1825-0097 is the ORCID test record.
+#' if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+#'   corpus <- try(sm_fetch_orcid("0000-0002-1825-0097"))
+#'   enriched <- if (is_sm_corpus(corpus)) try(sm_enrich_orcid(corpus))
+#'   if (is_sm_corpus(enriched)) enriched$authors
+#' }
 #' }
 sm_enrich_orcid <- function(corpus,
                             verbose = TRUE,

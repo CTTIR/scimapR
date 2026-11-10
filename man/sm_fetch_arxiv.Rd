@@ -27,10 +27,12 @@ Uses start/max_results pagination to retrieve up to \code{n_max} results.
 The arXiv API is free and requires no authentication.
 }
 \examples{
-\dontrun{
-# Not run: queries the arXiv web API.
-corpus <- sm_fetch_arxiv(query = "all:bibliometrics", n_max = 10)
-print(corpus)
+\donttest{
+# Queries the arXiv web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- try(sm_fetch_arxiv(query = "all:bibliometrics", n_max = 5))
+  print(corpus)
+}
 }
 }
 \seealso{

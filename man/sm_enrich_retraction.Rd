@@ -43,10 +43,17 @@ This enricher is idempotent: re-running it updates existing retraction
 data rather than duplicating it.
 }
 \examples{
-\dontrun{
-# Not run: queries the OpenAlex and Crossref web APIs.
-corpus <- sm_example_corpus()
-corpus <- sm_enrich_retraction(corpus)
+\donttest{
+# Queries the OpenAlex and Crossref web APIs; the second DOI belongs to a
+# retracted article.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = c("W1", "W2"),
+    doi = c("10.1016/j.joi.2017.08.007", "10.1016/S0140-6736(97)11096-0")
+  ))
+  enriched <- try(sm_enrich_retraction(corpus))
+  if (is_sm_corpus(enriched)) enriched$works[, c("doi", "is_retracted")]
+}
 }
 }
 \seealso{

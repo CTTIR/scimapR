@@ -57,10 +57,12 @@ an ordinary successful result.
 }
 
 \examples{
-\dontrun{
-# Not run: queries the NCBI E-utilities web API.
-corpus <- sm_fetch_pubmed(query = "bibliometrics[tiab]", n_max = 10)
-print(corpus)
+\donttest{
+# Queries the NCBI E-utilities web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- try(sm_fetch_pubmed(query = "bibliometrics[tiab]", n_max = 5))
+  print(corpus)
+}
 }
 }
 \seealso{

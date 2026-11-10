@@ -58,10 +58,12 @@ an ordinary successful result.
 }
 
 \examples{
-\dontrun{
-# Not run: queries the Crossref web API.
-corpus <- sm_fetch_crossref(query = "bibliometrics", n_max = 10)
-print(corpus)
+\donttest{
+# Queries the Crossref web API.
+if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- try(sm_fetch_crossref(query = "bibliometrics", n_max = 5))
+  print(corpus)
+}
 }
 }
 \seealso{

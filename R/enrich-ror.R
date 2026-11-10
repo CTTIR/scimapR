@@ -22,10 +22,14 @@
 #' @family enrichers
 #' @export
 #' @examples
-#' \dontrun{
-#' # Not run: queries the ROR web API.
-#' corpus <- sm_example_corpus()
-#' corpus <- sm_enrich_ror(corpus)
+#' \donttest{
+#' # Queries the ROR affiliation matching API.
+#' if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+#'   corpus <- sm_example_corpus(n_works = 2)
+#'   corpus$authorships$raw_affiliation <- "University of Oxford, Oxford, UK"
+#'   enriched <- try(sm_enrich_ror(corpus))
+#'   if (is_sm_corpus(enriched)) enriched$institutions
+#' }
 #' }
 sm_enrich_ror <- function(corpus,
                           verbose = TRUE,

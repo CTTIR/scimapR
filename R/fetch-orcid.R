@@ -16,10 +16,12 @@
 #' @family fetchers
 #' @export
 #' @examples
-#' \dontrun{
-#' # Not run: queries the ORCID web API.
-#' corpus <- sm_fetch_orcid("0000-0001-8006-9742")
-#' print(corpus)
+#' \donttest{
+#' # Queries the ORCID public API; 0000-0002-1825-0097 is the ORCID test record.
+#' if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+#'   corpus <- try(sm_fetch_orcid("0000-0002-1825-0097"))
+#'   print(corpus)
+#' }
 #' }
 sm_fetch_orcid <- function(orcid,
                            verbose = TRUE,

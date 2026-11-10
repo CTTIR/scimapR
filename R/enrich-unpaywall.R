@@ -21,9 +21,12 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' # Not run: queries the Unpaywall web API.
-#' corpus <- sm_example_corpus()
-#' corpus <- sm_enrich_unpaywall(corpus)
+#' # Not run: the Unpaywall API needs a contact e-mail address (`mailto`).
+#' corpus <- sm_corpus(works = tibble::tibble(
+#'   work_id = "W1",
+#'   doi = "10.1371/journal.pbio.1002541"
+#' ))
+#' corpus <- sm_enrich_unpaywall(corpus, mailto = "name@example.org")
 #' }
 sm_enrich_unpaywall <- function(corpus,
                                 mailto = Sys.getenv("SCIMAPR_MAILTO"),

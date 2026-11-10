@@ -10,7 +10,8 @@
 #'
 #' @param corpus An `sm_corpus` object.
 #' @param api_key Altmetric API key. Read from `ALTMETRIC_API_KEY` env var.
-#'   The free tier (no key) is used when empty.
+#'   The Altmetric Details Page API has required a key since November 2025;
+#'   without one, no work is enriched.
 #' @param verbose Print progress messages?
 #' @param call Caller environment for error reporting.
 #'
@@ -22,8 +23,11 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' # Not run: queries the Altmetric web API.
-#' corpus <- sm_example_corpus()
+#' # Not run: the Altmetric API needs an API key (`ALTMETRIC_API_KEY`).
+#' corpus <- sm_corpus(works = tibble::tibble(
+#'   work_id = "W1",
+#'   doi = "10.1371/journal.pbio.1002541"
+#' ))
 #' corpus <- sm_enrich_altmetric(corpus)
 #' }
 sm_enrich_altmetric <- function(corpus,

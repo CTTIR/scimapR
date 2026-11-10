@@ -58,6 +58,7 @@ Suggests:
     rmarkdown,
     withr,
     httptest2,
+    curl,
     covr,
     pkgdown,
     bibliometrix,
