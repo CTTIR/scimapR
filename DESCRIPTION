@@ -4,7 +4,7 @@ Title: Reproducible, Question-Driven, Embedding-Aware Science Mapping
 Version: 0.5.0
 Authors@R:
     person("R.", "Heller", email = "raban.heller@uni-ulm.de",
-           role = c("aut", "cre"),
+           role = c("aut", "cre", "cph"),
            comment = c(ORCID = "0000-0001-8006-9742"))
 Description: A comprehensive toolkit for bibliometric and scientometric
     analysis, designed as a complement to the foundational 'bibliometrix'
