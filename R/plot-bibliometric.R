@@ -52,6 +52,9 @@ sm_plot_production <- function(corpus, by = c("year", "month"),
 #'
 #' @family plots
 #' @export
+#' @examples
+#' corpus <- sm_example_corpus()
+#' sm_plot_lotka(corpus)
 sm_plot_lotka <- function(corpus, dark = FALSE, ...) {
   .check_sm_corpus(corpus)
 
@@ -96,6 +99,9 @@ sm_plot_lotka <- function(corpus, dark = FALSE, ...) {
 #'
 #' @family plots
 #' @export
+#' @examples
+#' corpus <- sm_example_corpus()
+#' sm_plot_bradford(corpus)
 sm_plot_bradford <- function(corpus, dark = FALSE, ...) {
   .check_sm_corpus(corpus)
 
@@ -226,6 +232,9 @@ sm_plot_top <- function(corpus,
 #'
 #' @family plots
 #' @export
+#' @examples
+#' corpus <- sm_example_corpus()
+#' sm_plot_heaps(corpus)
 sm_plot_heaps <- function(corpus, dark = FALSE, ...) {
   .check_sm_corpus(corpus)
 

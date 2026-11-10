@@ -66,6 +66,15 @@ sm_theme <- function(base_size = 11, base_family = "", dark = FALSE, ...) {
 #'
 #' @family plots
 #' @export
+#' @examples
+#' corpus <- sm_example_corpus(n_works = 50)
+#' ggplot2::ggplot(corpus$works,
+#'                 ggplot2::aes(year, cited_by_count, colour = type)) +
+#'   ggplot2::geom_point() +
+#'   sm_scale_color()
+#' ggplot2::ggplot(corpus$works, ggplot2::aes(year, fill = oa_status)) +
+#'   ggplot2::geom_bar() +
+#'   sm_scale_fill(option = "mako")
 sm_scale_color <- function(option = "viridis", discrete = TRUE, ...) {
   opt <- substr(option, 1, 1)
   opt <- switch(tolower(option),
@@ -106,6 +115,9 @@ sm_scale_fill <- function(option = "viridis", discrete = TRUE, ...) {
 #'
 #' @family plots
 #' @export
+#' @examples
+#' sm_palette_qualitative(5)
+#' sm_palette_qualitative(3, option = "magma")
 sm_palette_qualitative <- function(n, option = "D") {
   viridisLite::viridis(n, option = option, end = 0.9)
 }

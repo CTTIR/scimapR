@@ -17,6 +17,14 @@ validate_sm_corpus(x, call = rlang::caller_env())
 \description{
 Check that an \code{sm_corpus} has valid structure and consistent IDs.
 }
+\examples{
+corpus <- sm_example_corpus(n_works = 10)
+validate_sm_corpus(corpus)
+
+broken <- corpus
+broken$screening <- NULL
+try(validate_sm_corpus(broken))
+}
 \seealso{
 Other corpus:
 \code{\link[=as_sm_corpus]{as_sm_corpus()}},

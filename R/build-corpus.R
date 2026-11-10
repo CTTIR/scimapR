@@ -99,6 +99,11 @@ sm_build_corpus <- function(..., dedupe = TRUE, mix_models = FALSE,
 #'
 #' @family corpus
 #' @export
+#' @examples
+#' c1 <- sm_example_corpus(n_works = 20, seed = 1)
+#' c2 <- sm_example_corpus(n_works = 20, seed = 2)
+#' bound <- sm_bind_corpora(c1, c2)
+#' nrow(bound$works)
 sm_bind_corpora <- function(corpus1, corpus2, mix_models = FALSE,
                             verbose = TRUE) {
   .check_sm_corpus(corpus1)
@@ -310,6 +315,12 @@ sm_bind_corpora <- function(corpus1, corpus2, mix_models = FALSE,
 #'
 #' @family corpus
 #' @export
+#' @examples
+#' corpus <- sm_example_corpus(n_works = 20, seed = 1)
+#' doubled <- sm_bind_corpora(corpus, corpus)
+#' nrow(doubled$works)
+#' deduped <- sm_dedupe(doubled)
+#' nrow(deduped$works)
 sm_dedupe <- function(corpus, by = "doi", verbose = TRUE) {
   .check_sm_corpus(corpus)
   .check_corpus_unlocked(corpus)

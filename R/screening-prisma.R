@@ -248,6 +248,12 @@ sm_import_rayyan <- function(path, corpus = NULL, id_col = NULL) {
 #'
 #' @return `path` invisibly.
 #'
+#' @examples
+#' path <- tempfile(fileext = ".ris")
+#' sm_export_covidence(sm_example_corpus(n_works = 2), path)
+#' readLines(path, n = 3)
+#' unlink(path)
+#'
 #' @family screening
 #' @export
 sm_export_covidence <- function(corpus, path) {
@@ -264,6 +270,18 @@ sm_export_covidence <- function(corpus, path) {
 #' @param decisions A tibble with screening decisions.
 #'
 #' @return An `sm_corpus` with updated screening.
+#'
+#' @examples
+#' corpus <- sm_example_corpus(n_works = 5)
+#' decisions <- tibble::tibble(
+#'   work_id = corpus$works$work_id[1:2],
+#'   stage = "title-abstract",
+#'   decision = c("Included", "Excluded"),
+#'   reason = c(NA, "wrong population"),
+#'   source = "reviewer 1"
+#' )
+#' corpus <- sm_merge_screening_decisions(corpus, decisions)
+#' corpus$screening
 #'
 #' @family screening
 #' @export

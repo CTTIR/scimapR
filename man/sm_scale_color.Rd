@@ -23,6 +23,16 @@ A ggplot2 scale object.
 \description{
 Wraps viridis with sensible defaults for scimapR plots.
 }
+\examples{
+corpus <- sm_example_corpus(n_works = 50)
+ggplot2::ggplot(corpus$works,
+                ggplot2::aes(year, cited_by_count, colour = type)) +
+  ggplot2::geom_point() +
+  sm_scale_color()
+ggplot2::ggplot(corpus$works, ggplot2::aes(year, fill = oa_status)) +
+  ggplot2::geom_bar() +
+  sm_scale_fill(option = "mako")
+}
 \seealso{
 Other plots:
 \code{\link[=autoplot.sm_corpus]{autoplot.sm_corpus()}},

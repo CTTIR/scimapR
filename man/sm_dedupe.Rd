@@ -24,6 +24,13 @@ Remove duplicate works, preferring the record with more complete data.
 Ties keep the first record. Kept records stay in their input order,
 with only their child rows and referenced lookup records.
 }
+\examples{
+corpus <- sm_example_corpus(n_works = 20, seed = 1)
+doubled <- sm_bind_corpora(corpus, corpus)
+nrow(doubled$works)
+deduped <- sm_dedupe(doubled)
+nrow(deduped$works)
+}
 \seealso{
 Other corpus:
 \code{\link[=as_sm_corpus]{as_sm_corpus()}},

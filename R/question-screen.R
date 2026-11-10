@@ -390,6 +390,9 @@ sm_screen_regex <- function(corpus,
 #'
 #' @family question
 #' @export
+#' @examples
+#' corpus <- sm_example_corpus(with_screening = TRUE)
+#' sm_screen_summary(corpus)
 sm_screen_summary <- function(corpus,
                               call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)

@@ -18,6 +18,19 @@ An \code{sm_corpus} with updated screening.
 Add external screening decisions (from Rayyan, Covidence, or manual
 spreadsheet) into the corpus screening table.
 }
+\examples{
+corpus <- sm_example_corpus(n_works = 5)
+decisions <- tibble::tibble(
+  work_id = corpus$works$work_id[1:2],
+  stage = "title-abstract",
+  decision = c("Included", "Excluded"),
+  reason = c(NA, "wrong population"),
+  source = "reviewer 1"
+)
+corpus <- sm_merge_screening_decisions(corpus, decisions)
+corpus$screening
+
+}
 \seealso{
 Other screening:
 \code{\link[=sm_export_covidence]{sm_export_covidence()}},

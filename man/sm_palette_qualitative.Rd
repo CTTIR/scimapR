@@ -17,6 +17,10 @@ A character vector of hex colours.
 \description{
 Qualitative viridis palette
 }
+\examples{
+sm_palette_qualitative(5)
+sm_palette_qualitative(3, option = "magma")
+}
 \seealso{
 Other plots:
 \code{\link[=autoplot.sm_corpus]{autoplot.sm_corpus()}},

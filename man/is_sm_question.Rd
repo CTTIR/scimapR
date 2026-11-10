@@ -15,6 +15,11 @@ Logical.
 \description{
 Test if an object is an sm_question
 }
+\examples{
+q <- sm_question("Does exercise reduce falls in older adults?")
+is_sm_question(q)
+is_sm_question("Does exercise reduce falls in older adults?")
+}
 \seealso{
 Other question:
 \code{\link[=sm_corpus_for_question]{sm_corpus_for_question()}},

@@ -19,6 +19,10 @@ A \code{ggplot} object.
 \description{
 Source productivity distribution following Bradford's law of scattering.
 }
+\examples{
+corpus <- sm_example_corpus()
+sm_plot_bradford(corpus)
+}
 \seealso{
 Other plots:
 \code{\link[=autoplot.sm_corpus]{autoplot.sm_corpus()}},

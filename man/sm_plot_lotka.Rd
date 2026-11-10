@@ -19,6 +19,10 @@ A \code{ggplot} object.
 \description{
 Frequency distribution of author productivity compared to Lotka's law.
 }
+\examples{
+corpus <- sm_example_corpus()
+sm_plot_lotka(corpus)
+}
 \seealso{
 Other plots:
 \code{\link[=autoplot.sm_corpus]{autoplot.sm_corpus()}},

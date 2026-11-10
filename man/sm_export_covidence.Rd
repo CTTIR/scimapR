@@ -17,6 +17,13 @@ sm_export_covidence(corpus, path)
 \description{
 Write corpus works in RIS format for Covidence import.
 }
+\examples{
+path <- tempfile(fileext = ".ris")
+sm_export_covidence(sm_example_corpus(n_works = 2), path)
+readLines(path, n = 3)
+unlink(path)
+
+}
 \seealso{
 Other screening:
 \code{\link[=sm_export_rayyan]{sm_export_rayyan()}},

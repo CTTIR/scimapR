@@ -49,6 +49,12 @@ and the model of the bound rows stays unrecorded. When only one corpus
 has embeddings, or their widths differ, the bound corpus has none and
 warns with class \code{scimapR_bind_embeddings_dropped}.
 }
+\examples{
+c1 <- sm_example_corpus(n_works = 20, seed = 1)
+c2 <- sm_example_corpus(n_works = 20, seed = 2)
+bound <- sm_bind_corpora(c1, c2)
+nrow(bound$works)
+}
 \seealso{
 Other corpus:
 \code{\link[=as_sm_corpus]{as_sm_corpus()}},

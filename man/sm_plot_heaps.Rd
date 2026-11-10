@@ -19,6 +19,10 @@ A \code{ggplot} object.
 \description{
 Vocabulary growth curve over accumulated documents.
 }
+\examples{
+corpus <- sm_example_corpus()
+sm_plot_heaps(corpus)
+}
 \seealso{
 Other plots:
 \code{\link[=autoplot.sm_corpus]{autoplot.sm_corpus()}},

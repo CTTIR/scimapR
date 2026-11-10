@@ -160,6 +160,10 @@ sm_question <- function(text,
 #' @return Logical.
 #' @family question
 #' @export
+#' @examples
+#' q <- sm_question("Does exercise reduce falls in older adults?")
+#' is_sm_question(q)
+#' is_sm_question("Does exercise reduce falls in older adults?")
 is_sm_question <- function(x) {
   inherits(x, "sm_question")
 }

@@ -559,6 +559,13 @@ new_sm_corpus <- function(works,
 #'
 #' @family corpus
 #' @export
+#' @examples
+#' corpus <- sm_example_corpus(n_works = 10)
+#' validate_sm_corpus(corpus)
+#'
+#' broken <- corpus
+#' broken$screening <- NULL
+#' try(validate_sm_corpus(broken))
 validate_sm_corpus <- function(x, call = rlang::caller_env()) {
   if (!inherits(x, "sm_corpus")) {
     cli::cli_abort("Object is not an {.cls sm_corpus}.", call = call)

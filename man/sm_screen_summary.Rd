@@ -18,6 +18,10 @@ A tibble with columns \code{stage}, \code{decision}, \code{n}, and \code{pct}.
 Returns a summary tibble of screening decisions by stage, showing the
 count of included, excluded, and uncertain works at each stage.
 }
+\examples{
+corpus <- sm_example_corpus(with_screening = TRUE)
+sm_screen_summary(corpus)
+}
 \seealso{
 Other question:
 \code{\link[=is_sm_question]{is_sm_question()}},
