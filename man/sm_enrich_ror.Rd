@@ -19,7 +19,7 @@ An \code{sm_corpus} object with updated \code{institutions} and
 }
 \description{
 Look up institutions in the corpus via the
-\href{https://ror.org/}{Research Organization Registry (ROR)} API and enrich
+\href{https://ror.readme.io/}{Research Organization Registry (ROR)} API and enrich
 the \code{institutions} table with standardized metadata including country,
 region, type, and income tier.
 
@@ -31,6 +31,7 @@ rather than duplicating it.
 }
 \examples{
 \dontrun{
+# Not run: queries the ROR web API.
 corpus <- sm_example_corpus()
 corpus <- sm_enrich_ror(corpus)
 }

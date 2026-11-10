@@ -24,6 +24,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the OpenAlex web API.
 #' corpus <- sm_example_corpus()
 #' corpus <- sm_enrich_concepts(corpus, source = "openalex")
 #' }

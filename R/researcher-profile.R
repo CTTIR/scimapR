@@ -21,7 +21,8 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' # profile <- sm_researcher_profile("0000-0001-8006-9742")
+#' # Not run: queries the OpenAlex web API.
+#' profile <- sm_researcher_profile("0000-0001-8006-9742")
 #' }
 sm_researcher_profile <- function(orcid,
                                   sources = c("openalex"),

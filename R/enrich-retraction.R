@@ -28,6 +28,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the OpenAlex and Crossref web APIs.
 #' corpus <- sm_example_corpus()
 #' corpus <- sm_enrich_retraction(corpus)
 #' }

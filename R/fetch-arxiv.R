@@ -19,6 +19,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the arXiv web API.
 #' corpus <- sm_fetch_arxiv(query = "all:bibliometrics", n_max = 10)
 #' print(corpus)
 #' }

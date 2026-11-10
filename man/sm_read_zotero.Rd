@@ -40,10 +40,15 @@ Zotero CSV is not a format supported by \code{bibliometrix::convert2df()}.
 }
 
 \examples{
-\dontrun{
-corpus <- sm_read_zotero("zotero_export.csv")
+path <- tempfile(fileext = ".csv")
+writeLines(c(
+  "Key,Title,Author,Publication Year,DOI,Publication Title,Item Type",
+  paste0('ABC123,Spatial omics methods,"Chen, Wei; Smith, Sarah",2023,',
+         '10.1038/S41592-023-00001,Nature Methods,journalArticle')
+), path)
+corpus <- sm_read_zotero(path, verbose = FALSE)
 corpus$works
-}
+unlink(path)
 }
 \references{
 Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for

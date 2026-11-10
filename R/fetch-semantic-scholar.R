@@ -39,6 +39,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the Semantic Scholar web API.
 #' corpus <- sm_fetch_semantic_scholar(query = "bibliometrics", n_max = 10)
 #' print(corpus)
 #' }

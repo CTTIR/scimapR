@@ -29,6 +29,7 @@ rather than duplicating it.
 }
 \examples{
 \dontrun{
+# Not run: queries the ORCID web API.
 corpus <- sm_example_corpus()
 corpus <- sm_enrich_orcid(corpus)
 }

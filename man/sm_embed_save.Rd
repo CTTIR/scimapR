@@ -25,10 +25,11 @@ the embeddings (\code{corpus$metadata$embedding}, see \code{\link[=sm_corpus]{sm
 corpus has one.
 }
 \examples{
-\dontrun{
 corpus <- sm_example_corpus(with_embeddings = TRUE)
-sm_embed_save(corpus, "my_embeddings.rds")
-}
+path <- tempfile(fileext = ".rds")
+sm_embed_save(corpus, path)
+file.exists(path)
+unlink(path)
 }
 \seealso{
 Other embedding:

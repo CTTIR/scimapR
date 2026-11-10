@@ -25,6 +25,7 @@ This fetches work summaries from the public API endpoint
 }
 \examples{
 \dontrun{
+# Not run: queries the ORCID web API.
 corpus <- sm_fetch_orcid("0000-0001-8006-9742")
 print(corpus)
 }

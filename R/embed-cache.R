@@ -17,10 +17,11 @@
 #' @family embedding
 #' @export
 #' @examples
-#' \dontrun{
 #' corpus <- sm_example_corpus(with_embeddings = TRUE)
-#' sm_embed_save(corpus, "my_embeddings.rds")
-#' }
+#' path <- tempfile(fileext = ".rds")
+#' sm_embed_save(corpus, path)
+#' file.exists(path)
+#' unlink(path)
 sm_embed_save <- function(corpus, path, call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   .check_string(path, call = call)
@@ -87,11 +88,12 @@ sm_embed_save <- function(corpus, path, call = rlang::caller_env()) {
 #' @family embedding
 #' @export
 #' @examples
-#' \dontrun{
+#' path <- tempfile(fileext = ".rds")
+#' sm_embed_save(sm_example_corpus(with_embeddings = TRUE), path)
 #' corpus <- sm_example_corpus(with_embeddings = FALSE)
-#' corpus <- sm_embed_load(corpus, "my_embeddings.rds")
+#' corpus <- sm_embed_load(corpus, path)
 #' dim(corpus$embeddings)
-#' }
+#' unlink(path)
 sm_embed_load <- function(corpus, path, call = rlang::caller_env()) {
   .check_sm_corpus(corpus, call = call)
   .check_corpus_unlocked(corpus, call = call)

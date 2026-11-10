@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Look up institutions in the corpus via the
-#' [Research Organization Registry (ROR)](https://ror.org/) API and enrich
+#' [Research Organization Registry (ROR)](https://ror.readme.io/) API and enrich
 #' the `institutions` table with standardized metadata including country,
 #' region, type, and income tier.
 #'
@@ -23,6 +23,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the ROR web API.
 #' corpus <- sm_example_corpus()
 #' corpus <- sm_enrich_ror(corpus)
 #' }

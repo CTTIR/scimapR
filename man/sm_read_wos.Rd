@@ -104,10 +104,9 @@ and links C1 and RP to the authors by the same rule.
 }
 
 \examples{
-\dontrun{
-corpus <- sm_read_wos("savedrecs.txt")
-corpus$works
-}
+corpus <- sm_read_wos(sm_example_files("example_wos.txt"), verbose = FALSE)
+corpus
+head(corpus$works)
 }
 \references{
 Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for

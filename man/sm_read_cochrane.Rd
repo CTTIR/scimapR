@@ -43,10 +43,16 @@ specification and are delegated to the RIS parser.
 }
 
 \examples{
-\dontrun{
-corpus <- sm_read_cochrane("cochrane_export.csv")
+path <- tempfile(fileext = ".csv")
+writeLines(c(
+  "Record Number,Authors,Title,Source,Year,DOI,Abstract,Type",
+  paste0('1,"Chen, Wei; Smith, Sarah",A Cochrane review,',
+         'Cochrane Database Syst Rev,2023,10.1002/14651858.CD001,',
+         'An abstract.,Systematic Review')
+), path)
+corpus <- sm_read_cochrane(path, verbose = FALSE)
 corpus$works
-}
+unlink(path)
 }
 \references{
 Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for

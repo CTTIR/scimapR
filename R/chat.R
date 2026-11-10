@@ -42,9 +42,11 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' # Requires ellmer package and chat-provider API access:
-#' # response <- sm_chat(corpus, "What methods dominate?",
-#' #                     provider = ellmer::chat_openai())
+#' # Not run: needs the 'ellmer' package and credentials for a chat provider.
+#' corpus <- sm_example_corpus()
+#' response <- sm_chat(corpus, "What methods dominate?",
+#'                     provider = ellmer::chat_openai())
+#' response
 #' }
 sm_chat <- function(corpus,
                     question,

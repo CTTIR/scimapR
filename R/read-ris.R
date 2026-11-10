@@ -35,10 +35,9 @@
 #' @family readers
 #' @export
 #' @examples
-#' \dontrun{
-#' corpus <- sm_read_ris("references.ris")
-#' corpus$works
-#' }
+#' corpus <- sm_read_ris(sm_example_files("example.ris"), verbose = FALSE)
+#' corpus
+#' head(corpus$works)
 sm_read_ris <- function(path,
                         encoding = "UTF-8",
                         engine = c("native", "bibliometrix", "auto"),

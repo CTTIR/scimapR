@@ -113,6 +113,7 @@ known.
 
 \examples{
 \dontrun{
+# Not run: queries the OpenAlex web API.
 fix <- readRDS(sm_example_files("example_realuse_corpus.rds"))
 fix <- sm_enrich_openalex_impact(fix, by = "doi")
 sm_citation_window(fix, window = 3)

@@ -35,6 +35,7 @@ rather than duplicating it. Requires a \code{mailto} address for API access.
 }
 \examples{
 \dontrun{
+# Not run: queries the Unpaywall web API.
 corpus <- sm_example_corpus()
 corpus <- sm_enrich_unpaywall(corpus)
 }

@@ -48,10 +48,9 @@ date. Unrecognised dates yield \code{NA} without a coercion warning.
 }
 
 \examples{
-\dontrun{
-corpus <- sm_read_ris("references.ris")
-corpus$works
-}
+corpus <- sm_read_ris(sm_example_files("example.ris"), verbose = FALSE)
+corpus
+head(corpus$works)
 }
 \references{
 Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for

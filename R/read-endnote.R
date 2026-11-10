@@ -36,10 +36,25 @@
 #' @family readers
 #' @export
 #' @examples
-#' \dontrun{
-#' corpus <- sm_read_endnote("library.xml")
+#' path <- tempfile(fileext = ".xml")
+#' writeLines(c(
+#'   '<?xml version="1.0" encoding="UTF-8"?>',
+#'   "<xml><records>",
+#'   '<record ref-type="17">',
+#'   "  <titles><title><style>Deep Learning for Spatial Omics</style></title>",
+#'   "  </titles>",
+#'   "  <contributors><authors>",
+#'   "    <author><style>Chen, Wei</style></author>",
+#'   "  </authors></contributors>",
+#'   "  <dates><year><style>2023</style></year></dates>",
+#'   "  <periodical><full-title><style>Nature Methods</style></full-title>",
+#'   "  </periodical>",
+#'   "</record>",
+#'   "</records></xml>"
+#' ), path)
+#' corpus <- sm_read_endnote(path, verbose = FALSE)
 #' corpus$works
-#' }
+#' unlink(path)
 sm_read_endnote <- function(path,
                             encoding = "UTF-8",
                             verbose = TRUE,

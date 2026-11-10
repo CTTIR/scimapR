@@ -34,7 +34,8 @@ scimapR 0.4.0).}
 (character), \code{n_authorships} and \code{n_works} (integer), sorted by
 \code{n_authorships} descending and then by \code{raw_affiliation}.}
 \item{\code{\link[=sm_reconcile]{sm_reconcile()}} (\code{summary()})}{A one-row tibble: \code{n_a}, \code{n_b},
-\code{n_both}, \code{n_only_a}, \code{n_only_b}, \code{jaccard}.}
+\code{n_in_both}, \code{n_only_a}, \code{n_only_b}, \code{jaccard}. The name \code{n_in_both}
+is unchanged; earlier documentation incorrectly called it \code{n_both}.}
 \item{\code{\link[=sm_metric_summary]{sm_metric_summary()}}}{A one-row tibble: \code{metric}, \code{n}, \code{mean},
 \code{median}, and (when \code{robust = TRUE}) \code{median_ci_low}, \code{median_ci_high},
 \code{pp_top10}, \code{n_boot}. It carries the attribute \code{impact_source}
@@ -61,7 +62,7 @@ tibbles with the columns documented at \code{\link[=sm_self_citation]{sm_self_ci
 Free-text controlled columns are emitted as factors with exported level
 sets, so downstream filtering is reliable: see \code{\link[=sm_affiliation_signals]{sm_affiliation_signals()}}
 (\code{match_signal}), \code{\link[=sm_affiliation_methods]{sm_affiliation_methods()}} (\code{match_method}), and
-\code{\link[=sm_match_types]{sm_match_types()}} (coverage \code{match_type}).
+\code{\link[=sm_match_types]{sm_match_types()}} (coverage and reconciliation \code{match_type}).
 
 The \code{vocabulary} column of \code{corpus$concepts} is the exception: it stays
 character, so concept tables bind and hash as before, and its values are

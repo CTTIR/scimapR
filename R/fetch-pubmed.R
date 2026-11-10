@@ -38,6 +38,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the NCBI E-utilities web API.
 #' corpus <- sm_fetch_pubmed(query = "bibliometrics[tiab]", n_max = 10)
 #' print(corpus)
 #' }

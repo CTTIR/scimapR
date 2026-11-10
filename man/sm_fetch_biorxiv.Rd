@@ -34,9 +34,8 @@ sm_fetch_biorxiv(
 An \code{sm_corpus} object.
 }
 \description{
-Query the \href{https://www.biorxiv.org/}{bioRxiv} or
-\href{https://www.medrxiv.org/}{medRxiv} API for preprints and return the
-results as an \code{sm_corpus}.
+Query the bioRxiv or medRxiv API (\url{https://api.biorxiv.org/}) for
+preprints and return the results as an \code{sm_corpus}.
 
 The API provides date-range-based content retrieval. If \code{query} is
 supplied, results are filtered locally by title/abstract matching.
@@ -55,6 +54,7 @@ an ordinary successful result.
 
 \examples{
 \dontrun{
+# Not run: queries the bioRxiv web API.
 corpus <- sm_fetch_biorxiv(
   from_date = "2024-01-01",
   to_date = "2024-01-07",

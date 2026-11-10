@@ -22,6 +22,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the Altmetric web API.
 #' corpus <- sm_example_corpus()
 #' corpus <- sm_enrich_altmetric(corpus)
 #' }

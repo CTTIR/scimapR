@@ -44,10 +44,9 @@ Document, EID.
 }
 
 \examples{
-\dontrun{
-corpus <- sm_read_scopus("scopus.csv")
-corpus$works
-}
+corpus <- sm_read_scopus(sm_example_files("example_scopus.csv"), verbose = FALSE)
+corpus
+head(corpus$works)
 }
 \references{
 Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for

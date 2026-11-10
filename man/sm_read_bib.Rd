@@ -61,10 +61,9 @@ the BibLaTeX \code{date} field when no such year is present.
 }
 
 \examples{
-\dontrun{
-corpus <- sm_read_bib("references.bib")
-corpus$works
-}
+corpus <- sm_read_bib(sm_example_files("example.bib"), verbose = FALSE)
+corpus
+head(corpus$works)
 }
 \references{
 Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for

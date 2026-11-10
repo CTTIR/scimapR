@@ -1,9 +1,8 @@
 #' Fetch works from bioRxiv/medRxiv
 #'
 #' @description
-#' Query the [bioRxiv](https://www.biorxiv.org/) or
-#' [medRxiv](https://www.medrxiv.org/) API for preprints and return the
-#' results as an `sm_corpus`.
+#' Query the bioRxiv or medRxiv API (<https://api.biorxiv.org/>) for
+#' preprints and return the results as an `sm_corpus`.
 #'
 #' The API provides date-range-based content retrieval. If `query` is
 #' supplied, results are filtered locally by title/abstract matching.
@@ -33,6 +32,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the bioRxiv web API.
 #' corpus <- sm_fetch_biorxiv(
 #'   from_date = "2024-01-01",
 #'   to_date = "2024-01-07",

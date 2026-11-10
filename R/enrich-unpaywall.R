@@ -21,6 +21,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the Unpaywall web API.
 #' corpus <- sm_example_corpus()
 #' corpus <- sm_enrich_unpaywall(corpus)
 #' }

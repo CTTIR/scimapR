@@ -31,11 +31,12 @@ model of embeddings from an older cache or a bare matrix counts as not
 recorded (\code{"unknown"} in \code{\link[=sm_certificate]{sm_certificate()}}).
 }
 \examples{
-\dontrun{
+path <- tempfile(fileext = ".rds")
+sm_embed_save(sm_example_corpus(with_embeddings = TRUE), path)
 corpus <- sm_example_corpus(with_embeddings = FALSE)
-corpus <- sm_embed_load(corpus, "my_embeddings.rds")
+corpus <- sm_embed_load(corpus, path)
 dim(corpus$embeddings)
-}
+unlink(path)
 }
 \seealso{
 Other embedding:

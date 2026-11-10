@@ -19,6 +19,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the Overton web API and needs an API key.
 #' corpus <- sm_fetch_overton(query = "climate change policy", n_max = 10)
 #' print(corpus)
 #' }

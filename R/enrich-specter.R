@@ -59,6 +59,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the Semantic Scholar web API.
 #' corpus <- sm_example_corpus(with_embeddings = FALSE)
 #' corpus <- sm_enrich_specter(corpus)
 #' corpus$metadata$embedding$model_id

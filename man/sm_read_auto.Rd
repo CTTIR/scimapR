@@ -69,10 +69,12 @@ A leading UTF-8 BOM is ignored for text format detection.
 }
 
 \examples{
-\dontrun{
-corpus <- sm_read_auto("references.bib")
-corpus <- sm_read_auto("exported_data.csv")
-}
+# The format is detected from the file content and extension.
+corpus <- sm_read_auto(sm_example_files("example.bib"), verbose = FALSE)
+corpus$metadata$reader
+corpus <- sm_read_auto(sm_example_files("example_scopus.csv"),
+                       verbose = FALSE)
+corpus$metadata$reader
 }
 \references{
 Aria, M. & Cuccurullo, C. (2017). bibliometrix: An R-tool for

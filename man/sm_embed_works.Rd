@@ -126,6 +126,8 @@ informative message.
 }
 \examples{
 \dontrun{
+# Not run: needs Python with 'sentence-transformers' (via 'reticulate')
+# and downloads a model.
 corpus <- sm_example_corpus(with_embeddings = FALSE)
 corpus <- sm_embed_works(corpus, model = "minilm-l6")
 dim(corpus$embeddings)

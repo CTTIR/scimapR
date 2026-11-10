@@ -52,10 +52,12 @@
 #' @family readers
 #' @export
 #' @examples
-#' \dontrun{
-#' corpus <- sm_read_auto("references.bib")
-#' corpus <- sm_read_auto("exported_data.csv")
-#' }
+#' # The format is detected from the file content and extension.
+#' corpus <- sm_read_auto(sm_example_files("example.bib"), verbose = FALSE)
+#' corpus$metadata$reader
+#' corpus <- sm_read_auto(sm_example_files("example_scopus.csv"),
+#'                        verbose = FALSE)
+#' corpus$metadata$reader
 sm_read_auto <- function(path,
                          encoding = "UTF-8",
                          engine = c("native", "bibliometrix", "auto"),

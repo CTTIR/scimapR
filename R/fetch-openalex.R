@@ -82,6 +82,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the OpenAlex web API.
 #' corpus <- sm_fetch_openalex(query = "bibliometrics", n_max = 10)
 #' print(corpus)
 #' }

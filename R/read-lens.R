@@ -33,10 +33,9 @@
 #' @family readers
 #' @export
 #' @examples
-#' \dontrun{
-#' corpus <- sm_read_lens("lens_export.csv")
-#' corpus$works
-#' }
+#' corpus <- sm_read_lens(sm_example_files("example_lens.csv"), verbose = FALSE)
+#' corpus
+#' head(corpus$works)
 sm_read_lens <- function(path,
                          encoding = "UTF-8",
                          engine = c("native", "bibliometrix", "auto"),

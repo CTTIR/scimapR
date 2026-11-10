@@ -37,6 +37,7 @@
 #' @export
 #' @examples
 #' \dontrun{
+#' # Not run: queries the Crossref web API.
 #' corpus <- sm_fetch_crossref(query = "bibliometrics", n_max = 10)
 #' print(corpus)
 #' }
