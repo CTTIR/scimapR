@@ -11,13 +11,16 @@
 #' @param corpus An `sm_corpus` object.
 #' @param api_key Altmetric API key. Read from `ALTMETRIC_API_KEY` env var.
 #'   The Altmetric Details Page API has required a key since November 2025;
-#'   without one, no work is enriched.
+#'   without one, no work is enriched and a warning says so.
 #' @param verbose Print progress messages?
 #' @param call Caller environment for error reporting.
 #'
 #' @return An `sm_corpus` object with added `altmetric_score`,
 #'   `mendeley_readers`, `twitter_count`, and `news_count` columns in the
-#'   `works` table, plus new provenance rows.
+#'   `works` table, plus provenance rows for the works Altmetric answered for.
+#'   Works whose lookup failed (other than "not found") keep missing values
+#'   and are reported in a warning of class `scimapR_altmetric_unchecked`
+#'   with their `work_ids`.
 #'
 #' @family enrichers
 #' @export
@@ -57,6 +60,7 @@ sm_enrich_altmetric <- function(corpus,
   mendeley <- rep(NA_integer_, length(target_dois))
   twitter <- rep(NA_integer_, length(target_dois))
   news <- rep(NA_integer_, length(target_dois))
+  failed <- rep(FALSE, length(target_dois))
 
   for (i in seq_along(target_dois)) {
     result <- tryCatch({
@@ -73,6 +77,10 @@ sm_enrich_altmetric <- function(corpus,
       resp <- httr2::req_perform(req)
       httr2::resp_body_json(resp)
     }, error = function(e) {
+      # A 404 means Altmetric has no record for the DOI, which is a normal
+      # answer. Anything else (missing or rejected key, rate limit, server or
+      # network error) leaves the work unchecked.
+      if (!inherits(e, "httr2_http_404")) failed[i] <<- TRUE
       NULL
     })
 
@@ -120,11 +128,11 @@ sm_enrich_altmetric <- function(corpus,
     is.na(news), works$news_count[has_doi], news
   )
 
-  # Add provenance rows
+  # Add provenance rows for the works Altmetric actually answered for
   new_prov <- .make_provenance_rows(
-    work_ids = target_ids,
+    work_ids = target_ids[!failed],
     source_name = "altmetric",
-    external_ids = target_dois,
+    external_ids = target_dois[!failed],
     query_text = "enrich_altmetric",
     engine_name = "native",
     kind = "enrichment"
@@ -132,6 +140,20 @@ sm_enrich_altmetric <- function(corpus,
 
   corpus$works <- works
   corpus$provenance <- dplyr::bind_rows(corpus$provenance, new_prov)
+
+  n_failed <- sum(failed)
+  if (n_failed) {
+    message <- sprintf("Altmetric lookups failed for %d of %d works.",
+                       n_failed, length(target_dois))
+    if (!nzchar(api_key)) {
+      message <- c(message, "i" = paste(
+        "The Altmetric API needs a key; set the ALTMETRIC_API_KEY",
+        "environment variable or pass `api_key`."
+      ))
+    }
+    cli::cli_warn(message, class = "scimapR_altmetric_unchecked",
+                  work_ids = target_ids[failed], call = call)
+  }
 
   n_enriched <- sum(!is.na(alt_score))
   .sm_done("Enriched {n_enriched} works with Altmetric data.")

@@ -16,7 +16,7 @@ sm_enrich_altmetric(
 
 \item{api_key}{Altmetric API key. Read from \code{ALTMETRIC_API_KEY} env var.
 The Altmetric Details Page API has required a key since November 2025;
-without one, no work is enriched.}
+without one, no work is enriched and a warning says so.}
 
 \item{verbose}{Print progress messages?}
 
@@ -25,7 +25,10 @@ without one, no work is enriched.}
 \value{
 An \code{sm_corpus} object with added \code{altmetric_score},
 \code{mendeley_readers}, \code{twitter_count}, and \code{news_count} columns in the
-\code{works} table, plus new provenance rows.
+\code{works} table, plus provenance rows for the works Altmetric answered for.
+Works whose lookup failed (other than "not found") keep missing values
+and are reported in a warning of class \code{scimapR_altmetric_unchecked}
+with their \code{work_ids}.
 }
 \description{
 Look up DOIs in the corpus via the

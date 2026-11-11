@@ -17,6 +17,11 @@
 
 ## Other changes since 0.4.0
 
+* `sm_enrich_altmetric()` no longer fails silently: lookups that fail for a
+  reason other than "not found" (for example a missing or rejected API key)
+  raise a warning of class `scimapR_altmetric_unchecked` that lists the
+  affected `work_ids` and, without a key, names `ALTMETRIC_API_KEY`. Only
+  works Altmetric answered for get provenance rows.
 
 * `sm_plot_landscape()` now uses the same narrowly scoped older-R PCA
   compatibility repair as clustering. Its Euclidean distance and automatic

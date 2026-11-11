@@ -71,9 +71,48 @@ test_that("altmetric tolerates request errors", {
     req_perform = function(req, ...) stop("api down"),
     .package = "httr2"
   )
-  out <- sm_enrich_altmetric(corpus, verbose = FALSE)
+  expect_warning(
+    out <- sm_enrich_altmetric(corpus, api_key = "fake-key", verbose = FALSE),
+    class = "scimapR_altmetric_unchecked"
+  )
   expect_true(all(is.na(out$works$altmetric_score)))
   expect_s3_class(out, "sm_corpus")
+  expect_false("altmetric" %in% out$provenance$source)
+})
+
+test_that("altmetric failures without a key name the missing key", {
+  corpus <- sm_example_corpus(n_works = 2, n_authors = 2,
+                              with_embeddings = FALSE, seed = 4)
+  testthat::local_mocked_bindings(
+    req_perform = function(req, ...) {
+      rlang::abort("HTTP 403 Forbidden.",
+                   class = c("httr2_http_403", "httr2_http", "httr2_error"))
+    },
+    .package = "httr2"
+  )
+  w <- expect_warning(
+    sm_enrich_altmetric(corpus, api_key = "", verbose = FALSE),
+    class = "scimapR_altmetric_unchecked"
+  )
+  expect_match(conditionMessage(w), "ALTMETRIC_API_KEY")
+  expect_setequal(w$work_ids, corpus$works$work_id[!is.na(corpus$works$doi)])
+})
+
+test_that("altmetric treats a 404 as 'no record' without warning", {
+  corpus <- sm_example_corpus(n_works = 2, n_authors = 2,
+                              with_embeddings = FALSE, seed = 4)
+  testthat::local_mocked_bindings(
+    req_perform = function(req, ...) {
+      rlang::abort("HTTP 404 Not Found.",
+                   class = c("httr2_http_404", "httr2_http", "httr2_error"))
+    },
+    .package = "httr2"
+  )
+  expect_no_warning(
+    out <- sm_enrich_altmetric(corpus, api_key = "fake-key", verbose = FALSE)
+  )
+  expect_true(all(is.na(out$works$altmetric_score)))
+  expect_true("altmetric" %in% out$provenance$source)
 })
 
 test_that("altmetric works with an explicit API key supplied", {
