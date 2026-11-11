@@ -28,7 +28,7 @@ sm_enrich_altmetric(
 
   Altmetric API key. Read from `ALTMETRIC_API_KEY` env var. The
   Altmetric Details Page API has required a key since November 2025;
-  without one, no work is enriched.
+  without one, no work is enriched and a warning says so.
 
 - verbose:
 
@@ -41,8 +41,10 @@ sm_enrich_altmetric(
 ## Value
 
 An `sm_corpus` object with added `altmetric_score`, `mendeley_readers`,
-`twitter_count`, and `news_count` columns in the `works` table, plus new
-provenance rows.
+`twitter_count`, and `news_count` columns in the `works` table, plus
+provenance rows for the works Altmetric answered for. Works whose lookup
+failed (other than "not found") keep missing values and are reported in
+a warning of class `scimapR_altmetric_unchecked` with their `work_ids`.
 
 ## See also
 

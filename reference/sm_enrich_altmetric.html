@@ -84,7 +84,7 @@ data rather than duplicating it.</p>
 <dt id="arg-api-key">api_key<a class="anchor" aria-label="anchor" href="#arg-api-key"></a></dt>
 <dd><p>Altmetric API key. Read from <code>ALTMETRIC_API_KEY</code> env var.
 The Altmetric Details Page API has required a key since November 2025;
-without one, no work is enriched.</p></dd>
+without one, no work is enriched and a warning says so.</p></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
@@ -99,7 +99,10 @@ without one, no work is enriched.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An <code>sm_corpus</code> object with added <code>altmetric_score</code>,
 <code>mendeley_readers</code>, <code>twitter_count</code>, and <code>news_count</code> columns in the
-<code>works</code> table, plus new provenance rows.</p>
+<code>works</code> table, plus provenance rows for the works Altmetric answered for.
+Works whose lookup failed (other than "not found") keep missing values
+and are reported in a warning of class <code>scimapR_altmetric_unchecked</code>
+with their <code>work_ids</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

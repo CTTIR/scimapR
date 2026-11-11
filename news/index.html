@@ -56,7 +56,8 @@
 </ul></div>
 <div class="section level3">
 <h3 id="other-changes-since-0-5-0">Other changes since 0.4.0<a class="anchor" aria-label="anchor" href="#other-changes-since-0-5-0"></a></h3>
-<ul><li><p><code><a href="../reference/sm_plot_landscape.html">sm_plot_landscape()</a></code> now uses the same narrowly scoped older-R PCA compatibility repair as clustering. Its Euclidean distance and automatic thread defaults are unchanged; unrelated dependency errors still propagate.</p></li>
+<ul><li><p><code><a href="../reference/sm_enrich_altmetric.html">sm_enrich_altmetric()</a></code> no longer fails silently: lookups that fail for a reason other than “not found” (for example a missing or rejected API key) raise a warning of class <code>scimapR_altmetric_unchecked</code> that lists the affected <code>work_ids</code> and, without a key, names <code>ALTMETRIC_API_KEY</code>. Only works Altmetric answered for get provenance rows.</p></li>
+<li><p><code><a href="../reference/sm_plot_landscape.html">sm_plot_landscape()</a></code> now uses the same narrowly scoped older-R PCA compatibility repair as clustering. Its Euclidean distance and automatic thread defaults are unchanged; unrelated dependency errors still propagate.</p></li>
 <li><p>Standardize the named v5 package logo across README, documentation pages and available application headers, with matching light and dark artwork.</p></li>
 <li><p>The UMAP reducer now retries with base SVD initialisation when its PCA dependency raises the older-R NULL-input error. Other errors are still reported unchanged; successful UMAP calls retain their existing defaults.</p></li>
 <li><p>Version metadata aligned across DESCRIPTION, CITATION, CITATION.cff and .zenodo.json; corpus print shows refresh times as UTC dates; <code><a href="../reference/sm_corpus.html">?sm_corpus</a></code> documents the column schema.</p></li>
