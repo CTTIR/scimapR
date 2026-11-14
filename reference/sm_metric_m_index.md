@@ -39,7 +39,9 @@ sm_metric_m_index(
 ## Value
 
 A tibble with columns for the entity ID/name, `h_index`, `first_year`,
-`career_years`, and `m_index`.
+`career_years`, and `m_index`. The earliest available publication year
+defines career length. If all years for an entity are missing, these
+last three columns are `NA`; its h-index is still reported.
 
 ## See also
 

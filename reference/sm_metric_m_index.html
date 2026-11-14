@@ -91,7 +91,9 @@ entity's first publication (Hirsch, 2005).</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tibble with columns for the entity ID/name, <code>h_index</code>,
-<code>first_year</code>, <code>career_years</code>, and <code>m_index</code>.</p>
+<code>first_year</code>, <code>career_years</code>, and <code>m_index</code>. The earliest available
+publication year defines career length. If all years for an entity are
+missing, these last three columns are <code>NA</code>; its h-index is still reported.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

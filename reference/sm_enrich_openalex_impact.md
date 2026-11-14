@@ -162,6 +162,6 @@ if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
 #>   work_id  year window citations complete
 #>   <chr>   <int>  <int>     <int> <lgl>   
 #> 1 W1       2017      3       582 TRUE    
-#> 2 W2       2016      3       129 FALSE   
+#> 2 W2       2016      3       130 FALSE   
 # }
 ```

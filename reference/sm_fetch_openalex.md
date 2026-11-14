@@ -161,7 +161,7 @@ if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
 #> 
 #> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
 #> Works: 5 | Authors: 8 | Institutions: 0
-#> Years: 2002 - 2021
+#> Years: 2006 - 2021
 #> Sources (journals): 5
 #> Embeddings: none
 #> Provenance: openalex (5)

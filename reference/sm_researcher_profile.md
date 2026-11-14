@@ -79,7 +79,7 @@ if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
 #> ✔ Parsed 20 OpenAlex works into sm_corpus.
 #> 
 #> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
-#> Works: 20 | Authors: 76 | Institutions: 0
+#> Works: 20 | Authors: 81 | Institutions: 0
 #> Years: 2004 - 2025
 #> Sources (journals): 18
 #> Embeddings: none
