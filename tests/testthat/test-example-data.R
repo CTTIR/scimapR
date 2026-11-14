@@ -174,3 +174,21 @@ test_that("example generation also preserves the stream with a random seed", {
   sm_example_corpus(n_works = 10, seed = NULL)
   expect_identical(.Random.seed, before)
 })
+
+
+test_that("empty example corpora retain typed schemas without warnings", {
+  for (embeddings in c(FALSE, TRUE)) {
+    for (trajectory in c(FALSE, TRUE)) {
+      expect_no_warning(
+        corpus <- sm_example_corpus(n_works = 0, n_authors = 2,
+          with_embeddings = embeddings, with_trajectory_seed = trajectory,
+          with_screening = TRUE)
+      )
+      expect_equal(nrow(corpus$works), 0L)
+      expect_identical(corpus$authorships, .empty_authorships())
+      expect_no_error(validate_sm_corpus(corpus))
+      if (embeddings) expect_identical(dim(corpus$embeddings), c(0L, 64L))
+      else expect_null(corpus$embeddings)
+    }
+  }
+})

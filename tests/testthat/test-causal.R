@@ -263,8 +263,11 @@ did_corpus <- function() {
 
 test_that("sm_did estimates the interaction term", {
   corpus <- did_corpus()
-  did <- sm_did(corpus, treated = "Inst A", control = "Inst B",
-                intervention_year = 2020, outcome = "count")
+  expect_warning(
+    did <- sm_did(corpus, treated = "Inst A", control = "Inst B",
+                  intervention_year = 2020, outcome = "count"),
+    class = "scimapR_did_shared_works"
+  )
   expect_s3_class(did, "sm_did")
   expect_true(grepl(":", did$did_estimate$term))
   expect_named(did$did_estimate,
@@ -275,8 +278,11 @@ test_that("sm_did estimates the interaction term", {
 
 test_that("sm_did autoplot and summary work", {
   corpus <- did_corpus()
-  did <- sm_did(corpus, treated = "Inst A", control = "Inst B",
-                intervention_year = 2020, outcome = "count")
+  expect_warning(
+    did <- sm_did(corpus, treated = "Inst A", control = "Inst B",
+                  intervention_year = 2020, outcome = "count"),
+    class = "scimapR_did_shared_works"
+  )
   expect_s3_class(ggplot2::autoplot(did), "ggplot")
   expect_s3_class(summary(did), "tbl_df")
 })
@@ -307,8 +313,11 @@ test_that("the causal functions need a single intervention year", {
   }
   # text holding a whole number is read as that year
   expect_identical(sm_its(corpus, "2020", "count")$intervention_year, 2020L)
-  did <- sm_did(corpus, treated = "Inst A", control = "Inst B",
-                intervention_year = "2020", outcome = "count")
+  expect_warning(
+    did <- sm_did(corpus, treated = "Inst A", control = "Inst B",
+                  intervention_year = "2020", outcome = "count"),
+    class = "scimapR_did_shared_works"
+  )
   expect_identical(did$intervention_year, 2020L)
   skip_if_not_installed("tidysynth")
   for (iy in list(2020.5, TRUE, c(2019, 2021))) {
@@ -321,8 +330,11 @@ test_that("the causal functions need a single intervention year", {
 })
 
 test_that("sm_did intervals use the quantiles of their p-values", {
-  did <- sm_did(did_corpus(), treated = "Inst A", control = "Inst B",
-                intervention_year = 2020, outcome = "count")
+  expect_warning(
+    did <- sm_did(did_corpus(), treated = "Inst A", control = "Inst B",
+                  intervention_year = 2020, outcome = "count"),
+    class = "scimapR_did_shared_works"
+  )
   d <- did$did_estimate
   half <- stats::qt(0.975, stats::df.residual(did$model)) * d$std.error
   expect_equal(d$conf.high - d$estimate, half)
@@ -480,15 +492,21 @@ test_that("cnci outcomes pass on the small-cell FNCI message once", {
     class = "scimapR_fnci_small_cells"
   )
   # sm_did() derives the FNCI once per group; the message appears once
-  expect_identical(
-    count_small_cells(sm_did(corpus, treated = "Inst A", control = "Inst B",
-                             intervention_year = 2020, outcome = "cnci")),
-    1L
+  expect_warning(
+    expect_identical(
+      count_small_cells(sm_did(corpus, treated = "Inst A", control = "Inst B",
+                               intervention_year = 2020, outcome = "cnci")),
+      1L
+    ),
+    class = "scimapR_did_shared_works"
   )
-  expect_identical(
-    count_small_cells(sm_did(corpus, treated = "Inst A", control = "Inst B",
-                             intervention_year = 2020, outcome = "count")),
-    0L
+  expect_warning(
+    expect_identical(
+      count_small_cells(sm_did(corpus, treated = "Inst A", control = "Inst B",
+                               intervention_year = 2020, outcome = "count")),
+      0L
+    ),
+    class = "scimapR_did_shared_works"
   )
 })
 

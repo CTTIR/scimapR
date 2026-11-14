@@ -68,7 +68,9 @@ sm_example_corpus <- function(n_works = 200L,
   n_works <- as.integer(n_works)
   n_authors <- as.integer(n_authors)
 
-  work_ids <- paste0("W", formatC(seq_len(n_works), width = 9, flag = "0"))
+  work_ids <- if (n_works > 0L) {
+    paste0("W", formatC(seq_len(n_works), width = 9, flag = "0"))
+  } else character()
   author_ids <- paste0("A", formatC(seq_len(n_authors), width = 9, flag = "0"))
 
   cluster_assign <- sample(seq_len(n_clusters), n_works, replace = TRUE)
@@ -149,7 +151,9 @@ sm_example_corpus <- function(n_works = 200L,
       country_code = sample(countries, length(auth_idx), replace = TRUE)
     )
   })
-  authorships <- dplyr::bind_rows(authorships_list)
+  authorships <- if (length(authorships_list)) {
+    dplyr::bind_rows(authorships_list)
+  } else .empty_authorships()
 
   if (with_trajectory_seed && n_authors >= 1) {
     traj_author <- author_ids[1]
