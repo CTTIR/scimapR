@@ -144,7 +144,7 @@ corpus <- sm_corpus_from_tables(
 #>   retraction_date, and last_refreshed with typed `NA`.
 corpus$metadata$local_inputs[, c("basename", "role", "sha256")]
 #> # A tibble: 1 × 3
-#>   basename           role         sha256                                        
-#>   <chr>              <chr>        <chr>                                         
-#> 1 file1c6aa8b7a8.csv source table 9bb0667922c6df1d6b32720e3a67d05d4e6e79d9977b9…
+#>   basename             role         sha256                                      
+#>   <chr>                <chr>        <chr>                                       
+#> 1 file1b5511c16e5a.csv source table 9bb0667922c6df1d6b32720e3a67d05d4e6e79d9977…
 ```
