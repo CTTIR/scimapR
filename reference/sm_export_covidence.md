@@ -35,7 +35,7 @@ Other screening:
 ``` r
 path <- tempfile(fileext = ".ris")
 sm_export_covidence(sm_example_corpus(n_works = 2), path)
-#> ✔ Exported 2 works to /tmp/Rtmp8XYxko/file1b55622b7ff3.ris
+#> ✔ Exported 2 works to /tmp/RtmpGuXcca/file1bbf579af8.ris
 readLines(path, n = 3)
 #> [1] "TY  - JOUR"                                                 
 #> [2] "ID  - W000000001"                                           
