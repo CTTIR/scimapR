@@ -2,9 +2,15 @@
 
 ## scimapR 0.5.0
 
+- Empty synthetic corpora now retain typed authorship columns and zero
+  work identifiers, avoiding trajectory warnings and allowing empty
+  embeddings. Tests explicitly require intended shared-work causal
+  diagnostics while preserving their numerical checks.
+
 - Keep career length and m-index missing when an entity has no known
   publication years, instead of treating it as a one-year career. The
   h-index remains available.
+
 - Accumulate g-index citation totals as doubles to avoid integer
   overflow.
 

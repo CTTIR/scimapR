@@ -52,7 +52,7 @@ Other embedding:
 ``` r
 path <- tempfile(fileext = ".rds")
 sm_embed_save(sm_example_corpus(with_embeddings = TRUE), path)
-#> ✔ Embeddings saved to /tmp/RtmpiRMSE3/file1b7f47d69563.rds.
+#> ✔ Embeddings saved to /tmp/Rtmpr5HwAS/file1c6a68d80e75.rds.
 #> ℹ 200 works x 64 dimensions, embeddings whose model is not recorded.
 corpus <- sm_example_corpus(with_embeddings = FALSE)
 corpus <- sm_embed_load(corpus, path)
