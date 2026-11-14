@@ -1,5 +1,9 @@
 # scimapR 0.5.0
 
+* Keep career length and m-index missing when an entity has no known publication
+  years, instead of treating it as a one-year career. The h-index remains available.
+* Accumulate g-index citation totals as doubles to avoid integer overflow.
+
 ## CRAN preparation and documentation site
 
 * The pkgdown site is built for this release at the site root again, so the

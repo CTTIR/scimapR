@@ -128,7 +128,9 @@ sm_metric_g_index <- function(corpus,
 #' @param call Caller environment for error reporting.
 #'
 #' @return A tibble with columns for the entity ID/name, `h_index`,
-#'   `first_year`, `career_years`, and `m_index`.
+#'   `first_year`, `career_years`, and `m_index`. The earliest available
+#'   publication year defines career length. If all years for an entity are
+#'   missing, these last three columns are `NA`; its h-index is still reported.
 #'
 #' @family metrics
 #' @seealso [sm_self_citation()]
@@ -168,7 +170,8 @@ sm_metric_m_index <- function(corpus,
     dplyr::group_by(.data$entity) %>%
     dplyr::summarise(
       h_index    = .compute_h_index(.data$cited_by_count),
-      first_year = min(.data$year, na.rm = TRUE),
+      first_year = if (all(is.na(.data$year))) NA_integer_ else
+        min(.data$year, na.rm = TRUE),
       .groups    = "drop"
     ) %>%
     dplyr::mutate(
@@ -225,7 +228,7 @@ sm_metric_m_index <- function(corpus,
 .compute_g_index <- function(citations) {
   citations <- sort(citations[!is.na(citations)], decreasing = TRUE)
   if (length(citations) == 0L) return(0L)
-  cumsum_cites <- cumsum(citations)
+  cumsum_cites <- cumsum(as.double(citations))
   ranks <- seq_along(citations)
   g <- max(c(0L, ranks[cumsum_cites >= ranks^2]))
   as.integer(g)

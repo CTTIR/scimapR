@@ -23,7 +23,9 @@ sm_metric_m_index(
 }
 \value{
 A tibble with columns for the entity ID/name, \code{h_index},
-\code{first_year}, \code{career_years}, and \code{m_index}.
+\code{first_year}, \code{career_years}, and \code{m_index}. The earliest available
+publication year defines career length. If all years for an entity are
+missing, these last three columns are \code{NA}; its h-index is still reported.
 }
 \description{
 Computes the m-index (m-quotient) for entities at the specified level.
