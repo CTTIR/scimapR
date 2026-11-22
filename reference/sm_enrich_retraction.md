@@ -78,7 +78,7 @@ if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
   enriched <- try(sm_enrich_retraction(corpus))
   if (is_sm_corpus(enriched)) enriched$works[, c("doi", "is_retracted")]
 }
-#> ℹ 1 retracted of 2 checked; 0 not found in OpenAlex; 0 not checked.
+#> ℹ 1 retracted of 2 checked; 1 not found in OpenAlex; 0 not checked.
 #> # A tibble: 2 × 2
 #>   doi                           is_retracted
 #>   <chr>                         <lgl>       

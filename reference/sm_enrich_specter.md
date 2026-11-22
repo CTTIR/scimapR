@@ -120,8 +120,12 @@ if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
 }
 #> ℹ Fetching SPECTER embeddings for 2 works...
 #> ℹ SPECTER: 2 / 2 works processed.
-#> ✔ Added SPECTER embeddings for 2 works.
-#> [1] "embedding.specter_v2"
+#> Warning: 1 of 1 Semantic Scholar request failed, so their works got no SPECTER vector.
+#> ✖ Semantic Scholar request failed: HTTP 429.
+#> ℹ Semantic Scholar limits requests without an API key more strictly; set
+#>   `SEMANTIC_SCHOLAR_API_KEY`.
+#> ℹ No SPECTER embeddings retrieved.
+#> NULL
 # }
 if (FALSE) { # \dontrun{
 # Not run: sm_embed_works() needs Python with 'sentence-transformers'.
