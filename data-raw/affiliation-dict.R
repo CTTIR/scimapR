@@ -7,8 +7,8 @@
 # expressions matched against affiliation strings.
 #
 # The English names of the hospital are anchored on "Diakonie" or "Protestant":
-# a bare "deaconess hospital", "church hospital" or "public services hospital" names
-# hospitals of many countries, so it stays unmatched.
+# a bare "deaconess hospital", "church hospital" or other generic hospital
+# name names hospitals of many countries, so it stays unmatched.
 hospital_diakonie <- "diakonie\\W+(\\w+\\W+)?hospital"
 hospital_protestant <- "protestant (deaconess|church|diaconal)\\W+(\\w+\\W+)?hospital"
 

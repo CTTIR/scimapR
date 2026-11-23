@@ -68,7 +68,7 @@ test_that("the native parser reads raw affiliation strings", {
   a <- .parse_openalex_authorships(results, paste0("W", 1:3))$authorships
   expect_identical(a$raw_affiliation, c(
     paste("Northtown District Hospital, Dept. of Emergency Medicine, Northtown;",
-          "Auxiliary Medical Crew 7, Northtown"),
+          "Regional Care Team 7, Northtown"),
     "Institute of Invented Microbiology, Southcity",
     "Southcity University Hospital",
     "Northtown District Hospital"

@@ -221,11 +221,16 @@ test_that("sm_affiliation_dict finds no EMBL edge before an umlaut", {
 
 test_that("sm_affiliation_dict leaves other deaconess hospitals unmatched", {
   # Before, its rows credited any "deaconess hospital", "church hospital" or
-  # "public services hospital" to the Diakonie hospital; the English names it
-  # keeps need "Diakonie" or "Protestant" in front
+  # other bare hospital name to the Diakonie hospital; the English names it
+  # keeps need "Diakonie" or "Protestant" in front, and every row of the
+  # hospital names it
+  diakonie <- sm_affiliation_dict$pattern[
+    sm_affiliation_dict$institution == "Diakonie Hospital"
+  ]
+  expect_true(all(grepl("diakon|diakkh|protestant", diakonie)))
   raw <- c("Deaconess Hospital of Southcity, Southland",
            "Church Hospital Research and Referral, Northtown",
-           "Public Services Hospital Northtown",
+           "Northtown General Hospital",
            "US FDA Hospital, Southcity",
            "Diakonie Hospital Nordstadt",
            "Protestant Church District Hospital, Nordstadt",

@@ -7,7 +7,9 @@
   the themes norovirus, acute stroke care and night shift work. Its
   structure, sizes, years, authors and citation counts are unchanged; the
   institution names, address strings, dictionary patterns, titles,
-  abstracts, keywords and two journals (with their DOIs) are new.
+  abstracts, keywords and two journals (with their DOIs) are new. An alias
+  of the synthetic `example_ror.csv` table and the phrase-merging example
+  of `?sm_cluster_label` use neutral names as well.
 * The app's Chat tab no longer asks for a `SCIMAPR_LLM_API_KEY` setting that
   nothing reads; it says that chat is available through `sm_chat()` in R.
   The app's plots render at 96 dpi so their labels are readable, and

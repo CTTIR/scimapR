@@ -105,9 +105,9 @@ the place of a shorter one it contains when it occurs in at least 40\% of
 the shorter term's works ("cancer" gives way to "testicular cancer", and
 to "metastatic testicular cancer" only if that also occurs in 40\% of the
 works with "cancer"), and a term contained in one already chosen is
-skipped. When a term overlaps one already chosen, as "heat illness"
-overlaps "exertional heat", the phrase they form ("exertional heat
-illness") counts as a longer term that contains both, also beyond the
+skipped. When a term overlaps one already chosen, as "kidney disease"
+overlaps "chronic kidney", the phrase they form ("chronic kidney
+disease") counts as a longer term that contains both, also beyond the
 lengths in \code{ngram}, if it occurs in enough of the cluster's works to be
 a term of the label; so one phrase does not fill two places of a label.
 

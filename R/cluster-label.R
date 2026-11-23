@@ -77,9 +77,9 @@
 #' the shorter term's works ("cancer" gives way to "testicular cancer", and
 #' to "metastatic testicular cancer" only if that also occurs in 40% of the
 #' works with "cancer"), and a term contained in one already chosen is
-#' skipped. When a term overlaps one already chosen, as "heat illness"
-#' overlaps "exertional heat", the phrase they form ("exertional heat
-#' illness") counts as a longer term that contains both, also beyond the
+#' skipped. When a term overlaps one already chosen, as "kidney disease"
+#' overlaps "chronic kidney", the phrase they form ("chronic kidney
+#' disease") counts as a longer term that contains both, also beyond the
 #' lengths in `ngram`, if it occurs in enough of the cluster's works to be
 #' a term of the label; so one phrase does not fill two places of a label.
 #'
@@ -598,8 +598,8 @@ sm_cluster_label <- function(corpus,
 #' Phrases that two terms form when they overlap
 #'
 #' The phrases that the terms `a` and `b` form when the last words of one
-#' are the first words of the other, longest overlap first: "exertional
-#' heat" and "heat illness" form "exertional heat illness".
+#' are the first words of the other, longest overlap first: "chronic
+#' kidney" and "kidney disease" form "chronic kidney disease".
 #' @noRd
 .label_joins <- function(a, b) {
   wa <- strsplit(a, " ", fixed = TRUE)[[1L]]

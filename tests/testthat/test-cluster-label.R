@@ -27,18 +27,18 @@ labels_by_cluster <- function(corpus, column = "cluster_label") {
   stats::setNames(w[[column]][first], w$cluster_id[first])
 }
 
-# Two clusters of four works: a bleeding theme and a heat theme
-bleeding_titles <- c(
-  "Tourniquet application in construction trauma",
-  "Early tourniquet application after crush trauma",
-  "Tourniquet application and limb trauma",
-  "Junctional bleeding and tourniquet application"
+# Two clusters of four works: a diabetes theme and a kidney theme
+diabetes_titles <- c(
+  "Insulin adjustment in gestational diabetes",
+  "Early insulin adjustment after juvenile diabetes",
+  "Insulin adjustment and adult diabetes",
+  "Nocturnal hypoglycaemia and insulin adjustment"
 )
-heat_titles <- c(
-  "Exertional heat illness in rowers",
-  "Cooling after exertional heat illness",
-  "Exertional heat illness during hikes",
-  "Hydration and exertional heat illness"
+kidney_titles <- c(
+  "Chronic kidney disease in farmers",
+  "Dialysis after chronic kidney disease",
+  "Chronic kidney disease during pregnancy",
+  "Hydration and chronic kidney disease"
 )
 
 # The real-use example corpus with its German works as cluster 1 and the
@@ -70,7 +70,7 @@ test_that("sm_cluster_label validates method and n_terms", {
 })
 
 test_that("sm_cluster_label validates min_works, ngram, stop_terms, noise", {
-  corpus <- label_corpus(bleeding_titles, 1L)
+  corpus <- label_corpus(diabetes_titles, 1L)
   expect_error(sm_cluster_label(corpus, min_works = 0), "positive integer")
   expect_error(sm_cluster_label(corpus, min_works = 2.5), "positive integer")
   for (bad in list(0, 4, 1.5, NA, "1", integer(), c(1, NA))) {
@@ -144,29 +144,29 @@ test_that("sm_cluster_label replaces an existing cluster_label column", {
 
 test_that("tfidf scores the share of a cluster's works, not occurrences", {
   skip_if_not_installed("tidytext")
-  # one bleeding paper repeats an invented token 15 times
+  # one diabetes paper repeats an invented token 15 times
   planted <- paste(rep("Quillotyrase levels rose.", 15L), collapse = " ")
-  corpus <- label_corpus(c(bleeding_titles, heat_titles), rep(1:2, each = 4),
+  corpus <- label_corpus(c(diabetes_titles, kidney_titles), rep(1:2, each = 4),
                          abstract = c(planted, rep(NA, 7L)))
   out <- suppressMessages(sm_cluster_label(corpus))
   labels <- labels_by_cluster(out)
   expect_false(any(grepl("quillotyrase", labels, fixed = TRUE)))
-  # "trauma" (3 of 4 works, rarer in the corpus) outranks the terms all
+  # "diabetes" (3 of 4 works, rarer in the corpus) outranks the terms all
   # four works share; the bigram takes the place of its words, and the
-  # overlapping bigrams "exertional heat" and "heat illness" form one term
+  # overlapping bigrams "chronic kidney" and "kidney disease" form one term
   expect_identical(unname(labels),
-                   c("trauma; tourniquet application",
-                     "exertional heat illness"))
+                   c("diabetes; insulin adjustment",
+                     "chronic kidney disease"))
   expect_identical(unique(out$works$cluster_label_basis), "tfidf")
 })
 
 test_that("overlapping pairs of words are shown as the phrase they form", {
   skip_if_not_installed("tidytext")
   cross <- c("A cross-sectional study of burn care",
-             "Cross sectional study of field hygiene",
+             "Cross sectional study of hand hygiene",
              "Hearing loss: a cross-sectional study",
              "Sleep in rowers, a cross sectional study")
-  corpus <- label_corpus(c(cross, bleeding_titles), rep(1:2, each = 4))
+  corpus <- label_corpus(c(cross, diabetes_titles), rep(1:2, each = 4))
   out <- suppressMessages(sm_cluster_label(corpus))
   expect_identical(labels_by_cluster(out)[["1"]], "cross sectional study")
   # single words never form phrases
@@ -174,27 +174,27 @@ test_that("overlapping pairs of words are shown as the phrase they form", {
   expect_identical(labels_by_cluster(out1)[["1"]],
                    "cross; sectional; study")
 
-  # "exertional heat" and "heat illness" overlap but never occur together,
-  # so they stay apart, while "exertional heat stroke" is one phrase
-  heat <- c("Exertional heat stroke in rowers",
-            "Exertional heat stroke during hikes",
-            "Exertional heat stroke and cooling",
-            "Heat illness among sailors", "Heat illness in pilots",
-            "Heat illness after drills")
-  corpus <- label_corpus(c(heat, bleeding_titles), rep(1:2, c(6L, 4L)))
+  # "chronic kidney" and "kidney disease" overlap but never occur together,
+  # so they stay apart, while "chronic kidney failure" is one phrase
+  kidney <- c("Chronic kidney failure in farmers",
+              "Chronic kidney failure during pregnancy",
+              "Chronic kidney failure and dialysis",
+              "Kidney disease among sailors", "Kidney disease in pilots",
+              "Kidney disease after surgery")
+  corpus <- label_corpus(c(kidney, diabetes_titles), rep(1:2, c(6L, 4L)))
   out <- suppressMessages(sm_cluster_label(corpus))
   expect_identical(labels_by_cluster(out)[["1"]],
-                   "exertional heat stroke; heat illness")
+                   "chronic kidney failure; kidney disease")
 
-  # a phrase in 3 of the 10 works with "heat illness" does not take its
-  # place, but that of "exertional heat", which it covers
-  illness <- rep(c("Exertional heat illness", "Heat illness"), c(3L, 7L))
-  strain <- rep("Exertional heat strain", 6L)
-  corpus <- label_corpus(c(illness, strain), rep(1:2, c(10L, 6L)))
+  # a phrase in 3 of the 10 works with "kidney disease" does not take its
+  # place, but that of "chronic kidney", which it covers
+  disease <- rep(c("Chronic kidney disease", "Kidney disease"), c(3L, 7L))
+  injury <- rep("Chronic kidney injury", 6L)
+  corpus <- label_corpus(c(disease, injury), rep(1:2, c(10L, 6L)))
   out <- suppressMessages(sm_cluster_label(corpus))
   terms <- strsplit(labels_by_cluster(out)[["1"]], "; ", fixed = TRUE)[[1]]
-  expect_identical(terms[1:2], c("heat illness", "exertional heat illness"))
-  expect_false("exertional heat" %in% terms)
+  expect_identical(terms[1:2], c("kidney disease", "chronic kidney disease"))
+  expect_false("chronic kidney" %in% terms)
 })
 
 test_that("a longer term covers 40% of the works of the term it replaces", {
@@ -245,28 +245,28 @@ test_that("a longer term covers 40% of the works of the term it replaces", {
 
 test_that("ngram = 1 gives single words, ties broken alphabetically", {
   skip_if_not_installed("tidytext")
-  corpus <- label_corpus(c(bleeding_titles, heat_titles), rep(1:2, each = 4))
+  corpus <- label_corpus(c(diabetes_titles, kidney_titles), rep(1:2, each = 4))
   out <- suppressMessages(sm_cluster_label(corpus, ngram = 1))
   labels <- labels_by_cluster(out)
   expect_identical(unname(labels),
-                   c("trauma; application; tourniquet",
-                     "exertional; heat; illness"))
+                   c("diabetes; adjustment; insulin",
+                     "chronic; disease; kidney"))
   terms <- unlist(strsplit(labels, "; ", fixed = TRUE))
   expect_false(any(grepl(" ", terms, fixed = TRUE)))
   # three-word terms on request
   out3 <- suppressMessages(sm_cluster_label(corpus, ngram = 1:3))
-  expect_match(labels_by_cluster(out3)[["2"]], "exertional heat illness",
+  expect_match(labels_by_cluster(out3)[["2"]], "chronic kidney disease",
                fixed = TRUE)
 })
 
 test_that("noise gets no label and does not count for other clusters", {
   skip_if_not_installed("tidytext")
-  noise_titles <- c("Tourniquet application: an editorial",
-                    "Tourniquet application in the news",
-                    "Tourniquet application, again",
-                    "Tourniquet application revisited")
-  clean <- label_corpus(c(bleeding_titles, heat_titles), rep(1:2, each = 4))
-  noisy <- label_corpus(c(bleeding_titles, heat_titles, noise_titles),
+  noise_titles <- c("Insulin adjustment: an editorial",
+                    "Insulin adjustment in the news",
+                    "Insulin adjustment, again",
+                    "Insulin adjustment revisited")
+  clean <- label_corpus(c(diabetes_titles, kidney_titles), rep(1:2, each = 4))
+  noisy <- label_corpus(c(diabetes_titles, kidney_titles, noise_titles),
                         c(rep(1:2, each = 4), rep(0L, 4L)))
   for (method in c("tfidf", "yake")) {
     a <- suppressMessages(sm_cluster_label(clean, method = method))
@@ -286,18 +286,18 @@ test_that("noise gets no label and does not count for other clusters", {
 
 test_that("min_works is respected and relaxed to 2 when nothing reaches it", {
   skip_if_not_installed("tidytext")
-  corpus <- label_corpus(c(bleeding_titles, heat_titles), rep(1:2, each = 4))
+  corpus <- label_corpus(c(diabetes_titles, kidney_titles), rep(1:2, each = 4))
   out <- suppressMessages(sm_cluster_label(corpus, min_works = 4L))
   terms <- strsplit(labels_by_cluster(out)[["1"]], "; ", fixed = TRUE)[[1]]
-  expect_false("trauma" %in% terms)
-  expect_identical(terms, "tourniquet application")
+  expect_false("diabetes" %in% terms)
+  expect_identical(terms, "insulin adjustment")
 
   expect_message(
     relaxed <- sm_cluster_label(corpus, min_works = 5L),
     "as few as 2 works"
   )
   expect_identical(unname(labels_by_cluster(relaxed)[["1"]]),
-                   "trauma; tourniquet application")
+                   "diabetes; insulin adjustment")
   expect_identical(
     unique(relaxed$works$cluster_label_basis), "tfidf (relaxed)"
   )
@@ -307,7 +307,7 @@ test_that("min_works is respected and relaxed to 2 when nothing reaches it", {
 
 test_that("a cluster without a shared term gets NA with a message", {
   skip_if_not_installed("tidytext")
-  corpus <- label_corpus(c(bleeding_titles, "Snakebite envenomation"),
+  corpus <- label_corpus(c(diabetes_titles, "Snakebite envenomation"),
                          c(1L, 1L, 1L, 1L, 2L))
   suppressMessages(
     expect_message(out <- sm_cluster_label(corpus),
@@ -321,18 +321,18 @@ test_that("a cluster without a shared term gets NA with a message", {
 
 test_that("stop_terms leaves out whole terms, singular and plural alike", {
   skip_if_not_installed("tidytext")
-  corpus <- label_corpus(c(bleeding_titles, heat_titles), rep(1:2, each = 4))
+  corpus <- label_corpus(c(diabetes_titles, kidney_titles), rep(1:2, each = 4))
   out <- suppressMessages(
-    sm_cluster_label(corpus, stop_terms = "Tourniquet Application")
+    sm_cluster_label(corpus, stop_terms = "Insulin Adjustment")
   )
   expect_identical(unname(labels_by_cluster(out)[["1"]]),
-                   "trauma; application; tourniquet")
+                   "diabetes; adjustment; insulin")
   out <- suppressMessages(
-    sm_cluster_label(corpus, stop_terms = c("Tourniquets", NA))
+    sm_cluster_label(corpus, stop_terms = c("Insulins", NA))
   )
   terms <- strsplit(labels_by_cluster(out)[["1"]], "; ", fixed = TRUE)[[1]]
-  expect_false("tourniquet" %in% terms)
-  expect_true("tourniquet application" %in% terms)
+  expect_false("insulin" %in% terms)
+  expect_true("insulin adjustment" %in% terms)
 })
 
 test_that(".fold_plural folds plurals conservatively", {
@@ -365,7 +365,7 @@ test_that("a label shows the spelling its works use most often", {
   skip_if_not_installed("tidytext")
   hip <- c("Hip fractures in the elderly", "Hip fractures after falls",
            "Surgery of hip fractures", "Hip fracture surgery")
-  corpus <- label_corpus(c(hip, heat_titles), rep(1:2, each = 4))
+  corpus <- label_corpus(c(hip, kidney_titles), rep(1:2, each = 4))
   out <- suppressMessages(sm_cluster_label(corpus, ngram = 1))
   terms <- strsplit(labels_by_cluster(out)[["1"]], "; ", fixed = TRUE)[[1]]
   expect_true("fractures" %in% terms)
@@ -413,7 +413,7 @@ test_that("without the stopwords package English stop words are used", {
   labels <- labels_by_cluster(res$value)
   expect_false(anyNA(labels))
   # an English-only corpus needs no message
-  english <- label_corpus(c(bleeding_titles, heat_titles),
+  english <- label_corpus(c(diabetes_titles, kidney_titles),
                           rep(1:2, each = 4))
   res <- count_messages(sm_cluster_label(english),
                         "scimapR_cluster_label_no_stopwords")
@@ -423,7 +423,7 @@ test_that("without the stopwords package English stop words are used", {
 test_that("languages without a stop-word list are named once", {
   skip_if_not_installed("tidytext")
   skip_if_not_installed("stopwords")
-  corpus <- label_corpus(c(bleeding_titles, heat_titles), rep(1:2, each = 4),
+  corpus <- label_corpus(c(diabetes_titles, kidney_titles), rep(1:2, each = 4),
                          language = rep(c("Polish", "pl"), 4L))
   res <- count_messages(sm_cluster_label(corpus),
                         "scimapR_cluster_label_stopwords_unsupported")
@@ -476,7 +476,7 @@ test_that("keywords: scored per work, specific terms, author spelling", {
 
 test_that("keywords fall back to titles when there are none", {
   skip_if_not_installed("tidytext")
-  corpus <- label_corpus(c(bleeding_titles, heat_titles), rep(1:2, each = 4))
+  corpus <- label_corpus(c(diabetes_titles, kidney_titles), rep(1:2, each = 4))
   suppressMessages(expect_message(
     out <- sm_cluster_label(corpus, method = "keywords"),
     class = "scimapR_cluster_label_no_keywords"
@@ -508,7 +508,7 @@ test_that("sm_cluster_label llm uses a mocked provider", {
 
 test_that("sm_cluster_label llm leaves noise unlabelled", {
   skip_if_not_installed("ellmer")
-  corpus <- label_corpus(c(bleeding_titles, heat_titles),
+  corpus <- label_corpus(c(diabetes_titles, kidney_titles),
                          c(1L, 1L, 1L, 1L, 0L, 0L, 0L, 0L))
   asked <- 0L
   local_mocked_bindings(.check_llm_available = function(...) NULL)
@@ -527,12 +527,12 @@ test_that("sm_cluster_label llm leaves noise unlabelled", {
 
 test_that("sm_cluster_label keeps the label columns typed on empty input", {
   skip_if_not_installed("tidytext")
-  corpus <- label_corpus(bleeding_titles, 1L)
+  corpus <- label_corpus(diabetes_titles, 1L)
   corpus$works <- corpus$works[0L, ]
   out <- sm_cluster_label(corpus)
   expect_identical(out$works$cluster_label, character())
   expect_identical(out$works$cluster_label_basis, character())
-  only_noise <- label_corpus(bleeding_titles, 0L)
+  only_noise <- label_corpus(diabetes_titles, 0L)
   out <- suppressMessages(sm_cluster_label(only_noise))
   expect_type(out$works$cluster_label, "character")
   expect_true(all(is.na(out$works$cluster_label)))

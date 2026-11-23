@@ -204,18 +204,18 @@ test_that("sm_read_openalex_json reads raw affiliation strings", {
   a <- corpus$authorships
   expect_identical(a$raw_affiliation, c(
     paste("Northtown District Hospital, Dept. of Emergency Medicine, Northtown;",
-          "Auxiliary Medical Crew 7, Northtown"),
+          "Regional Care Team 7, Northtown"),
     "Institute of Invented Microbiology, Southcity",
     "Southcity University Hospital",
     "Northtown District Hospital"
   ))
   # the raw strings carry the unit text that dictionaries match
-  dict <- data.frame(institution = "Auxiliary Medical Crew 7",
-                     pattern = "Auxiliary Medical Crew 7",
+  dict <- data.frame(institution = "Regional Care Team 7",
+                     pattern = "Regional Care Team 7",
                      email_domain = NA_character_)
   matched <- suppressMessages(sm_affiliation_match(corpus, dict))
   expect_identical(sum(matched$authorships$institution_match %in%
-                         "Auxiliary Medical Crew 7"), 1L)
+                         "Regional Care Team 7"), 1L)
 })
 
 test_that("sm_read_openalex_json links works to their sources by id", {
