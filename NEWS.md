@@ -1,5 +1,8 @@
 # scimapR 0.5.0
 
+* `?sm_plot_thematic_map` says how its centrality and density are
+  computed: simple corpus-internal proxies, not the equivalence-index sums
+  of Callon et al. (1991).
 * Year axes of `sm_plot_production()`, `sm_plot_evolution()`, the equity
   dashboard, the trajectory plots and the `autoplot()` methods of `sm_its()`
   and `sm_did()` show whole years only (no ticks such as 2017.5).

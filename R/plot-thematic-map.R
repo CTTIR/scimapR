@@ -11,6 +11,16 @@
 #'
 #' @return A `ggplot` object.
 #'
+#' @details
+#' The axes are simple, corpus-internal proxies for Callon's measures, not
+#' the equivalence-index sums of Callon et al. (1991). With a concepts
+#' table, a cluster's centrality is the share of its distinct concepts that
+#' also occur in other clusters, and its density is the number of distinct
+#' concepts per work of the cluster. Without concepts, centrality is the
+#' cluster's mean citation count and density its number of works, both
+#' relative to the largest cluster. The dashed lines mark the medians. When
+#' every concept occurs in several clusters, all clusters get centrality 1.
+#'
 #' @examplesIf requireNamespace("dbscan", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE) && requireNamespace("ggrepel", quietly = TRUE)
 #' corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
 #' corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
