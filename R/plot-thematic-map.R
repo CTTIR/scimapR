@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Strategic diagram plotting clusters by centrality (external links) and
-#' density (internal links), following Callon et al.
+#' density (internal links), following Callon et al. (1991).
 #'
 #' @param corpus An `sm_corpus` with clusters.
 #' @param by Grouping variable. Default `"cluster_id"`.
@@ -15,6 +15,12 @@
 #' corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
 #' corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
 #' sm_plot_thematic_map(corpus)
+#'
+#' @references
+#' Callon, M., Courtial, J. P., & Laville, F. (1991). Co-word analysis as a
+#' tool for describing the network of interactions between basic and
+#' technological research: The case of polymer chemistry. *Scientometrics*,
+#' 22(1), 155--205. \doi{10.1007/BF02019280}
 #'
 #' @family plots
 #' @export

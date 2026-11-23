@@ -20,7 +20,7 @@ A \code{ggplot} object.
 }
 \description{
 Strategic diagram plotting clusters by centrality (external links) and
-density (internal links), following Callon et al.
+density (internal links), following Callon et al. (1991).
 }
 \examples{
 \dontshow{if (requireNamespace("dbscan", quietly = TRUE) && requireNamespace("uwot", quietly = TRUE) && requireNamespace("ggrepel", quietly = TRUE)) withAutoprint(\{ # examplesIf}
@@ -28,6 +28,12 @@ corpus <- sm_example_corpus(with_embeddings = TRUE, seed = 42)
 corpus <- sm_cluster_hdbscan(corpus, min_cluster_size = 10)
 sm_plot_thematic_map(corpus)
 \dontshow{\}) # examplesIf}
+}
+\references{
+Callon, M., Courtial, J. P., & Laville, F. (1991). Co-word analysis as a
+tool for describing the network of interactions between basic and
+technological research: The case of polymer chemistry. \emph{Scientometrics},
+22(1), 155--205. \doi{10.1007/BF02019280}
 }
 \seealso{
 Other plots:

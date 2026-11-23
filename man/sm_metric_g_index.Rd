@@ -33,6 +33,10 @@ in total (Egghe, 2006).
 corpus <- sm_example_corpus()
 sm_metric_g_index(corpus, level = "author")
 }
+\references{
+Egghe, L. (2006). Theory and practise of the g-index. \emph{Scientometrics},
+69(1), 131--152. \doi{10.1007/s11192-006-0144-7}
+}
 \seealso{
 \code{\link[=sm_self_citation]{sm_self_citation()}}
 

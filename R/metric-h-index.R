@@ -23,6 +23,11 @@
 #' share the entity. Because the network is internal to the corpus, this is a
 #' lower-bound correction on the global `cited_by_count`.
 #'
+#' @references
+#' Hirsch, J. E. (2005). An index to quantify an individual's scientific
+#' research output. *Proceedings of the National Academy of Sciences*,
+#' 102(46), 16569--16572. \doi{10.1073/pnas.0507655102}
+#'
 #' @family metrics
 #' @seealso [sm_self_citation()]
 #' @export
@@ -75,6 +80,10 @@ sm_metric_h_index <- function(corpus,
 #' @param call Caller environment for error reporting.
 #'
 #' @return A tibble with columns for the entity ID/name and `g_index`.
+#'
+#' @references
+#' Egghe, L. (2006). Theory and practise of the g-index. *Scientometrics*,
+#' 69(1), 131--152. \doi{10.1007/s11192-006-0144-7}
 #'
 #' @family metrics
 #' @seealso [sm_self_citation()]
@@ -131,6 +140,11 @@ sm_metric_g_index <- function(corpus,
 #'   `first_year`, `career_years`, and `m_index`. The earliest available
 #'   publication year defines career length. If all years for an entity are
 #'   missing, these last three columns are `NA`; its h-index is still reported.
+#'
+#' @references
+#' Hirsch, J. E. (2005). An index to quantify an individual's scientific
+#' research output. *Proceedings of the National Academy of Sciences*,
+#' 102(46), 16569--16572. \doi{10.1073/pnas.0507655102}
 #'
 #' @family metrics
 #' @seealso [sm_self_citation()]

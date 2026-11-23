@@ -53,6 +53,11 @@ table(corpus$works$cluster_id)
 }
 \dontshow{\}) # examplesIf}
 }
+\references{
+Traag, V. A., Waltman, L., & van Eck, N. J. (2019). From Louvain to
+Leiden: guaranteeing well-connected communities. \emph{Scientific Reports}, 9,
+5233. \doi{10.1038/s41598-019-41695-z}
+}
 \seealso{
 Other clustering:
 \code{\link[=sm_cluster_evolution]{sm_cluster_evolution()}},

@@ -34,6 +34,16 @@
 #' An RCR of 1.0 means the work is cited at the average rate for its
 #' field-year. Values above 1.0 indicate above-average impact.
 #'
+#' This is a corpus-internal, simplified analogue of the Relative Citation
+#' Ratio of Hutchins et al. (2016), not the NIH iCite value. The published
+#' RCR divides a work's citations per year by an expected rate that comes
+#' from the field citation rate of its co-citation network, benchmarked by
+#' regression against NIH R01-funded papers. Here the field is the work's
+#' top-level concept, the expected value is the mean citation count of the
+#' corpus works of the same field and year, and citations are not divided
+#' by the years since publication. Values therefore depend on the corpus
+#' and are not comparable with iCite RCRs.
+#'
 #' @references
 #' Hutchins, B. I., Yuan, X., Anderson, J. M., & Santangelo, G. M. (2016).
 #' Relative Citation Ratio (RCR): A New Metric That Uses Citation Rates to

@@ -1,5 +1,12 @@
 # scimapR 0.5.0
 
+* The help pages and the "Modern indicators" vignette say that
+  `sm_metric_rcr()` and `sm_metric_novelty()` are simplified, corpus-internal
+  analogues of the Relative Citation Ratio (Hutchins et al., 2016) and of
+  the Uzzi et al. (2013) novelty score, and how they differ from the
+  originals; the vignette no longer says that the RCR here uses the
+  co-citation network. The h-, g- and m-index, Leiden clustering and the
+  thematic map cite their method papers with DOIs.
 * `sm_plot_top(metric = "citations")` ranks by the summed citation counts of
   each entity's works; the argument used to be ignored, so the plot showed
   work counts under a "Citations" axis label. Entities without a display name

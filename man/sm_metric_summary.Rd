@@ -109,7 +109,7 @@ attr(s, "impact_source")
 \references{
 Waltman, L., & Schreiber, M. (2013). On the calculation of percentile-based
 bibliometric indicators. Journal of the American Society for Information
-Science and Technology, 64(2), 372--379.
+Science and Technology, 64(2), 372--379. \doi{10.1002/asi.22775}
 }
 \seealso{
 \code{\link[=sm_summary_works]{sm_summary_works()}}, \code{\link[=sm_count]{sm_count()}}

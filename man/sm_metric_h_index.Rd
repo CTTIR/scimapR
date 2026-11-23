@@ -43,6 +43,11 @@ lower-bound correction on the global \code{cited_by_count}.
 corpus <- sm_example_corpus()
 sm_metric_h_index(corpus, level = "author")
 }
+\references{
+Hirsch, J. E. (2005). An index to quantify an individual's scientific
+research output. \emph{Proceedings of the National Academy of Sciences},
+102(46), 16569--16572. \doi{10.1073/pnas.0507655102}
+}
 \seealso{
 \code{\link[=sm_self_citation]{sm_self_citation()}}
 
