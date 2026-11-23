@@ -1,5 +1,12 @@
 # scimapR 0.5.0
 
+* `sm_enrich_unpaywall()` no longer fails silently: lookups that fail for a
+  reason other than "not found" raise a warning of class
+  `scimapR_unpaywall_unchecked` listing the affected `work_ids`, those works
+  keep their earlier `oa_status` and `oa_url` (before, a failed lookup erased
+  an earlier `oa_url`), and only works Unpaywall answered for get provenance
+  rows. Its example runs under `\donttest{}` when `SCIMAPR_MAILTO` is set and
+  the machine is online.
 * With `verbose = FALSE`, the fetchers (`sm_fetch_*()`) and the enrichers
   (`sm_enrich_*()`) no longer print their closing "Parsed ..." or
   "Enriched ..." message; only warnings remain.

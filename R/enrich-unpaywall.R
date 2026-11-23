@@ -15,18 +15,27 @@
 #' @param call Caller environment for error reporting.
 #'
 #' @return An `sm_corpus` object with updated `oa_status` and `oa_url`
-#'   columns in the `works` table, plus new provenance rows.
+#'   columns in the `works` table, plus provenance rows for the works
+#'   Unpaywall answered for ("not found" included). Works whose lookup
+#'   failed for another reason (rejected address, rate limit, server or
+#'   network error) keep their previous values and are reported in a
+#'   warning of class `scimapR_unpaywall_unchecked` with their `work_ids`.
 #'
 #' @family enrichers
 #' @export
 #' @examples
-#' \dontrun{
-#' # Not run: the Unpaywall API needs a contact e-mail address (`mailto`).
-#' corpus <- sm_corpus(works = tibble::tibble(
-#'   work_id = "W1",
-#'   doi = "10.1371/journal.pbio.1002541"
-#' ))
-#' corpus <- sm_enrich_unpaywall(corpus, mailto = "name@example.org")
+#' \donttest{
+#' # Queries the Unpaywall web API; runs only when a contact e-mail address
+#' # is set in the SCIMAPR_MAILTO environment variable.
+#' if (nzchar(Sys.getenv("SCIMAPR_MAILTO")) &&
+#'     requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+#'   corpus <- sm_corpus(works = tibble::tibble(
+#'     work_id = "W1",
+#'     doi = "10.1371/journal.pbio.1002541"
+#'   ))
+#'   enriched <- try(sm_enrich_unpaywall(corpus))
+#'   if (is_sm_corpus(enriched)) enriched$works[, c("oa_status", "oa_url")]
+#' }
 #' }
 sm_enrich_unpaywall <- function(corpus,
                                 mailto = Sys.getenv("SCIMAPR_MAILTO"),
@@ -61,11 +70,12 @@ sm_enrich_unpaywall <- function(corpus,
 
   oa_status <- rep(NA_character_, length(target_dois))
   oa_url <- rep(NA_character_, length(target_dois))
+  failed <- rep(FALSE, length(target_dois))
 
   for (i in seq_along(target_dois)) {
     result <- tryCatch({
       req <- httr2::request(
-        paste0("https://api.unpaywall.org/v2/", target_dois[i])
+        paste0("https://api.unpaywall.org/v2/", .doi_url_path(target_dois[i]))
       ) |>
         httr2::req_url_query(email = mailto) |>
         httr2::req_headers(`User-Agent` = .sm_user_agent()) |>
@@ -74,6 +84,9 @@ sm_enrich_unpaywall <- function(corpus,
       resp <- httr2::req_perform(req)
       httr2::resp_body_json(resp)
     }, error = function(e) {
+      # A 404 means Unpaywall has no record for the DOI, which is a normal
+      # answer; anything else leaves the work unchecked.
+      if (!inherits(e, "httr2_http_404")) failed[i] <<- TRUE
       NULL
     })
 
@@ -105,13 +118,16 @@ sm_enrich_unpaywall <- function(corpus,
   if (!"oa_url" %in% names(works)) {
     works$oa_url <- NA_character_
   }
-  works$oa_url[has_doi] <- oa_url
+  # A failed lookup keeps the URL of an earlier run; an answer replaces it,
+  # also with NA when Unpaywall no longer knows an open copy.
+  answered <- which(has_doi)[!failed]
+  works$oa_url[answered] <- oa_url[!failed]
 
-  # Add provenance rows
+  # Add provenance rows for the works Unpaywall answered for
   new_prov <- .make_provenance_rows(
-    work_ids = target_ids,
+    work_ids = target_ids[!failed],
     source_name = "unpaywall",
-    external_ids = target_dois,
+    external_ids = target_dois[!failed],
     query_text = "enrich_unpaywall",
     engine_name = "native",
     kind = "enrichment"
@@ -120,6 +136,17 @@ sm_enrich_unpaywall <- function(corpus,
   corpus$works <- works
   corpus$provenance <- dplyr::bind_rows(corpus$provenance, new_prov)
 
-  .sm_done("Enriched {sum(!is.na(oa_status))} works with Unpaywall data.")
+  if (any(failed)) {
+    cli::cli_warn(
+      c(sprintf("Unpaywall lookups failed for %d of %d works.",
+                sum(failed), length(target_dois)),
+        "i" = "Their open-access data were left unchanged."),
+      class = "scimapR_unpaywall_unchecked",
+      work_ids = target_ids[failed], call = call
+    )
+  }
+
+  .sm_done("Enriched {sum(!is.na(oa_status))} works with Unpaywall data.",
+           verbose = verbose)
   corpus
 }

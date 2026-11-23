@@ -23,7 +23,11 @@ sm_enrich_unpaywall(
 }
 \value{
 An \code{sm_corpus} object with updated \code{oa_status} and \code{oa_url}
-columns in the \code{works} table, plus new provenance rows.
+columns in the \code{works} table, plus provenance rows for the works
+Unpaywall answered for ("not found" included). Works whose lookup
+failed for another reason (rejected address, rate limit, server or
+network error) keep their previous values and are reported in a
+warning of class \code{scimapR_unpaywall_unchecked} with their \code{work_ids}.
 }
 \description{
 Look up DOIs in the corpus via the
@@ -34,13 +38,18 @@ This enricher is idempotent: re-running it updates existing OA data
 rather than duplicating it. Requires a \code{mailto} address for API access.
 }
 \examples{
-\dontrun{
-# Not run: the Unpaywall API needs a contact e-mail address (`mailto`).
-corpus <- sm_corpus(works = tibble::tibble(
-  work_id = "W1",
-  doi = "10.1371/journal.pbio.1002541"
-))
-corpus <- sm_enrich_unpaywall(corpus, mailto = "name@example.org")
+\donttest{
+# Queries the Unpaywall web API; runs only when a contact e-mail address
+# is set in the SCIMAPR_MAILTO environment variable.
+if (nzchar(Sys.getenv("SCIMAPR_MAILTO")) &&
+    requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = "W1",
+    doi = "10.1371/journal.pbio.1002541"
+  ))
+  enriched <- try(sm_enrich_unpaywall(corpus))
+  if (is_sm_corpus(enriched)) enriched$works[, c("oa_status", "oa_url")]
+}
 }
 }
 \seealso{
