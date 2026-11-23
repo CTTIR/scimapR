@@ -28,8 +28,9 @@ the equivalence-index sums of Callon et al. (1991). With a concepts
 table, a cluster's centrality is the share of its distinct concepts that
 also occur in other clusters, and its density is the number of distinct
 concepts per work of the cluster. Without concepts, centrality is the
-cluster's mean citation count and density its number of works, both
-relative to the largest cluster. The dashed lines mark the medians. When
+cluster's mean citation count divided by the highest mean citation count
+of any cluster, and density its number of works divided by the size of
+the largest cluster. The dashed lines mark the medians. When
 every concept occurs in several clusters, all clusters get centrality 1.
 }
 \examples{
