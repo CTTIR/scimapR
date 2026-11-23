@@ -302,8 +302,8 @@ bslib::page_navbar(
       bslib::card_header("Corpus Explorer (Placeholder)"),
       bslib::card_body(
         shiny::helpText(
-          "Conversational corpus exploration requires an LLM API key.",
-          "Configure via SCIMAPR_LLM_API_KEY environment variable."
+          "Conversational exploration is not available in the app yet.",
+          "Use sm_chat() in R with an 'ellmer' chat provider."
         ),
         shiny::textAreaInput(
           "chat_input", "Ask a question about the corpus:",

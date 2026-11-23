@@ -3,6 +3,13 @@
 
 function(input, output, session) {
 
+  # Plots render at 96 dpi, so their text is about as large as the page text
+  # (renderPlot() defaults to 72 dpi, which draws small axis labels).
+  render_plot <- function(expr, env = parent.frame(), quoted = FALSE) {
+    if (!quoted) expr <- substitute(expr)
+    shiny::renderPlot(expr, env = env, quoted = TRUE, res = 96)
+  }
+
   # -- Reactive corpus (allows future upload/swap) -----------------------------
   corpus <- shiny::reactiveVal(corpus_data)
 
@@ -29,11 +36,11 @@ function(input, output, session) {
     paste(rng[1], "–", rng[2])
   })
 
-  output$overview_production <- shiny::renderPlot({
+  output$overview_production <- render_plot({
     scimapR::sm_plot_production(corpus())
   })
 
-  output$overview_top_sources <- shiny::renderPlot({
+  output$overview_top_sources <- render_plot({
     scimapR::sm_plot_top(corpus(), level = "sources", n = 10)
   })
 
@@ -108,7 +115,7 @@ function(input, output, session) {
     )
   })
 
-  output$authors_lotka <- shiny::renderPlot({
+  output$authors_lotka <- render_plot({
     scimapR::sm_plot_lotka(corpus())
   })
 
@@ -146,7 +153,7 @@ function(input, output, session) {
     )
   })
 
-  output$sources_bradford <- shiny::renderPlot({
+  output$sources_bradford <- render_plot({
     scimapR::sm_plot_bradford(corpus())
   })
 
@@ -194,7 +201,7 @@ function(input, output, session) {
     })
   })
 
-  output$network_plot <- shiny::renderPlot({
+  output$network_plot <- render_plot({
     g <- network_graph()
     if (is.null(g)) {
       plot.new()
@@ -264,7 +271,7 @@ function(input, output, session) {
     })
   })
 
-  output$cluster_landscape <- shiny::renderPlot({
+  output$cluster_landscape <- render_plot({
     cc <- clustered_corpus()
     if (is.null(cc)) {
       # Show landscape from raw corpus if embeddings exist
@@ -399,7 +406,7 @@ function(input, output, session) {
     )
   })
 
-  output$traj_plot <- shiny::renderPlot({
+  output$traj_plot <- render_plot({
     traj <- traj_result()
     shiny::req(traj)
     scimapR::sm_plot_trajectory(traj)
@@ -409,7 +416,7 @@ function(input, output, session) {
   # 9. EQUITY
   # ============================================================================
 
-  output$equity_dashboard <- shiny::renderPlot({
+  output$equity_dashboard <- render_plot({
     scimapR::sm_plot_equity_dashboard(corpus())
   })
 
@@ -452,7 +459,7 @@ function(input, output, session) {
     )
   })
 
-  output$screening_prisma <- shiny::renderPlot({
+  output$screening_prisma <- render_plot({
     c <- corpus()
     if (nrow(c$screening) == 0) {
       plot.new()
@@ -477,10 +484,11 @@ function(input, output, session) {
         return("Please type a question.")
       }
       paste0(
-        "Chat is a placeholder. Your question: \"", q, "\"\n\n",
-        "To enable conversational exploration, set the ",
-        "SCIMAPR_LLM_API_KEY environment variable and install the ",
-        "'ellmer' package."
+        "Chat is not available in the app yet. Your question: \"", q,
+        "\"\n\n",
+        "Ask it in R with sm_chat(corpus, question, provider = ...) and an ",
+        "'ellmer' chat provider, for example chat_openai() from 'ellmer', ",
+        "which reads the OPENAI_API_KEY environment variable."
       )
     })
   })
@@ -658,7 +666,7 @@ function(input, output, session) {
     paste0(cov$recall, " / ", cov$precision, " / ", cov$f1)
   })
 
-  output$coverage_plot <- shiny::renderPlot({
+  output$coverage_plot <- render_plot({
     cov <- coverage_result()
     shiny::req(cov)
     ggplot2::autoplot(cov)
@@ -720,7 +728,7 @@ function(input, output, session) {
     )
   })
 
-  output$its_plot <- shiny::renderPlot({
+  output$its_plot <- render_plot({
     its <- its_result()
     shiny::req(its)
     ggplot2::autoplot(its)

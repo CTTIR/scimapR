@@ -27,3 +27,11 @@ test_that(".app_top_nodes keeps the nodes of highest degree", {
   expect_identical(.app_top_nodes(g, 10), g)
   expect_identical(.app_top_nodes(g, NA), g)
 })
+
+test_that("the app names no settings that nothing reads", {
+  files <- list.files(system.file("shiny", "scimapR", package = "scimapR"),
+                      pattern = "\\.R$", full.names = TRUE)
+  skip_if(length(files) == 0L, "the app files are not installed")
+  code <- unlist(lapply(files, readLines, warn = FALSE))
+  expect_false(any(grepl("SCIMAPR_LLM_API_KEY", code, fixed = TRUE)))
+})

@@ -1,5 +1,9 @@
 # scimapR 0.5.0
 
+* The app's Chat tab no longer asks for a `SCIMAPR_LLM_API_KEY` setting that
+  nothing reads; it says that chat is available through `sm_chat()` in R.
+  The app's plots render at 96 dpi so their labels are readable, and
+  `?sm_run_app` counts the app's 17 tabs.
 * `sm_plot_landscape()` names a colour legend only when it colours the
   points, so an unclustered corpus no longer triggers ggplot2's "Ignoring
   unknown labels" warning.

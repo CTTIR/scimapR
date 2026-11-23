@@ -18,7 +18,7 @@ sm_run_app(corpus = NULL, launch.browser = TRUE, ...)
 Invisible \code{NULL}. Launches a Shiny application.
 }
 \description{
-Launch a comprehensive 13-tab interactive explorer for bibliometric
+Launch a comprehensive 17-tab interactive explorer for bibliometric
 analysis. The app provides auto/light/dark theming, publication-ready
 export in multiple formats, and viridis colour palettes throughout.
 }
