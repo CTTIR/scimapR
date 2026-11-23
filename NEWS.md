@@ -1,5 +1,10 @@
 # scimapR 0.5.0
 
+* `sm_run_app()`: the "Max Nodes" setting of the network tab now limits the
+  drawn network to the nodes of highest degree (it was ignored); the tab
+  says so instead of failing when 'ggraph' is not installed; and the app no
+  longer requires the unused packages 'shinyWidgets', 'shinyjs' and
+  'htmltools'.
 * The help pages and the "Modern indicators" vignette say that
   `sm_metric_rcr()` and `sm_metric_novelty()` are simplified, corpus-internal
   analogues of the Relative Citation Ratio (Hutchins et al., 2016) and of

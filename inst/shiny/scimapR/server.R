@@ -189,6 +189,7 @@ function(input, output, session) {
         )
         NULL
       })
+      if (!is.null(g)) g <- scimapR:::.app_top_nodes(g, top_n)
       network_graph(g)
     })
   })
@@ -198,6 +199,13 @@ function(input, output, session) {
     if (is.null(g)) {
       plot.new()
       text(0.5, 0.5, "Click 'Build Network' to generate a network plot.",
+           cex = 1.2, col = "#888888")
+      return()
+    }
+
+    if (!requireNamespace("ggraph", quietly = TRUE)) {
+      plot.new()
+      text(0.5, 0.5, "Install the 'ggraph' package to draw networks.",
            cex = 1.2, col = "#888888")
       return()
     }
