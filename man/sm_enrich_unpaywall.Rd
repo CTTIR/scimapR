@@ -24,10 +24,11 @@ sm_enrich_unpaywall(
 \value{
 An \code{sm_corpus} object with updated \code{oa_status} and \code{oa_url}
 columns in the \code{works} table, plus provenance rows for the works
-Unpaywall answered for ("not found" included). Works whose lookup
-failed for another reason (rejected address, rate limit, server or
-network error) keep their previous values and are reported in a
-warning of class \code{scimapR_unpaywall_unchecked} with their \code{work_ids}.
+Unpaywall answered for ("not found" included). Works that Unpaywall
+does not know (HTTP 404) keep their previous \code{oa_status} and \code{oa_url}.
+So do works whose lookup failed for another reason (rejected address,
+rate limit, server or network error); they are reported in a warning
+of class \code{scimapR_unpaywall_unchecked} with their \code{work_ids}.
 }
 \description{
 Look up DOIs in the corpus via the

@@ -192,3 +192,20 @@ test_that("unpaywall percent-encodes DOIs in the request path", {
     urls, "^https://api\\.unpaywall\\.org/v2/10\\.1000/a%23b%3Fc\\?email="
   )
 })
+
+test_that("unpaywall keeps earlier values of DOIs it does not know", {
+  corpus <- sm_example_corpus(n_works = 1, n_authors = 1,
+                              with_embeddings = FALSE, seed = 8)
+  corpus$works$oa_status <- "green"
+  corpus$works$oa_url <- "https://example.org/earlier"
+  testthat::local_mocked_bindings(
+    req_perform = function(req, ...) {
+      rlang::abort("HTTP 404 Not Found.",
+                   class = c("httr2_http_404", "httr2_http", "httr2_error"))
+    },
+    .package = "httr2"
+  )
+  out <- sm_enrich_unpaywall(corpus, mailto = "a@b.com", verbose = FALSE)
+  expect_identical(out$works$oa_status, "green")
+  expect_identical(out$works$oa_url, "https://example.org/earlier")
+})

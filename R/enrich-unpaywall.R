@@ -16,10 +16,11 @@
 #'
 #' @return An `sm_corpus` object with updated `oa_status` and `oa_url`
 #'   columns in the `works` table, plus provenance rows for the works
-#'   Unpaywall answered for ("not found" included). Works whose lookup
-#'   failed for another reason (rejected address, rate limit, server or
-#'   network error) keep their previous values and are reported in a
-#'   warning of class `scimapR_unpaywall_unchecked` with their `work_ids`.
+#'   Unpaywall answered for ("not found" included). Works that Unpaywall
+#'   does not know (HTTP 404) keep their previous `oa_status` and `oa_url`.
+#'   So do works whose lookup failed for another reason (rejected address,
+#'   rate limit, server or network error); they are reported in a warning
+#'   of class `scimapR_unpaywall_unchecked` with their `work_ids`.
 #'
 #' @family enrichers
 #' @export
@@ -71,6 +72,7 @@ sm_enrich_unpaywall <- function(corpus,
   oa_status <- rep(NA_character_, length(target_dois))
   oa_url <- rep(NA_character_, length(target_dois))
   failed <- rep(FALSE, length(target_dois))
+  found <- rep(FALSE, length(target_dois))
 
   for (i in seq_along(target_dois)) {
     result <- tryCatch({
@@ -91,6 +93,7 @@ sm_enrich_unpaywall <- function(corpus,
     })
 
     if (!is.null(result)) {
+      found[i] <- TRUE
       oa_status[i] <- result[["oa_status"]] %||% NA_character_
       best_loc <- result[["best_oa_location"]]
       oa_url[i] <- if (!is.null(best_loc)) {
@@ -118,10 +121,11 @@ sm_enrich_unpaywall <- function(corpus,
   if (!"oa_url" %in% names(works)) {
     works$oa_url <- NA_character_
   }
-  # A failed lookup keeps the URL of an earlier run; an answer replaces it,
-  # also with NA when Unpaywall no longer knows an open copy.
-  answered <- which(has_doi)[!failed]
-  works$oa_url[answered] <- oa_url[!failed]
+  # A record from Unpaywall replaces the URL of an earlier run, also with NA
+  # when Unpaywall knows no open copy. A failed lookup or a DOI that
+  # Unpaywall does not know (HTTP 404) keeps the earlier URL, as it keeps the
+  # earlier oa_status.
+  works$oa_url[which(has_doi)[found]] <- oa_url[found]
 
   # Add provenance rows for the works Unpaywall answered for
   new_prov <- .make_provenance_rows(
