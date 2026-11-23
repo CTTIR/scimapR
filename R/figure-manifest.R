@@ -30,12 +30,14 @@
 #' @export
 #' @examples
 #' \donttest{
-#' d <- withr::local_tempdir()
+#' d <- tempfile("figures")
+#' dir.create(d)
 #' ggplot2::ggsave(file.path(d, "fig1.png"),
 #'                 ggplot2::ggplot(mtcars, ggplot2::aes(wt, mpg)) +
 #'                   ggplot2::geom_point(),
 #'                 width = 4, height = 3, dpi = 150)
 #' sm_figure_manifest(d)
+#' unlink(d, recursive = TRUE)
 #' }
 sm_figure_manifest <- function(dir,
                                pattern = NULL,
