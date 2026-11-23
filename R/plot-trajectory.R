@@ -44,6 +44,7 @@ sm_plot_trajectory <- function(traj, dark = FALSE, ...) {
   ggplot2::ggplot(dat, ggplot2::aes(x = .data$year, y = .data$h_index)) +
     ggplot2::geom_line(colour = viridisLite::viridis(1), linewidth = 1) +
     ggplot2::geom_point(colour = viridisLite::viridis(1)) +
+    ggplot2::scale_x_continuous(breaks = .year_breaks) +
     sm_theme(dark = dark) +
     ggplot2::labs(title = "h-index Over Time", x = "Year", y = "h-index")
 }
@@ -65,7 +66,10 @@ sm_plot_trajectory <- function(traj, dark = FALSE, ...) {
 #' Plot topic pivots
 #'
 #' @description
-#' Vertical timeline showing when an author's research focus shifted.
+#' Timeline of when an author's research focus shifted: one bar per
+#' period boundary, as long as the pivot strength (the Jaccard distance
+#' between the topics of the period and those of the period before; 0 =
+#' same topics, 1 = no topic in common).
 #'
 #' @param traj An `sm_trajectory` object.
 #' @param dark Logical; dark mode?
@@ -94,19 +98,21 @@ sm_plot_topic_pivots <- function(traj, dark = FALSE, ...) {
   }
 
   ggplot2::ggplot(pivots, ggplot2::aes(
-    x = 0, y = .data$year, colour = .data$pivot_score
+    x = .data$pivot_score, y = .data$year, colour = .data$pivot_score
   )) +
+    ggplot2::geom_segment(ggplot2::aes(x = 0, xend = .data$pivot_score,
+                                       yend = .data$year),
+                          linewidth = 1) +
     ggplot2::geom_point(size = 4) +
-    ggplot2::geom_segment(ggplot2::aes(
-      x = -0.3, xend = 0.3, yend = .data$year
-    )) +
-    sm_scale_color(discrete = FALSE, option = "plasma") +
+    sm_scale_color(discrete = FALSE, option = "plasma", limits = c(0, 1)) +
+    ggplot2::scale_x_continuous(limits = c(0, 1)) +
+    ggplot2::scale_y_continuous(breaks = .year_breaks) +
     sm_theme(dark = dark) +
     ggplot2::labs(
       title = "Topic Pivots",
-      x = NULL, y = "Year", colour = "Pivot Strength"
-    ) +
-    ggplot2::theme(axis.text.x = ggplot2::element_blank())
+      x = "Pivot strength (topic change from the previous period)",
+      y = "Year", colour = "Pivot strength"
+    )
 }
 
 #' Plot collaborator turnover
@@ -150,11 +156,14 @@ sm_plot_collab_turnover <- function(traj, dark = FALSE, ...) {
     idvar = "period"
   )
   long <- tibble::as_tibble(long)
+  long$type <- factor(long$type, levels = c("n_new", "n_kept", "n_lost"),
+                      labels = c("New", "Kept", "Lost"))
 
   ggplot2::ggplot(long, ggplot2::aes(
     x = .data$period, y = .data$count, fill = .data$type
   )) +
     ggplot2::geom_area(alpha = 0.8, position = "stack") +
+    ggplot2::scale_x_continuous(breaks = .year_breaks) +
     sm_scale_fill(discrete = TRUE) +
     sm_theme(dark = dark) +
     ggplot2::labs(

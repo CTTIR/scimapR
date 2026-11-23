@@ -121,3 +121,20 @@ sm_scale_fill <- function(option = "viridis", discrete = TRUE, ...) {
 sm_palette_qualitative <- function(n, option = "D") {
   viridisLite::viridis(n, option = option, end = 0.9)
 }
+
+#' Whole-number breaks for a year (or period) axis
+#'
+#' `pretty()` breaks without fractions, so a year axis never shows ticks
+#' such as 2017.5; used as `scale_x_continuous(breaks = .year_breaks)`.
+#' @noRd
+.year_breaks <- function(limits) {
+  limits <- limits[is.finite(limits)]
+  if (length(limits) == 0L) return(numeric())
+  breaks <- pretty(limits)
+  breaks <- round(breaks[abs(breaks - round(breaks)) < 1e-8])
+  # a single year: pretty() steps over it, so label the year itself
+  if (!any(breaks >= min(limits) & breaks <= max(limits))) {
+    breaks <- unique(round(limits))
+  }
+  breaks
+}

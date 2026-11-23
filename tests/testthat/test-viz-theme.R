@@ -62,3 +62,25 @@ test_that("sm_palette_qualitative returns hex colour vector", {
   # Hex colour pattern
   expect_true(all(grepl("^#[0-9A-Fa-f]+", cols)))
 })
+
+test_that(".year_breaks gives whole numbers only", {
+  expect_equal(.year_breaks(c(2015, 2024)), c(2014, 2016, 2018, 2020,
+                                              2022, 2024))
+  expect_true(all(.year_breaks(c(2020, 2022)) %% 1 == 0))
+  expect_equal(.year_breaks(c(2020, 2020)), 2020)
+  expect_identical(.year_breaks(c(NA, NA)), numeric())
+})
+
+test_that("year axes of the plots show no fractional years", {
+  corpus <- sm_example_corpus(n_works = 60, n_authors = 20,
+                              with_embeddings = FALSE, seed = 1)
+  breaks_of <- function(p) {
+    b <- ggplot2::ggplot_build(p)$layout$panel_params[[1]]$x$breaks
+    b[!is.na(b)]
+  }
+  b <- breaks_of(sm_plot_production(corpus))
+  expect_gt(length(b), 1L)
+  expect_true(all(b %% 1 == 0))
+  b <- breaks_of(.plot_equity_productivity(corpus))
+  expect_true(all(b %% 1 == 0))
+})

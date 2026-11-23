@@ -88,3 +88,25 @@ test_that("sm_plot_collab_turnover returns placeholder when no turnover data", {
   expect_s3_class(p, "ggplot")
   expect_match(p$labels$title, "No collaborator data")
 })
+
+test_that("topic pivots are drawn as bars of pivot strength on whole years", {
+  corpus <- sm_example_corpus(seed = 1)
+  traj <- sm_author_trajectory(corpus, author_id = corpus$authors$author_id[1])
+  skip_if(nrow(traj$topic_pivots) == 0L)
+  p <- sm_plot_topic_pivots(traj)
+  built <- ggplot2::ggplot_build(p)
+  expect_identical(built$plot$labels$x,
+                   "Pivot strength (topic change from the previous period)")
+  points <- built$data[[2]]
+  expect_equal(points$x, traj$topic_pivots$pivot_score)
+  y_breaks <- built$layout$panel_params[[1]]$y$breaks
+  expect_true(all(y_breaks[!is.na(y_breaks)] %% 1 == 0))
+})
+
+test_that("collaborator turnover names the statuses in words", {
+  corpus <- sm_example_corpus(seed = 1)
+  traj <- sm_author_trajectory(corpus, author_id = corpus$authors$author_id[1])
+  skip_if(nrow(traj$collaborator_turnover) == 0L)
+  p <- sm_plot_collab_turnover(traj)
+  expect_identical(levels(p$data$type), c("New", "Kept", "Lost"))
+})

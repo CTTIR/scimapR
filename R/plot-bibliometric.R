@@ -32,6 +32,7 @@ sm_plot_production <- function(corpus, by = c("year", "month"),
 
   ggplot2::ggplot(counts, ggplot2::aes(x = .data$year, y = .data$n)) +
     ggplot2::geom_col(fill = viridisLite::viridis(1, option = "D")) +
+    ggplot2::scale_x_continuous(breaks = .year_breaks) +
     sm_theme(dark = dark) +
     ggplot2::labs(
       title = "Annual Scientific Production",

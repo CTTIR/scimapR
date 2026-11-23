@@ -1,5 +1,11 @@
 # scimapR 0.5.0
 
+* Year axes of `sm_plot_production()`, `sm_plot_evolution()`, the equity
+  dashboard, the trajectory plots and the `autoplot()` methods of `sm_its()`
+  and `sm_did()` show whole years only (no ticks such as 2017.5).
+  `sm_plot_topic_pivots()` draws each pivot as a bar of its strength (0 to 1)
+  instead of identical points on an unlabelled axis, and
+  `sm_plot_collab_turnover()` names the statuses New, Kept and Lost.
 * The weighted edges of `sm_plot_collab()` (and the other weighted network
   plots drawn with 'ggraph') use the same thin width range as their
   precomputed versions; the 'ggraph' default drew bands that hid the nodes.

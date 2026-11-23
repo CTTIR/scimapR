@@ -422,6 +422,7 @@ autoplot.sm_did <- function(object, ...) {
                         colour = "grey40") +
     ggplot2::geom_line(linewidth = 1) +
     ggplot2::geom_point(size = 2) +
+    ggplot2::scale_x_continuous(breaks = .year_breaks) +
     sm_scale_color() +
     sm_theme() +
     ggplot2::labs(

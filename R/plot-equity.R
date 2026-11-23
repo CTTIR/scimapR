@@ -108,6 +108,7 @@ sm_plot_equity_dashboard <- function(corpus, dark = FALSE, ...) {
   ggplot2::ggplot(yearly, ggplot2::aes(x = .data$year, y = .data$n)) +
     ggplot2::geom_line(colour = viridisLite::viridis(1), linewidth = 1) +
     ggplot2::geom_point(colour = viridisLite::viridis(1), size = 2) +
+    ggplot2::scale_x_continuous(breaks = .year_breaks) +
     sm_theme(dark = dark) +
     ggplot2::labs(title = "Annual Production", x = "Year", y = "Works")
 }

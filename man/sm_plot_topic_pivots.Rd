@@ -17,7 +17,10 @@ sm_plot_topic_pivots(traj, dark = FALSE, ...)
 A \code{ggplot} object.
 }
 \description{
-Vertical timeline showing when an author's research focus shifted.
+Timeline of when an author's research focus shifted: one bar per
+period boundary, as long as the pivot strength (the Jaccard distance
+between the topics of the period and those of the period before; 0 =
+same topics, 1 = no topic in common).
 }
 \examples{
 \donttest{

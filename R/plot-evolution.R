@@ -42,6 +42,7 @@ sm_plot_evolution <- function(corpus, time_var = "year",
     x = .data[[time_var]], y = .data$n, fill = .data$cluster_id
   )) +
     ggplot2::geom_area(alpha = 0.8, position = "stack") +
+    ggplot2::scale_x_continuous(breaks = .year_breaks) +
     sm_scale_fill(discrete = TRUE) +
     sm_theme(dark = dark) +
     ggplot2::labs(

@@ -755,6 +755,7 @@ autoplot.sm_its <- function(object, ...) {
   }
 
   p +
+    ggplot2::scale_x_continuous(breaks = .year_breaks) +
     sm_theme() +
     ggplot2::labs(
       title = paste0("Interrupted time series: ", object$outcome),
