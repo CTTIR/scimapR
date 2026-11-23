@@ -1,5 +1,9 @@
 # scimapR 0.5.0
 
+* Removed the unused suggested packages 'plotly', 'visNetwork',
+  'shinyWidgets', 'shinycssloaders', 'shinyjs', 'shinytest2', 'htmltools',
+  'memoise', 'cachem', 'Matrix', 'tidyr' and 'qs2' from `DESCRIPTION`; no
+  code, test or vignette used them.
 * `sm_run_app()`: the "Max Nodes" setting of the network tab now limits the
   drawn network to the nodes of highest degree (it was ignored); the tab
   says so instead of failing when 'ggraph' is not installed; and the app no
