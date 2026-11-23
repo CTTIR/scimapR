@@ -38,7 +38,7 @@
           </Author>
         </AuthorList>
         <ArticleIdList>
-          <ArticleId IdType="doi">10.1038/s41591-023-02345-6</ArticleId>
+          <ArticleId IdType="doi">10.9999/example.2023.001</ArticleId>
           <ArticleId IdType="pubmed">37654321</ArticleId>
         </ArticleIdList>
       </Article>
@@ -81,7 +81,7 @@
           </Author>
         </AuthorList>
         <ArticleIdList>
-          <ArticleId IdType="doi">10.1145/3535508.3545539</ArticleId>
+          <ArticleId IdType="doi">10.9999/example.2022.002</ArticleId>
           <ArticleId IdType="pubmed">36543210</ArticleId>
         </ArticleIdList>
       </Article>
@@ -124,7 +124,7 @@
           </Author>
         </AuthorList>
         <ArticleIdList>
-          <ArticleId IdType="doi">10.1186/s13059-024-03210-4</ArticleId>
+          <ArticleId IdType="doi">10.9999/example.2024.004</ArticleId>
           <ArticleId IdType="pubmed">38765432</ArticleId>
         </ArticleIdList>
       </Article>

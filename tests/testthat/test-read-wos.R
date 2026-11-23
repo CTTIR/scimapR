@@ -12,7 +12,7 @@ test_that("sm_read_wos parses the bundled example_wos.txt fixture", {
 
   expect_match(corpus$works$title[1],
                "Spatial transcriptomics reveals tumor microenvironment")
-  expect_equal(corpus$works$doi[1], "10.1038/s41591-023-02345-6")
+  expect_equal(corpus$works$doi[1], "10.9999/example.2023.001")
   expect_identical(corpus$works$year, c(2023L, 2022L, 2024L))
   expect_equal(corpus$works$type, c("Article", "Article", "Review"))
   expect_identical(corpus$works$cited_by_count, c(42L, 18L, 7L))

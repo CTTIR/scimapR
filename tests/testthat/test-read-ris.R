@@ -16,7 +16,7 @@ test_that("sm_read_ris parses the bundled example.ris fixture", {
   expect_match(corpus$works$title[3], "Atlas of Spatial Omics")
 
   # DOI normalized to lowercase
-  expect_equal(corpus$works$doi[1], "10.1038/s41591-023-02345-6")
+  expect_equal(corpus$works$doi[1], "10.9999/example.2023.001")
 
   # Year coerced to integer
   expect_identical(corpus$works$year, c(2023L, 2022L, 2024L))

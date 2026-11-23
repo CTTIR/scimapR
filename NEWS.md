@@ -1,5 +1,8 @@
 # scimapR 0.5.0
 
+* The invented records of the bundled example files (`sm_example_files()`)
+  carry DOIs under the unassigned prefix 10.9999; one of their DOIs belonged
+  to an unrelated published paper.
 * `sm_example_corpus()` no longer gives synthetic authors ORCID iDs that can
   belong to real researchers: an iD drawn with a valid check character gets
   a different last digit (no other values change). The bundled

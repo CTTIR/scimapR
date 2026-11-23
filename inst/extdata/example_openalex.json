@@ -1,7 +1,7 @@
 [
   {
     "id": "https://openalex.org/W4312345678",
-    "doi": "https://doi.org/10.1038/s41591-023-02345-6",
+    "doi": "https://doi.org/10.9999/example.2023.001",
     "title": "Spatial transcriptomics reveals tumor microenvironment heterogeneity in colorectal cancer",
     "publication_year": 2023,
     "type": "journal-article",
@@ -99,7 +99,7 @@
   },
   {
     "id": "https://openalex.org/W4323456789",
-    "doi": "https://doi.org/10.1145/3535508.3545539",
+    "doi": "https://doi.org/10.9999/example.2022.002",
     "title": "Machine learning approaches for biomarker discovery in spatially resolved transcriptomic data",
     "publication_year": 2022,
     "type": "journal-article",
@@ -196,7 +196,7 @@
   },
   {
     "id": "https://openalex.org/W4334567890",
-    "doi": "https://doi.org/10.1186/s13059-024-03210-4",
+    "doi": "https://doi.org/10.9999/example.2024.004",
     "title": "Comprehensive spatial multi-omics atlas of colorectal cancer",
     "publication_year": 2024,
     "type": "review",

@@ -50,9 +50,9 @@ test_that("BibTeX simple fixture values stay unchanged", {
     "Atlas of Spatial Omics in Colorectal Cancer"
   ))
   expect_identical(x$works$year, c(2023L, 2022L, 2024L))
-  expect_identical(x$works$doi, c("10.1038/s41591-023-02345-6",
-                                  "10.1145/3535508.3545539",
-                                  "10.1007/978-3-031-45678-9"))
+  expect_identical(x$works$doi, c("10.9999/example.2023.001",
+                                  "10.9999/example.2022.002",
+                                  "10.9999/example.2024.003"))
   expect_identical(x$authors$display_name,
                    c("Wei Chen", "Sarah Smith", "Yuki Tanaka", "Priya Patel",
                      "Anna Mueller", "Maria Garcia", "Wei Zhang",
