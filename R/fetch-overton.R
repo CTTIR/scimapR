@@ -23,7 +23,8 @@
 #' # OVERTON_API_KEY environment variable.
 #' if (nzchar(Sys.getenv("OVERTON_API_KEY")) &&
 #'     requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
-#'   corpus <- try(sm_fetch_overton(query = "climate change policy", n_max = 10))
+#'   corpus <- try(sm_fetch_overton(query = "climate change policy",
+#'                                  n_max = 10))
 #'   print(corpus)
 #' }
 #' }

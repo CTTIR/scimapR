@@ -116,7 +116,8 @@ test_that("unpaywall keeps earlier values of works whose lookup failed", {
                               with_embeddings = FALSE, seed = 7)
   corpus$works$doi <- c("10.9999/up.1", "10.9999/up.2")
   corpus$works$oa_status <- c("green", "green")
-  corpus$works$oa_url <- c("https://example.org/old1", "https://example.org/old2")
+  corpus$works$oa_url <- c("https://example.org/old1",
+                           "https://example.org/old2")
   testthat::local_mocked_bindings(
     req_perform = function(req, ...) {
       if (grepl("up.1", req$url, fixed = TRUE)) {
@@ -187,5 +188,7 @@ test_that("unpaywall percent-encodes DOIs in the request path", {
     .package = "httr2"
   )
   sm_enrich_unpaywall(corpus, mailto = "a@b.com", verbose = FALSE)
-  expect_match(urls, "^https://api\\.unpaywall\\.org/v2/10\\.1000/a%23b%3Fc\\?email=")
+  expect_match(
+    urls, "^https://api\\.unpaywall\\.org/v2/10\\.1000/a%23b%3Fc\\?email="
+  )
 })

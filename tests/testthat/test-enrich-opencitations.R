@@ -168,6 +168,8 @@ test_that("OpenCitations requests carry the DOI as one encoded path part", {
   )
   .opencitations_request("citation-count", "10.1000/a#b")
   expect_identical(
-    urls, "https://api.opencitations.net/index/v2/citation-count/doi:10.1000/a%23b"
+    urls,
+    paste0("https://api.opencitations.net/index/v2/citation-count/",
+           "doi:10.1000/a%23b")
   )
 })
