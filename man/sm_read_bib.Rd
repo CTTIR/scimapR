@@ -49,8 +49,9 @@ to precomposed letters where available, else the bare letter.
 Letter commands \verb{\\ss}, \verb{\\o}, \verb{\\O}, \verb{\\aa}, \verb{\\AA},
 \verb{\\ae}, \verb{\\AE}, \verb{\\oe}, \verb{\\OE}, \verb{\\l}, \verb{\\L} and \verb{\\i} also decode, as do
 \verb{\\&}, \verb{\\\%}, \verb{\\$}, \verb{\\#} and \verb{\\_}. DOI cleaning only removes braces
-and decodes those five escapes. Ties (\code{~}), \verb{--} and math expressions
-remain as written. Whitespace outside math is collapsed and trimmed.
+and decodes those five escapes. Ties (\code{~}), \verb{--} and mathematics
+(\verb{$...$}) remain as written. Whitespace outside mathematics is collapsed
+and trimmed.
 
 Only a lowercase \code{and} outside braces separates authors; a comma outside
 braces flips a name from surname-first to given-name-first. Braced

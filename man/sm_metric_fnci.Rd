@@ -2,7 +2,7 @@
 % Please edit documentation in R/metric-fnci.R
 \name{sm_metric_fnci}
 \alias{sm_metric_fnci}
-\title{Calculate Field-Normalized Citation Impact}
+\title{Calculate Field-Normalised Citation Impact}
 \usage{
 sm_metric_fnci(
   corpus,
@@ -43,7 +43,7 @@ the baseline comes from). An empty corpus gives a 0-row tibble with the
 same columns.
 }
 \description{
-Computes the Field-Normalized Citation Impact (FNCI) for each work in the
+Computes the Field-Normalised Citation Impact (FNCI) for each work in the
 corpus. FNCI normalises a work's citation count by the average citation
 count of all works in the same field and publication year.
 }

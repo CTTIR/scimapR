@@ -21,7 +21,7 @@ for a major topic of the article and 0 otherwise).}
 
 \item{verbose}{Print progress messages?}
 
-\item{api_key}{OpenAlex API key, sent in the authorization header.}
+\item{api_key}{OpenAlex API key, sent in the \code{Authorization} header.}
 
 \item{call}{Caller environment for error reporting.}
 }

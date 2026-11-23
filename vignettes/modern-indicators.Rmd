@@ -90,7 +90,7 @@ rcr <- sm_metric_rcr(corpus)
 head(rcr)
 ```
 
-## Field-Normalized Citation Impact
+## Field-Normalised Citation Impact
 
 FNCI (Waltman et al., 2011) normalises by field and year.
 

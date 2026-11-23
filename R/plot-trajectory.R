@@ -1,7 +1,7 @@
 #' Plot author trajectory
 #'
 #' @description
-#' Multi-panel visualization of an author's career trajectory.
+#' Multi-panel visualisation of an author's career trajectory.
 #'
 #' @param traj An `sm_trajectory` object.
 #' @param dark Logical; dark mode?

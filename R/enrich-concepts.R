@@ -13,7 +13,7 @@
 #'   `"mesh"` (fetch MeSH terms via PubMed PMID; the concept `score` is 1
 #'   for a major topic of the article and 0 otherwise).
 #' @param verbose Print progress messages?
-#' @param api_key OpenAlex API key, sent in the authorization header.
+#' @param api_key OpenAlex API key, sent in the `Authorization` header.
 #' @param call Caller environment for error reporting.
 #'
 #' @return An `sm_corpus` object with updated `concepts` table and new

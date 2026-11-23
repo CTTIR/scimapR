@@ -13,7 +13,7 @@
 #' @param source Character. Where to look for funding data: `"crossref"`
 #'   (uses DOIs to query Crossref funder metadata) or `"openalex"` (uses
 #'   OpenAlex IDs, with DOI fallback).
-#' @param api_key OpenAlex API key, sent in the authorization header.
+#' @param api_key OpenAlex API key, sent in the `Authorization` header.
 #' @param mailto Contact address for Crossref requests.
 #' @param call Caller environment for error reporting.
 #'

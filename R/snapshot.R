@@ -1,7 +1,7 @@
 #' Save and load corpus snapshots
 #'
 #' @description
-#' `sm_snapshot()` serializes an `sm_corpus` to disk as a compressed RDS file,
+#' `sm_snapshot()` serialises an `sm_corpus` to disk as a compressed RDS file,
 #' embedding the corpus hash as part of the filename for traceability.
 #'
 #' `sm_snapshot_load()` reads a previously saved snapshot and validates that

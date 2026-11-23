@@ -20,7 +20,7 @@ An \code{sm_corpus} object with updated \code{institutions} and
 \description{
 Look up institutions in the corpus via the
 \href{https://ror.readme.io/}{Research Organization Registry (ROR)} API and enrich
-the \code{institutions} table with standardized metadata including country,
+the \code{institutions} table with standardised metadata including country,
 region, type, and income tier.
 
 Works by matching raw affiliation strings against the ROR affiliation

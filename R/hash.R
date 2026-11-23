@@ -111,7 +111,7 @@ sm_hash_corpus <- function(corpus, version = 2L) {
   as.integer(version)
 }
 
-#' Canonicalize a tibble for hashing
+#' Canonicalise a tibble for hashing
 #'
 #' Sorts by all columns to ensure deterministic ordering, and with
 #' `sort_columns` (hash version 2) first orders the columns by name.
@@ -126,7 +126,7 @@ sm_hash_corpus <- function(corpus, version = 2L) {
   tbl
 }
 
-#' Canonicalize the embedding matrix for hashing: rounded, and with
+#' Canonicalise the embedding matrix for hashing: rounded, and with
 #' `sort_rows` (hash version 2) its rows in the order of their work ids
 #' @noRd
 .canonicalize_embeddings <- function(emb, sort_rows = FALSE) {

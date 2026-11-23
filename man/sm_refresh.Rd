@@ -32,7 +32,7 @@ default), the original source for each work is used.}
 
 \item{verbose}{Logical. Print progress messages?}
 
-\item{api_key}{OpenAlex API key, sent only in the authorization header.}
+\item{api_key}{OpenAlex API key, sent only in the \code{Authorization} header.}
 
 \item{mailto}{Contact address for Crossref requests.}
 

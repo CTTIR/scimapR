@@ -1,5 +1,6 @@
 # scimapR 0.5.0
 
+* The documentation is written in British English (`Language: en-GB`).
 * Removed the unused suggested packages 'plotly', 'visNetwork',
   'shinyWidgets', 'shinycssloaders', 'shinyjs', 'shinytest2', 'htmltools',
   'memoise', 'cachem', 'Matrix', 'tidyr' and 'qs2' from `DESCRIPTION`; no
@@ -85,7 +86,7 @@
   compatibility repair as clustering. Its Euclidean distance and automatic
   thread defaults are unchanged; unrelated dependency errors still propagate.
 
-* Standardize the named v5 package logo across README, documentation pages
+* Standardise the named v5 package logo across README, documentation pages
   and available application headers, with matching light and dark artwork.
 
 - The UMAP reducer now retries with base SVD initialisation when its PCA dependency raises the older-R NULL-input error. Other errors are still reported unchanged; successful UMAP calls retain their existing defaults.
@@ -771,7 +772,7 @@
 
 # scimapR 0.4.0
 
-Stability contracts, an enrichment materializer, and self-citation-corrected
+Stability contracts, an enrichment materialiser, and self-citation-corrected
 metrics, plus a verify-and-harden pass on three v0.3.0 fixes that recurred in
 heavy use. All new behaviour is opt-in; no breaking changes.
 
@@ -814,7 +815,7 @@ reproducing the recurrence.
   requested. A ~2,000-node graph builds with `precompute = TRUE` and re-prints
   without recomputing layout.
 
-## Enrichment materializer (D1)
+## Enrichment materialiser (D1)
 
 - `sm_materialise(corpus, sources, .by = NULL, overwrite = FALSE)` joins cached
   enrichment (named list of tibbles / RDS / parquet paths, or a cache dir) into
@@ -1028,7 +1029,7 @@ first-class round-trip interop.
   co-word, semantic)
 - Embedding and clustering (HDBSCAN, Leiden, k-means)
 - Modern indicators (h/g/m-index, CD index, RCR, FNCI, Uzzi novelty)
-- Viridis-themed publication-ready visualization
+- Viridis-themed publication-ready visualisation
 - Multi-format export (PNG 300/600 dpi, PDF, SVG, TIFF, XLSX, ZIP bundles)
 - Comprehensive 13-tab Shiny application
 - Systematic review bridge (PRISMA, Rayyan, Covidence)

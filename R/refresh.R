@@ -25,7 +25,7 @@
 #'   sources to re-query (e.g., `"openalex"`, `"crossref"`). If `NULL` (the
 #'   default), the original source for each work is used.
 #' @param verbose Logical. Print progress messages?
-#' @param api_key OpenAlex API key, sent only in the authorization header.
+#' @param api_key OpenAlex API key, sent only in the `Authorization` header.
 #' @param mailto Contact address for Crossref requests.
 #' @param call Caller environment for error reporting.
 #'

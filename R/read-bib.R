@@ -30,8 +30,9 @@
 #' Letter commands `\ss`, `\o`, `\O`, `\aa`, `\AA`,
 #' `\ae`, `\AE`, `\oe`, `\OE`, `\l`, `\L` and `\i` also decode, as do
 #' `\&`, `\%`, `\$`, `\#` and `\_`. DOI cleaning only removes braces
-#' and decodes those five escapes. Ties (`~`), `--` and math expressions
-#' remain as written. Whitespace outside math is collapsed and trimmed.
+#' and decodes those five escapes. Ties (`~`), `--` and mathematics
+#' (`$...$`) remain as written. Whitespace outside mathematics is collapsed
+#' and trimmed.
 #'
 #' Only a lowercase `and` outside braces separates authors; a comma outside
 #' braces flips a name from surname-first to given-name-first. Braced

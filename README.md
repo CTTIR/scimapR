@@ -184,7 +184,7 @@ citation("scimapR")
 For a complete citation block including each data source used in your
 corpus, run `sm_cite_corpus(your_corpus)`.
 
-## License
+## Licence
 
 MIT
 

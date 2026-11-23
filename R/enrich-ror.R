@@ -3,7 +3,7 @@
 #' @description
 #' Look up institutions in the corpus via the
 #' [Research Organization Registry (ROR)](https://ror.readme.io/) API and enrich
-#' the `institutions` table with standardized metadata including country,
+#' the `institutions` table with standardised metadata including country,
 #' region, type, and income tier.
 #'
 #' Works by matching raw affiliation strings against the ROR affiliation

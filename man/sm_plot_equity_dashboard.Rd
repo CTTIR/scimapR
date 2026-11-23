@@ -17,7 +17,7 @@ sm_plot_equity_dashboard(corpus, dark = FALSE, ...)
 A \code{ggplot} object composed via patchwork.
 }
 \description{
-Four-panel visualization: geographic distribution, gender mix, funding
+Four-panel visualisation: geographic distribution, gender mix, funding
 sources, and OA evolution. Uses viridis throughout.
 }
 \examples{

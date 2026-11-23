@@ -17,7 +17,7 @@ sm_enrich_retraction(
 
 \item{verbose}{Print progress messages?}
 
-\item{api_key}{OpenAlex API key, sent in the authorization header.}
+\item{api_key}{OpenAlex API key, sent in the \code{Authorization} header.}
 
 \item{mailto}{Contact address sent only to Crossref.}
 

@@ -22,7 +22,7 @@ sm_audit_funding(
 (uses DOIs to query Crossref funder metadata) or \code{"openalex"} (uses
 OpenAlex IDs, with DOI fallback).}
 
-\item{api_key}{OpenAlex API key, sent in the authorization header.}
+\item{api_key}{OpenAlex API key, sent in the \code{Authorization} header.}
 
 \item{mailto}{Contact address for Crossref requests.}
 

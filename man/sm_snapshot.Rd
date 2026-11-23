@@ -31,7 +31,7 @@ For \code{sm_snapshot()}: the file path (invisibly).
 For \code{sm_snapshot_load()}: an \code{sm_corpus} object.
 }
 \description{
-\code{sm_snapshot()} serializes an \code{sm_corpus} to disk as a compressed RDS file,
+\code{sm_snapshot()} serialises an \code{sm_corpus} to disk as a compressed RDS file,
 embedding the corpus hash as part of the filename for traceability.
 
 \code{sm_snapshot_load()} reads a previously saved snapshot and validates that

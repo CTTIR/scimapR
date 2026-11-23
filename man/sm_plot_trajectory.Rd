@@ -17,7 +17,7 @@ sm_plot_trajectory(traj, dark = FALSE, ...)
 A \code{ggplot} object composed via patchwork.
 }
 \description{
-Multi-panel visualization of an author's career trajectory.
+Multi-panel visualisation of an author's career trajectory.
 }
 \examples{
 \dontshow{if (requireNamespace("patchwork", quietly = TRUE)) withAutoprint(\{ # examplesIf}

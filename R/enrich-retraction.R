@@ -14,7 +14,7 @@
 #'
 #' @param corpus An `sm_corpus` object.
 #' @param verbose Print progress messages?
-#' @param api_key OpenAlex API key, sent in the authorization header.
+#' @param api_key OpenAlex API key, sent in the `Authorization` header.
 #' @param mailto Contact address sent only to Crossref.
 #' @param call Caller environment for error reporting.
 #'
