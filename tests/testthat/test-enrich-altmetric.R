@@ -126,3 +126,78 @@ test_that("altmetric works with an explicit API key supplied", {
   out <- sm_enrich_altmetric(corpus, api_key = "fake-key", verbose = FALSE)
   expect_equal(out$works$altmetric_score[1], 1.0)
 })
+
+test_that("altmetric stops requesting after an unauthorised answer", {
+  withr::local_envvar(ALTMETRIC_API_KEY = "")
+  corpus <- sm_example_corpus(n_works = 5, n_authors = 2,
+                              with_embeddings = FALSE, seed = 6)
+  corpus$works$doi <- paste0("10.9999/alt.", seq_len(5))
+  calls <- 0L
+  testthat::local_mocked_bindings(
+    req_perform = function(req, ...) {
+      calls <<- calls + 1L
+      rlang::abort("HTTP 401 Unauthorized.",
+                   class = c("httr2_http_401", "httr2_http", "httr2_error"))
+    },
+    req_throttle = function(req, ...) req,
+    .package = "httr2"
+  )
+  w <- expect_warning(
+    out <- sm_enrich_altmetric(corpus, verbose = FALSE),
+    class = "scimapR_altmetric_unchecked"
+  )
+  expect_identical(calls, 1L)
+  expect_setequal(w$work_ids, corpus$works$work_id)
+  expect_match(conditionMessage(w), "remaining DOIs were not requested")
+  expect_false("altmetric" %in% out$provenance$source)
+})
+
+test_that("altmetric keeps requesting after other failures", {
+  corpus <- sm_example_corpus(n_works = 3, n_authors = 2,
+                              with_embeddings = FALSE, seed = 7)
+  corpus$works$doi <- paste0("10.9999/alt.", seq_len(3))
+  calls <- 0L
+  testthat::local_mocked_bindings(
+    req_perform = function(req, ...) {
+      calls <<- calls + 1L
+      rlang::abort("HTTP 503 Service Unavailable.",
+                   class = c("httr2_http_503", "httr2_http", "httr2_error"))
+    },
+    req_throttle = function(req, ...) req,
+    .package = "httr2"
+  )
+  w <- expect_warning(
+    sm_enrich_altmetric(corpus, api_key = "fake-key", verbose = FALSE),
+    class = "scimapR_altmetric_unchecked"
+  )
+  expect_identical(calls, 3L)
+  expect_no_match(conditionMessage(w), "not requested")
+})
+
+test_that("altmetric percent-encodes DOIs in the request path", {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = "W1",
+    doi = "10.1002/(sici)1097-4571(199806)49:8<693::aid-asi4>3.0.co;2-0#x"
+  ))
+  urls <- character()
+  testthat::local_mocked_bindings(
+    req_perform = function(req, ...) {
+      urls <<- c(urls, req$url)
+      structure(list(), class = "sm_fake_resp")
+    },
+    resp_body_json = function(resp, ...) list(score = 3),
+    req_throttle = function(req, ...) req,
+    .package = "httr2"
+  )
+  out <- sm_enrich_altmetric(corpus, api_key = "fake-key", verbose = FALSE)
+  expect_length(urls, 1L)
+  # the whole DOI, "#x" included, is the path: nothing is cut off as a
+  # fragment or query
+  path <- sub("\\?.*$", "", urls)
+  expect_false(grepl("#", urls, fixed = TRUE))
+  expect_identical(
+    utils::URLdecode(sub("^https://api\\.altmetric\\.com/v1/doi/", "", path)),
+    corpus$works$doi
+  )
+  expect_equal(out$works$altmetric_score, 3)
+})

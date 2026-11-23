@@ -11,7 +11,9 @@
 #' @param corpus An `sm_corpus` object.
 #' @param api_key Altmetric API key. Read from `ALTMETRIC_API_KEY` env var.
 #'   The Altmetric Details Page API has required a key since November 2025;
-#'   without one, no work is enriched and a warning says so.
+#'   without one, no work is enriched and a warning says so. When Altmetric
+#'   refuses a request as unauthorised (HTTP 401 or 403), the remaining DOIs
+#'   are not requested and are reported as unchecked too.
 #' @param verbose Print progress messages?
 #' @param call Caller environment for error reporting.
 #'
@@ -25,13 +27,18 @@
 #' @family enrichers
 #' @export
 #' @examples
-#' \dontrun{
-#' # Not run: the Altmetric API needs an API key (`ALTMETRIC_API_KEY`).
-#' corpus <- sm_corpus(works = tibble::tibble(
-#'   work_id = "W1",
-#'   doi = "10.1371/journal.pbio.1002541"
-#' ))
-#' corpus <- sm_enrich_altmetric(corpus)
+#' \donttest{
+#' # Queries the Altmetric web API; runs only when an API key is set in
+#' # the ALTMETRIC_API_KEY environment variable.
+#' if (nzchar(Sys.getenv("ALTMETRIC_API_KEY")) &&
+#'     requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+#'   corpus <- sm_corpus(works = tibble::tibble(
+#'     work_id = "W1",
+#'     doi = "10.1371/journal.pbio.1002541"
+#'   ))
+#'   enriched <- try(sm_enrich_altmetric(corpus))
+#'   if (is_sm_corpus(enriched)) enriched$works$altmetric_score
+#' }
 #' }
 sm_enrich_altmetric <- function(corpus,
                                 api_key = Sys.getenv("ALTMETRIC_API_KEY"),
@@ -61,10 +68,12 @@ sm_enrich_altmetric <- function(corpus,
   twitter <- rep(NA_integer_, length(target_dois))
   news <- rep(NA_integer_, length(target_dois))
   failed <- rep(FALSE, length(target_dois))
+  refused <- FALSE
 
   for (i in seq_along(target_dois)) {
     result <- tryCatch({
-      url <- paste0("https://api.altmetric.com/v1/doi/", target_dois[i])
+      url <- paste0("https://api.altmetric.com/v1/doi/",
+                    .doi_url_path(target_dois[i]))
 
       req <- httr2::request(url) |>
         httr2::req_headers(`User-Agent` = .sm_user_agent()) |>
@@ -81,8 +90,14 @@ sm_enrich_altmetric <- function(corpus,
       # answer. Anything else (missing or rejected key, rate limit, server or
       # network error) leaves the work unchecked.
       if (!inherits(e, "httr2_http_404")) failed[i] <<- TRUE
+      # A refused key (or no key) fails the same way for every DOI.
+      if (inherits(e, c("httr2_http_401", "httr2_http_403"))) refused <<- TRUE
       NULL
     })
+    if (refused) {
+      failed[seq.int(i, length(target_dois))] <- TRUE
+      break
+    }
 
     if (!is.null(result)) {
       alt_score[i] <- as.double(result[["score"]] %||% NA_real_)
@@ -145,6 +160,12 @@ sm_enrich_altmetric <- function(corpus,
   if (n_failed) {
     message <- sprintf("Altmetric lookups failed for %d of %d works.",
                        n_failed, length(target_dois))
+    if (refused) {
+      message <- c(message, "i" = paste(
+        "Altmetric refused a request as unauthorised (HTTP 401 or 403),",
+        "so the remaining DOIs were not requested."
+      ))
+    }
     if (!nzchar(api_key)) {
       message <- c(message, "i" = paste(
         "The Altmetric API needs a key; set the ALTMETRIC_API_KEY",

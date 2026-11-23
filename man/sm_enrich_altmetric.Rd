@@ -16,7 +16,9 @@ sm_enrich_altmetric(
 
 \item{api_key}{Altmetric API key. Read from \code{ALTMETRIC_API_KEY} env var.
 The Altmetric Details Page API has required a key since November 2025;
-without one, no work is enriched and a warning says so.}
+without one, no work is enriched and a warning says so. When Altmetric
+refuses a request as unauthorised (HTTP 401 or 403), the remaining DOIs
+are not requested and are reported as unchecked too.}
 
 \item{verbose}{Print progress messages?}
 
@@ -39,13 +41,18 @@ This enricher is idempotent: re-running it updates existing Altmetric
 data rather than duplicating it.
 }
 \examples{
-\dontrun{
-# Not run: the Altmetric API needs an API key (`ALTMETRIC_API_KEY`).
-corpus <- sm_corpus(works = tibble::tibble(
-  work_id = "W1",
-  doi = "10.1371/journal.pbio.1002541"
-))
-corpus <- sm_enrich_altmetric(corpus)
+\donttest{
+# Queries the Altmetric web API; runs only when an API key is set in
+# the ALTMETRIC_API_KEY environment variable.
+if (nzchar(Sys.getenv("ALTMETRIC_API_KEY")) &&
+    requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = "W1",
+    doi = "10.1371/journal.pbio.1002541"
+  ))
+  enriched <- try(sm_enrich_altmetric(corpus))
+  if (is_sm_corpus(enriched)) enriched$works$altmetric_score
+}
 }
 }
 \seealso{

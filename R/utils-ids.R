@@ -72,6 +72,18 @@
   ifelse(nzchar(doi), tolower(doi), NA_character_)
 }
 
+#' A DOI as one path segment of a request URL
+#'
+#' Percent-encodes every reserved or unsafe character except `/`, so DOIs
+#' with `#`, `?`, `;`, `%`, `<`, `>` or spaces reach the API as written
+#' instead of being cut at a fragment or query marker.
+#' @noRd
+.doi_url_path <- function(doi) {
+  encoded <- vapply(doi, utils::URLencode, character(1), reserved = TRUE,
+                    repeated = TRUE, USE.NAMES = FALSE)
+  gsub("%2F", "/", encoded, fixed = TRUE)
+}
+
 #' ORCID iDs without the `https://orcid.org/` prefix, in upper case (the
 #' check character `X`); `NA` for missing or empty values and for `NULL`
 #' @noRd

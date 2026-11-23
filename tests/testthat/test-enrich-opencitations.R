@@ -151,3 +151,23 @@ test_that("OpenCitations v2 saved responses use outgoing citation direction", {
   expect_identical(out$references$cited_work_id, c(x$works$work_id[2], NA))
   expect_identical(out$works$cited_by_count[1:2], c(2L, 0L))
 })
+
+test_that("OpenCitations requests carry the DOI as one encoded path part", {
+  urls <- character()
+  testthat::local_mocked_bindings(
+    req_perform = function(req, ...) {
+      urls <<- c(urls, req$url)
+      structure(list(), class = "sm_fake_resp")
+    },
+    resp_body_json = function(resp, ...) {
+      force(resp)
+      list(list(count = "1"))
+    },
+    req_throttle = function(req, ...) req,
+    .package = "httr2"
+  )
+  .opencitations_request("citation-count", "10.1000/a#b")
+  expect_identical(
+    urls, "https://api.opencitations.net/index/v2/citation-count/doi:10.1000/a%23b"
+  )
+})

@@ -122,7 +122,7 @@ sm_enrich_opencitations <- function(corpus,
 .opencitations_request <- function(endpoint, doi) {
   tryCatch({
     req <- httr2::request(paste0("https://api.opencitations.net/index/v2/",
-                                 endpoint, "/doi:", doi)) |>
+                                 endpoint, "/doi:", .doi_url_path(doi))) |>
       httr2::req_headers(`User-Agent` = .sm_user_agent(),
                          Accept = "application/json") |>
       httr2::req_throttle(rate = 5 / 1)

@@ -1,5 +1,15 @@
 # scimapR 0.5.0
 
+* `sm_enrich_altmetric()` stops after Altmetric refuses a request as
+  unauthorised (HTTP 401 or 403), instead of sending one failing request per
+  DOI at one request a second; the remaining works are reported in the
+  `scimapR_altmetric_unchecked` warning. Its example runs under `\donttest{}`
+  when `ALTMETRIC_API_KEY` is set and the machine is online.
+* `sm_enrich_altmetric()`, `sm_enrich_unpaywall()` and
+  `sm_enrich_opencitations()` percent-encode the DOI in the request path, so
+  DOIs with `#`, `?`, `%`, `<` or `>` are looked up as written instead of being
+  cut at a fragment or query marker.
+
 - Empty synthetic corpora now retain typed authorship columns and zero work identifiers, avoiding trajectory warnings and allowing empty embeddings. Tests explicitly require intended shared-work causal diagnostics while preserving their numerical checks.
 
 * Keep career length and m-index missing when an entity has no known publication

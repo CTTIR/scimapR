@@ -86,3 +86,12 @@ test_that(".generate_author_id produces correct format", {
 test_that(".check_sm_corpus rejects non-corpus", {
   expect_error(.check_sm_corpus("not a corpus"), "sm_corpus")
 })
+
+test_that(".doi_url_path encodes everything but the slashes of a DOI", {
+  expect_identical(.doi_url_path("10.1371/journal.pbio.1002541"),
+                   "10.1371/journal.pbio.1002541")
+  expect_identical(.doi_url_path(c("10.1000/a#b?c d", "10.1000/x%20y")),
+                   c("10.1000/a%23b%3Fc%20d", "10.1000/x%2520y"))
+  expect_identical(utils::URLdecode(.doi_url_path("10.1000/<a>;b:c")),
+                   "10.1000/<a>;b:c")
+})
