@@ -1,5 +1,8 @@
 # scimapR 0.5.0
 
+* The weighted edges of `sm_plot_collab()` (and the other weighted network
+  plots drawn with 'ggraph') use the same thin width range as their
+  precomputed versions; the 'ggraph' default drew bands that hid the nodes.
 * The invented records of the bundled example files (`sm_example_files()`)
   carry DOIs under the unassigned prefix 10.9999; one of their DOIs belonged
   to an unrelated published paper.

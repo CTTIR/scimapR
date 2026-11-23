@@ -50,8 +50,11 @@
   if (!precompute) {
     p <- ggraph::ggraph(g, layout = layout)
     if (edge_weight) {
+      # the same width range as the precomputed plot below; ggraph's default
+      # range (1 to 6) draws bands that hide the nodes
       p <- p + ggraph::geom_edge_link(
-        ggplot2::aes(width = .data$weight), alpha = 0.4, colour = base_col)
+        ggplot2::aes(width = .data$weight), alpha = 0.4, colour = base_col) +
+        ggraph::scale_edge_width(range = c(0.2, 2), guide = "none")
     } else {
       p <- p + ggraph::geom_edge_link(
         alpha = 0.3,

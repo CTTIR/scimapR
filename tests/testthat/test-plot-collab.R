@@ -80,3 +80,14 @@ test_that("dark mode renders without error", {
   p <- sm_plot_collab(corpus, level = "country", dark = TRUE)
   expect_s3_class(p, "ggplot")
 })
+
+test_that("weighted network edges stay thin in the ggraph plot", {
+  skip_if_not_installed("ggraph")
+  corpus <- sm_example_corpus(n_works = 60, n_authors = 30,
+                              with_embeddings = FALSE, seed = 3)
+  p <- sm_plot_collab(corpus, level = "country")
+  built <- ggplot2::ggplot_build(p)
+  widths <- unlist(lapply(built$data, function(d) d$edge_width))
+  expect_gt(length(widths), 0L)
+  expect_true(all(widths >= 0.2 & widths <= 2))
+})
