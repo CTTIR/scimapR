@@ -113,3 +113,16 @@ test_that("landscape UMAP preserves unrelated dependency errors", {
   corpus <- sm_example_corpus(n_works = 30)
   expect_error(sm_plot_landscape(corpus), "unrelated landscape failure")
 })
+
+test_that("an uncoloured landscape names no colour legend", {
+  corpus <- sm_example_corpus(n_works = 20, n_authors = 8,
+                              with_embeddings = TRUE, seed = 6)
+  corpus$works$cluster_id <- NULL
+  p <- sm_plot_landscape(corpus, reducer = "pca")
+  expect_null(p$labels$colour)
+  expect_no_warning(ggplot2::ggplot_build(p))
+
+  corpus$works$cluster_id <- rep(1:2, 10)
+  p <- sm_plot_landscape(corpus, reducer = "pca")
+  expect_identical(p$labels$colour, "cluster_id")
+})

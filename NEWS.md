@@ -1,5 +1,8 @@
 # scimapR 0.5.0
 
+* `sm_plot_landscape()` names a colour legend only when it colours the
+  points, so an unclustered corpus no longer triggers ggplot2's "Ignoring
+  unknown labels" warning.
 * Precomputed network plots (`precompute = TRUE`) no longer show the grid
   lines of `sm_theme()`, and the coverage breakdown plot of
   `autoplot(<sm_coverage>)` drops its colour bar, which repeated the bar

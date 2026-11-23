@@ -91,11 +91,14 @@ sm_plot_landscape <- function(corpus,
                           colour = viridisLite::viridis(1))
   }
 
-  p + sm_theme(dark = dark) +
+  p <- p + sm_theme(dark = dark) +
     ggplot2::labs(
       title = "Research Landscape",
       x = paste0(toupper(reducer), " 1"),
-      y = paste0(toupper(reducer), " 2"),
-      colour = color_by
+      y = paste0(toupper(reducer), " 2")
     )
+  # name the colour legend only when there is one; a label without a colour
+  # mapping makes ggplot2 warn about an unknown label
+  if ("color_var" %in% names(plot_df)) p <- p + ggplot2::labs(colour = color_by)
+  p
 }
