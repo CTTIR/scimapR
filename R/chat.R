@@ -5,8 +5,10 @@
 #' The function retrieves the most relevant works from the corpus using
 #' embeddings, TF-IDF, or a hybrid method, then sends them as context to
 #' a chat provider along with the user's question. The response includes inline
-#' citations keyed to work IDs. No hallucinated references are possible
-#' because citations are constrained to retrieved works.
+#' citations keyed to work IDs. Citations are checked against the retrieved
+#' works: a cited ID that was not sent as context is not reported, so every
+#' reported citation is a real work of the corpus. Work IDs of any form are
+#' recognised (for example OpenAlex `W123` or Web of Science `WOS:000123`).
 #'
 #' @param corpus An `sm_corpus` object.
 #' @param question Character. The user's question in natural language.
@@ -353,7 +355,8 @@ print.sm_chat_response <- function(x, ...) {
   )
   if (cite) {
     paste0(base,
-      " Cite specific works using [cite:WXXXXXXXXX] tokens. ",
+      " Cite specific works using [cite:<work ID>] tokens, with the work ID ",
+      "exactly as it appears in the context, one work per token. ",
       "Only cite works that appear in the context."
     )
   } else {
@@ -364,7 +367,10 @@ print.sm_chat_response <- function(x, ...) {
 #' Parse citations from LLM response
 #' @noRd
 .parse_chat_citations <- function(response_text, retrieved) {
-  pattern <- "\\[cite:(W\\d+)\\]"
+  # Work IDs of any shape (OpenAlex "W123", Web of Science "WOS:000...",
+  # user-defined keys); a token that lists several IDs is split at commas
+  # and semicolons.
+  pattern <- "\\[cite:([^]]+)\\]"
   matches <- regmatches(response_text, gregexpr(pattern, response_text))[[1]]
 
   if (length(matches) == 0L) {
@@ -375,8 +381,10 @@ print.sm_chat_response <- function(x, ...) {
     ))
   }
 
-  work_ids <- sub("\\[cite:(W\\d+)\\]", "\\1", matches)
-  work_ids <- unique(work_ids)
+  inner <- sub("^\\[cite:(.*)\\]$", "\\1", matches)
+  work_ids <- unlist(strsplit(inner, "[,;]"), use.names = FALSE)
+  work_ids <- trimws(sub("^\\s*cite:", "", work_ids))
+  work_ids <- unique(work_ids[nzchar(work_ids)])
 
   valid <- work_ids[work_ids %in% retrieved$work_id]
 

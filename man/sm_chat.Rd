@@ -69,8 +69,10 @@ Ask a question of a corpus using retrieval-augmented generation (RAG).
 The function retrieves the most relevant works from the corpus using
 embeddings, TF-IDF, or a hybrid method, then sends them as context to
 a chat provider along with the user's question. The response includes inline
-citations keyed to work IDs. No hallucinated references are possible
-because citations are constrained to retrieved works.
+citations keyed to work IDs. Citations are checked against the retrieved
+works: a cited ID that was not sent as context is not reported, so every
+reported citation is a real work of the corpus. Work IDs of any form are
+recognised (for example OpenAlex \code{W123} or Web of Science \code{WOS:000123}).
 }
 \examples{
 \dontrun{

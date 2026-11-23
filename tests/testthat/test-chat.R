@@ -185,3 +185,24 @@ test_that("unused chat parameters are deprecated only when supplied", {
     sm_chat(corpus, "q", ch, temperature = 0.5, retrieve_method = "tfidf")
   )
 })
+
+test_that("sm_chat parses citations of work IDs of any form", {
+  corpus <- sm_example_corpus(n_works = 6, n_authors = 4, seed = 5)
+  ids <- paste0("WOS:00099990000000", seq_len(6))
+  old <- corpus$works$work_id
+  corpus$works$work_id <- ids
+  corpus$authorships$work_id <- ids[match(corpus$authorships$work_id, old)]
+  corpus$embeddings <- NULL
+  mock_llm(paste0("First [cite:", ids[1], "], then [cite:", ids[2], "; ",
+                  ids[3], "] and [cite: ", ids[4], " ]."))
+  resp <- sm_chat(corpus, "anything", provider = fake_provider(),
+                  retrieve_n = 6, retrieve_method = "tfidf")
+  expect_setequal(resp$citations$work_id, ids[1:4])
+  expect_identical(resp$citations$cite_token[1], paste0("[cite:", ids[1], "]"))
+})
+
+test_that("the chat system prompt does not prescribe an ID format", {
+  prompt <- .build_chat_system_prompt(cite = TRUE)
+  expect_match(prompt, "[cite:<work ID>]", fixed = TRUE)
+  expect_no_match(prompt, "WXXXX", fixed = TRUE)
+})

@@ -56,9 +56,9 @@ visualisations.
 - **Equity and representation auditing.** Geographic, gender, funding, and
   OA audits with built-in confidence reporting and epistemic humility
   (`sm_audit_geographic()`, `sm_audit_gender()`).
-- **LLM-grounded corpus chat.** Ask questions about your corpus with every
-  claim anchored to actual works -- no hallucinated references
-  (`sm_chat()`).
+- **LLM-grounded corpus chat.** Ask questions about your corpus; the
+  answer cites works by their IDs, and every reported citation is checked
+  against the works sent as context (`sm_chat()`).
 
 ## Relationship to bibliometrix
 
