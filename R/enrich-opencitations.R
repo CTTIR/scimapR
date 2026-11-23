@@ -115,7 +115,8 @@ sm_enrich_opencitations <- function(corpus,
   }
   corpus$works <- works
   corpus$references <- references
-  .sm_done("Enriched {sum(enriched)} works with OpenCitations data.")
+  .sm_done("Enriched {sum(enriched)} works with OpenCitations data.",
+           verbose = verbose)
   corpus
 }
 

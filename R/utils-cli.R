@@ -4,7 +4,10 @@
   cli::cli_inform(c("i" = paste0(...)), .envir = .envir)
 }
 
-.sm_done <- function(..., .envir = rlang::caller_env()) {
+# `verbose = FALSE` silences the completion message as well, so a function
+# called with `verbose = FALSE` prints nothing but warnings.
+.sm_done <- function(..., verbose = TRUE, .envir = rlang::caller_env()) {
+  if (!isTRUE(verbose)) return(invisible(NULL))
   cli::cli_inform(c("v" = paste0(...)), .envir = .envir)
 }
 

@@ -171,7 +171,7 @@ sm_fetch_orcid <- function(orcid,
     engine_name = "native"
   )
 
-  .sm_done("Parsed {n} ORCID works into sm_corpus.")
+  .sm_done("Parsed {n} ORCID works into sm_corpus.", verbose = verbose)
 
   new_sm_corpus(
     works = works,

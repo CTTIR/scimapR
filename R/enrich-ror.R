@@ -198,7 +198,8 @@ sm_enrich_ror <- function(corpus,
   }
 
   .sm_done(
-    "Resolved {length(ror_cache)} affiliations via ROR; added {length(new_insts)} new institutions."
+    "Resolved {length(ror_cache)} affiliations via ROR; added {length(new_insts)} new institutions.",
+    verbose = verbose
   )
   corpus
 }

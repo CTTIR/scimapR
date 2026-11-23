@@ -307,7 +307,7 @@ sm_fetch_openalex <- function(query = NULL,
     engine_name = "native"
   )
 
-  .sm_done("Parsed {n} OpenAlex works into sm_corpus.")
+  .sm_done("Parsed {n} OpenAlex works into sm_corpus.", verbose = verbose)
 
   new_sm_corpus(
     works = works,
@@ -805,7 +805,8 @@ sm_fetch_openalex <- function(query = NULL,
       work_ids, "openalex", works$openalex_id, query, "openalexR"
     )
 
-    .sm_done("Parsed {n} OpenAlex works (via openalexR) into sm_corpus.")
+    .sm_done("Parsed {n} OpenAlex works (via openalexR) into sm_corpus.",
+             verbose = verbose)
 
     new_sm_corpus(
       works = works,

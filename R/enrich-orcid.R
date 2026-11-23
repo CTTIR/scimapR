@@ -135,6 +135,7 @@ sm_enrich_orcid <- function(corpus,
     corpus$provenance <- dplyr::bind_rows(corpus$provenance, new_prov)
   }
 
-  .sm_done("Enriched {length(target_orcids)} authors with ORCID data.")
+  .sm_done("Enriched {length(target_orcids)} authors with ORCID data.",
+           verbose = verbose)
   corpus
 }

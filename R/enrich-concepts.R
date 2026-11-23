@@ -129,7 +129,8 @@ sm_enrich_concepts <- function(corpus,
   }
 
   n_enriched <- length(new_concepts)
-  .sm_done("Added concepts for {n_enriched} works via OpenAlex.")
+  .sm_done("Added concepts for {n_enriched} works via OpenAlex.",
+           verbose = verbose)
   corpus
 }
 
@@ -251,6 +252,6 @@ sm_enrich_concepts <- function(corpus,
   }
 
   n_enriched <- length(new_concepts)
-  .sm_done("Added MeSH terms for {n_enriched} works.")
+  .sm_done("Added MeSH terms for {n_enriched} works.", verbose = verbose)
   corpus
 }

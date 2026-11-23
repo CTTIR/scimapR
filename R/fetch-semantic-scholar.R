@@ -296,7 +296,8 @@ sm_fetch_semantic_scholar <- function(query = NULL,
     engine_name = "native"
   )
 
-  .sm_done("Parsed {n} Semantic Scholar papers into sm_corpus.")
+  .sm_done("Parsed {n} Semantic Scholar papers into sm_corpus.",
+           verbose = verbose)
 
   new_sm_corpus(
     works = works,

@@ -177,6 +177,7 @@ sm_enrich_altmetric <- function(corpus,
   }
 
   n_enriched <- sum(!is.na(alt_score))
-  .sm_done("Enriched {n_enriched} works with Altmetric data.")
+  .sm_done("Enriched {n_enriched} works with Altmetric data.",
+           verbose = verbose)
   corpus
 }

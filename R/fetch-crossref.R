@@ -196,7 +196,7 @@ sm_fetch_crossref <- function(query = NULL,
     engine_name = "native"
   )
 
-  .sm_done("Parsed {n} Crossref works into sm_corpus.")
+  .sm_done("Parsed {n} Crossref works into sm_corpus.", verbose = verbose)
 
   new_sm_corpus(
     works = works,
@@ -408,7 +408,8 @@ sm_fetch_crossref <- function(query = NULL,
       work_ids, "crossref", works$doi, query, "rcrossref"
     )
 
-    .sm_done("Parsed {n} Crossref works (via rcrossref) into sm_corpus.")
+    .sm_done("Parsed {n} Crossref works (via rcrossref) into sm_corpus.",
+             verbose = verbose)
 
     new_sm_corpus(
       works = works,

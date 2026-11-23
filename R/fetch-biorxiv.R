@@ -180,7 +180,7 @@ sm_fetch_biorxiv <- function(query = NULL,
     engine_name = "native"
   )
 
-  .sm_done("Parsed {n} {server} preprints into sm_corpus.")
+  .sm_done("Parsed {n} {server} preprints into sm_corpus.", verbose = verbose)
 
   new_sm_corpus(
     works = works,

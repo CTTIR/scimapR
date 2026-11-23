@@ -229,7 +229,8 @@ sm_enrich_specter <- function(corpus,
   new_prov$kind <- "enrichment"
   corpus$provenance <- dplyr::bind_rows(corpus$provenance, new_prov)
 
-  .sm_done("Added SPECTER embeddings for {length(all_embeddings)} works.")
+  .sm_done("Added SPECTER embeddings for {length(all_embeddings)} works.",
+           verbose = verbose)
   corpus
 }
 

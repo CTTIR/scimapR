@@ -143,7 +143,7 @@ sm_fetch_overton <- function(query,
     engine_name = "native"
   )
 
-  .sm_done("Parsed {n} Overton results into sm_corpus.")
+  .sm_done("Parsed {n} Overton results into sm_corpus.", verbose = verbose)
 
   new_sm_corpus(
     works = works,

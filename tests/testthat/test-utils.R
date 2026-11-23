@@ -95,3 +95,8 @@ test_that(".doi_url_path encodes everything but the slashes of a DOI", {
   expect_identical(utils::URLdecode(.doi_url_path("10.1000/<a>;b:c")),
                    "10.1000/<a>;b:c")
 })
+
+test_that(".sm_done is silent with verbose = FALSE", {
+  expect_silent(.sm_done("done", verbose = FALSE))
+  expect_message(.sm_done("done"), "done")
+})

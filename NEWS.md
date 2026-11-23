@@ -1,5 +1,8 @@
 # scimapR 0.5.0
 
+* With `verbose = FALSE`, the fetchers (`sm_fetch_*()`) and the enrichers
+  (`sm_enrich_*()`) no longer print their closing "Parsed ..." or
+  "Enriched ..." message; only warnings remain.
 * `sm_enrich_altmetric()` stops after Altmetric refuses a request as
   unauthorised (HTTP 401 or 403), instead of sending one failing request per
   DOI at one request a second; the remaining works are reported in the

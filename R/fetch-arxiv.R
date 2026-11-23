@@ -157,7 +157,7 @@ sm_fetch_arxiv <- function(query,
     engine_name = "native"
   )
 
-  .sm_done("Parsed {n} arXiv entries into sm_corpus.")
+  .sm_done("Parsed {n} arXiv entries into sm_corpus.", verbose = verbose)
 
   new_sm_corpus(
     works = works,

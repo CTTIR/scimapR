@@ -201,3 +201,16 @@ test_that("altmetric percent-encodes DOIs in the request path", {
   )
   expect_equal(out$works$altmetric_score, 3)
 })
+
+test_that("altmetric is silent with verbose = FALSE", {
+  corpus <- sm_example_corpus(n_works = 2, n_authors = 2,
+                              with_embeddings = FALSE, seed = 8)
+  testthat::local_mocked_bindings(
+    req_perform = function(req, ...) structure(list(), class = "sm_fake_resp"),
+    resp_body_json = function(resp, ...) list(score = 2),
+    .package = "httr2"
+  )
+  expect_silent(sm_enrich_altmetric(corpus, api_key = "k", verbose = FALSE))
+  expect_message(sm_enrich_altmetric(corpus, api_key = "k", verbose = TRUE),
+                 "Enriched 2 works with Altmetric data")
+})
