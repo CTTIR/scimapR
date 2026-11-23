@@ -1,5 +1,10 @@
 # scimapR 0.5.0
 
+* `sm_example_corpus()` no longer gives synthetic authors ORCID iDs that can
+  belong to real researchers: an iD drawn with a valid check character gets
+  a different last digit (no other values change). The bundled
+  `sm_example_db` had one such iD and is corrected the same way, and a test
+  fixture used a real researcher's iD.
 * The documentation is written in British English (`Language: en-GB`).
 * Removed the unused suggested packages 'plotly', 'visNetwork',
   'shinyWidgets', 'shinycssloaders', 'shinyjs', 'shinytest2', 'htmltools',

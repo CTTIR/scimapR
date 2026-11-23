@@ -124,13 +124,13 @@ sm_example_corpus <- function(n_works = 200L,
 
   authors <- tibble::tibble(
     author_id = author_ids,
-    orcid = ifelse(
+    orcid = .synthetic_orcid(ifelse(
       stats::runif(n_authors) > 0.4,
       paste0("0000-000", sample(1:3, n_authors, replace = TRUE), "-",
              formatC(sample(1000:9999, n_authors), width = 4, flag = "0"), "-",
              formatC(sample(1000:9999, n_authors), width = 4, flag = "0")),
       NA_character_
-    ),
+    )),
     display_name = paste(a_first, a_last),
     display_name_alternatives = lapply(seq_len(n_authors), function(i) character()),
     inferred_gender = NA_character_,
@@ -389,4 +389,33 @@ sm_example_files <- function(name = NULL) {
     ))
   }
   path
+}
+
+#' Make ORCID-shaped identifiers that cannot belong to a real person
+#'
+#' An ORCID iD ends in an ISO 7064 MOD 11-2 check character. Where a drawn
+#' identifier happens to carry the valid one, the last digit is changed, so
+#' that no synthetic author shares an iD with a real researcher. Identifiers
+#' that already fail the check are kept, and no random numbers are drawn.
+#' @noRd
+.synthetic_orcid <- function(x) {
+  valid <- !is.na(x) & .orcid_checksum_ok(x)
+  last <- as.integer(substring(x[valid], 19L, 19L))
+  substring(x[valid], 19L, 19L) <- as.character((last + 1L) %% 10L)
+  x
+}
+
+#' Does an ORCID-shaped string carry a valid ISO 7064 MOD 11-2 check character
+#' @noRd
+.orcid_checksum_ok <- function(x) {
+  digits <- gsub("-", "", x, fixed = TRUE)
+  vapply(digits, function(d) {
+    if (is.na(d) || !grepl("^[0-9]{15}[0-9X]$", d)) return(FALSE)
+    total <- 0
+    for (ch in strsplit(substr(d, 1L, 15L), "", fixed = TRUE)[[1]]) {
+      total <- (total + as.integer(ch)) * 2
+    }
+    check <- (12 - total %% 11) %% 11
+    substr(d, 16L, 16L) == if (check == 10) "X" else as.character(check)
+  }, logical(1), USE.NAMES = FALSE)
 }

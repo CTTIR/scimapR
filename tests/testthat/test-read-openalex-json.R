@@ -8,7 +8,7 @@ test_that("sm_read_openalex_json parses a JSON array of works", {
     '"open_access":{"oa_status":"gold"},',
     '"authorships":[{"author":{"id":"https://openalex.org/A1",',
     '"display_name":"Jane Doe",',
-    '"orcid":"https://orcid.org/0000-0002-1111-2222"},',
+    '"orcid":"https://orcid.org/0000-0002-1111-2223"},',
     '"institutions":[{"id":"https://openalex.org/I1",',
     '"display_name":"MIT","country_code":"US"}],',
     '"is_corresponding":true}],',
@@ -48,7 +48,7 @@ test_that("sm_read_openalex_json builds authors, sources, concepts, references",
     '"abstract":"x",',
     '"authorships":[{"author":{"id":"https://openalex.org/A1",',
     '"display_name":"Jane Doe",',
-    '"orcid":"https://orcid.org/0000-0002-1111-2222"},',
+    '"orcid":"https://orcid.org/0000-0002-1111-2223"},',
     '"institutions":[{"id":"https://openalex.org/I1",',
     '"display_name":"MIT","country_code":"US"}],',
     '"is_corresponding":true}],',
@@ -62,7 +62,7 @@ test_that("sm_read_openalex_json builds authors, sources, concepts, references",
   corpus <- sm_read_openalex_json(path, verbose = FALSE)
 
   # orcid prefix stripped
-  expect_equal(corpus$authors$orcid[1], "0000-0002-1111-2222")
+  expect_equal(corpus$authors$orcid[1], "0000-0002-1111-2223")
   expect_equal(corpus$authors$display_name[1], "Jane Doe")
   expect_equal(corpus$authorships$country_code[1], "US")
   expect_equal(corpus$authorships$raw_affiliation[1], "MIT")

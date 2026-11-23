@@ -192,3 +192,27 @@ test_that("empty example corpora retain typed schemas without warnings", {
     }
   }
 })
+
+test_that("synthetic ORCID iDs never carry a valid check character", {
+  for (seed in 1:5) {
+    corpus <- sm_example_corpus(n_works = 20, n_authors = 200,
+                                with_embeddings = FALSE, seed = seed)
+    orcid <- corpus$authors$orcid[!is.na(corpus$authors$orcid)]
+    expect_gt(length(orcid), 0L)
+    expect_false(any(.orcid_checksum_ok(orcid)))
+  }
+  data_orcid <- stats::na.omit(sm_example_db$authors$orcid)
+  expect_false(any(.orcid_checksum_ok(data_orcid)))
+})
+
+test_that(".orcid_checksum_ok follows ISO 7064 MOD 11-2", {
+  # 0000-0002-1825-0097 is the ORCID test record; 0000-0000-0000-001X lies
+  # outside the assigned ranges and ends in the check character X
+  expect_identical(
+    .orcid_checksum_ok(c("0000-0002-1825-0097", "0000-0002-1825-0098",
+                         "0000-0000-0000-001X", NA, "bad")),
+    c(TRUE, FALSE, TRUE, FALSE, FALSE)
+  )
+  expect_identical(.synthetic_orcid(c("0000-0002-1825-0097", NA)),
+                   c("0000-0002-1825-0098", NA))
+})
