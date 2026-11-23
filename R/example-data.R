@@ -323,9 +323,9 @@ sm_example_corpus <- function(n_works = 200L,
 #'
 #' @section Real-use fixture:
 #' Three files form a synthetic fixture shaped like a corpus that was built
-#' from a Web of Science export of three public-service units and their
-#' academic partners. Everything in it is invented: units, cities, people,
-#' journals, titles and DOIs (`10.9999/...`). The script
+#' from a Web of Science export of three regional research institutions
+#' and their academic partners. Everything in it is invented: institutions,
+#' cities, people, journals, titles and DOIs (`10.9999/...`). The script
 #' `data-raw/realuse-fixture.R` in the package sources rebuilds the files.
 #' \describe{
 #'   \item{`example_realuse_corpus.rds`}{An [sm_corpus] built with
@@ -344,7 +344,7 @@ sm_example_corpus <- function(n_works = 200L,
 #'     1970-01-01 UTC.}
 #'   \item{`example_realuse_reference.csv`}{A reference list in the style of
 #'     a publication tracker, with columns `id`, `doi`, `title`, `year`,
-#'     `institution` (the reporting unit) and `category` (a publication
+#'     `institution` (the reporting institution) and `category` (a publication
 #'     class code). It holds 120 of the corpus works and 40 items that are
 #'     not in the corpus.}
 #'   \item{`example_realuse_affiliation_dict.csv`}{An affiliation dictionary

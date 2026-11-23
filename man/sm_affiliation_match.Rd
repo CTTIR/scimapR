@@ -123,10 +123,10 @@ corpus$authorships$raw_affiliation[1] <- "Diakoniekrankenhaus Berlin"
 matched <- sm_affiliation_match(corpus)
 matched$authorships$institution_match[1]
 
-# In Unicode mode \w consumes the umlaut of a German unit name
+# In Unicode mode \w consumes the umlaut of a German institution name
 corpus$authorships$raw_affiliation[2] <-
-  "Zentrales Institut des Veterin\u00e4rwesens Nordstadt"
-dict <- list("Central Medical Institute" = "veterin\\\\w+rwesens")
+  "Veterin\u00e4rmedizinisches Forschungszentrum Nordstadt"
+dict <- list("Veterinary Research Centre" = "veterin\\\\w+rmed")
 matched <- sm_affiliation_match(corpus, patterns = dict)
 matched$authorships$institution_match[2]
 ascii <- sm_affiliation_match(corpus, patterns = dict, unicode = FALSE)

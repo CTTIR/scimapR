@@ -524,7 +524,7 @@
 #' )
 #' fix <- sm_affiliation_match(fix, dict)
 #' lead <- sm_its(fix, intervention_year = 2021, outcome = "leadership",
-#'                institutions = "Public Services Hospital Northtown")
+#'                institutions = "Northtown General Hospital")
 #' lead$series
 sm_its <- function(corpus,
                    intervention_year,

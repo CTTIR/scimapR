@@ -22,8 +22,8 @@ test_that("H1: years without a finite outcome are dropped, not fatal", {
   matched <- suppressMessages(sm_affiliation_match(fix, realuse_dict()))
   expect_warning(
     did <- sm_did(matched,
-                  treated = "Public Services Hospital Northtown",
-                  control = "Federal Public Services Institute of Microbiology",
+                  treated = "Northtown General Hospital",
+                  control = "Regional Institute of Microbiology Southcity",
                   intervention_year = 2021, outcome = "share_q1"),
     "2026"
   )
@@ -123,7 +123,7 @@ test_that("H5: leadership can be restricted to a focal institution", {
   # the share then equals a hand computation on the matched fixture.
   fix <- suppressMessages(sm_affiliation_match(realuse_corpus(),
                                                realuse_dict()))
-  unit <- "Public Services Hospital Northtown"
+  unit <- "Northtown General Hospital"
   default <- sm_its(fix, 2021, "leadership")
   focal <- sm_its(fix, 2021, "leadership", institutions = unit)
   expect_true(any(focal$series$observed != default$series$observed))
@@ -306,18 +306,19 @@ test_that("H14: dictionary patterns match non-ASCII affiliations", {
   # generic fallback cannot reach them. After the fix eight of them match
   # their unit; the two rows of a academic clinic stay unmatched and are
   # listed by sm_affiliation_unmatched().
-  zis <- "Zentrales Institut des Veterin\u00e4rwesens Nordstadt"
-  hospital <- "Public Services Hospital Northtown"
+  vet <- "Veterinary Research Centre Nordstadt"
+  hospital <- "Northtown General Hospital"
   expected <- data.frame(
     text = c(
-      paste0(zis, ", Abt. \u00dcbung"),
-      "Abt. \u00dcbung und Ausbildung, Nordstadt",
-      "Institut f\u00fcr Mikrobiologie der Gesundheits\u00e4mter, Southcity",
+      paste0("Veterin\u00e4rmedizinisches Forschungszentrum Nordstadt, ",
+             "Abt. \u00d6kologie"),
+      "Abt. \u00d6kologie und Lehre, Nordstadt",
+      "Landesinstitut f\u00fcr Mikrobiologie, Southcity",
       "St\u00e4dtisches Krankenhaus Northtown, Klinik f\u00fcr Unfallchirurgie",
       "Sektion Fu\u00df- und Sprunggelenkchirurgie, Northtown",
       "Universit\u00e4tsklinikum Nordstadt, Klinik f\u00fcr Dermatologie"
     ),
-    institution = c(zis, zis, "Federal Public Services Institute of Microbiology",
+    institution = c(vet, vet, "Regional Institute of Microbiology Southcity",
                     hospital, hospital, NA),
     stringsAsFactors = FALSE
   )
@@ -339,7 +340,7 @@ test_that("H14: dictionary patterns match non-ASCII affiliations", {
 
 test_that("H15: one paper cannot name a cluster; keyword labels; noise", {
   skip_if_not_installed("tidytext")
-  # Intent: with the theme clustering, the token one heat-theme abstract
+  # Intent: with the theme clustering, the token one shift-work abstract
   # repeats 15 times ("quillotyrase") is in no tf-idf label, the keyword
   # labels contain the planted anchor keywords, and noise (cluster 0) gets
   # no label.
@@ -351,8 +352,7 @@ test_that("H15: one paper cannot name a cluster; keyword labels; noise", {
   expect_true(all(is.na(labels[tfidf$works$cluster_id == 0L])))
 
   keywords <- suppressMessages(sm_cluster_label(fix, method = "keywords"))
-  anchors <- c("orthohantavirus", "hemorrhage control",
-               "exertional heat illness")
+  anchors <- c("norovirus", "acute stroke care", "night shift work")
   labels <- keywords$works$cluster_label
   ids <- keywords$works$cluster_id
   for (k in 1:3) {

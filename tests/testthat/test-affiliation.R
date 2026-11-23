@@ -79,14 +79,14 @@ match_aff <- function(raw, patterns, ...) {
 
 test_that("sm_affiliation_match lets \\w consume umlauts and sharp s", {
   raw <- c(
-    "Zentrales Institut des Veterin\u00e4rwesens Nordstadt",
+    "Veterin\u00e4rmedizinisches Forschungszentrum Nordstadt",
     "Klinik f\u00fcr H\u00f6henmedizin, Southcity",
     "Institut f\u00fcr Mikrobiologie, Northtown",
     "Gro\u00dfklinikum Nordstadt"
   )
   dict <- data.frame(
     institution = c("Institute A", "Clinic B", "Institute C", "Hospital D"),
-    pattern = c("veterin\\w+rwesens", "h\\w+henmedizin",
+    pattern = c("veterin\\w+rmed\\w*", "h\\w+henmedizin",
                 "institut f\\w+r mikrobiologie", "gro\\w+klinikum"),
     stringsAsFactors = FALSE
   )
@@ -94,37 +94,37 @@ test_that("sm_affiliation_match lets \\w consume umlauts and sharp s", {
   expect_identical(a$institution_match, dict$institution)
   expect_identical(as.character(a$match_signal), rep("name_token", 4L))
   expect_identical(a$match_evidence[c(1L, 4L)],
-                   c("Veterin\u00e4rwesens", "Gro\u00dfklinikum"))
+                   c("Veterin\u00e4rmedizinisches", "Gro\u00dfklinikum"))
 })
 
 test_that("sm_affiliation_match finds \\b next to non-ASCII letters", {
   raw <- c(
-    "Abt. \u00dcbung und Ausbildung, Nordstadt",
+    "Abt. \u00d6kologie und Lehre, Nordstadt",
     "Sektion Fu\u00df- und Sprunggelenkchirurgie, Northtown",
-    "Abt. Vor\u00fcbung, Nordstadt"
+    "Abt. Agrar\u00f6kologie, Nordstadt"
   )
   dict <- data.frame(
-    institution = c("Training", "Foot surgery"),
-    pattern = c("\\b\u00fcbung\\b", "\\bfu\u00df\\b"),
+    institution = c("Ecology", "Foot surgery"),
+    pattern = c("\\b\u00f6kologie\\b", "\\bfu\u00df\\b"),
     stringsAsFactors = FALSE
   )
   a <- match_aff(raw, dict)
-  # "Vor<u-umlaut>bung" has no word edge before the umlaut, so no match
-  expect_identical(a$institution_match, c("Training", "Foot surgery", NA))
-  expect_identical(a$match_evidence[1:2], c("\u00dcbung", "Fu\u00df"))
+  # "Agrar<o-umlaut>kologie" has no word edge before the umlaut, so no match
+  expect_identical(a$institution_match, c("Ecology", "Foot surgery", NA))
+  expect_identical(a$match_evidence[1:2], c("\u00d6kologie", "Fu\u00df"))
 })
 
 test_that(".ucp_regex() asks for Unicode mode once", {
-  expect_identical(.ucp_regex("sanit\\w+"), "(*UCP)sanit\\w+")
+  expect_identical(.ucp_regex("hygien\\w+"), "(*UCP)hygien\\w+")
   expect_identical(.ucp_regex("(*UCP)x"), "(*UCP)x")
   expect_identical(.ucp_regex("(*UTF)(*UCP)x"), "(*UTF)(*UCP)x")
   expect_identical(.ucp_regex("(*UTF)x"), "(*UCP)(*UTF)x")
   expect_identical(.ucp_regex(c("a", NA, "")), c("(*UCP)a", NA, ""))
   expect_identical(.ucp_regex("x", unicode = FALSE), "x")
   # dictionary rows that start with their own leading items still match
-  a <- match_aff(rep("Veterin\u00e4rwesens", 2L),
-                 list(ZIS = "(*UTF)veterin\\w+rwesens"))
-  expect_identical(a$institution_match, c("ZIS", "ZIS"))
+  a <- match_aff(rep("Veterin\u00e4rmedizin", 2L),
+                 list(VRC = "(*UTF)veterin\\w+rmedizin"))
+  expect_identical(a$institution_match, c("VRC", "VRC"))
 })
 
 test_that("sm_affiliation_match never turns NA or empty patterns into hits", {
@@ -139,19 +139,19 @@ test_that("sm_affiliation_match never turns NA or empty patterns into hits", {
 })
 
 test_that("sm_affiliation_match(unicode = FALSE) keeps ASCII-only classes", {
-  raw <- c("Zentrales Institut des Veterin\u00e4rwesens",
-           "Abt. Vor\u00fcbung, Nordstadt",
+  raw <- c("Veterin\u00e4rmedizinisches Forschungszentrum",
+           "Abt. Agrar\u00f6kologie, Nordstadt",
            "M\u00fchlstadt Clinic")
   dict <- data.frame(
-    institution = c("ZIS", "Training", "Clinic"),
-    pattern = c("veterin\\w+rwesens", "\\b\u00fcbung\\b", "m\\Whlstadt"),
+    institution = c("VRC", "Ecology", "Clinic"),
+    pattern = c("veterin\\w+rmed", "\\b\u00f6kologie\\b", "m\\Whlstadt"),
     stringsAsFactors = FALSE
   )
   # \W stood for the umlaut in ASCII mode; in Unicode mode it is a letter
   old <- match_aff(raw, dict, unicode = FALSE)
-  expect_identical(old$institution_match, c(NA, "Training", "Clinic"))
+  expect_identical(old$institution_match, c(NA, "Ecology", "Clinic"))
   new <- match_aff(raw, dict)
-  expect_identical(new$institution_match, c("ZIS", NA, NA))
+  expect_identical(new$institution_match, c("VRC", NA, NA))
   expect_error(sm_affiliation_match(aff_corpus("x"), unicode = NA),
                "unicode")
 })

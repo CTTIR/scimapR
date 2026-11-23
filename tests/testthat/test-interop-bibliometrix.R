@@ -768,7 +768,7 @@ test_that("bibliometrix analyses run on the export", {
   has_c1 <- !is.na(m$C1)
   un <- bx_quiet(bibliometrix::metaTagExtraction(m, "AU_UN"))
   # AU_UN keeps the addresses bibliometrix recognises as institutions; it
-  # does not recognise the one invented address "Public Services Med Off".
+  # does not recognise the invented address "Westburg Publ Hlth Off".
   has_un <- !is.na(un$AU_UN) & nzchar(un$AU_UN)
   expect_gt(mean(has_un[has_c1]), 0.95)
   co <- bx_quiet(bibliometrix::metaTagExtraction(m, "AU_CO"))

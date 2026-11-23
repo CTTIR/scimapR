@@ -20,9 +20,9 @@ Returns the path to bundled example bibliographic files in the package's
 \section{Real-use fixture}{
 
 Three files form a synthetic fixture shaped like a corpus that was built
-from a Web of Science export of three public-service units and their
-academic partners. Everything in it is invented: units, cities, people,
-journals, titles and DOIs (\code{10.9999/...}). The script
+from a Web of Science export of three regional research institutions
+and their academic partners. Everything in it is invented: institutions,
+cities, people, journals, titles and DOIs (\code{10.9999/...}). The script
 \code{data-raw/realuse-fixture.R} in the package sources rebuilds the files.
 \describe{
 \item{\code{example_realuse_corpus.rds}}{An \link{sm_corpus} built with
@@ -41,7 +41,7 @@ that have no citations (see \code{\link[=sm_citation_window]{sm_citation_window(
 1970-01-01 UTC.}
 \item{\code{example_realuse_reference.csv}}{A reference list in the style of
 a publication tracker, with columns \code{id}, \code{doi}, \code{title}, \code{year},
-\code{institution} (the reporting unit) and \code{category} (a publication
+\code{institution} (the reporting institution) and \code{category} (a publication
 class code). It holds 120 of the corpus works and 40 items that are
 not in the corpus.}
 \item{\code{example_realuse_affiliation_dict.csv}}{An affiliation dictionary

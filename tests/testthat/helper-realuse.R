@@ -34,8 +34,7 @@ realuse_matched <- function() {
 # work of the theme carries), the same id in every time window; works
 # without an anchor (editorials and letters) are noise, cluster 0.
 realuse_themes <- function(corpus) {
-  anchors <- c("orthohantavirus", "hemorrhage control",
-               "exertional heat illness")
+  anchors <- c("norovirus", "acute stroke care", "night shift work")
   kw <- corpus$concepts
   kw <- kw[kw$vocabulary == "author-keywords" &
              kw$concept_name %in% anchors, ]

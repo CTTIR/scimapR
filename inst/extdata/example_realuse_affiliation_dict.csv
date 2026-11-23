@@ -1,9 +1,9 @@
 institution,pattern,email_domain
-Federal Public Services Institute of Microbiology,fed\w* public services inst\w* microbiol,microbiology.services.example
-Federal Public Services Institute of Microbiology,institut f\w+r mikrobiologie der gesundheits\w+mter,
-Zentrales Institut des Veterinärwesens Nordstadt,veterin\w+rwesens,veterinaerwesen-nordstadt.example
-Zentrales Institut des Veterinärwesens Nordstadt,\bübung\b,
-Public Services Hospital Northtown,public services hosp\w* northtown,hospital-northtown.example
-Public Services Hospital Northtown,st\w+dtisches krankenhaus northtown,
-Public Services Hospital Northtown,\bfuß\b.*\bnorthtown\b,
-Sonstige Dienststellen der Gesundheitsämter,\bpublic services\b,
+Regional Institute of Microbiology Southcity,reg\w* inst\w* microbiol,microbiology-southcity.example
+Regional Institute of Microbiology Southcity,landesinstitut f\w+r mikrobiologie,
+Veterinary Research Centre Nordstadt,veterin\w+rmed,vetresearch-nordstadt.example
+Veterinary Research Centre Nordstadt,\bökologie\b,
+Northtown General Hospital,northtown gen\w* hosp,hospital-northtown.example
+Northtown General Hospital,st\w+dtisches krankenhaus northtown,
+Northtown General Hospital,\bfuß\b.*\bnorthtown\b,
+Sonstige Einrichtungen der Gesundheitsämter,\bhlth off\b,

@@ -114,8 +114,8 @@ test_that("keywords field uses the author keywords by default", {
   nodes <- node_names(g)
   expect_gt(length(nodes), 0L)
   expect_true(all(nodes %in% terms_of(fix, "author-keywords")))
-  expect_true(all(c("orthohantavirus", "hemorrhage control",
-                    "exertional heat illness") %in% nodes))
+  expect_true(all(c("norovirus", "acute stroke care",
+                    "night shift work") %in% nodes))
 })
 
 test_that("vocabulary = 'indexer_keyword' builds a Keywords Plus network", {

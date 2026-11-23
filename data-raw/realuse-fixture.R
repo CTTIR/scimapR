@@ -1,10 +1,11 @@
 # Synthetic real-use fixture for the scimapR tests, examples and vignettes.
 #
 # A table-built corpus that looks like a Web of Science export of three
-# public-service units and their academic partners, a tracker-style
-# reference list, an affiliation dictionary and a Web of Science plaintext
-# twin of ten of the works. Everything is invented: units, cities,
-# postcodes, people, journals, titles and DOIs (10.9999/...).
+# regional research institutions and their academic partners, a
+# tracker-style reference list, an affiliation dictionary and a Web of
+# Science plaintext twin of ten of the works. Everything is invented:
+# institutions, cities, postcodes, people, journals, titles and DOIs
+# (10.9999/...).
 #
 # Run it from the package root after loading the development version with
 # devtools::load_all(). It writes example_realuse_corpus.rds,
@@ -33,10 +34,10 @@
 #   letters. Before Unicode-aware matching no dictionary pattern matches
 #   them (the generic fallback pattern cannot reach them); afterwards eight
 #   match their unit and two (a academic clinic) stay unmatched.
-# - Three keyword themes (anchors "orthohantavirus", "hemorrhage control",
-#   "exertional heat illness"); works without an anchor keyword are
-#   editorials and letters. One heat-theme abstract repeats the invented
-#   token "quillotyrase" 15 times.
+# - Three keyword themes (anchors "norovirus", "acute stroke care",
+#   "night shift work"); works without an anchor keyword are editorials
+#   and letters. One shift-work abstract repeats the invented token
+#   "quillotyrase" 15 times.
 # - References are reader-shaped: cited_work_id is NA; local citations
 #   carry the cited work's DOI in cited_doi and in the CR string.
 # - Two works have no provenance row.
@@ -92,32 +93,32 @@ issn_with_check <- function(digits) {
 # ---- units, partners and addresses -----------------------------------------
 
 unit_names <- c(
-  hospital = "Public Services Hospital Northtown",
-  microbiology = "Federal Public Services Institute of Microbiology",
-  zis = "Zentrales Institut des Veterin\u00e4rwesens Nordstadt",
-  other = "Sonstige Dienststellen der Gesundheits\u00e4mter"
+  hospital = "Northtown General Hospital",
+  microbiology = "Regional Institute of Microbiology Southcity",
+  vet = "Veterinary Research Centre Nordstadt",
+  other = "Sonstige Einrichtungen der Gesundheits\u00e4mter"
 )
 
 affiliations <- data.frame(
   key = c("hosp_trauma", "hosp_intmed", "hosp_anes", "hosp_emerg",
-          "afim_main", "afim_virol", "afim_bact", "afim_field",
-          "zis_hyg", "zis_lab", "zis_occ", "other_medoff", "other_cmd",
+          "mic_main", "mic_virol", "mic_bact", "mic_outreach",
+          "vet_hyg", "vet_lab", "vet_occ", "other_west", "other_east",
           "un_clinchem", "un_microbiol", "un_trauma", "sms_infect",
           "nuh_derm", "lake_epi", "hill_surg", "fjord_med", "alp_inf",
           "river_ph"),
-  unit = c(rep("hospital", 4L), rep("microbiology", 4L), rep("zis", 3L),
+  unit = c(rep("hospital", 4L), rep("microbiology", 4L), rep("vet", 3L),
            rep("other", 2L), rep(NA_character_, 10L)),
-  org = c(rep("Public Services Hosp Northtown", 4L),
-          rep("Fed Public Services Inst Microbiol", 3L),
-          "Public Services Hosp Northtown",
-          rep("Zent Inst Veterinarwesens Nordstadt", 3L),
-          "Public Services Med Off", "Public Services Central Med Serv",
+  org = c(rep("Northtown Gen Hosp", 4L),
+          rep("Reg Inst Microbiol Southcity", 3L),
+          "Northtown Gen Hosp",
+          rep("Veterinarmed Res Ctr Nordstadt", 3L),
+          "Westburg Publ Hlth Off", "Eastham Publ Hlth Off",
           rep("Univ Northtown", 3L), "Southcity Med Sch",
           "Nordstadt Univ Hosp", "Lakeside Univ", "Hilltop Univ Med Ctr",
           "Univ Fjordby", "Alpenau Cantonal Hosp", "Univ Riverside"),
   dept = c("Dept Trauma Surg", "Dept Internal Med", "Dept Anesthesiol",
            "Dept Emergency Med", "", "Dept Virol", "Dept Bacteriol",
-           "Fed Public Services Inst Microbiol Field Lab", "Dept Hyg",
+           "Reg Inst Microbiol Outreach Lab", "Dept Hyg",
            "Lab Med", "Dept Occupat Med", "", "Div Prevent Med",
            "Inst Clin Chem", "Dept Microbiol", "Dept Trauma Surg",
            "Dept Infect Dis", "Dept Dermatol", "Dept Epidemiol",
@@ -148,14 +149,13 @@ affiliations$c1 <- paste0(
 # German address strings (OpenAlex- or tracker-style) with the dictionary
 # outcome expected after Unicode-aware matching.
 german_rows <- data.frame(
-  target = c("zis", "zis", "zis", "microbiology", "microbiology",
+  target = c("vet", "vet", "vet", "microbiology", "microbiology",
              "hospital", "hospital", "hospital", "nuh", "nuh"),
   text = c(
-    rep("Zentrales Institut des Veterin\u00e4rwesens Nordstadt, Abt. \u00dcbung",
-        2L),
-    "Abt. \u00dcbung und Ausbildung, Nordstadt",
-    rep("Institut f\u00fcr Mikrobiologie der Gesundheits\u00e4mter, Southcity",
-        2L),
+    rep(paste0("Veterin\u00e4rmedizinisches Forschungszentrum Nordstadt, ",
+               "Abt. \u00d6kologie"), 2L),
+    "Abt. \u00d6kologie und Lehre, Nordstadt",
+    rep("Landesinstitut f\u00fcr Mikrobiologie, Southcity", 2L),
     rep(paste0("St\u00e4dtisches Krankenhaus Northtown, Klinik f\u00fcr ",
                "Unfallchirurgie"), 2L),
     "Sektion Fu\u00df- und Sprunggelenkchirurgie, Northtown",
@@ -169,21 +169,21 @@ german_rows <- data.frame(
 # fallback last. Rows 2, 3, 4, 6 and 7 need Unicode-aware \w or \b to match
 # the German strings above; the fallback only knows the English unit names.
 dictionary <- data.frame(
-  institution = unname(unit_names[c("microbiology", "microbiology", "zis",
-                                    "zis", "hospital", "hospital",
+  institution = unname(unit_names[c("microbiology", "microbiology", "vet",
+                                    "vet", "hospital", "hospital",
                                     "hospital", "other")]),
   pattern = c(
-    "fed\\w* public services inst\\w* microbiol",
-    "institut f\\w+r mikrobiologie der gesundheits\\w+mter",
-    "veterin\\w+rwesens",
-    "\\b\u00fcbung\\b",
-    "public services hosp\\w* northtown",
+    "reg\\w* inst\\w* microbiol",
+    "landesinstitut f\\w+r mikrobiologie",
+    "veterin\\w+rmed",
+    "\\b\u00f6kologie\\b",
+    "northtown gen\\w* hosp",
     "st\\w+dtisches krankenhaus northtown",
     "\\bfu\u00df\\b.*\\bnorthtown\\b",
-    "\\bpublic services\\b"
+    "\\bhlth off\\b"
   ),
-  email_domain = c("microbiology.services.example", NA,
-                   "veterinaerwesen-nordstadt.example", NA,
+  email_domain = c("microbiology-southcity.example", NA,
+                   "vetresearch-nordstadt.example", NA,
                    "hospital-northtown.example", NA, NA, NA),
   stringsAsFactors = FALSE
 )
@@ -191,33 +191,33 @@ dictionary <- data.frame(
 # ---- journals --------------------------------------------------------------
 
 journals <- data.frame(
-  key = c("jexm", "eidr", "asur", "fepl", "ijtc", "afmi", "tpem", "zbsm",
+  key = c("jexm", "eidr", "asur", "fepl", "ijsc", "afmi", "sswr", "zbsm",
           "ejph", "oetx"),
   so = c("JOURNAL OF EXAMPLE MEDICINE",
          "EXAMPLE INFECTIOUS DISEASE REPORTS",
-         "ANNALS OF SYNTHETIC SURGERY",
+         "ANNALS OF SYNTHETIC NEUROLOGY",
          "FIELD EPIDEMIOLOGY LETTERS",
-         "INTERNATIONAL JOURNAL OF INVENTED TRAUMA CARE",
+         "INTERNATIONAL JOURNAL OF INVENTED STROKE CARE",
          "ACTA FICTA MICROBIOLOGICA",
-         "THERMAL PHYSIOLOGY AND EXAMPLE MEDICINE",
+         "SLEEP AND SHIFT WORK RESEARCH",
          "ZEITSCHRIFT FUR BEISPIELMEDIZIN",
          "EXAMPLE JOURNAL OF PUBLIC HEALTH",
          "OPEN EXAMPLE TOXICOLOGY"),
-  j9 = c("J EXAMPLE MED", "EX INFECT DIS REP", "ANN SYNTH SURG",
-         "FIELD EPIDEMIOL LETT", "INT J INVENT TRAUMA C",
-         "ACTA FICTA MICROBIOL", "THERM PHYSIOL EX MED", "Z BEISPIELMED",
+  j9 = c("J EXAMPLE MED", "EX INFECT DIS REP", "ANN SYNTH NEUROL",
+         "FIELD EPIDEMIOL LETT", "INT J INVENT STROKE C",
+         "ACTA FICTA MICROBIOL", "SLEEP SHIFT WORK RES", "Z BEISPIELMED",
          "EX J PUBLIC HEALTH", "OPEN EX TOXICOL"),
-  ji = c("J. Example Med.", "Ex. Infect. Dis. Rep.", "Ann. Synth. Surg.",
-         "Field Epidemiol. Lett.", "Int. J. Invent. Trauma Care",
-         "Acta Ficta Microbiol.", "Therm. Physiol. Ex. Med.",
+  ji = c("J. Example Med.", "Ex. Infect. Dis. Rep.", "Ann. Synth. Neurol.",
+         "Field Epidemiol. Lett.", "Int. J. Invent. Stroke Care",
+         "Acta Ficta Microbiol.", "Sleep Shift Work Res.",
          "Z. Beispielmed.", "Ex. J. Public Health", "Open Ex. Toxicol."),
   wc = c("Medicine, General & Internal",
          "Infectious Diseases; Microbiology",
-         "Surgery",
+         "Clinical Neurology",
          "Public, Environmental & Occupational Health; Infectious Diseases",
-         "Emergency Medicine; Surgery",
+         "Emergency Medicine; Clinical Neurology",
          "Microbiology",
-         "Physiology; Sport Sciences",
+         "Physiology; Public, Environmental & Occupational Health",
          "Medicine, General & Internal",
          "Public, Environmental & Occupational Health",
          "Toxicology; Pharmacology & Pharmacy"),
@@ -242,12 +242,11 @@ sc_of_wc <- c(
   "Medicine, General & Internal" = "General & Internal Medicine",
   "Infectious Diseases" = "Infectious Diseases",
   "Microbiology" = "Microbiology",
-  "Surgery" = "Surgery",
+  "Clinical Neurology" = "Neurosciences & Neurology",
   "Public, Environmental & Occupational Health" =
     "Public, Environmental & Occupational Health",
   "Emergency Medicine" = "Emergency Medicine",
   "Physiology" = "Physiology",
-  "Sport Sciences" = "Sport Sciences",
   "Toxicology" = "Toxicology",
   "Pharmacology & Pharmacy" = "Pharmacology & Pharmacy"
 )
@@ -255,8 +254,8 @@ sc_of_wc <- c(
 theme_journals <- list(
   `0` = c(jexm = 0.4, oetx = 0.3, zbsm = 0.3),
   `1` = c(eidr = 0.35, fepl = 0.25, afmi = 0.25, ejph = 0.15),
-  `2` = c(asur = 0.35, ijtc = 0.4, jexm = 0.25),
-  `3` = c(tpem = 0.45, jexm = 0.25, ejph = 0.3)
+  `2` = c(asur = 0.35, ijsc = 0.4, jexm = 0.25),
+  `3` = c(sswr = 0.45, jexm = 0.25, ejph = 0.3)
 )
 
 # ---- people ----------------------------------------------------------------
@@ -290,9 +289,9 @@ surnames <- c(
 
 person_counts <- c(
   hosp_trauma = 6L, hosp_intmed = 5L, hosp_anes = 4L, hosp_emerg = 5L,
-  afim_main = 6L, afim_virol = 4L, afim_bact = 3L, afim_field = 1L,
-  zis_hyg = 5L, zis_lab = 4L, zis_occ = 3L, other_medoff = 3L,
-  other_cmd = 3L, un_clinchem = 3L, un_microbiol = 3L, sms_infect = 4L,
+  mic_main = 6L, mic_virol = 4L, mic_bact = 3L, mic_outreach = 1L,
+  vet_hyg = 5L, vet_lab = 4L, vet_occ = 3L, other_west = 3L,
+  other_east = 3L, un_clinchem = 3L, un_microbiol = 3L, sms_infect = 4L,
   nuh_derm = 3L, lake_epi = 4L, hill_surg = 4L, fjord_med = 3L,
   alp_inf = 3L, river_ph = 4L
 )
@@ -316,9 +315,9 @@ people$themes <- affiliations$themes[match(people$home, affiliations$key)]
 # Joint appointments: these authors list a university address as well.
 people$second <- NA_character_
 people$second[people$home == "hosp_trauma"][1:3] <- "un_trauma"
-people$second[people$home == "afim_virol"][1:2] <- "un_microbiol"
-people$second[people$home == "afim_main"][1] <- "un_microbiol"
-people$second[people$home == "zis_lab"][1:2] <- "un_clinchem"
+people$second[people$home == "mic_virol"][1:2] <- "un_microbiol"
+people$second[people$home == "mic_main"][1] <- "un_microbiol"
+people$second[people$home == "vet_lab"][1:2] <- "un_clinchem"
 people$short <- paste0(people$surname, ", ", substr(people$given, 1L, 1L))
 people$full <- paste0(people$surname, ", ", people$given)
 people$cr_name <- paste0(people$surname, " ", substr(people$given, 1L, 1L))
@@ -404,10 +403,11 @@ site_pool <- as.vector(outer(
     "worth", "bury", "by", "hollow"),
   paste0
 ))
-populations <- c("sprinters", "rowers", "field personnel", "runners",
-                 "municipal trainees", "relocated staff", "construction engineers",
-                 "medical officers", "rescue units", "harbour personnel")
-populations_de <- c("Sportlern", "Lehrlingen", "Ehrenamtlichen",
+populations <- c("nurses", "care home residents", "hospital staff",
+                 "junior doctors", "students", "kitchen staff",
+                 "construction workers", "general practitioners",
+                 "paramedics", "port workers")
+populations_de <- c("Pflegekr\u00e4ften", "Lehrlingen", "Ehrenamtlichen",
                     "Rettungskr\u00e4ften", "Auszubildenden")
 designs <- c("cohort study", "cross-sectional survey", "case series",
              "nested case-control study", "retrospective analysis",
@@ -416,19 +416,19 @@ seasons <- c("spring", "summer", "autumn", "winter")
 seasons_de <- c("Fr\u00fchjahr", "Sommer", "Herbst", "Winter")
 
 title_templates <- list(
-  `1` = c("{a} at the {site} training centre, {y1}-{y2}",
+  `1` = c("{a} at the {site} care home, {y1}-{y2}",
           "{b}: {n} samples from {site}",
           "{a} and {c} near {site}",
           "{b} and {a} in {n} {pop} at {site}",
           "{c} in {site}: {n} cases, {y1}-{y2}"),
-  `2` = c("{a} at {site}: {n} casualties, {y1}-{y2}",
+  `2` = c("{a} at {site}: {n} patients, {y1}-{y2}",
           "{b} and {c} in {n} patients at {site}",
           "{a} after {b}: {n} cases from {site}",
           "{c} following {a} at {site}",
           "{b} in {n} {pop}, {site} registry"),
-  `3` = c("{a} during summer training at {site}",
+  `3` = c("{a} during winter rotas at {site}",
           "{b} and {c} in {n} {pop} at {site}",
-          "{a} on a road race near {site}: {n} cases",
+          "{a} on a night ward near {site}: {n} cases",
           "{c} after {a} at {site}, {y1}-{y2}",
           "{b} against {a} in {n} {pop}, {site}"),
   `0` = c("{a} at {site}: an editorial",
@@ -440,168 +440,166 @@ title_templates <- list(
 # half of each pool, earlier works from the first half.
 title_slots <- list(
   `1` = list(
-    a = c("orthohantavirus infection", "orthohantavirus seroconversion",
-          "nephropathia epidemica", "rodent-borne zoonoses",
-          "hantavirus exposure", "febrile renal syndrome"),
-    b = c("rodent reservoir density", "bank vole abundance",
-          "zoonotic surveillance", "field serology",
-          "molecular typing of rodent isolates", "vector ecology mapping",
-          "habitat suitability modelling", "trapping campaigns",
+    a = c("norovirus gastroenteritis", "norovirus outbreaks",
+          "acute gastroenteritis", "food-borne infection",
+          "viral gastroenteritis", "enteric virus shedding"),
+    b = c("outbreak surveillance", "environmental swabbing",
+          "genotyping of stool samples", "hand hygiene audits",
+          "ward closure policies", "wastewater monitoring",
+          "contact tracing", "cleaning protocols",
           "climate covariates", "laboratory screening"),
-    c = c("human exposure", "case clustering", "seasonal risk",
-          "occupational risk", "outbreak detection", "beech mast years",
-          "storage depots", "forest camps", "renal outcomes",
-          "spillover events")
+    c = c("attack rates", "case clustering", "seasonal risk",
+          "staff absence", "outbreak duration", "bed days lost",
+          "kitchen hygiene", "shared dining rooms", "hospital admissions",
+          "secondary transmission")
   ),
   `2` = list(
-    a = c("hemorrhage control", "junctional bleeding control",
-          "damage control resuscitation", "massive transfusion",
-          "tourniquet use", "whole blood transfusion"),
-    b = c("early tourniquet application", "prehospital whole blood",
-          "pelvic binder use", "hemostatic dressing use",
-          "remote field care", "rapid evacuation",
-          "point-of-care coagulation testing", "fresh frozen plasma",
-          "fibrinogen concentrate", "trauma team activation"),
-    c = c("survival", "blood product use", "limb salvage",
-          "time to surgery", "preventable death", "complication rates",
-          "intensive care stay", "transfusion volume", "nerve injury",
-          "readmission")
+    a = c("acute stroke care", "ischaemic stroke treatment",
+          "mechanical thrombectomy", "intravenous thrombolysis",
+          "stroke unit care", "reperfusion therapy"),
+    b = c("prehospital stroke scales", "telestroke consultation",
+          "mobile stroke units", "CT perfusion imaging",
+          "direct transfer to angiography", "nurse-led triage",
+          "blood pressure lowering", "dual antiplatelet therapy",
+          "early mobilisation", "stroke team activation"),
+    c = c("functional outcome", "haemorrhagic transformation",
+          "time to treatment", "mortality", "recurrence",
+          "length of stay", "discharge destination", "swallowing recovery",
+          "readmission", "quality of life")
   ),
   `3` = list(
-    a = c("exertional heat illness", "exertional heat stroke",
-          "heat exhaustion", "hyperthermia", "heat injury",
-          "thermal strain"),
-    b = c("heat acclimatization", "core temperature monitoring",
-          "active cooling", "work-rest cycles",
-          "wet bulb globe temperature guidance", "fluid replacement",
-          "cold water immersion", "sleep restriction", "body gear load",
-          "aerobic fitness screening"),
-    c = c("collapse rates", "time to recovery", "training attrition",
-          "renal injury", "physiological strain", "medical evacuation",
-          "rhabdomyolysis", "sodium balance", "cognitive performance",
-          "return to shift")
+    a = c("night shift work", "shift work sleep disorder",
+          "circadian misalignment", "sleep deprivation", "fatigue",
+          "insomnia"),
+    b = c("bright light exposure", "rota design", "planned napping",
+          "melatonin use", "actigraphy monitoring", "caffeine intake",
+          "forward-rotating schedules", "sleep hygiene education",
+          "workload", "physical activity"),
+    c = c("sleep duration", "error rates", "staff turnover",
+          "cardiometabolic risk", "alertness", "sick leave", "mood",
+          "glucose tolerance", "cognitive performance", "return to work")
   ),
   `0` = list(
-    a = c("industrial medicine", "medical education",
-          "relocation health", "clinical governance",
-          "health services research", "auxiliary medical services",
-          "municipal nursing", "disaster preparedness"),
+    a = c("occupational medicine", "medical education",
+          "community health services", "clinical governance",
+          "health services research", "primary care",
+          "municipal nursing", "emergency planning"),
     b = c("district hospital staffing", "simulation-based training",
-          "medical resilience", "data sharing in health care",
+          "workforce resilience", "data sharing in health care",
           "guideline adoption", "peer review", "open access publishing",
           "career pathways")
   )
 )
 title_templates_de <- list(
-  `1` = c("Orthohantavirus-Infektionen bei {n} {pop} im Raum {site}",
-          "Nagetierdichte und Serokonversion bei {n} {pop} in {site}"),
-  `2` = c(paste0("Blutungskontrolle in der pr\u00e4klinischen Versorgung: ",
-                 "{n} Verletzte aus {site}"),
-          "Tourniquet-Anlage und \u00dcberleben bei {n} Verletzten in {site}"),
-  `3` = c(paste0("Hitzeerkrankungen bei {n} {pop} w\u00e4hrend der ",
-                 "Ausbildung in {site}"),
-          "K\u00fchlung und Hitzeakklimatisation bei {n} {pop} in {site}"),
+  `1` = c("Norovirus-Ausbr\u00fcche bei {n} {pop} im Raum {site}",
+          "Hygienema\u00dfnahmen und Erkrankungsraten bei {n} {pop} in {site}"),
+  `2` = c(paste0("Schlaganfallversorgung in der pr\u00e4klinischen Phase: ",
+                 "{n} Patienten aus {site}"),
+          "Thrombolyse und \u00dcberleben bei {n} Patienten in {site}"),
+  `3` = c(paste0("Schlafst\u00f6rungen bei {n} {pop} w\u00e4hrend der ",
+                 "Nachtschicht in {site}"),
+          "Lichtexposition und Schichtplanung bei {n} {pop} in {site}"),
   `0` = c("Aufgaben der medizinischen Ausbildung in {site}: ein Kommentar",
           "Antwort auf die Kommentare zu unserer Arbeit \u00fcber {site}")
 )
 
 sentences <- list(
   `1` = c(
-    paste0("We tested {n} rodents trapped at {k} sites around {site} for ",
-           "orthohantavirus antibodies."),
-    "Seroconversion occurred in {p} percent of {pop} after field trips.",
-    "Bank vole density peaked in {season} and preceded human cases.",
-    "Field serology was combined with molecular typing of lung samples.",
-    "Exposure was highest near forest edges, storage sheds and campsites.",
-    "Dust from nests in unused buildings was the likely source.",
-    "Most infections caused fever, back pain and transient renal impairment.",
-    "Beech mast years were followed by rodent outbreaks and case clusters.",
+    paste0("We tested {n} stool samples from {k} care homes around {site} ",
+           "for norovirus."),
+    "Infection occurred in {p} percent of {pop} during outbreaks.",
+    "Case numbers peaked in {season} and preceded hospital admissions.",
+    "Outbreak surveillance was combined with genotyping of stool samples.",
+    "Transmission was highest in shared dining rooms and bathrooms.",
+    "Contaminated kitchen surfaces were the likely source.",
+    "Most infections caused vomiting, diarrhoea and short-lived dehydration.",
+    "Winters with new variants were followed by large outbreaks.",
     "Sequencing placed the strains in a lineage circulating in the region.",
-    "Hygiene briefings and rodent control reduced new infections.",
+    "Hygiene briefings and ward closures reduced new infections.",
     "Reported cases underestimated the burden of mild infections.",
     "Surveillance data from {k} seasons were linked with weather records."
   ),
   `2` = c(
-    "We analysed {n} casualties recorded in the {site} trauma registry.",
-    "Early tourniquet application was associated with lower mortality.",
-    "Prehospital intervals shortened after whole blood became available.",
-    "Damage control resuscitation was completed in {p} percent of patients.",
-    "Junctional bleeding remained the leading cause of preventable death.",
-    "Hemorrhage control training improved skills among {pop}.",
-    "Pelvic binders were applied in {p} percent of pelvic fractures.",
-    "Limb ischaemia did not increase when tourniquets were converted early.",
-    "Massive transfusion protocols were activated {k} times.",
-    "Point-of-care coagulation testing guided blood product use.",
-    "Helicopter evacuation reduced time to surgery by {m} minutes.",
-    "Fluid restriction before surgery was not associated with harm."
+    "We analysed {n} patients recorded in the {site} stroke registry.",
+    "Early thrombolysis was associated with better functional outcome.",
+    "Door-to-needle times shortened after prehospital alerts were introduced.",
+    "Mechanical thrombectomy was completed in {p} percent of patients.",
+    "Large vessel occlusion remained the leading cause of severe disability.",
+    "Stroke recognition training improved skills among {pop}.",
+    "Dysphagia screening was done in {p} percent of admissions.",
+    "Haemorrhagic transformation did not increase with earlier treatment.",
+    "The stroke team was activated {k} times a week.",
+    "CT perfusion imaging guided the choice of treatment.",
+    "Direct transfer to angiography reduced time to reperfusion by {m} minutes.",
+    "Blood pressure lowering before treatment was not associated with harm."
   ),
   `3` = c(
-    paste0("Core body temperature was recorded in {n} {pop} during a ",
-           "{k}-day hike near {site}."),
-    "Acclimatization over {k} days lowered the incidence of illness.",
-    "Active cooling restored normal thermoregulation within {m} minutes.",
-    "Training load and wet bulb globe readings predicted collapse.",
-    "Hydration status did not differ between affected and unaffected {pop}.",
-    "Exertional heat illness occurred on {p} percent of training days.",
-    "Cold water immersion was the fastest cooling method in the field.",
-    "A recent viral infection increased the risk of collapse.",
-    "Ingestible sensors were tolerated well during hikes.",
-    "Work-rest cycles adapted to ambient conditions prevented most cases.",
-    "Return to shift after heat stroke took a median of {k} weeks.",
-    "Low aerobic fitness was associated with injury.",
-    "Serum creatine kinase peaked one day after the event.",
-    "Sweat sodium losses varied widely between individuals.",
-    "Night-time exercises reduced cumulative thermal load.",
-    "Body gear added a substantial metabolic burden.",
-    "Sleep restriction impaired vigilance on hot afternoons.",
-    "Medical staff recognised early symptoms in most instances.",
-    "Ambient humidity mattered more than air temperature.",
-    "Prior episodes predicted recurrence within the same season."
+    paste0("Sleep was recorded with actigraphy in {n} {pop} during a ",
+           "{k}-week rota near {site}."),
+    "Forward-rotating schedules over {k} weeks lowered the incidence of insomnia.",
+    "A planned nap restored alertness within {m} minutes.",
+    "Workload and the number of consecutive nights predicted errors.",
+    "Caffeine intake did not differ between affected and unaffected {pop}.",
+    "Shift work sleep disorder occurred in {p} percent of the staff.",
+    "Planned naps were the most effective countermeasure on night shifts.",
+    "A recent change of rota increased the risk of fatigue.",
+    "Wrist-worn sensors were tolerated well during shifts.",
+    "Rotas adapted to individual chronotypes prevented most complaints.",
+    "Return to work after sick leave took a median of {k} weeks.",
+    "Low physical activity was associated with poor sleep quality.",
+    "Melatonin levels peaked later after consecutive night shifts.",
+    "Sleep duration varied widely between individuals.",
+    "Early morning shifts reduced the cumulative sleep debt.",
+    "Long commutes added a substantial burden.",
+    "Sleep restriction impaired vigilance in the early morning.",
+    "Ward managers recognised early symptoms in most instances.",
+    "Light exposure mattered more than the number of night shifts.",
+    "Prior episodes predicted recurrence within the same year."
   ),
   `0` = c(
-    "This editorial discusses research priorities for industrial medicine.",
-    paste0("Recent work on exertional heat illness, hemorrhage control and ",
-           "orthohantavirus surveillance shows how field data improve care."),
+    "This editorial discusses research priorities for occupational medicine.",
+    paste0("Recent work on night shift work, acute stroke care and ",
+           "norovirus surveillance shows how routine data improve care."),
     "We comment on recent clinical guidelines and their use in training.",
-    "Medical education has to adapt to new industrial requirements.",
+    "Medical education has to adapt to new clinical requirements.",
     "The authors reply to the comments on their earlier article.",
     "Data sharing between municipal and private hospitals remains limited.",
     "Simulation-based training can close gaps in clinical experience.",
-    "Resilience depends on staff, equipment and regular exercises."
+    "Resilience depends on staff, equipment and regular team training."
   )
 )
 sentences_de <- list(
   `1` = c(
-    paste0("Wir untersuchten {n} Nagetiere aus {k} Fanggebieten auf ",
-           "Antik\u00f6rper gegen Orthohantaviren."),
-    paste0("Die Serokonversion bei den {pop} lag nach den ",
-           "Exkursionen bei {p} Prozent."),
-    paste0("Die Dichte der R\u00f6telmaus stieg im {season} an und ging ",
-           "den F\u00e4llen voraus."),
-    paste0("Die meisten Infektionen verliefen mit Fieber und einer ",
-           "vor\u00fcbergehenden Nierenfunktionsst\u00f6rung."),
-    paste0("Hygieneschulungen und die Bek\u00e4mpfung der Nagetiere ",
+    paste0("Wir untersuchten {n} Stuhlproben aus {k} Pflegeheimen auf ",
+           "Noroviren."),
+    paste0("Die Erkrankungsrate bei den {pop} lag w\u00e4hrend der ",
+           "Ausbr\u00fcche bei {p} Prozent."),
+    paste0("Die Fallzahlen stiegen im {season} an und gingen den ",
+           "Krankenhausaufnahmen voraus."),
+    paste0("Die meisten Infektionen verliefen mit Erbrechen und einer ",
+           "vor\u00fcbergehenden Austrocknung."),
+    paste0("Hygieneschulungen und Stationsschlie\u00dfungen ",
            "senkten die Zahl der Neuinfektionen.")
   ),
   `2` = c(
-    "Wir analysierten {n} Verletzte aus dem Traumaregister in {site}.",
-    paste0("Die fr\u00fche Anlage eines Tourniquets war mit einer ",
+    "Wir analysierten {n} Patienten aus dem Schlaganfallregister in {site}.",
+    paste0("Die fr\u00fche Thrombolyse war mit einer ",
            "geringeren Sterblichkeit verbunden."),
-    paste0("Die pr\u00e4klinische Versorgung und die Blutungskontrolle ",
+    paste0("Die pr\u00e4klinische Erkennung und die Voranmeldung ",
            "wurden durch Schulungen verbessert."),
-    paste0("Vollblut am Unfallort verk\u00fcrzte die Zeit bis zur ",
-           "Operation um {m} Minuten."),
-    "Die Massivtransfusion wurde in {p} Prozent der F\u00e4lle ausgel\u00f6st."
+    paste0("Die direkte Verlegung in die Angiographie verk\u00fcrzte die ",
+           "Zeit bis zur Rekanalisation um {m} Minuten."),
+    "Die Thrombektomie wurde in {p} Prozent der F\u00e4lle durchgef\u00fchrt."
   ),
   `3` = c(
-    paste0("Die K\u00f6rperkerntemperatur wurde bei {n} Lehrlingen ",
-           "w\u00e4hrend einer Wanderung gemessen."),
-    paste0("Die Hitzeakklimatisation \u00fcber {k} Tage senkte die Rate ",
-           "der Hitzeerkrankungen."),
-    paste0("Aktive K\u00fchlung und ausreichende Fl\u00fcssigkeitszufuhr ",
-           "verhinderten schwere Verl\u00e4ufe."),
-    "Die Belastung und die Umgebungstemperatur sagten die Erkrankung voraus.",
-    "Die R\u00fcckkehr in die Ausbildung dauerte im Median {k} Wochen."
+    paste0("Der Schlaf wurde bei {n} Pflegekr\u00e4ften ",
+           "w\u00e4hrend der Nachtschicht gemessen."),
+    paste0("Vorw\u00e4rts rotierende Dienstpl\u00e4ne \u00fcber {k} Wochen ",
+           "senkten die Rate der Schlafst\u00f6rungen."),
+    paste0("Geplante Pausen und ausreichende Fl\u00fcssigkeitszufuhr ",
+           "verhinderten schwere Ersch\u00f6pfung."),
+    "Die Belastung und die Zahl der Nachtdienste sagten die Fehler voraus.",
+    "Die R\u00fcckkehr in den Dienst dauerte im Median {k} Wochen."
   ),
   `0` = c(
     paste0("Der Beitrag diskutiert die Ausbildung und die Forschung im ",
@@ -656,7 +654,7 @@ abstract <- vapply(seq_len(n_works), function(i) {
 }, character(1))
 abstract[draw(misc, 4L)] <- NA_character_
 
-# One heat-theme article repeats an invented token 15 times.
+# One shift-work article repeats an invented token 15 times.
 planted <- draw(which(theme == 3L & language == "English" &
                         type == "Article" & years >= 2019L), 1L)
 abstract[planted] <- paste(
@@ -709,10 +707,10 @@ sources <- tibble::tibble(
 # ---- authorships -----------------------------------------------------------
 
 lead_units <- list(
-  `0` = c(hospital = 0.4, microbiology = 0.2, zis = 0.25, other = 0.15),
-  `1` = c(microbiology = 0.5, zis = 0.35, other = 0.15),
+  `0` = c(hospital = 0.4, microbiology = 0.2, vet = 0.25, other = 0.15),
+  `1` = c(microbiology = 0.5, vet = 0.35, other = 0.15),
   `2` = c(hospital = 0.85, other = 0.15),
-  `3` = c(hospital = 0.45, zis = 0.45, other = 0.1)
+  `3` = c(hospital = 0.45, vet = 0.45, other = 0.1)
 )
 is_municipal <- !is.na(people$unit)
 
@@ -815,8 +813,8 @@ candidate_rows <- function(keys, exclude_works) {
 used_works <- character()
 for (j in seq_len(nrow(german_rows))) {
   keys <- switch(german_rows$target[j],
-    zis = c("zis_hyg", "zis_lab", "zis_occ"),
-    microbiology = c("afim_main", "afim_virol", "afim_bact"),
+    vet = c("vet_hyg", "vet_lab", "vet_occ"),
+    microbiology = c("mic_main", "mic_virol", "mic_bact"),
     hospital = if (grepl("Sektion", german_rows$text[j], fixed = TRUE)) {
       "hosp_trauma"
     } else {
@@ -843,12 +841,12 @@ ext_surnames <- c(
 )
 ext_journals <- c(
   "J EXT MED RES", "ARCH INVENT PATHOL", "EUR J SAMPLE INFECT",
-  "CLIN EX SURG", "PREHOSP CARE REV", "J THERM BIOL EX",
-  "VECTOR ZOONOT EX", "EX EPIDEMIOL INFECT", "TRANSFUS EX MED",
-  "SPORT MED EX", "WILDERNESS EX MED", "J SYNTH VIROL", "INJURY EX",
+  "CLIN EX NEUROL", "STROKE CARE REV", "J SLEEP RES EX",
+  "ENTERIC INFECT EX", "EX EPIDEMIOL INFECT", "CEREBROVASC EX MED",
+  "OCCUP MED EX", "CHRONOBIOL EX", "J SYNTH VIROL", "NEUROL EX",
   "EX CRIT CARE", "J APPL PHYSIOL EX", "EX PUBLIC HEALTH REV",
-  "ZOONOSES EX", "BEISPIEL ARCH HYG", "J INVENT EMERG MED",
-  "EX MIL HLTH REP"
+  "FOODBORNE EX", "BEISPIEL ARCH HYG", "J INVENT EMERG MED",
+  "EX OCCUP HLTH REP"
 )
 
 seed_block(8L)
@@ -929,27 +927,27 @@ rownames(references) <- NULL
 # ---- concepts --------------------------------------------------------------
 
 keyword_pools <- list(
-  `1` = c("rodent reservoir", "zoonotic surveillance", "field epidemiology",
-          "seroconversion", "vector ecology", "nephropathia epidemica",
-          "bank vole", "molecular typing"),
-  `2` = c("tourniquet", "prehospital care", "damage control resuscitation",
-          "whole blood", "trauma registry", "junctional bleeding",
-          "remote medicine", "massive transfusion"),
-  `3` = c("heat acclimatization", "core body temperature",
-          "thermoregulation", "physical training", "active cooling",
-          "hydration", "wet bulb globe temperature", "rowers"),
+  `1` = c("outbreak surveillance", "care homes", "field epidemiology",
+          "genotyping", "hand hygiene", "viral gastroenteritis",
+          "food safety", "molecular typing"),
+  `2` = c("thrombolysis", "prehospital care", "mechanical thrombectomy",
+          "stroke unit", "stroke registry", "large vessel occlusion",
+          "telemedicine", "door-to-needle time"),
+  `3` = c("circadian rhythm", "sleep quality", "actigraphy",
+          "nursing staff", "light exposure", "fatigue", "napping",
+          "chronotype"),
   `0` = c("medical education", "health policy", "clinical guidelines",
           "research priorities", "workforce", "ethics")
 )
-anchors <- c(`1` = "orthohantavirus", `2` = "hemorrhage control",
-             `3` = "exertional heat illness")
+anchors <- c(`1` = "norovirus", `2` = "acute stroke care",
+             `3` = "night shift work")
 plus_pools <- list(
-  `1` = c("INFECTION", "EPIDEMIOLOGY", "VIRUS", "TRANSMISSION", "RODENTS",
-          "EUROPE", "ANTIBODIES"),
-  `2` = c("MORTALITY", "TRAUMA", "RESUSCITATION", "MANAGEMENT", "INJURY",
-          "TRANSFUSION", "OUTCOMES"),
-  `3` = c("EXERCISE", "TEMPERATURE", "HYPERTHERMIA", "PERFORMANCE",
-          "HEAT-STRESS", "HUMANS", "DEHYDRATION"),
+  `1` = c("INFECTION", "EPIDEMIOLOGY", "VIRUS", "TRANSMISSION", "OUTBREAKS",
+          "EUROPE", "GASTROENTERITIS"),
+  `2` = c("MORTALITY", "STROKE", "REPERFUSION", "MANAGEMENT", "DISABILITY",
+          "THERAPY", "OUTCOMES"),
+  `3` = c("SLEEP", "NIGHT-WORK", "ALERTNESS", "PERFORMANCE", "SHIFT-WORK",
+          "HUMANS", "MELATONIN"),
   `0` = c("CARE", "EDUCATION", "HEALTH")
 )
 
@@ -1056,19 +1054,19 @@ reported <- data.frame(
 
 topics <- c("hand hygiene compliance", "vaccination uptake",
             "first aid refresher courses", "noise-induced hearing loss",
-            "sleep deprivation", "dental resilience",
+            "sleep deprivation", "dental health",
             "mental health screening", "telemedicine pilots",
-            "blood supply logistics", "relocation fitness tests")
+            "blood supply logistics", "workplace fitness tests")
 only_category <- rep(c("cat-1", "cat-4", "cat-5"), times = c(15L, 10L, 15L))
 only_title <- vapply(seq_along(only_category), function(j) {
   topic <- draw(topics, 1L)
   switch(only_category[j],
     `cat-1` = paste0("Experience report ", j, ": ", topic,
-                     " in a auxiliary medical crew"),
+                     " in a community nursing team"),
     `cat-4` = paste0("Abstract ", j, ": ", topic, " at the ",
                      draw(site_pool, 1L), " medical conference"),
     `cat-5` = paste0(draw(c("Talk", "Poster"), 1L), " ", j, ": ", topic,
-                     " for unit managers")
+                     " for ward managers")
   )
 }, character(1))
 reference_only <- data.frame(

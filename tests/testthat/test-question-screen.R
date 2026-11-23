@@ -104,9 +104,10 @@ test_that("sm_screen_regex gives one row for a one-work corpus", {
 })
 
 test_that("sm_screen_regex matches non-ASCII words in Unicode mode", {
-  corpus <- screen_corpus(c("Abt. \u00dcbung im Feld", "Vor\u00fcbung im Feld",
+  corpus <- screen_corpus(c("Abt. \u00d6kologie am Standort",
+                            "Agrar\u00f6kologie am Standort",
                             "Gef\u00e4hrdung durch Hitze"))
-  terms <- c("\\b\u00fcbung\\b", "gef\\w+hrdung")
+  terms <- c("\\b\u00f6kologie\\b", "gef\\w+hrdung")
   out <- suppressMessages(sm_screen_regex(corpus, include_terms = terms))
   expect_identical(out$screening$decision, c("include", "exclude", "include"))
   old <- suppressMessages(

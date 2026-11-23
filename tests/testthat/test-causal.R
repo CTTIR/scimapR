@@ -528,8 +528,8 @@ test_that("sm_synth passes on the small-cell FNCI message once", {
 
 # ---- leadership: focal institutions and lead roles ---------------------------
 
-lead_unit <- "Public Services Hospital Northtown"
-lead_control <- "Federal Public Services Institute of Microbiology"
+lead_unit <- "Northtown General Hospital"
+lead_control <- "Regional Institute of Microbiology Southcity"
 
 # A corpus by hand: per work its year, and per authorship row the work,
 # author, position, corresponding flag and institution label
@@ -719,8 +719,8 @@ test_that("the leadership arguments are checked", {
   # a label that no authorship carries: warning with the nearest labels
   expect_warning(
     sm_its(m, 2021, "leadership",
-           institutions = c(lead_unit, "Public Services Hospital Nortown")),
-    "nearest labels Public Services Hospital Northtown",
+           institutions = c(lead_unit, "Northtown General Hospitl")),
+    "nearest labels Northtown General Hospital",
     class = "scimapR_unknown_institutions"
   )
   expect_error(
@@ -742,7 +742,7 @@ test_that("print methods state the leadership definition", {
   expect_identical(its$leadership$institutions, lead_unit)
   expect_identical(its$leadership$label_column, "institution_match")
   expect_match(text(its), paste("Leadership: works whose first author is",
-                                "at Public Services Hospital Northtown"))
+                                "at Northtown General Hospital"))
   expect_match(text(sm_its(m, 2021, "leadership")),
                "among the works whose corresponding author is known")
   expect_null(sm_its(m, 2021, "count")$leadership)
