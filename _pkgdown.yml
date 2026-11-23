@@ -131,7 +131,7 @@ reference:
       - sm_cite_corpus
       - sm_snapshot
       - sm_diff_corpora
-  - title: "Visualization"
+  - title: "Visualisation"
     contents:
       - sm_theme
       - sm_scale_color
