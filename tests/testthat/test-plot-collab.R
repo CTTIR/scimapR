@@ -93,6 +93,7 @@ test_that("weighted network edges stay thin in the ggraph plot", {
 })
 
 test_that("precomputed network plots draw no grid lines", {
+  skip_if_not_installed("ggraph")
   corpus <- sm_example_corpus(n_works = 40, n_authors = 20,
                               with_embeddings = FALSE, seed = 4)
   p <- sm_plot_collab(corpus, level = "country", precompute = TRUE)
