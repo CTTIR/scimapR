@@ -138,7 +138,10 @@ sm_plot_bradford <- function(corpus, dark = FALSE, ...) {
 #' @param corpus An `sm_corpus`.
 #' @param level Entity level.
 #' @param n Number of top entities to show.
-#' @param metric Ranking metric.
+#' @param metric Ranking metric: `"count"` ranks by the number of works,
+#'   `"citations"` by the summed `cited_by_count` of those works (missing
+#'   counts count as 0). Entities are grouped by their display name; a work
+#'   counts once per name, and entities without a name are left out.
 #' @param dark Logical; dark mode?
 #' @param ... Additional arguments.
 #'
@@ -149,6 +152,7 @@ sm_plot_bradford <- function(corpus, dark = FALSE, ...) {
 #' @examples
 #' corpus <- sm_example_corpus()
 #' sm_plot_top(corpus, level = "authors", n = 10)
+#' sm_plot_top(corpus, level = "sources", n = 10, metric = "citations")
 sm_plot_top <- function(corpus,
                         level = c("authors", "sources", "institutions",
                                   "countries"),
@@ -159,26 +163,24 @@ sm_plot_top <- function(corpus,
   level <- match.arg(level)
   metric <- match.arg(metric)
 
-  dat <- switch(level,
+  # one row per entity and work, named; entities without a name are dropped
+  pairs <- switch(level,
     authors = {
       corpus$authorships %>%
         dplyr::distinct(.data$work_id, .data$author_id) %>%
         dplyr::left_join(
           dplyr::select(corpus$authors, "author_id", name = "display_name"),
           by = "author_id"
-        ) %>%
-        dplyr::count(.data$name, name = "count", sort = TRUE) %>%
-        utils::head(n)
+        )
     },
     sources = {
       corpus$works %>%
         dplyr::filter(!is.na(.data$source_id)) %>%
+        dplyr::select("work_id", "source_id") %>%
         dplyr::left_join(
           dplyr::select(corpus$sources, "source_id", name = "display_name"),
           by = "source_id"
-        ) %>%
-        dplyr::count(.data$name, name = "count", sort = TRUE) %>%
-        utils::head(n)
+        )
     },
     institutions = {
       corpus$authorships %>%
@@ -188,19 +190,34 @@ sm_plot_top <- function(corpus,
           dplyr::select(corpus$institutions, "institution_id",
                          name = "display_name"),
           by = "institution_id"
-        ) %>%
-        dplyr::count(.data$name, name = "count", sort = TRUE) %>%
-        utils::head(n)
+        )
     },
     countries = {
       corpus$authorships %>%
         dplyr::filter(!is.na(.data$country_code)) %>%
         dplyr::distinct(.data$work_id, .data$country_code) %>%
-        dplyr::count(.data$country_code, name = "count", sort = TRUE) %>%
-        dplyr::rename(name = "country_code") %>%
-        utils::head(n)
+        dplyr::rename(name = "country_code")
     }
   )
+  # a work counts once per entity name, also when two entities share it
+  pairs <- pairs %>%
+    dplyr::filter(!is.na(.data$name)) %>%
+    dplyr::distinct(.data$work_id, .data$name)
+
+  dat <- if (metric == "count") {
+    dplyr::count(pairs, .data$name, name = "count", sort = TRUE)
+  } else {
+    citations <- corpus$works$cited_by_count[
+      match(pairs$work_id, corpus$works$work_id)
+    ]
+    pairs %>%
+      dplyr::mutate(citations = as.double(citations)) %>%
+      dplyr::group_by(.data$name) %>%
+      dplyr::summarise(count = sum(.data$citations, na.rm = TRUE),
+                       .groups = "drop") %>%
+      dplyr::arrange(dplyr::desc(.data$count))
+  }
+  dat <- utils::head(dat, n)
 
   if (nrow(dat) == 0 || all(is.na(dat$name))) {
     return(ggplot2::ggplot() + sm_theme(dark = dark) +

@@ -20,7 +20,10 @@ sm_plot_top(
 
 \item{n}{Number of top entities to show.}
 
-\item{metric}{Ranking metric.}
+\item{metric}{Ranking metric: \code{"count"} ranks by the number of works,
+\code{"citations"} by the summed \code{cited_by_count} of those works (missing
+counts count as 0). Entities are grouped by their display name; a work
+counts once per name, and entities without a name are left out.}
 
 \item{dark}{Logical; dark mode?}
 
@@ -35,6 +38,7 @@ Horizontal bar chart of top authors, sources, institutions, or countries.
 \examples{
 corpus <- sm_example_corpus()
 sm_plot_top(corpus, level = "authors", n = 10)
+sm_plot_top(corpus, level = "sources", n = 10, metric = "citations")
 }
 \seealso{
 Other plots:

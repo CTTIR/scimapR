@@ -1,5 +1,10 @@
 # scimapR 0.5.0
 
+* `sm_plot_top(metric = "citations")` ranks by the summed citation counts of
+  each entity's works; the argument used to be ignored, so the plot showed
+  work counts under a "Citations" axis label. Entities without a display name
+  are now left out before the top `n` are taken, so the plot shows `n` bars
+  when there are `n` named entities.
 * The examples of `sm_fetch_overton()` and `sm_chat()` run under
   `\donttest{}` when `OVERTON_API_KEY` (or the 'ellmer' package and
   `OPENAI_API_KEY`) is set and the machine is online, instead of never

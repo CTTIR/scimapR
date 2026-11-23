@@ -37,6 +37,34 @@ test_that("sm_plot_top returns a ggplot for each level", {
   expect_s3_class(p_countries, "ggplot")
 })
 
+test_that("sm_plot_top ranks by summed citations with metric = 'citations'", {
+  corpus <- sm_example_corpus(n_works = 50, n_authors = 20,
+                              with_embeddings = FALSE, seed = 1)
+  p <- sm_plot_top(corpus, level = "sources", n = 3, metric = "citations")
+  name <- corpus$sources$display_name[match(corpus$works$source_id,
+                                            corpus$sources$source_id)]
+  expected <- sort(tapply(as.double(corpus$works$cited_by_count), name, sum,
+                          na.rm = TRUE), decreasing = TRUE)[1:3]
+  expect_equal(p$data$count, as.vector(expected))
+  expect_identical(as.character(p$data$name), names(expected))
+  expect_identical(p$labels$x, "Citations")
+
+  counts <- sm_plot_top(corpus, level = "sources", n = 3, metric = "count")
+  expect_identical(counts$labels$x, "Count")
+  expect_true(all(counts$data$count <= 50))
+})
+
+test_that("sm_plot_top leaves out unnamed entities before taking the top n", {
+  corpus <- sm_example_corpus(n_works = 30, n_authors = 10,
+                              with_embeddings = FALSE, seed = 2)
+  top <- sm_plot_top(corpus, level = "authors", n = 4)$data$name
+  corpus$authors$display_name[corpus$authors$display_name ==
+                                as.character(top[1])] <- NA
+  p <- sm_plot_top(corpus, level = "authors", n = 4)
+  expect_identical(nrow(p$data), 4L)
+  expect_false(anyNA(p$data$name))
+})
+
 test_that("sm_plot_lotka returns a ggplot", {
   corpus <- sm_example_corpus(n_works = 50, n_authors = 20,
                               with_embeddings = FALSE, seed = 1)
