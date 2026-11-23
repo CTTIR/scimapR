@@ -1,5 +1,10 @@
 # scimapR 0.5.0
 
+* The examples of `sm_fetch_overton()` and `sm_chat()` run under
+  `\donttest{}` when `OVERTON_API_KEY` (or the 'ellmer' package and
+  `OPENAI_API_KEY`) is set and the machine is online, instead of never
+  running; only the two examples that need Python with an embedding model
+  stay in `\dontrun{}`.
 * `sm_chat()` recognises citations of work IDs of any form, such as the
   Web of Science accession numbers (`WOS:...`) of corpora built with
   `sm_corpus_from_tables()`; it used to recognise only OpenAlex-style IDs

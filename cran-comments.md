@@ -36,14 +36,16 @@ inst/CITATION and a dedicated vignette credit Aria & Cuccurullo's work.
 
 * Web APIs: the package can query OpenAlex, Crossref, Semantic Scholar,
   PubMed, arXiv, bioRxiv, ORCID, Overton, Unpaywall, OpenCitations, ROR
-  and Altmetric. Examples for services that need no API key are in
-  `\donttest{}`, run only when `curl::has_internet()` is true, request at
-  most a few records and wrap the request in `try()`, so an unavailable or
-  rate-limited service does not fail the check. Examples that need an API
-  key, a contact e-mail address, Python or a chat provider are in
-  `\dontrun{}` with a comment saying why. Tests use recorded responses or
-  mocks and skip any live request on CRAN, and the vignettes work on
-  bundled synthetic data.
+  and Altmetric. Examples that use a web service are in `\donttest{}`,
+  run only when `curl::has_internet()` is true, request at most a few
+  records and wrap the request in `try()`, so an unavailable or
+  rate-limited service does not fail the check. Those that need an API key
+  or a contact e-mail address (Altmetric, Overton, Unpaywall, a chat
+  provider) also run only when the key or address is set in its environment
+  variable. The two examples that need Python with a downloaded embedding
+  model are in `\dontrun{}` with a comment saying why. Tests use recorded
+  responses or mocks and skip any live request on CRAN, and the vignettes
+  work on bundled synthetic data.
 * All examples that run use bundled example files
   (`sm_example_files()`), the `sm_example_corpus()` generator or small
   files written to `tempdir()`.

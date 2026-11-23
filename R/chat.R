@@ -43,12 +43,17 @@
 #' @family chat
 #' @export
 #' @examples
-#' \dontrun{
-#' # Not run: needs the 'ellmer' package and credentials for a chat provider.
-#' corpus <- sm_example_corpus()
-#' response <- sm_chat(corpus, "What methods dominate?",
-#'                     provider = ellmer::chat_openai())
-#' response
+#' \donttest{
+#' # Sends retrieved titles and abstracts to a chat provider; runs only with
+#' # the 'ellmer' package and an OpenAI API key in OPENAI_API_KEY.
+#' if (requireNamespace("ellmer", quietly = TRUE) &&
+#'     nzchar(Sys.getenv("OPENAI_API_KEY")) &&
+#'     requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+#'   corpus <- sm_example_corpus()
+#'   response <- try(sm_chat(corpus, "What methods dominate?",
+#'                           provider = ellmer::chat_openai()))
+#'   response
+#' }
 #' }
 sm_chat <- function(corpus,
                     question,
