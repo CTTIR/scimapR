@@ -91,3 +91,11 @@ test_that("weighted network edges stay thin in the ggraph plot", {
   expect_gt(length(widths), 0L)
   expect_true(all(widths >= 0.2 & widths <= 2))
 })
+
+test_that("precomputed network plots draw no grid lines", {
+  corpus <- sm_example_corpus(n_works = 40, n_authors = 20,
+                              with_embeddings = FALSE, seed = 4)
+  p <- sm_plot_collab(corpus, level = "country", precompute = TRUE)
+  expect_s3_class(p$theme$panel.grid.major, "element_blank")
+  expect_s3_class(p$theme$panel.grid.minor, "element_blank")
+})

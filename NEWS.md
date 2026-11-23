@@ -1,5 +1,9 @@
 # scimapR 0.5.0
 
+* Precomputed network plots (`precompute = TRUE`) no longer show the grid
+  lines of `sm_theme()`, and the coverage breakdown plot of
+  `autoplot(<sm_coverage>)` drops its colour bar, which repeated the bar
+  heights, and capitalises its axis title.
 * `?sm_plot_thematic_map` says how its centrality and density are
   computed: simple corpus-internal proxies, not the equivalence-index sums
   of Callon et al. (1991).

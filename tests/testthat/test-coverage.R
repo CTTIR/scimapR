@@ -89,6 +89,16 @@ test_that("sm_coverage_audit autoplot returns a ggplot", {
   expect_s3_class(ggplot2::autoplot(cov2), "ggplot")
 })
 
+test_that("the coverage breakdown plot has no redundant colour bar", {
+  corpus <- make_corpus(n = 20)
+  ref <- corpus$works[1:15, c("work_id", "doi", "title", "year")]
+  names(ref)[1] <- "id"
+  cov <- sm_coverage_audit(corpus, ref, by = "year", match = "doi")
+  p <- ggplot2::autoplot(cov)
+  expect_identical(p$theme$legend.position, "none")
+  expect_identical(p$labels$x, "Year")
+})
+
 # ---- A2: sm_journal_in_index ------------------------------------------------
 
 ref_index <- function() {

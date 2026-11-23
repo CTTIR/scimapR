@@ -846,9 +846,11 @@ autoplot.sm_coverage <- function(object, dim = NULL, ...) {
     ggplot2::ylim(0, 1) +
     sm_scale_fill(discrete = FALSE) +
     sm_theme() +
-    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1)) +
+    # the bar height already shows recall; a colour bar would repeat it
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1),
+                   legend.position = "none") +
     ggplot2::labs(
       title = paste0("Coverage (recall) by ", dim),
-      x = dim, y = "Recall"
+      x = tools::toTitleCase(dim), y = "Recall"
     )
 }

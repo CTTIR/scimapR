@@ -134,7 +134,10 @@
     ggplot2::theme(
       axis.text = ggplot2::element_blank(),
       axis.title = ggplot2::element_blank(),
+      # sm_theme() sets the major grid itself, so blank it explicitly
       panel.grid = ggplot2::element_blank(),
+      panel.grid.major = ggplot2::element_blank(),
+      panel.grid.minor = ggplot2::element_blank(),
       panel.border = ggplot2::element_blank()
     ) +
     ggplot2::labs(title = title,
