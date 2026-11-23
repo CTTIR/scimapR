@@ -5,7 +5,7 @@
   The app's plots render at 96 dpi so their labels are readable, and
   `?sm_run_app` counts the app's 17 tabs.
 * `sm_plot_landscape()` names a colour legend only when it colours the
-  points, so an unclustered corpus no longer triggers ggplot2's "Ignoring
+  points, so a corpus without clusters no longer triggers ggplot2's "Ignoring
   unknown labels" warning.
 * Precomputed network plots (`precompute = TRUE`) no longer show the grid
   lines of `sm_theme()`, and the coverage breakdown plot of
