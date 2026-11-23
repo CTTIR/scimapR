@@ -72,7 +72,10 @@ a chat provider along with the user's question. The response includes inline
 citations keyed to work IDs. Citations are checked against the retrieved
 works: a cited ID that was not sent as context is not reported, so every
 reported citation is a real work of the corpus. Work IDs of any form are
-recognised (for example OpenAlex \code{W123} or Web of Science \code{WOS:000123}).
+recognised (for example OpenAlex \code{W123} or Web of Science \code{WOS:000123}),
+also IDs that contain commas or semicolons; a token may list several IDs
+separated by commas or semicolons (\verb{[cite:W1; W2]}). Only text in a
+\verb{[cite:...]} token counts as a citation, and an ID cannot contain \verb{]}.
 }
 \examples{
 \donttest{

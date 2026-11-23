@@ -62,8 +62,10 @@
   Web of Science accession numbers (`WOS:...`) of corpora built with
   `sm_corpus_from_tables()`; it used to recognise only OpenAlex-style IDs
   (`W` and digits) and returned no citations for other corpora. A token that
-  lists several IDs (`[cite:W1; W2]`) counts each of them, and the prompt
-  asks for the IDs exactly as given in the context.
+  lists several IDs (`[cite:W1; W2]`) counts each of them, while an ID that
+  itself contains a comma or semicolon stays whole; `sm_chat_render()` links
+  every work of such a token; and the prompt asks for the IDs exactly as
+  given in the context.
 * `sm_enrich_unpaywall()` no longer fails silently: lookups that fail for a
   reason other than "not found" raise a warning of class
   `scimapR_unpaywall_unchecked` listing the affected `work_ids`, those works

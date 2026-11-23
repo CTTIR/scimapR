@@ -48,6 +48,7 @@ sm_chat_render <- function(response,
 #' Render chat as Markdown
 #' @noRd
 .render_chat_markdown <- function(text, citations, response) {
+  text <- .canonical_cite_tokens(text, citations$work_id)
   # Replace cite tokens with footnote markers
   for (i in seq_len(nrow(citations))) {
     token <- citations$cite_token[i]
@@ -101,7 +102,7 @@ sm_chat_render <- function(response,
 #' Render chat as HTML
 #' @noRd
 .render_chat_html <- function(text, citations, response) {
-  text <- .html_escape(text)
+  text <- .html_escape(.canonical_cite_tokens(text, citations$work_id))
   # Replace cite tokens with tooltip spans
   for (i in seq_len(nrow(citations))) {
     token <- citations$cite_token[i]
@@ -155,6 +156,7 @@ sm_chat_render <- function(response,
 #' Render chat as Quarto-compatible markdown
 #' @noRd
 .render_chat_quarto <- function(text, citations, response) {
+  text <- .canonical_cite_tokens(text, citations$work_id)
   # Replace cite tokens
   for (i in seq_len(nrow(citations))) {
     token <- citations$cite_token[i]

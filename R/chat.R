@@ -8,7 +8,10 @@
 #' citations keyed to work IDs. Citations are checked against the retrieved
 #' works: a cited ID that was not sent as context is not reported, so every
 #' reported citation is a real work of the corpus. Work IDs of any form are
-#' recognised (for example OpenAlex `W123` or Web of Science `WOS:000123`).
+#' recognised (for example OpenAlex `W123` or Web of Science `WOS:000123`),
+#' also IDs that contain commas or semicolons; a token may list several IDs
+#' separated by commas or semicolons (`[cite:W1; W2]`). Only text in a
+#' `[cite:...]` token counts as a citation, and an ID cannot contain `]`.
 #'
 #' @param corpus An `sm_corpus` object.
 #' @param question Character. The user's question in natural language.
@@ -373,8 +376,7 @@ print.sm_chat_response <- function(x, ...) {
 #' @noRd
 .parse_chat_citations <- function(response_text, retrieved) {
   # Work IDs of any shape (OpenAlex "W123", Web of Science "WOS:000...",
-  # user-defined keys); a token that lists several IDs is split at commas
-  # and semicolons.
+  # user-defined keys); see .cite_token_ids() for tokens that list several.
   pattern <- "\\[cite:([^]]+)\\]"
   matches <- regmatches(response_text, gregexpr(pattern, response_text))[[1]]
 
@@ -387,9 +389,10 @@ print.sm_chat_response <- function(x, ...) {
   }
 
   inner <- sub("^\\[cite:(.*)\\]$", "\\1", matches)
-  work_ids <- unlist(strsplit(inner, "[,;]"), use.names = FALSE)
-  work_ids <- trimws(sub("^\\s*cite:", "", work_ids))
-  work_ids <- unique(work_ids[nzchar(work_ids)])
+  work_ids <- unlist(lapply(inner, .cite_token_ids,
+                            known_ids = retrieved$work_id),
+                     use.names = FALSE)
+  work_ids <- unique(work_ids)
 
   valid <- work_ids[work_ids %in% retrieved$work_id]
 
@@ -406,4 +409,36 @@ print.sm_chat_response <- function(x, ...) {
     work_id = valid,
     snippet = retrieved$title[match(valid, retrieved$work_id)]
   )
+}
+
+#' Work IDs named by the inner text of one `[cite:...]` token
+#'
+#' The whole inner text is one ID when it is a known work ID, so IDs that
+#' contain commas or semicolons stay whole; otherwise it is split at commas
+#' and semicolons, as in `[cite:W1; W2]`.
+#' @noRd
+.cite_token_ids <- function(inner, known_ids) {
+  whole <- trimws(sub("^\\s*cite:", "", inner))
+  if (whole %in% known_ids) return(whole)
+  ids <- trimws(sub("^\\s*cite:", "", strsplit(inner, "[,;]")[[1]]))
+  ids[nzchar(ids)]
+}
+
+#' Write each `[cite:...]` token of a chat answer that names known works as
+#' one `[cite:<ID>]` token per work, so that tokens listing several IDs or
+#' carrying spaces render like single ones; other tokens stay as written
+#' @noRd
+.canonical_cite_tokens <- function(text, known_ids) {
+  if (length(text) != 1L || is.na(text) || length(known_ids) == 0L) {
+    return(text)
+  }
+  m <- gregexpr("\\[cite:([^]]+)\\]", text)
+  tokens <- regmatches(text, m)[[1]]
+  if (length(tokens) == 0L) return(text)
+  regmatches(text, m) <- list(vapply(tokens, function(token) {
+    ids <- .cite_token_ids(sub("^\\[cite:(.*)\\]$", "\\1", token), known_ids)
+    if (!any(ids %in% known_ids)) return(token)
+    paste0("[cite:", ids, "]", collapse = " ")
+  }, character(1), USE.NAMES = FALSE))
+  text
 }

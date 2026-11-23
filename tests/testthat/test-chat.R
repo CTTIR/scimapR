@@ -206,3 +206,46 @@ test_that("the chat system prompt does not prescribe an ID format", {
   expect_match(prompt, "[cite:<work ID>]", fixed = TRUE)
   expect_no_match(prompt, "WXXXX", fixed = TRUE)
 })
+
+test_that("sm_chat keeps work IDs that contain commas or semicolons whole", {
+  corpus <- sm_example_corpus(n_works = 4, n_authors = 3, seed = 6)
+  ids <- c("10.1002/(sici)1097-4571(1999)50:6<483::aid-asi2>3.0.co;2-0",
+           "Smith, 2020", "W3", "W4")
+  old <- corpus$works$work_id
+  corpus$works$work_id <- ids
+  corpus$authorships$work_id <- ids[match(corpus$authorships$work_id, old)]
+  corpus$embeddings <- NULL
+  mock_llm(paste0("See [cite:", ids[1], "] and [cite:", ids[2], "], ",
+                  "not [cite:Smith]."))
+  resp <- sm_chat(corpus, "anything", provider = fake_provider(),
+                  retrieve_n = 4, retrieve_method = "tfidf")
+  expect_setequal(resp$citations$work_id, ids[1:2])
+})
+
+test_that("only [cite:...] tokens count as citations", {
+  retrieved <- tibble::tibble(work_id = c("W1", "W2", "1"),
+                              title = c("One", "Two", "Three"))
+  text <- paste("Earlier work [1] and [see W1], [W2] or [citation needed]",
+                "cite:W2 and [cite W1] are plain text.")
+  expect_identical(nrow(.parse_chat_citations(text, retrieved)), 0L)
+  out <- .parse_chat_citations("Both [cite:W1, cite:W2].", retrieved)
+  expect_identical(out$work_id, c("W1", "W2"))
+})
+
+test_that("rendered answers link every work of a token that lists several", {
+  citations <- tibble::tibble(cite_token = c("[cite:W1]", "[cite:W2]"),
+                              work_id = c("W1", "W2"),
+                              snippet = c("One", "Two"))
+  text <- "Both [cite:W1; W2], then [cite: W2 ] and [cite:W9; W8]."
+  expect_identical(
+    .canonical_cite_tokens(text, citations$work_id),
+    "Both [cite:W1] [cite:W2], then [cite:W2] and [cite:W9; W8]."
+  )
+  response <- list(question = "q", model = "m", retrieved_works = citations,
+                   retrieve_method = "tfidf", prompt_hash = "abc",
+                   timestamp = as.POSIXct("2024-01-02", tz = "UTC"))
+  md <- .render_chat_markdown(text, citations, response)
+  expect_match(md, "Both **[W1]** **[W2]**, then **[W2]**", fixed = TRUE)
+  html <- .render_chat_html(text, citations, response)
+  expect_false(grepl("[cite:W1", html, fixed = TRUE))
+})
