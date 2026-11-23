@@ -132,9 +132,9 @@ the place of a shorter one it contains when it occurs in at least 40% of
 the shorter term's works ("cancer" gives way to "testicular cancer", and
 to "metastatic testicular cancer" only if that also occurs in 40% of the
 works with "cancer"), and a term contained in one already chosen is
-skipped. When a term overlaps one already chosen, as "heat illness"
-overlaps "exertional heat", the phrase they form ("exertional heat
-illness") counts as a longer term that contains both, also beyond the
+skipped. When a term overlaps one already chosen, as "kidney disease"
+overlaps "chronic kidney", the phrase they form ("chronic kidney
+disease") counts as a longer term that contains both, also beyond the
 lengths in `ngram`, if it occurs in enough of the cluster's works to be
 a term of the label; so one phrase does not fill two places of a label.
 
@@ -222,12 +222,12 @@ unique(fix$works[, c("field", "cluster_label", "cluster_label_basis")])
 #>   field                                       cluster_label  cluster_label_basis
 #>   <chr>                                       <chr>          <chr>              
 #> 1 Microbiology                                transmission;… keywords           
-#> 2 Medicine, General & Internal                injury; hemor… keywords           
-#> 3 Public, Environmental & Occupational Health zoonotic surv… keywords           
-#> 4 Infectious Diseases                         antibodies; o… keywords           
+#> 2 Medicine, General & Internal                disability; a… keywords           
+#> 3 Public, Environmental & Occupational Health care homes; n… keywords           
+#> 4 Infectious Diseases                         viral gastroe… keywords           
 #> 5 Toxicology                                  workforce; ed… keywords           
-#> 6 Physiology                                  rowers; exert… keywords           
-#> 7 Surgery                                     hemorrhage co… keywords           
-#> 8 Emergency Medicine                          damage contro… keywords           
+#> 6 Physiology                                  chronotype; n… keywords           
+#> 7 Clinical Neurology                          acute stroke … keywords           
+#> 8 Emergency Medicine                          mechanical th… keywords           
 # }
 ```

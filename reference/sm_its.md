@@ -263,7 +263,7 @@ fix <- sm_affiliation_match(fix, dict)
 #> ℹ By signal: name_token: 427. See `sm_affiliation_summary()` for the full
 #>   breakdown.
 lead <- sm_its(fix, intervention_year = 2021, outcome = "leadership",
-               institutions = "Public Services Hospital Northtown")
+               institutions = "Northtown General Hospital")
 lead$series
 #> # A tibble: 11 × 4
 #>     year observed fitted counterfactual

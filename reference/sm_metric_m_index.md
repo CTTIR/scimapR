@@ -43,6 +43,13 @@ A tibble with columns for the entity ID/name, `h_index`, `first_year`,
 defines career length. If all years for an entity are missing, these
 last three columns are `NA`; its h-index is still reported.
 
+## References
+
+Hirsch, J. E. (2005). An index to quantify an individual's scientific
+research output. *Proceedings of the National Academy of Sciences*,
+102(46), 16569–16572.
+[doi:10.1073/pnas.0507655102](https://doi.org/10.1073/pnas.0507655102)
+
 ## See also
 
 [`sm_self_citation()`](https://cttir.github.io/scimapR/reference/sm_self_citation.md)

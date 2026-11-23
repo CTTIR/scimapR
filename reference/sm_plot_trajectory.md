@@ -1,6 +1,6 @@
 # Plot author trajectory
 
-Multi-panel visualization of an author's career trajectory.
+Multi-panel visualisation of an author's career trajectory.
 
 ## Usage
 

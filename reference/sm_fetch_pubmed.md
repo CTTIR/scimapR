@@ -90,14 +90,14 @@ if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
   print(corpus)
 }
 #> ℹ Searching PubMed for: "bibliometrics[tiab]"
-#> ℹ Found 6331 results; fetching 5 records.
+#> ℹ Found 6340 results; fetching 5 records.
 #> ℹ Fetched 5 / 5 PubMed records.
 #> ✔ Parsed 5 PubMed records into sm_corpus.
 #> 
 #> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
-#> Works: 5 | Authors: 31 | Institutions: 0
+#> Works: 5 | Authors: 30 | Institutions: 0
 #> Years: 2026 - 2026
-#> Sources (journals): 4
+#> Sources (journals): 5
 #> Embeddings: none
 #> Provenance: pubmed (5)
 #> Status: Unlocked (last refreshed: never)

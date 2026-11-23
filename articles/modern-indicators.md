@@ -71,8 +71,13 @@ head(cd)
 
 ## Relative Citation Ratio
 
-The RCR (Hutchins et al., 2016) normalises citations relative to the
-co-citation network.
+[`sm_metric_rcr()`](https://cttir.github.io/scimapR/reference/sm_metric_rcr.md)
+is a simplified, corpus-internal analogue of the RCR (Hutchins et al.,
+2016): it divides each work’s citations by the mean citation count of
+the corpus works of the same top-level field and year. Unlike the NIH
+iCite RCR it does not derive the field from the co-citation network and
+is not benchmarked against NIH-funded papers, so its values are not
+comparable with iCite RCRs.
 
 ``` r
 
@@ -89,7 +94,7 @@ head(rcr)
 #> 6 W000000006             16          16   1
 ```
 
-## Field-Normalized Citation Impact
+## Field-Normalised Citation Impact
 
 FNCI (Waltman et al., 2011) normalises by field and year.
 
@@ -114,8 +119,11 @@ head(fnci)
 
 ## Uzzi novelty
 
-Measures atypical journal combinations in reference lists (Uzzi et al.,
-2013).
+Measures atypical journal combinations in reference lists, after Uzzi et
+al. (2013). The expected frequency of a journal pair comes from the
+journals’ marginal frequencies in the corpus rather than from the
+randomised citation networks of the original, so the scores are a
+simplified analogue and not comparable with published Uzzi z-scores.
 
 ``` r
 
@@ -197,9 +205,13 @@ merge(
 
 - Funk, R. J. & Owen-Smith, J. (2017). A Dynamic Network Measure of
   Technological Change. *Management Science*, 63(3), 791–817.
+  <https://doi.org/10.1287/mnsc.2015.2366>
 - Hutchins, B. I. et al. (2016). Relative Citation Ratio (RCR). *PLOS
   Biology*, 14(9), e1002541.
-- Waltman, L. et al. (2011). Towards a new crown indicator.
-  *Scientometrics*, 87(3), 467–481.
+  <https://doi.org/10.1371/journal.pbio.1002541>
+- Waltman, L. et al. (2011). Towards a new crown indicator: Some
+  theoretical considerations. *Journal of Informetrics*, 5(1), 37–47.
+  <https://doi.org/10.1016/j.joi.2010.08.001>
 - Uzzi, B. et al. (2013). Atypical Combinations and Scientific Impact.
   *Science*, 342(6157), 468–472.
+  <https://doi.org/10.1126/science.1240474>

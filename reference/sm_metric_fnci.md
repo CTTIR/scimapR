@@ -1,6 +1,6 @@
-# Calculate Field-Normalized Citation Impact
+# Calculate Field-Normalised Citation Impact
 
-Computes the Field-Normalized Citation Impact (FNCI) for each work in
+Computes the Field-Normalised Citation Impact (FNCI) for each work in
 the corpus. FNCI normalises a work's citation count by the average
 citation count of all works in the same field and publication year.
 

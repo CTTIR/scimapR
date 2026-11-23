@@ -78,7 +78,7 @@ Other reproducibility:
 ``` r
 corpus <- sm_example_corpus()
 sm_hash_corpus(corpus)
-#> [1] "61c0637eede72e86bf489cf7d8a27949789b82485ea6646cc707da9ec1945bb6"
+#> [1] "66fe240fbf4fa525af5380ba6c32d6a5004c9655796da1d8ee070062d7462705"
 
 # the order of the columns does not matter
 reordered <- corpus

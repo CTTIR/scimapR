@@ -40,6 +40,12 @@ sm_metric_g_index(
 
 A tibble with columns for the entity ID/name and `g_index`.
 
+## References
+
+Egghe, L. (2006). Theory and practise of the g-index. *Scientometrics*,
+69(1), 131–152.
+[doi:10.1007/s11192-006-0144-7](https://doi.org/10.1007/s11192-006-0144-7)
+
 ## See also
 
 [`sm_self_citation()`](https://cttir.github.io/scimapR/reference/sm_self_citation.md)

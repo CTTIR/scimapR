@@ -63,6 +63,13 @@ When `network = NULL`, embeddings must be present in the corpus so that
 [`sm_network_semantic()`](https://cttir.github.io/scimapR/reference/sm_network_semantic.md)
 can build a k-NN graph.
 
+## References
+
+Traag, V. A., Waltman, L., & van Eck, N. J. (2019). From Louvain to
+Leiden: guaranteeing well-connected communities. *Scientific Reports*,
+9, 5233.
+[doi:10.1038/s41598-019-41695-z](https://doi.org/10.1038/s41598-019-41695-z)
+
 ## See also
 
 Other clustering:

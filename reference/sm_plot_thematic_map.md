@@ -1,7 +1,7 @@
 # Plot thematic map (Callon centrality-density)
 
 Strategic diagram plotting clusters by centrality (external links) and
-density (internal links), following Callon et al.
+density (internal links), following Callon et al. (1991).
 
 ## Usage
 
@@ -30,6 +30,26 @@ sm_plot_thematic_map(corpus, by = "cluster_id", dark = FALSE, ...)
 ## Value
 
 A `ggplot` object.
+
+## Details
+
+The axes are simple, corpus-internal proxies for Callon's measures, not
+the equivalence-index sums of Callon et al. (1991). With a concepts
+table, a cluster's centrality is the share of its distinct concepts that
+also occur in other clusters, and its density is the number of distinct
+concepts per work of the cluster. Without concepts, centrality is the
+cluster's mean citation count divided by the highest mean citation count
+of any cluster, and density its number of works divided by the size of
+the largest cluster. The dashed lines mark the medians. When every
+concept occurs in several clusters, all clusters get centrality 1.
+
+## References
+
+Callon, M., Courtial, J. P., & Laville, F. (1991). Co-word analysis as a
+tool for describing the network of interactions between basic and
+technological research: The case of polymer chemistry. *Scientometrics*,
+22(1), 155–205.
+[doi:10.1007/BF02019280](https://doi.org/10.1007/BF02019280)
 
 ## See also
 

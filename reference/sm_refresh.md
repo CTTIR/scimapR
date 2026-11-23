@@ -61,7 +61,7 @@ sm_refresh(
 
 - api_key:
 
-  OpenAlex API key, sent only in the authorization header.
+  OpenAlex API key, sent only in the `Authorization` header.
 
 - mailto:
 

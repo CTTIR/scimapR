@@ -134,6 +134,7 @@ works have no `fwci` value.
 Waltman, L., & Schreiber, M. (2013). On the calculation of
 percentile-based bibliometric indicators. Journal of the American
 Society for Information Science and Technology, 64(2), 372–379.
+[doi:10.1002/asi.22775](https://doi.org/10.1002/asi.22775)
 
 ## See also
 

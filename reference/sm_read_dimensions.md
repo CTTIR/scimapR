@@ -104,9 +104,9 @@ head(corpus$works)
 #> # A tibble: 3 × 16
 #>   work_id    doi   title abstract  year type  source_id cited_by_count oa_status
 #>   <chr>      <chr> <chr> <chr>    <int> <chr> <chr>              <int> <chr>    
-#> 1 W000000001 10.1… Spat… Spatial…  2023 Arti… S0000000…             42 NA       
-#> 2 W000000002 10.1… Mach… We deve…  2022 Arti… S0000000…             18 NA       
-#> 3 W000000003 10.1… Comp… This st…  2024 Revi… S0000000…              7 NA       
+#> 1 W000000001 10.9… Spat… Spatial…  2023 Arti… S0000000…             42 NA       
+#> 2 W000000002 10.9… Mach… We deve…  2022 Arti… S0000000…             18 NA       
+#> 3 W000000003 10.9… Comp… This st…  2024 Revi… S0000000…              7 NA       
 #> # ℹ 7 more variables: language <chr>, pmid <chr>, arxiv_id <chr>,
 #> #   openalex_id <chr>, is_retracted <lgl>, retraction_date <date>,
 #> #   last_refreshed <dttm>

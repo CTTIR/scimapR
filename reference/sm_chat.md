@@ -4,8 +4,14 @@ Ask a question of a corpus using retrieval-augmented generation (RAG).
 The function retrieves the most relevant works from the corpus using
 embeddings, TF-IDF, or a hybrid method, then sends them as context to a
 chat provider along with the user's question. The response includes
-inline citations keyed to work IDs. No hallucinated references are
-possible because citations are constrained to retrieved works.
+inline citations keyed to work IDs. Citations are checked against the
+retrieved works: a cited ID that was not sent as context is not
+reported, so every reported citation is a real work of the corpus. Work
+IDs of any form are recognised (for example OpenAlex `W123` or Web of
+Science `WOS:000123`), also IDs that contain commas or semicolons; a
+token may list several IDs separated by commas or semicolons
+(`[cite:W1; W2]`). Only text in a `[cite:...]` token counts as a
+citation, and an ID cannot contain `]`.
 
 ## Usage
 
@@ -124,11 +130,16 @@ Other chat:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: needs the 'ellmer' package and credentials for a chat provider.
-corpus <- sm_example_corpus()
-response <- sm_chat(corpus, "What methods dominate?",
-                    provider = ellmer::chat_openai())
-response
-} # }
+# \donttest{
+# Sends retrieved titles and abstracts to a chat provider; runs only with
+# the 'ellmer' package and an OpenAI API key in OPENAI_API_KEY.
+if (requireNamespace("ellmer", quietly = TRUE) &&
+    nzchar(Sys.getenv("OPENAI_API_KEY")) &&
+    requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- sm_example_corpus()
+  response <- try(sm_chat(corpus, "What methods dominate?",
+                          provider = ellmer::chat_openai()))
+  response
+}
+# }
 ```

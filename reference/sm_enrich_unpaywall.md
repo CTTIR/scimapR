@@ -39,7 +39,12 @@ sm_enrich_unpaywall(
 ## Value
 
 An `sm_corpus` object with updated `oa_status` and `oa_url` columns in
-the `works` table, plus new provenance rows.
+the `works` table, plus provenance rows for the works Unpaywall answered
+for ("not found" included). Works that Unpaywall does not know (HTTP
+404) keep their previous `oa_status` and `oa_url`. So do works whose
+lookup failed for another reason (rejected address, rate limit, server
+or network error); they are reported in a warning of class
+`scimapR_unpaywall_unchecked` with their `work_ids`.
 
 ## See also
 
@@ -56,12 +61,17 @@ Other enrichers:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-# Not run: the Unpaywall API needs a contact e-mail address (`mailto`).
-corpus <- sm_corpus(works = tibble::tibble(
-  work_id = "W1",
-  doi = "10.1371/journal.pbio.1002541"
-))
-corpus <- sm_enrich_unpaywall(corpus, mailto = "name@example.org")
-} # }
+# \donttest{
+# Queries the Unpaywall web API; runs only when a contact e-mail address
+# is set in the SCIMAPR_MAILTO environment variable.
+if (nzchar(Sys.getenv("SCIMAPR_MAILTO")) &&
+    requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
+  corpus <- sm_corpus(works = tibble::tibble(
+    work_id = "W1",
+    doi = "10.1371/journal.pbio.1002541"
+  ))
+  enriched <- try(sm_enrich_unpaywall(corpus))
+  if (is_sm_corpus(enriched)) enriched$works[, c("oa_status", "oa_url")]
+}
+# }
 ```

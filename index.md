@@ -37,8 +37,9 @@ visualisations.
   humility
   ([`sm_audit_geographic()`](https://cttir.github.io/scimapR/reference/sm_audit_geographic.md),
   [`sm_audit_gender()`](https://cttir.github.io/scimapR/reference/sm_audit_gender.md)).
-- **LLM-grounded corpus chat.** Ask questions about your corpus with
-  every claim anchored to actual works – no hallucinated references
+- **LLM-grounded corpus chat.** Ask questions about your corpus; the
+  answer cites works by their IDs, and every reported citation is
+  checked against the works sent as context
   ([`sm_chat()`](https://cttir.github.io/scimapR/reference/sm_chat.md)).
 
 ## Relationship to bibliometrix
@@ -182,7 +183,7 @@ citation("scimapR")
 For a complete citation block including each data source used in your
 corpus, run `sm_cite_corpus(your_corpus)`.
 
-## License
+## Licence
 
 MIT
 
@@ -216,12 +217,3 @@ Local software setup: vLLM with Python/PyTorch, plus R and RStudio.
 
 Editable R artwork and regeneration instructions are in
 [tools/branding](https://github.com/CTTIR/scimapR/blob/main/tools/branding/README.md).
-
-## Development checkpoint
-
-The unfinished A11 documentation integration is preserved here for
-continuation on another machine. This checkpoint is not a qualified
-release or a completed M5 milestone. Documentation regeneration,
-end-to-end validation, application smoke checks and the remaining A12
-release checks are still pending. No full qualification run was
-completed for this checkpoint.

@@ -1,6 +1,6 @@
 # Plot equity dashboard
 
-Four-panel visualization: geographic distribution, gender mix, funding
+Four-panel visualisation: geographic distribution, gender mix, funding
 sources, and OA evolution. Uses viridis throughout.
 
 ## Usage

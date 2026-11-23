@@ -50,6 +50,17 @@ The algorithm:
 
 Works with fewer than 2 references with known journals receive `NA`.
 
+This is a simplified, analytic analogue of the measure of Uzzi et al.
+(2013). They compare each journal pair with a null model built by
+randomly switching citation links between papers (keeping each paper's
+numbers of references and citations), turn the comparison into a
+z-score, and summarise a paper by the 10th percentile (novelty) and the
+median (conventionality) of its pairs' z-scores. Here the expected
+frequency comes from independence of the journals' marginal frequencies
+within the corpus, and a work's score is the median of its pairs'
+scores. The values are therefore not comparable with published Uzzi
+z-scores.
+
 ## References
 
 Uzzi, B., Mukherjee, S., Stringer, M., & Jones, B. (2013). Atypical

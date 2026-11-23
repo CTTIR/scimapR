@@ -23,9 +23,9 @@ A character string path, or a character vector of available files.
 ## Real-use fixture
 
 Three files form a synthetic fixture shaped like a corpus that was built
-from a Web of Science export of three public-service units and their
-academic partners. Everything in it is invented: units, cities, people,
-journals, titles and DOIs (`10.9999/...`). The script
+from a Web of Science export of three regional research institutions and
+their academic partners. Everything in it is invented: institutions,
+cities, people, journals, titles and DOIs (`10.9999/...`). The script
 `data-raw/realuse-fixture.R` in the package sources rebuilds the files.
 
 - `example_realuse_corpus.rds`:
@@ -51,9 +51,9 @@ journals, titles and DOIs (`10.9999/...`). The script
 - `example_realuse_reference.csv`:
 
   A reference list in the style of a publication tracker, with columns
-  `id`, `doi`, `title`, `year`, `institution` (the reporting unit) and
-  `category` (a publication class code). It holds 120 of the corpus
-  works and 40 items that are not in the corpus.
+  `id`, `doi`, `title`, `year`, `institution` (the reporting
+  institution) and `category` (a publication class code). It holds 120
+  of the corpus works and 40 items that are not in the corpus.
 
 - `example_realuse_affiliation_dict.csv`:
 
@@ -110,14 +110,14 @@ matched <- sm_affiliation_match(fix, dict)
 #>   breakdown.
 table(matched$authorships$institution_match, useNA = "ifany")
 #> 
-#> Federal Public Services Institute of Microbiology 
-#>                                                85 
-#>                Public Services Hospital Northtown 
-#>                                               176 
-#>       Sonstige Dienststellen der Gesundheitsämter 
-#>                                                56 
-#>  Zentrales Institut des Veterinärwesens Nordstadt 
-#>                                               110 
-#>                                              <NA> 
-#>                                               365 
+#>                   Northtown General Hospital 
+#>                                          176 
+#> Regional Institute of Microbiology Southcity 
+#>                                           85 
+#>  Sonstige Einrichtungen der Gesundheitsämter 
+#>                                           56 
+#>         Veterinary Research Centre Nordstadt 
+#>                                          110 
+#>                                         <NA> 
+#>                                          365 
 ```

@@ -50,6 +50,13 @@ calls): citations counted against a work are reduced by those coming
 from works that share the entity. Because the network is internal to the
 corpus, this is a lower-bound correction on the global `cited_by_count`.
 
+## References
+
+Hirsch, J. E. (2005). An index to quantify an individual's scientific
+research output. *Proceedings of the National Academy of Sciences*,
+102(46), 16569–16572.
+[doi:10.1073/pnas.0507655102](https://doi.org/10.1073/pnas.0507655102)
+
 ## See also
 
 [`sm_self_citation()`](https://cttir.github.io/scimapR/reference/sm_self_citation.md)

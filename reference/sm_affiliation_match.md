@@ -178,16 +178,16 @@ matched <- sm_affiliation_match(corpus)
 matched$authorships$institution_match[1]
 #> [1] "Diakonie Hospital"
 
-# In Unicode mode \w consumes the umlaut of a German unit name
+# In Unicode mode \w consumes the umlaut of a German institution name
 corpus$authorships$raw_affiliation[2] <-
-  "Zentrales Institut des Veterin\u00e4rwesens Nordstadt"
-dict <- list("Central Medical Institute" = "veterin\\w+rwesens")
+  "Veterin\u00e4rmedizinisches Forschungszentrum Nordstadt"
+dict <- list("Veterinary Research Centre" = "veterin\\w+rmed")
 matched <- sm_affiliation_match(corpus, patterns = dict)
 #> ✔ Affiliation matching flagged 1 authorship across 1 institution.
 #> ℹ By signal: name_token: 1. See `sm_affiliation_summary()` for the full
 #>   breakdown.
 matched$authorships$institution_match[2]
-#> [1] "Central Medical Institute"
+#> [1] "Veterinary Research Centre"
 ascii <- sm_affiliation_match(corpus, patterns = dict, unicode = FALSE)
 ascii$authorships$institution_match[2]
 #> [1] NA

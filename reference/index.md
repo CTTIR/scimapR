@@ -190,7 +190,7 @@
 - [`sm_metric_disruption()`](https://cttir.github.io/scimapR/reference/sm_metric_disruption.md)
   : Calculate the CD (disruption) index
 - [`sm_metric_fnci()`](https://cttir.github.io/scimapR/reference/sm_metric_fnci.md)
-  : Calculate Field-Normalized Citation Impact
+  : Calculate Field-Normalised Citation Impact
 - [`sm_metric_g_index()`](https://cttir.github.io/scimapR/reference/sm_metric_g_index.md)
   : Calculate g-index
 - [`sm_metric_h_index()`](https://cttir.github.io/scimapR/reference/sm_metric_h_index.md)
@@ -355,7 +355,7 @@
   [`print(`*`<sm_corpus_diff>`*`)`](https://cttir.github.io/scimapR/reference/sm_diff_corpora.md)
   **\[superseded\]** : Compare two corpora
 
-## Visualization
+## Visualisation
 
 - [`sm_theme()`](https://cttir.github.io/scimapR/reference/sm_theme.md)
   : scimapR plot theme

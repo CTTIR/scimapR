@@ -1,6 +1,6 @@
 # Save and load corpus snapshots
 
-`sm_snapshot()` serializes an `sm_corpus` to disk as a compressed RDS
+`sm_snapshot()` serialises an `sm_corpus` to disk as a compressed RDS
 file, embedding the corpus hash as part of the filename for
 traceability.
 
@@ -69,11 +69,11 @@ Other reproducibility:
 corpus <- sm_example_corpus()
 path <- tempfile(fileext = ".rds")
 sm_snapshot(corpus, path = path)
-#> ✔ Corpus snapshot saved to /tmp/RtmpicujyO/file1c542b920891.rds.
-#> ℹ Size: 122K | Hash: 61c0637eede7
+#> ✔ Corpus snapshot saved to /tmp/RtmpjcS5qI/file1bee1c8c1b56.rds.
+#> ℹ Size: 120K | Hash: 66fe240fbf4f
 
 loaded <- sm_snapshot_load(path)
-#> ✔ Loaded corpus from /tmp/RtmpicujyO/file1c542b920891.rds.
+#> ✔ Loaded corpus from /tmp/RtmpjcS5qI/file1bee1c8c1b56.rds.
 #> ℹ 200 works, 80 authors.
 identical(nrow(corpus$works), nrow(loaded$works))
 #> [1] TRUE

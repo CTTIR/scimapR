@@ -218,16 +218,16 @@ tracker <- tempfile(fileext = ".csv")
 writeLines(c("doi,unit", "10.9999/example.1,Unit A"), tracker)
 corpus <- sm_register_input(corpus, tracker, role = "publication tracker")
 cert <- sm_certificate(corpus)
-#> ✔ Certificate created. Corpus hash: 61c0637eede7
+#> ✔ Certificate created. Corpus hash: 66fe240fbf4f
 print(cert)
 #> 
 #> ── <sm_certificate> ────────────────────────────────────────────────────────────
 #> Version: 1.0
-#> Created: 2026-11-22 06:02:34 UTC
+#> Created: 2026-11-23 11:43:21 UTC
 #> scimapR: v0.5.0
 #> R: 4.6.2 (unix)
 #> 
-#> Corpus hash: 61c0637eede72e86
+#> Corpus hash: 66fe240fbf4fa525
 #> Works: 200
 #> Authors: 80
 #> References: 1869
@@ -240,12 +240,12 @@ print(verification)
 #> ── <sm_cert_verification> ──────────────────────────────────────────────────────
 #> Result: PASS
 #> 
-#> ✔ corpus_hash: expected 61c0637eede72e86, got 61c0637eede72e86
+#> ✔ corpus_hash: expected 66fe240fbf4fa525, got 66fe240fbf4fa525
 #> ✔ n_works: expected 200, got 200
 #> ✔ n_authors: expected 80, got 80
 #> ✔ n_institutions: expected 0, got 0
 #> ✔ n_references: expected 1869, got 1869
-#> ✔ input:file1c545ea8ab1b.csv: expected 721a6632cca2e6ea, got 721a6632cca2e6ea
+#> ✔ input:file1bee7695b153.csv: expected 721a6632cca2e6ea, got 721a6632cca2e6ea
 
 # a changed input file fails its check
 cat("10.9999/example.2,Unit B\n", file = tracker, append = TRUE)

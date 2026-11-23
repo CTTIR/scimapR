@@ -2,6 +2,159 @@
 
 ## scimapR 0.5.0
 
+- The synthetic real-use fixture (`example_realuse_corpus.rds`,
+  `example_realuse_reference.csv`,
+  `example_realuse_affiliation_dict.csv`) now models three invented
+  research institutions (a general hospital, a regional institute of
+  microbiology and a veterinary research centre) and the themes
+  norovirus, acute stroke care and night shift work. Its structure,
+  sizes, years, authors and citation counts are unchanged; the
+  institution names, address strings, dictionary patterns, titles,
+  abstracts, keywords and two journals (with their DOIs) are new. An
+  alias of the synthetic `example_ror.csv` table and the phrase-merging
+  example of
+  [`?sm_cluster_label`](https://cttir.github.io/scimapR/reference/sm_cluster_label.md)
+  use neutral names as well.
+
+- The app’s Chat tab no longer asks for a `SCIMAPR_LLM_API_KEY` setting
+  that nothing reads; it says that chat is available through
+  [`sm_chat()`](https://cttir.github.io/scimapR/reference/sm_chat.md)
+  in R. The app’s plots render at 96 dpi so their labels are readable,
+  and
+  [`?sm_run_app`](https://cttir.github.io/scimapR/reference/sm_run_app.md)
+  counts the app’s 17 tabs.
+
+- [`sm_plot_landscape()`](https://cttir.github.io/scimapR/reference/sm_plot_landscape.md)
+  names a colour legend only when it colours the points, so a corpus
+  without clusters no longer triggers ggplot2’s “Ignoring unknown
+  labels” warning.
+
+- Precomputed network plots (`precompute = TRUE`) no longer show the
+  grid lines of
+  [`sm_theme()`](https://cttir.github.io/scimapR/reference/sm_theme.md),
+  and the coverage breakdown plot of `autoplot(<sm_coverage>)` drops its
+  colour bar, which repeated the bar heights, and capitalises its axis
+  title.
+
+- [`?sm_plot_thematic_map`](https://cttir.github.io/scimapR/reference/sm_plot_thematic_map.md)
+  says how its centrality and density are computed: simple
+  corpus-internal proxies, not the equivalence-index sums of Callon et
+  al. (1991).
+
+- Year axes of
+  [`sm_plot_production()`](https://cttir.github.io/scimapR/reference/sm_plot_production.md),
+  [`sm_plot_evolution()`](https://cttir.github.io/scimapR/reference/sm_plot_evolution.md),
+  the equity dashboard, the trajectory plots and the
+  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+  methods of
+  [`sm_its()`](https://cttir.github.io/scimapR/reference/sm_its.md) and
+  [`sm_did()`](https://cttir.github.io/scimapR/reference/sm_did.md) show
+  whole years only (no ticks such as 2017.5).
+  [`sm_plot_topic_pivots()`](https://cttir.github.io/scimapR/reference/sm_plot_topic_pivots.md)
+  draws each pivot as a bar of its strength (0 to 1) instead of
+  identical points on an unlabelled axis, and
+  [`sm_plot_collab_turnover()`](https://cttir.github.io/scimapR/reference/sm_plot_collab_turnover.md)
+  names the statuses New, Kept and Lost.
+
+- The weighted edges of
+  [`sm_plot_collab()`](https://cttir.github.io/scimapR/reference/sm_plot_collab.md)
+  (and the other weighted network plots drawn with ‘ggraph’) use the
+  same thin width range as their precomputed versions; the ‘ggraph’
+  default drew bands that hid the nodes.
+
+- The invented records of the bundled example files
+  ([`sm_example_files()`](https://cttir.github.io/scimapR/reference/sm_example_files.md))
+  carry DOIs under the unassigned prefix 10.9999; one of their DOIs
+  belonged to an unrelated published paper.
+
+- [`sm_example_corpus()`](https://cttir.github.io/scimapR/reference/sm_example_corpus.md)
+  no longer gives synthetic authors ORCID iDs that can belong to real
+  researchers: an iD drawn with a valid check character gets a different
+  last digit (no other values change). The bundled `sm_example_db` had
+  one such iD and is corrected the same way, and a test fixture used a
+  real researcher’s iD.
+
+- The documentation is written in British English (`Language: en-GB`).
+
+- Removed the unused suggested packages ‘plotly’, ‘visNetwork’,
+  ‘shinyWidgets’, ‘shinycssloaders’, ‘shinyjs’, ‘shinytest2’,
+  ‘htmltools’, ‘memoise’, ‘cachem’, ‘Matrix’, ‘tidyr’ and ‘qs2’ from
+  `DESCRIPTION`; no code, test or vignette used them.
+
+- [`sm_run_app()`](https://cttir.github.io/scimapR/reference/sm_run_app.md):
+  the “Max Nodes” setting of the network tab now limits the drawn
+  network to the nodes of highest degree (it was ignored); the tab says
+  so instead of failing when ‘ggraph’ is not installed; and the app no
+  longer requires the unused packages ‘shinyWidgets’, ‘shinyjs’ and
+  ‘htmltools’.
+
+- The help pages and the “Modern indicators” vignette say that
+  [`sm_metric_rcr()`](https://cttir.github.io/scimapR/reference/sm_metric_rcr.md)
+  and
+  [`sm_metric_novelty()`](https://cttir.github.io/scimapR/reference/sm_metric_novelty.md)
+  are simplified, corpus-internal analogues of the Relative Citation
+  Ratio (Hutchins et al., 2016) and of the Uzzi et al. (2013) novelty
+  score, and how they differ from the originals; the vignette no longer
+  says that the RCR here uses the co-citation network. The h-, g- and
+  m-index, Leiden clustering and the thematic map cite their method
+  papers with DOIs.
+
+- `sm_plot_top(metric = "citations")` ranks by the summed citation
+  counts of each entity’s works; the argument used to be ignored, so the
+  plot showed work counts under a “Citations” axis label. Entities
+  without a display name are now left out before the top `n` are taken,
+  so the plot shows `n` bars when there are `n` named entities.
+
+- The examples of
+  [`sm_fetch_overton()`](https://cttir.github.io/scimapR/reference/sm_fetch_overton.md)
+  and
+  [`sm_chat()`](https://cttir.github.io/scimapR/reference/sm_chat.md)
+  run under `\donttest{}` when `OVERTON_API_KEY` (or the ‘ellmer’
+  package and `OPENAI_API_KEY`) is set and the machine is online,
+  instead of never running; only the two examples that need Python with
+  an embedding model stay in `\dontrun{}`.
+
+- [`sm_chat()`](https://cttir.github.io/scimapR/reference/sm_chat.md)
+  recognises citations of work IDs of any form, such as the Web of
+  Science accession numbers (`WOS:...`) of corpora built with
+  [`sm_corpus_from_tables()`](https://cttir.github.io/scimapR/reference/sm_corpus_from_tables.md);
+  it used to recognise only OpenAlex-style IDs (`W` and digits) and
+  returned no citations for other corpora. A token that lists several
+  IDs (`[cite:W1; W2]`) counts each of them, while an ID that itself
+  contains a comma or semicolon stays whole;
+  [`sm_chat_render()`](https://cttir.github.io/scimapR/reference/sm_chat_render.md)
+  links every work of such a token; and the prompt asks for the IDs
+  exactly as given in the context.
+
+- [`sm_enrich_unpaywall()`](https://cttir.github.io/scimapR/reference/sm_enrich_unpaywall.md)
+  no longer fails silently: lookups that fail for a reason other than
+  “not found” raise a warning of class `scimapR_unpaywall_unchecked`
+  listing the affected `work_ids`, those works and works whose DOI
+  Unpaywall does not know keep their earlier `oa_status` and `oa_url`
+  (before, a failed lookup erased an earlier `oa_url`), and only works
+  Unpaywall answered for get provenance rows. Its example runs under
+  `\donttest{}` when `SCIMAPR_MAILTO` is set and the machine is online.
+
+- With `verbose = FALSE`, the fetchers (`sm_fetch_*()`) and the
+  enrichers (`sm_enrich_*()`) no longer print their closing “Parsed …”
+  or “Enriched …” message; only warnings remain.
+
+- [`sm_enrich_altmetric()`](https://cttir.github.io/scimapR/reference/sm_enrich_altmetric.md)
+  stops after Altmetric refuses a request as unauthorised (HTTP 401 or
+  403), instead of sending one failing request per DOI at one request a
+  second; the remaining works are reported in the
+  `scimapR_altmetric_unchecked` warning. Its example runs under
+  `\donttest{}` when `ALTMETRIC_API_KEY` is set and the machine is
+  online.
+
+- [`sm_enrich_altmetric()`](https://cttir.github.io/scimapR/reference/sm_enrich_altmetric.md),
+  [`sm_enrich_unpaywall()`](https://cttir.github.io/scimapR/reference/sm_enrich_unpaywall.md)
+  and
+  [`sm_enrich_opencitations()`](https://cttir.github.io/scimapR/reference/sm_enrich_opencitations.md)
+  percent-encode the DOI in the request path, so DOIs with `#`, `?`,
+  `%`, `<` or `>` are looked up as written instead of being cut at a
+  fragment or query marker.
+
 - Empty synthetic corpora now retain typed authorship columns and zero
   work identifiers, avoiding trajectory warnings and allowing empty
   embeddings. Tests explicitly require intended shared-work causal
@@ -55,7 +208,7 @@
   clustering. Its Euclidean distance and automatic thread defaults are
   unchanged; unrelated dependency errors still propagate.
 
-- Standardize the named v5 package logo across README, documentation
+- Standardise the named v5 package logo across README, documentation
   pages and available application headers, with matching light and dark
   artwork.
 
@@ -1245,7 +1398,7 @@
 
 ## scimapR 0.4.0
 
-Stability contracts, an enrichment materializer, and
+Stability contracts, an enrichment materialiser, and
 self-citation-corrected metrics, plus a verify-and-harden pass on three
 v0.3.0 fixes that recurred in heavy use. All new behaviour is opt-in; no
 breaking changes.
@@ -1297,7 +1450,7 @@ test reproducing the recurrence.
   unless a cap is requested. A ~2,000-node graph builds with
   `precompute = TRUE` and re-prints without recomputing layout.
 
-### Enrichment materializer (D1)
+### Enrichment materialiser (D1)
 
 - `sm_materialise(corpus, sources, .by = NULL, overwrite = FALSE)` joins
   cached enrichment (named list of tibbles / RDS / parquet paths, or a
@@ -1570,7 +1723,7 @@ Cuccurullo, 2017) with first-class round-trip interop.
   co-word, semantic)
 - Embedding and clustering (HDBSCAN, Leiden, k-means)
 - Modern indicators (h/g/m-index, CD index, RCR, FNCI, Uzzi novelty)
-- Viridis-themed publication-ready visualization
+- Viridis-themed publication-ready visualisation
 - Multi-format export (PNG 300/600 dpi, PDF, SVG, TIFF, XLSX, ZIP
   bundles)
 - Comprehensive 13-tab Shiny application

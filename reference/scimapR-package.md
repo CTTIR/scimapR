@@ -9,7 +9,7 @@ designed as a complement to the foundational 'bibliometrix' package
 'bioRxiv', 'ORCID', 'Overton', 'Unpaywall', 'Scopus', and 'Web of
 Science' exports; classical science mapping (co-citation, bibliographic
 coupling, co-authorship, co-word networks); modern citation indicators
-(CD index, Relative Citation Ratio, field-normalized scores, Uzzi
+(CD index, Relative Citation Ratio, field-normalised scores, Uzzi
 novelty); embedding-based research cluster discovery; structured
 research-question objects with optional LLM-grounded screening; author
 trajectory analysis; equity and representation auditing with explicit
@@ -18,7 +18,7 @@ certificates enabling exact re-derivation of a corpus;
 retrieval-grounded conversational corpus exploration; and a
 comprehensive 'shiny' application with publication-ready figure and
 table export. Output is fully 'tidyverse'-compatible with 'tibble'-based
-corpora, 'viridis'-themed 'ggplot2' visualizations, and 'tidygraph'
+corpora, 'viridis'-themed 'ggplot2' visualisations, and 'tidygraph'
 network objects.
 
 ## See also
@@ -34,9 +34,9 @@ Useful links:
 ## Author
 
 **Maintainer**: R. Heller <raban.heller@uni-ulm.de>
-([ORCID](https://orcid.org/0000-0001-8006-9742))
+([ORCID](https://orcid.org/0000-0001-8006-9742)) \[copyright holder\]
 
 Authors:
 
 - R. Heller <raban.heller@uni-ulm.de>
-  ([ORCID](https://orcid.org/0000-0001-8006-9742))
+  ([ORCID](https://orcid.org/0000-0001-8006-9742)) \[copyright holder\]

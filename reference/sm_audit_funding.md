@@ -37,7 +37,7 @@ print(x, ...)
 
 - api_key:
 
-  OpenAlex API key, sent in the authorization header.
+  OpenAlex API key, sent in the `Authorization` header.
 
 - mailto:
 

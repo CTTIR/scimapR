@@ -61,9 +61,9 @@ and backslash followed by a grave accent) decode to precomposed letters
 where available, else the bare letter. Letter commands `\ss`, `\o`,
 `\O`, `\aa`, `\AA`, `\ae`, `\AE`, `\oe`, `\OE`, `\l`, `\L` and `\i` also
 decode, as do `\&`, `\%`, `\$`, `\#` and `\_`. DOI cleaning only removes
-braces and decodes those five escapes. Ties (`~`), `--` and math
-expressions remain as written. Whitespace outside math is collapsed and
-trimmed.
+braces and decodes those five escapes. Ties (`~`), `--` and mathematics
+(`$...$`) remain as written. Whitespace outside mathematics is collapsed
+and trimmed.
 
 Only a lowercase `and` outside braces separates authors; a comma outside
 braces flips a name from surname-first to given-name-first. Braced
@@ -111,9 +111,9 @@ head(corpus$works)
 #> # A tibble: 3 × 16
 #>   work_id    doi   title abstract  year type  source_id cited_by_count oa_status
 #>   <chr>      <chr> <chr> <chr>    <int> <chr> <chr>              <int> <chr>    
-#> 1 W000000001 10.1… Spat… Spatial…  2023 arti… S0000000…             NA NA       
-#> 2 W000000002 10.1… Mach… We deve…  2022 inpr… S0000000…             NA NA       
-#> 3 W000000003 10.1… Atla… This co…  2024 book  NA                    NA NA       
+#> 1 W000000001 10.9… Spat… Spatial…  2023 arti… S0000000…             NA NA       
+#> 2 W000000002 10.9… Mach… We deve…  2022 inpr… S0000000…             NA NA       
+#> 3 W000000003 10.9… Atla… This co…  2024 book  NA                    NA NA       
 #> # ℹ 7 more variables: language <chr>, pmid <chr>, arxiv_id <chr>,
 #> #   openalex_id <chr>, is_retracted <lgl>, retraction_date <date>,
 #> #   last_refreshed <dttm>

@@ -32,7 +32,10 @@ sm_plot_top(
 
 - metric:
 
-  Ranking metric.
+  Ranking metric: `"count"` ranks by the number of works, `"citations"`
+  by the summed `cited_by_count` of those works (missing counts count as
+  0). Entities are grouped by their display name; a work counts once per
+  name, and entities without a name are left out.
 
 - dark:
 
@@ -69,4 +72,6 @@ Other plots:
 ``` r
 corpus <- sm_example_corpus()
 sm_plot_top(corpus, level = "authors", n = 10)
+
+sm_plot_top(corpus, level = "sources", n = 10, metric = "citations")
 ```
