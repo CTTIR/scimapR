@@ -56,15 +56,50 @@ if (requireNamespace("curl", quietly = TRUE) && curl::has_internet()) {
   print(corpus)
 }
 #> ℹ Fetching from arXiv: "all:bibliometrics"
-#> ℹ Fetched 5 / 5 arXiv entries.
-#> ✔ Parsed 5 arXiv entries into sm_corpus.
-#> 
-#> ── <sm_corpus> ─────────────────────────────────────────────────────────────────
-#> Works: 5 | Authors: 22 | Institutions: 0
-#> Years: 2009 - 2021
-#> Sources (journals): 0
-#> Embeddings: none
-#> Provenance: arxiv (5)
-#> Status: Unlocked (last refreshed: never)
+#> Error in eval(expr, envir) : arXiv API request failed.
+#> ℹ HTTP 429 Too Many Requests.
+#> [1] "Error in eval(expr, envir) : \033[1m\033[22marXiv API request failed.\n\033[36mℹ\033[39m HTTP 429 Too Many Requests.\n"
+#> attr(,"class")
+#> [1] "try-error"
+#> attr(,"condition")
+#> <error/rlang_error>
+#> Error:
+#> ! arXiv API request failed.
+#> ℹ HTTP 429 Too Many Requests.
+#> ---
+#> Backtrace:
+#>      ▆
+#>   1. └─pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
+#>   2.   └─pkgdown::build_site(...)
+#>   3.     └─pkgdown:::build_site_local(...)
+#>   4.       └─pkgdown::build_reference(...)
+#>   5.         ├─pkgdown:::unwrap_purrr_error(...)
+#>   6.         │ └─base::withCallingHandlers(...)
+#>   7.         └─purrr::map(...)
+#>   8.           └─purrr:::map_("list", .x, .f, ..., .progress = .progress)
+#>   9.             ├─purrr:::with_indexed_errors(...)
+#>  10.             │ └─base::withCallingHandlers(...)
+#>  11.             ├─purrr:::call_with_cleanup(...)
+#>  12.             └─pkgdown (local) .f(.x[[i]], ...)
+#>  13.               ├─base::withCallingHandlers(...)
+#>  14.               └─pkgdown:::data_reference_topic(...)
+#>  15.                 └─pkgdown:::run_examples(...)
+#>  16.                   └─pkgdown:::highlight_examples(code, topic, env = env)
+#>  17.                     └─downlit::evaluate_and_highlight(...)
+#>  18.                       └─evaluate::evaluate(code, child_env(env), new_device = TRUE, output_handler = output_handler)
+#>  19.                         ├─base::withRestarts(...)
+#>  20.                         │ └─base (local) withRestartList(expr, restarts)
+#>  21.                         │   ├─base (local) withOneRestart(withRestartList(expr, restarts[-nr]), restarts[[nr]])
+#>  22.                         │   │ └─base (local) doWithOneRestart(return(expr), restart)
+#>  23.                         │   └─base (local) withRestartList(expr, restarts[-nr])
+#>  24.                         │     └─base (local) withOneRestart(expr, restarts[[1L]])
+#>  25.                         │       └─base (local) doWithOneRestart(return(expr), restart)
+#>  26.                         ├─evaluate:::with_handlers(...)
+#>  27.                         │ ├─base::eval(call)
+#>  28.                         │ │ └─base::eval(call)
+#>  29.                         │ └─base::withCallingHandlers(...)
+#>  30.                         ├─base::withVisible(eval(expr, envir))
+#>  31.                         └─base::eval(expr, envir)
+#>  32.                           └─base::eval(expr, envir)
 # }
 ```
