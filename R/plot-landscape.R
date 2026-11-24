@@ -49,7 +49,7 @@ sm_plot_landscape <- function(corpus,
         cli::cli_abort("Need at least 3 works for UMAP.")
       }
       .umap_reduce(emb, n_components, n_neighbors, rlang::caller_env(),
-                   metric = "euclidean", n_threads = NULL)
+                   metric = "euclidean", n_threads = 1L)
     },
     pca = {
       pc <- stats::prcomp(emb, center = TRUE, scale. = FALSE)

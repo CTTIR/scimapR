@@ -1,5 +1,8 @@
 # scimapR 0.5.0
 
+* `sm_plot_landscape()` uses one UMAP thread, including when retrying PCA,
+  instead of automatically using a machine-dependent number of threads.
+
 * The synthetic real-use fixture (`example_realuse_corpus.rds`,
   `example_realuse_reference.csv`, `example_realuse_affiliation_dict.csv`)
   now models three invented research institutions (a general hospital, a

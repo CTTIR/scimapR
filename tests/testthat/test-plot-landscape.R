@@ -99,9 +99,10 @@ test_that("landscape UMAP preserves its metric when retrying older-R PCA", {
   expect_true(all(is.finite(plot$data$x) & is.finite(plot$data$y)))
   expect_length(calls, 2L)
   expect_identical(calls[[1L]]$metric, "euclidean")
-  expect_null(calls[[1L]]$n_threads)
+  expect_identical(calls[[1L]]$n_threads, 1L)
   expect_null(calls[[1L]]$pca_method)
   expect_identical(calls[[2L]]$metric, "euclidean")
+  expect_identical(calls[[2L]]$n_threads, 1L)
   expect_identical(calls[[2L]]$pca_method, "svd")
 })
 
