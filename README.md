@@ -20,8 +20,9 @@ total](https://cranlogs.r-pkg.org/badges/grand-total/scimapR)](https://cran.r-pr
 MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21889960.svg)](https://doi.org/10.5281/zenodo.21889960)
 <!-- badges: end -->
+
+Zenodo DOI reserved for the release: `10.5281/zenodo.21889960` (not yet published).
 
 **The reproducible, equity-aware, question-driven, AI-assisted
 bibliometric toolkit for working biomedical researchers.**
