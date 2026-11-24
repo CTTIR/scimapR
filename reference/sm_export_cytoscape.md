@@ -41,6 +41,6 @@ Other export:
 corpus <- sm_example_corpus()
 net <- sm_network_cocitation(corpus)
 sm_export_cytoscape(net, tempfile(fileext = ".json"))
-#> ✔ Network exported for Cytoscape to /tmp/RtmpUyv5h0/file1c514bc48a9f.json
+#> ✔ Network exported for Cytoscape to /tmp/RtmpFbrNij/file1b86682377fa.json
 # }
 ```

@@ -178,8 +178,12 @@ short wait; a batch that still fails is skipped, and one warning (class
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Fetching SPECTER embeddings for 2 works...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> SPECTER: 2 / 2 works processed.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Added SPECTER embeddings for 2 works.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "embedding.specter_v2"</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>1 of 1 Semantic Scholar request failed, so their works got no SPECTER vector.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Semantic Scholar request failed: HTTP 429.</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Semantic Scholar limits requests without an API key more strictly; set</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span>   `SEMANTIC_SCHOLAR_API_KEY`.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> No SPECTER embeddings retrieved.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="co"># Not run: sm_embed_works() needs Python with 'sentence-transformers'.</span></span></span>

@@ -1,5 +1,8 @@
 # scimapR ![scimapR hex logo](reference/figures/logo-with-name.png)
 
+Zenodo DOI reserved for the release: `10.5281/zenodo.21889960` (not yet
+published).
+
 **The reproducible, equity-aware, question-driven, AI-assisted
 bibliometric toolkit for working biomedical researchers.**
 
